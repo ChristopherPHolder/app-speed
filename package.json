@@ -1,5 +1,7 @@
 {
   "dependencies": {
-    "@push-based/user-flow": "^0.8.0"
+    "@push-based/user-flow": "^0.8.0",
+    "aws-sdk": "^2.1218.0",
+    "dotenv": "^16.0.2"
   }
 }
