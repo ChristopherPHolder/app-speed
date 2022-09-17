@@ -11,11 +11,14 @@ const { execSync } = require('node:child_process');
   }
 
   const envComand = process.argv[3];
-  if (envComand !== 'prod') {
-    console.log('Local test completed')
+  if (!envComand) {
+    console.log('Conductor has stoped script, you probably dont want him to try to turn of your computer ;)');
     return;
+  } else if (envComand === 'dev') {
+    console.log('Finished running, will not stop instanse but will no longer to anything. (its not cause im lazy ,:| ')
   }
 
-  // This turns the instance off !
-  execSync("shutdown -h now")
+  // This stops the instance (turns it off)!
+  console.log("Okey, no more work. I'm going to sleep not 8*)")
+  execSync("sudo shutdown -h now")
 })();
