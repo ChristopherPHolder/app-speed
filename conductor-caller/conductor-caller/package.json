@@ -8,6 +8,7 @@
   "license": "MIT",
   "dependencies": {
     "@aws-sdk/client-ec2": "^3.177.0",
+    "@aws-sdk/client-sqs": "^3.186.0",
     "@aws-sdk/client-ssm": "^3.171.0"
   },
   "scripts": {

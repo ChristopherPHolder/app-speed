@@ -1,11 +1,29 @@
-import { DescribeInstanceStatusCommand, EC2Client, StartInstancesCommand, waitUntilInstanceRunning } from '@aws-sdk/client-ec2';
-import { SSMClient, SendCommandCommand } from "@aws-sdk/client-ssm";
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import {
+    EC2Client, 
+    DescribeInstanceStatusCommand,
+    DescribeInstanceStatusCommandOutput,
+    StartInstancesCommand,
+    waitUntilInstanceRunning
+} from '@aws-sdk/client-ec2';
+import { 
+    SSMClient, 
+    SendCommandCommand
+} from "@aws-sdk/client-ssm";
+import { 
+    SQSClient, 
+    SendMessageCommand, 
+    SendMessageCommandOutput 
+} from '@aws-sdk/client-sqs';
+import {
+    APIGatewayProxyEvent,
+    APIGatewayProxyResult
+} from 'aws-lambda';
 
 const MY_DOMAIN = 'https://deep-blue.io';
 
-
 const INSTANCE_IDS = ['i-0ac92f269c72da99e'];
+const QUEUE_URL = "https://sqs.us-east-1.amazonaws.com/495685399379/scheduled-userflows"
+const REGION = { region: "us-east-1" };
 
 const ERROR_MESSAGES: Record<string, string> = {
     '001': 'Error_001: No target was found in request',
@@ -25,55 +43,65 @@ function generateResponse(
             'Access-Control-Allow-Headers': 'x-requested-with',
             'Access-Control-Allow-Credentials': true,
         },
-        body: responseBody,
+        body: responseBody
     };
 }
 
-export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    let response: APIGatewayProxyResult;
-    let responseBody: APIGatewayProxyResult['body'];
-
+function extractTargetDetails(event: APIGatewayProxyEvent): string {
     if (!event.body || event.body === "" || event.body === null) {
-        return generateResponse(500, ERROR_MESSAGES['001']);
+        throw new Error(ERROR_MESSAGES['001']);
     }
+    return event.body;
+};
 
-    const target = event.body;
+async function addAuditToSchuledQueue(target: string): Promise<SendMessageCommandOutput> {
+    const client = new SQSClient(REGION);
+    const params = { MessageBody: target, QueueUrl: QUEUE_URL }
+    const command = new SendMessageCommand(params);
+    return await client.send(command);
+}
 
-    const client = new EC2Client({ region: "us-east-1" });
-    
+async function makeInstanceActive(): Promise<void> {
+    const client = new EC2Client(REGION);
+    const instanceStatus = await getInstanceState(client);
+    if (!instanceStatus.InstanceStatuses?.length) {
+        await activateInstance(client);
+    }
+}
+
+async function getInstanceState(client: EC2Client): Promise<DescribeInstanceStatusCommandOutput> {
     const DescCmdParams = { INSTANCE_IDS, DryRun: false }
     const descStatusCmd = new DescribeInstanceStatusCommand(DescCmdParams);
-    const descStatusRes = await client.send(descStatusCmd);
+    return await client.send(descStatusCmd);
+}
 
-    if (descStatusRes.InstanceStatuses?.length) {
-        return generateResponse(500, ERROR_MESSAGES['002']);
-    }
+async function activateInstance(client: EC2Client): Promise<void> {
+    const StartCmdParams = { InstanceIds: INSTANCE_IDS, DryRun: false };
+    const startCmd = new StartInstancesCommand(StartCmdParams);
+    await client.send(startCmd);
+    const WaiterParams = { client, maxWaitTime: 120 }
+    await waitUntilInstanceRunning(WaiterParams, StartCmdParams);
+    await activateUserflowConductor();
+    // TODO (handle error because !instance -> ERROR_MESSAGES['003'])
+}
 
-    try {
-        const StartCmdParams = { InstanceIds: INSTANCE_IDS, DryRun: false };
-        const startCmd = new StartInstancesCommand(StartCmdParams);
-        await client.send(startCmd);
-
-        const waiterParams = { client, maxWaitTime: 120 }
-        const instanceRunning = await waitUntilInstanceRunning(waiterParams, StartCmdParams);
-    
-        if (!instanceRunning) {
-            return generateResponse(500, ERROR_MESSAGES['003'])
-        }
-    } catch (error) {
-        return generateResponse(500, ERROR_MESSAGES['004'] + error)
-    }
-
-    const SSM = new SSMClient({ region: "us-east-1" });
-
+async function activateUserflowConductor() {
+    const SSM = new SSMClient(REGION);
     const SendCmdCmdParams = {
         DocumentName: 'deepblue_userflow_initiator',
-        InstanceIds: ['i-0ac92f269c72da99e'],
-        Parameters: { Message: [ target + " " ] }
+        InstanceIds: INSTANCE_IDS,
     }
-    
     const sendCmdCmd = new SendCommandCommand(SendCmdCmdParams);
     await SSM.send(sendCmdCmd);
-    
-    return generateResponse(200, `Runing audit on -> ${target}`);
+}
+
+export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+    try {
+        const target = extractTargetDetails(event);
+        await addAuditToSchuledQueue(target);
+        await makeInstanceActive();
+        return generateResponse(200, `Successfully scheduled audit for ${target}`);
+    } catch (error) {
+        return generateResponse(500, error as string);
+    };
 };
