@@ -5,11 +5,16 @@ async function conductor(): Promise<void> {
   const target = await takeNextScheduledAudit();
 
   if (!target) {
-    execSync("sudo shutdown -h now");
+   execSync("sudo shutdown -h now");
   }
   
-  execSync(`npx user-flow --url=${target} --open=false`);
-  execSync(`node s3-uploader ${target}`);
+  try {
+    execSync(`npx user-flow --url=${target} --open=false`);
+    execSync(`node s3-uploader ${target}`);
+  } catch (error) {
+    console.log(error);
+  }
+  
   await conductor();
 }
 
