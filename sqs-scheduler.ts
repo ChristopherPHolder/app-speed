@@ -16,5 +16,3 @@ export async function takeNextScheduledAudit(): Promise<string | undefined> {
     return response.Messages[0]?.Body
   }
 }
-
-takeNextScheduledAudit();
