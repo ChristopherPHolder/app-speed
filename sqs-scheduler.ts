@@ -11,7 +11,7 @@ export async function takeNextScheduledAudit(): Promise<string | undefined> {
   const response = await new Promise<ReceiveMessageCommandOutput>(async (resolve) => {
       resolve(await client.send(command))
   });
-  console.log(response);
+
   if (response.Messages) {
     return response.Messages[0]?.Body
   }
