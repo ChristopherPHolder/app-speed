@@ -3,6 +3,7 @@
     "start": "ts-node conductor.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.190.0",
     "@aws-sdk/client-sqs": "^3.186.0",
     "@push-based/user-flow": "^0.8.0",
     "aws-sdk": "^2.1218.0",
