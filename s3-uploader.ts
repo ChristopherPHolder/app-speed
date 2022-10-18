@@ -18,7 +18,7 @@ function getRecordKey(urlString: string): string {
 }
 
 async function uploadRecord(recordKey: string, recordBody: Buffer): Promise<void> {
-  const client = new S3Client({region: "us-east-1"});
+  const client = new S3Client({region: 'eu-central-1'});
   const params = {
     Bucket: 'deepblue-userflow-records',
     Key: recordKey,
