@@ -1,6 +1,6 @@
-import { SQSClient, ReceiveMessageCommand, ReceiveMessageCommandOutput } from '@aws-sdk/client-sqs';
+import { SQSClient, ReceiveMessageCommand } from '@aws-sdk/client-sqs';
 
-export async function takeNextScheduledAudit(): Promise<string | undefined> {
+export async function takeNextScheduledAudit(): Promise<string|void> {
   
   const client = new SQSClient({ region: "us-east-1" });
   const params = {
@@ -8,11 +8,9 @@ export async function takeNextScheduledAudit(): Promise<string | undefined> {
   };
 
   const command = new ReceiveMessageCommand(params);
-  const response = await new Promise<ReceiveMessageCommandOutput>(async (resolve) => {
-      resolve(await client.send(command))
-  });
+  const response = await client.send(command);
 
-  if (response.Messages) {
+  if (response?.Messages && response.Messages[0] && response.Messages[0]?.Body) {
     return response.Messages[0]?.Body
   }
 }
