@@ -1,19 +1,19 @@
-import { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda';
+import { APIGatewayProxyResult, APIGatewayProxyEvent, APIGatewayProxyWebsocketEventV2 } from 'aws-lambda';
 
 function generateResponse(
   responseCode: APIGatewayProxyResult['statusCode'],
   responseBody: APIGatewayProxyResult['body'],
-  event: APIGatewayProxyEvent,
+  eventHeaders?: APIGatewayProxyEvent['headers'],
 ): APIGatewayProxyResult {
   return {
     statusCode: responseCode,
-    headers: generateResponseHeader(event),
+    headers: generateResponseHeader(eventHeaders),
     body: responseBody,
   };
 }
 
-function generateResponseHeader(event: APIGatewayProxyEvent): APIGatewayProxyResult['headers'] {
-  const origenDomain = event?.headers?.Origen;
+function generateResponseHeader(eventHeaders?: APIGatewayProxyEvent['headers']): APIGatewayProxyResult['headers'] {
+  const origenDomain = eventHeaders?.Origen || undefined;
   if (origenDomain) {
     return {
       'Access-Control-Allow-Origin': origenDomain,
@@ -23,7 +23,11 @@ function generateResponseHeader(event: APIGatewayProxyEvent): APIGatewayProxyRes
   }
 }
 
-// @TODO - open socket
+function connectWebsocket(event: APIGatewayProxyWebsocketEventV2 & APIGatewayProxyEvent): APIGatewayProxyResult {
+  const eventHeaders = event?.headers;
+  const responseBody = 'Websocket connection was successfully open with ufo';
+  return generateResponse(200, responseBody, eventHeaders);
+}
 
 // @TODO - message socket - action run-audit
 
@@ -31,7 +35,14 @@ function generateResponseHeader(event: APIGatewayProxyEvent): APIGatewayProxyRes
 
 // @TODO - error socket
 
-export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const lambdaHandler = async (
+  event: APIGatewayProxyWebsocketEventV2 | (APIGatewayProxyWebsocketEventV2 & APIGatewayProxyEvent),
+): Promise<APIGatewayProxyResult> => {
+  const routeKey = event.requestContext.routeKey;
+  if (routeKey === '$connect') {
+    return connectWebsocket(event as APIGatewayProxyWebsocketEventV2 & APIGatewayProxyEvent);
+  }
+
   let response: APIGatewayProxyResult;
   try {
     response = {
