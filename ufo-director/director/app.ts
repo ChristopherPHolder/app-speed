@@ -1,6 +1,27 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda';
 
-// @TODO - generate response method
+function generateResponse(
+  responseCode: APIGatewayProxyResult['statusCode'],
+  responseBody: APIGatewayProxyResult['body'],
+  event: APIGatewayProxyEvent,
+): APIGatewayProxyResult {
+  return {
+    statusCode: responseCode,
+    headers: generateResponseHeader(event),
+    body: responseBody,
+  };
+}
+
+function generateResponseHeader(event: APIGatewayProxyEvent): APIGatewayProxyResult['headers'] {
+  const origenDomain = event?.headers?.Origen;
+  if (origenDomain) {
+    return {
+      'Access-Control-Allow-Origin': origenDomain,
+      'Access-Control-Allow-Headers': 'x-requested-with',
+      'Access-Control-Allow-Credentials': true,
+    };
+  }
+}
 
 // @TODO - open socket
 
