@@ -1,10 +1,10 @@
-import { APIGatewayProxyResult, APIGatewayProxyEvent, APIGatewayProxyWebsocketEventV2 } from 'aws-lambda';
+import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyWebsocketEventV2 } from 'aws-lambda';
 import { SendMessageCommand, SendMessageCommandOutput, SQSClient } from '@aws-sdk/client-sqs';
-import { SSMClient, SendCommandCommand } from '@aws-sdk/client-ssm';
+import { SendCommandCommand, SSMClient } from '@aws-sdk/client-ssm';
 import {
-  EC2Client,
   DescribeInstanceStatusCommand,
   DescribeInstanceStatusCommandOutput,
+  EC2Client,
   StartInstancesCommand,
   waitUntilInstanceRunning,
 } from '@aws-sdk/client-ec2';
@@ -42,17 +42,28 @@ function connectWebsocket(event: APIGatewayProxyWebsocketEventV2 & APIGatewayPro
   return generateResponse(200, responseBody, eventHeaders);
 }
 
-function extractTargetDetails(event: APIGatewayProxyWebsocketEventV2): string {
-  // @TODO -- verify uber check is necessary
-  if (!event.body || event.body === '' || event.body === null) {
+type AuditRunParams = {
+  targetUrl: URL;
+  requesterId: string;
+} & { [prop: string]: string };
+
+function extractAuditDetails(event: APIGatewayProxyWebsocketEventV2): AuditRunParams {
+  if (!event?.body || event.body === '') {
     throw new Error('Error: event body seems to have an issue');
   }
-  return event.body;
+  const body = JSON.parse(event.body);
+  if (!body?.targetUrl) {
+    throw new Error('Error: event body is missing the target url');
+  }
+  return {
+    targetUrl: body.targetUrl,
+    requesterId: event.requestContext.connectionId,
+  };
 }
 
-async function addAuditToScheduledQueue(target: string): Promise<SendMessageCommandOutput> {
+async function addAuditToScheduledQueue(auditDetails: object): Promise<SendMessageCommandOutput> {
   const client = new SQSClient(REGION);
-  const params = { MessageBody: target, QueueUrl: QUEUE_URL };
+  const params = { MessageBody: JSON.stringify(auditDetails), QueueUrl: QUEUE_URL };
   const command = new SendMessageCommand(params);
   return await client.send(command);
 }
@@ -91,10 +102,10 @@ async function activateUserFlowConductor() {
 }
 
 async function scheduleAudits(event: APIGatewayProxyWebsocketEventV2): Promise<APIGatewayProxyResult> {
-  const target = extractTargetDetails(event);
-  await addAuditToScheduledQueue(target);
+  const auditDetails = extractAuditDetails(event);
+  await addAuditToScheduledQueue(auditDetails);
   await makeInstanceActive();
-  return generateResponse(200, `Successfully scheduled audit for ${target}`);
+  return generateResponse(200, `Successfully scheduled audit for ${auditDetails}`);
 }
 
 // @TODO - close socket
