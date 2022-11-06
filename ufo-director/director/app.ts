@@ -1,4 +1,10 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyWebsocketEventV2 } from 'aws-lambda';
+import {
+  APIGatewayProxyEvent,
+  APIGatewayProxyResult,
+  APIGatewayProxyWebsocketEventV2,
+  APIGatewayProxyEventV2WithRequestContext,
+  APIGatewayEventWebsocketRequestContextV2,
+} from 'aws-lambda';
 import { SendMessageCommand, SendMessageCommandOutput, SQSClient } from '@aws-sdk/client-sqs';
 import { SendCommandCommand, SSMClient } from '@aws-sdk/client-ssm';
 import {
@@ -36,7 +42,9 @@ function generateResponseHeader(eventHeaders?: APIGatewayProxyEvent['headers']):
   }
 }
 
-function connectWebsocket(event: APIGatewayProxyWebsocketEventV2 & APIGatewayProxyEvent): APIGatewayProxyResult {
+function connectWebsocket(
+  event: APIGatewayProxyEventV2WithRequestContext<APIGatewayEventWebsocketRequestContextV2>,
+): APIGatewayProxyResult {
   const eventHeaders = event?.headers;
   const responseBody = 'Websocket connection was successfully open with ufo';
   return generateResponse(200, responseBody, eventHeaders);
@@ -113,14 +121,16 @@ async function scheduleAudits(event: APIGatewayProxyWebsocketEventV2): Promise<A
 // @TODO - error socket
 
 export const lambdaHandler = async (
-  event: APIGatewayProxyWebsocketEventV2 | (APIGatewayProxyWebsocketEventV2 & APIGatewayProxyEvent),
+  event: APIGatewayProxyEventV2WithRequestContext<APIGatewayEventWebsocketRequestContextV2>,
 ): Promise<APIGatewayProxyResult> => {
-  const routeKey = event.requestContext.routeKey;
   try {
-    if (routeKey === '$connect') {
-      return connectWebsocket(event as APIGatewayProxyWebsocketEventV2 & APIGatewayProxyEvent);
-    } else if (routeKey === 'scheduleAudits') {
-      return scheduleAudits(event as APIGatewayProxyWebsocketEventV2);
+    if (event.requestContext.eventType === 'CONNECT') {
+      return connectWebsocket(event);
+    }
+    if (event.requestContext.eventType === 'MESSAGE') {
+      if (event.requestContext.routeKey === 'scheduleAudits') {
+        return scheduleAudits(event as APIGatewayProxyWebsocketEventV2);
+      }
     }
   } catch (error) {
     return generateResponse(500, error as string);
