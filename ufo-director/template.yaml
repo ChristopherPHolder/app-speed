@@ -32,7 +32,7 @@ Resources:
 Outputs:
   DirectorFunction:
     Description: "Hello World Lambda Function ARN"
-    Value: !GetAtt HelloWorldFunction.Arn
+    Value: !GetAtt DirectorFunction.Arn
   DirectorFunctionIamRole:
     Description: "Implicit IAM Role created for Hello World function"
-    Value: !GetAtt HelloWorldFunctionRole.Arn
+    Value: !GetAtt DirectorFunctionRole.Arn
