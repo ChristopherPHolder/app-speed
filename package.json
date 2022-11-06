@@ -2,7 +2,7 @@
   "name": "user-flow-server",
   "main": "app.ts",
   "scripts": {
-    "start": "ts-node conductor.ts"
+    "start": "ts-node app.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.190.0",
