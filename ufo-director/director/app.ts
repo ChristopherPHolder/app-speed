@@ -50,6 +50,14 @@ function connectWebsocket(
   return generateResponse(200, responseBody, eventHeaders);
 }
 
+function disconnectWebsocket(
+  event: APIGatewayProxyEventV2WithRequestContext<APIGatewayEventWebsocketRequestContextV2>,
+): APIGatewayProxyResult {
+  const eventHeaders = event?.headers;
+  const responseBody = 'Websocket connection was successfully closed with ufo';
+  return generateResponse(200, responseBody, eventHeaders);
+}
+
 type AuditRunParams = {
   targetUrl: URL;
   requesterId: string;
@@ -116,24 +124,24 @@ async function scheduleAudits(event: APIGatewayProxyWebsocketEventV2): Promise<A
   return generateResponse(200, `Successfully scheduled audit for ${auditDetails}`);
 }
 
-// @TODO - close socket
-
 // @TODO - error socket
 
 export const lambdaHandler = async (
   event: APIGatewayProxyEventV2WithRequestContext<APIGatewayEventWebsocketRequestContextV2>,
 ): Promise<APIGatewayProxyResult> => {
   try {
-    if (event.requestContext.eventType === 'CONNECT') {
-      return connectWebsocket(event);
-    }
     if (event.requestContext.eventType === 'MESSAGE') {
       if (event.requestContext.routeKey === 'scheduleAudits') {
         return scheduleAudits(event as APIGatewayProxyWebsocketEventV2);
       }
     }
+    const eventType = event.requestContext.eventType;
+    return eventType === 'CONNECT'
+      ? connectWebsocket(event)
+      : eventType === 'DISCONNECT'
+      ? disconnectWebsocket(event)
+      : generateResponse(500, 'Unknown error');
   } catch (error) {
     return generateResponse(500, error as string);
   }
-  return generateResponse(500, 'Unknown error');
 };
