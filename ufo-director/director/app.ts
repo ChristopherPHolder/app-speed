@@ -6,7 +6,7 @@ import {
   APIGatewayEventWebsocketRequestContextV2,
 } from 'aws-lambda';
 import { SendMessageCommand, SendMessageCommandOutput, SQSClient } from '@aws-sdk/client-sqs';
-import { SendCommandCommand, SSMClient } from '@aws-sdk/client-ssm';
+import { SendCommandCommand, SendCommandCommandOutput, SSMClient } from '@aws-sdk/client-ssm';
 import {
   DescribeInstanceStatusCommand,
   DescribeInstanceStatusCommandOutput,
@@ -14,6 +14,7 @@ import {
   StartInstancesCommand,
   waitUntilInstanceRunning,
 } from '@aws-sdk/client-ec2';
+
 import { AuditRunParams } from '../../types';
 
 const INSTANCE_IDS = ['i-0ac92f269c72da99e'];
@@ -94,30 +95,30 @@ async function makeInstanceActive(): Promise<void> {
   }
 }
 
-async function activateInstance(client: EC2Client): Promise<void> {
+async function activateInstance(client: EC2Client): Promise<SendCommandCommandOutput> {
   const StartCmdParams = { InstanceIds: INSTANCE_IDS, DryRun: false };
   const startCmd = new StartInstancesCommand(StartCmdParams);
   await client.send(startCmd);
   const WaiterParams = { client, maxWaitTime: 120 };
   await waitUntilInstanceRunning(WaiterParams, StartCmdParams);
-  await activateUserFlowConductor();
+  return await activateUserFlowConductor();
 }
 
-async function activateUserFlowConductor() {
+async function activateUserFlowConductor(): Promise<SendCommandCommandOutput> {
   const SSM = new SSMClient(REGION);
   const SendCmdCmdParams = {
     DocumentName: 'deepblue_userflow_initiator',
     InstanceIds: INSTANCE_IDS,
   };
   const sendCmdCmd = new SendCommandCommand(SendCmdCmdParams);
-  await SSM.send(sendCmdCmd);
+  return await SSM.send(sendCmdCmd);
 }
 
 async function scheduleAudits(event: APIGatewayProxyWebsocketEventV2): Promise<APIGatewayProxyResult> {
   const auditDetails = extractAuditDetails(event);
   await addAuditToScheduledQueue(auditDetails);
   await makeInstanceActive();
-  return generateResponse(200, `Successfully scheduled audit for ${auditDetails}`);
+  return generateResponse(200, `Successfully scheduled audit for ${auditDetails.targetUrl}`);
 }
 
 // @TODO - error socket
@@ -128,7 +129,7 @@ export const lambdaHandler = async (
   try {
     if (event.requestContext.eventType === 'MESSAGE') {
       if (event.requestContext.routeKey === 'scheduleAudits') {
-        return scheduleAudits(event as APIGatewayProxyWebsocketEventV2);
+        return await scheduleAudits(event);
       }
     }
     const eventType = event.requestContext.eventType;
