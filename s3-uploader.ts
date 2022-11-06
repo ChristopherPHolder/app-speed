@@ -1,14 +1,15 @@
 import dotenv from 'dotenv'
 dotenv.config()
 import { readFileSync, unlinkSync } from 'fs';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, PutObjectCommandOutput } from '@aws-sdk/client-s3';
 
-export async function uploadResultsToBucket(urlString: string): Promise<void> {
+export async function uploadResultsToBucket(urlString: string): Promise<PutObjectCommandOutput> {
   const filePath = './measures/deep-blue-performance-test.uf.html';
   const recordBody = readFileSync(filePath);
   const recordKey = getRecordKey(urlString);
-  await uploadRecord(recordKey, recordBody);
+  const uploadResponse = await uploadRecord(recordKey, recordBody);
   unlinkSync(filePath);
+  return uploadResponse;
 }
 
 function getRecordKey(urlString: string): string {
@@ -17,7 +18,7 @@ function getRecordKey(urlString: string): string {
   return `${timestamp}${url.hostname}.uf.html`
 }
 
-async function uploadRecord(recordKey: string, recordBody: Buffer): Promise<void> {
+async function uploadRecord(recordKey: string, recordBody: Buffer): Promise<PutObjectCommandOutput> {
   const client = new S3Client({region: 'eu-central-1'});
   const params = {
     Bucket: 'deepblue-userflow-records',
@@ -27,5 +28,5 @@ async function uploadRecord(recordKey: string, recordBody: Buffer): Promise<void
     ContentType: 'text/html'
   };
   const command = new PutObjectCommand(params);
-  await client.send(command);
+  return await client.send(command);
 }
