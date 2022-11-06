@@ -1,22 +1,17 @@
 import dotenv from 'dotenv'
 dotenv.config()
 import { readFileSync, unlinkSync } from 'fs';
-import {
-  S3Client,
-  PutObjectCommand,
-  PutObjectCommandOutput,
-  GetObjectCommand,
-  GetObjectCommandInput
-} from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+
+const hostUrl = 'https://deepblue-userflow-records.s3.eu-central-1.amazonaws.com/'
 
 export async function uploadResultsToBucket(urlString: string): Promise<string> {
   const filePath = './measures/deep-blue-performance-test.uf.html';
   const recordBody = readFileSync(filePath);
   const recordKey = getRecordKey(urlString);
-  const uploadResponse = await uploadRecord(recordKey, recordBody);
+  await uploadRecord(recordKey, recordBody);
   unlinkSync(filePath);
-  console.log(uploadResponse);
-  return uploadResponse;
+  return `${hostUrl}${recordKey}`;
 }
 
 function getRecordKey(urlString: string): string {
@@ -36,13 +31,12 @@ function generateSimpleHash(length: number): string {
   return result;
 }
 
-async function uploadRecord(recordKey: string, recordBody: Buffer): Promise<string> {
+async function uploadRecord(recordKey: string, recordBody: Buffer): Promise<void> {
   const client = new S3Client({region: 'eu-central-1'});
   await putRecordInBucket(client, recordKey, recordBody);
-  return await getRecordUrl(client, recordKey);
 }
 
-async function putRecordInBucket(client: S3Client, recordKey: string, recordBody: Buffer): Promise<PutObjectCommandOutput> {
+async function putRecordInBucket(client: S3Client, recordKey: string, recordBody: Buffer): Promise<void> {
   const params = {
     Bucket: 'deepblue-userflow-records',
     Key: recordKey,
@@ -51,16 +45,6 @@ async function putRecordInBucket(client: S3Client, recordKey: string, recordBody
     ContentType: 'text/html'
   };
   const command = new PutObjectCommand(params);
-  return await client.send(command);
+  await client.send(command);
 }
 
-async function getRecordUrl(client: S3Client, recordKey: string): Promise<string> {
-  const params: GetObjectCommandInput = {
-    Bucket: 'deepblue-userflow-records',
-    Key: recordKey
-  }
-  const command = new GetObjectCommand(params);
-  const response = await client.send(command);
-  console.log(response);
-  return response.WebsiteRedirectLocation as string;
-}

@@ -4,7 +4,11 @@ import {
     PostToConnectionCommand, PostToConnectionCommandInput, PostToConnectionCommandOutput
 } from "@aws-sdk/client-apigatewaymanagementapi";
 
-export async function sendAuditResults(connectionId: string, endpoint: string): Promise<PostToConnectionCommandOutput> {
+export async function sendAuditResults(
+    connectionId: string,
+    endpoint: string,
+    resultsUrl: string
+): Promise<PostToConnectionCommandOutput> {
     const config:  ApiGatewayManagementApiClientConfig = {
         region: 'us-east-1',
         endpoint: `https://${endpoint}`,
@@ -12,8 +16,8 @@ export async function sendAuditResults(connectionId: string, endpoint: string): 
     const client = new ApiGatewayManagementApiClient(config);
     const input: PostToConnectionCommandInput = {
         //@ts-ignore // Wrong typing in sdk
-        Data: 'Testing message',
-        ConnectionId: connectionId
+        Data: resultsUrl,
+        ConnectionId: connectionId,
     }
     const command = new PostToConnectionCommand(input);
     const response = await client.send(command);

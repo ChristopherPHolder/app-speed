@@ -11,12 +11,10 @@ import {sendAuditResults} from "./sendResults";
     }
 
     const { targetUrl, requesterId, endpoint } = nextAuditRunParams as AuditRunParams;
-    console.log('Target Url', targetUrl, 'Requester ID', requesterId, 'Endpoint', endpoint);
     try {
         execSync(`npx user-flow --url=${targetUrl} --open=false`);
-        const uploadResponse = await uploadResultsToBucket(targetUrl);
-        console.log(uploadResponse);
-        await sendAuditResults(requesterId, endpoint);
+        const resultsUrl = await uploadResultsToBucket(targetUrl);
+        await sendAuditResults(requesterId, endpoint, resultsUrl);
     } catch (error) {
         console.log(error);
     }
