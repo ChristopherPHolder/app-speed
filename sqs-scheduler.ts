@@ -13,7 +13,7 @@ export async function takeNextScheduledAudit(): Promise<AuditRunParams|void> {
 
   if (response?.Messages && response.Messages[0] && response.Messages[0]?.Body) {
     const nextQueueItem = JSON.parse(response.Messages[0]?.Body);
-    if (nextQueueItem?.targetUrl && nextQueueItem?.requesterId) {
+    if (nextQueueItem?.targetUrl && nextQueueItem?.requesterId && nextQueueItem?.endpoint) {
       return nextQueueItem;
     }
   }
