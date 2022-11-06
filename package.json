@@ -5,6 +5,7 @@
     "start": "ts-node app.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-apigatewaymanagementapi": "^3.204.0",
     "@aws-sdk/client-s3": "^3.190.0",
     "@aws-sdk/client-sqs": "^3.186.0",
     "@push-based/user-flow": "^0.8.0",
