@@ -7,7 +7,7 @@ import {
 export async function sendAuditResults(connectionId: string, endpoint: string): Promise<PostToConnectionCommandOutput> {
     const config:  ApiGatewayManagementApiClientConfig = {
         region: 'us-east-1',
-        endpoint: endpoint,
+        endpoint: `https://${endpoint}`,
     }
     const client = new ApiGatewayManagementApiClient(config);
     const input: PostToConnectionCommandInput = {
