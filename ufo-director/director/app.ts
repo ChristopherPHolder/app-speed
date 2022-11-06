@@ -14,6 +14,7 @@ import {
   StartInstancesCommand,
   waitUntilInstanceRunning,
 } from '@aws-sdk/client-ec2';
+import { AuditRunParams } from '../../types';
 
 const INSTANCE_IDS = ['i-0ac92f269c72da99e'];
 const QUEUE_URL = 'https://sqs.us-east-1.amazonaws.com/495685399379/scheduled-userflows';
@@ -57,11 +58,6 @@ function disconnectWebsocket(
   const responseBody = 'Websocket connection was successfully closed with ufo';
   return generateResponse(200, responseBody, eventHeaders);
 }
-
-type AuditRunParams = {
-  targetUrl: URL;
-  requesterId: string;
-} & { [prop: string]: string };
 
 function extractAuditDetails(event: APIGatewayProxyWebsocketEventV2): AuditRunParams {
   if (!event?.body || event.body === '') {
