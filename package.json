@@ -1,4 +1,6 @@
 {
+  "name": "user-flow-server",
+  "main": "app.ts",
   "scripts": {
     "start": "ts-node conductor.ts"
   },
