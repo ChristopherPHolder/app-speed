@@ -14,6 +14,6 @@ export async function sendAuditResults(
 	const client = new ApiGatewayManagementApiClient({ region: 'us-east-1', endpoint: endpoint });
 	// @ts-expect-error // Wrong typing in aws sdk
 	// eslint-disable-next-line @typescript-eslint/naming-convention
-	const command = new PostToConnectionCommand({Data: responseData as Uint8Array, ConnectionId: connectionId});
+	const command = new PostToConnectionCommand({Data: JSON.stringify(responseData), ConnectionId: connectionId});
 	return client.send(command);
 }
