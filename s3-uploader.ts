@@ -2,8 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 import {readFileSync, unlinkSync} from 'fs';
 import {S3Client, PutObjectCommand} from '@aws-sdk/client-s3';
-
-const hostUrl = 'https://deepblue-userflow-records.s3.eu-central-1.amazonaws.com/';
+import {S3_RESULTS_BUCKET_URL, S3_RESULTS_BUCKET_NAME} from "./constants";
 
 export async function uploadResultsToBucket(urlString: string): Promise<string> {
 	const filePath = './measures/deep-blue-performance-test.uf.html';
@@ -11,7 +10,7 @@ export async function uploadResultsToBucket(urlString: string): Promise<string> 
 	const recordKey = getRecordKey(urlString);
 	await uploadRecord(recordKey, recordBody);
 	unlinkSync(filePath);
-	return `${hostUrl}${recordKey}`;
+	return `${S3_RESULTS_BUCKET_URL}${recordKey}`;
 }
 
 function getRecordKey(urlString: string): string {
@@ -28,7 +27,6 @@ function generateSimpleHash(length: number): string {
 	for (let i = 0; i < length; i++) {
 		result += characters.charAt(Math.floor(Math.random() * charactersLength));
 	}
-
 	return result;
 }
 
@@ -38,10 +36,16 @@ async function uploadRecord(recordKey: string, recordBody: Buffer): Promise<void
 }
 
 async function putRecordInBucket(client: S3Client, recordKey: string, recordBody: Buffer): Promise<void> {
-	const bucket = 'deepblue-userflow-records';
+
 	const cacheControl = 'public, max-age=0, must-revalidate';
 	// eslint-disable-next-line @typescript-eslint/naming-convention
-	const params = {Bucket: bucket, Key: recordKey, Body: recordBody, CacheControl: cacheControl, ContentType: 'text/html'};
+	const params = {
+		Bucket: S3_RESULTS_BUCKET_NAME,
+		Key: recordKey,
+		Body: recordBody,
+		CacheControl: cacheControl,
+		ContentType: 'text/html'
+	};
 	const command = new PutObjectCommand(params);
 	await client.send(command);
 }
