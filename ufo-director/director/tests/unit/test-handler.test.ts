@@ -52,6 +52,8 @@ describe('Unit test for app handler', function () {
       resource: '',
       stageVariables: {},
     };
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const result: APIGatewayProxyResult = await lambdaHandler(event);
 
     expect(result.statusCode).toEqual(200);
