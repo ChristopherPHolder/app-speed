@@ -71,7 +71,7 @@ function extractAuditDetails(event: APIGatewayProxyWebsocketEventV2): AuditRunPa
   return {
     targetUrl: body.targetUrl,
     requesterId: event.requestContext.connectionId,
-    endpoint: `${event.requestContext.domainName}/${event.requestContext.stage}`,
+    endpoint: `https://${event.requestContext.domainName}/${event.requestContext.stage}`,
   };
 }
 

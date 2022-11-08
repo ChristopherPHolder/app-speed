@@ -1,12 +1,5 @@
-import type {
-	ApiGatewayManagementApiClientConfig,
-	PostToConnectionCommandInput,
-	PostToConnectionCommandOutput,
-} from '@aws-sdk/client-apigatewaymanagementapi';
-import {
-	ApiGatewayManagementApiClient,
-	PostToConnectionCommand,
-} from '@aws-sdk/client-apigatewaymanagementapi';
+import type {PostToConnectionCommandOutput} from '@aws-sdk/client-apigatewaymanagementapi';
+import {ApiGatewayManagementApiClient, PostToConnectionCommand} from '@aws-sdk/client-apigatewaymanagementapi';
 import type {RunnerResponseMessage} from './types';
 
 export async function sendAuditResults(
@@ -14,19 +7,17 @@ export async function sendAuditResults(
 	endpoint: string,
 	resultsUrl: string,
 ): Promise<PostToConnectionCommandOutput> {
+	const reports = {htmlReportUrl: resultsUrl};
 
-	const responseData: RunnerResponseMessage = {
-		action: 'completed',
+	const responseData: RunnerResponseMessage = { action: 'completed',
 		message: 'Successfully completed the User Flow Audit',
-		reports: {htmlReportUrl: resultsUrl},
+		reports: reports,
 	};
 
-	const config: ApiGatewayManagementApiClientConfig = {region: 'us-east-1', endpoint: `https://${endpoint}`};
-	const client = new ApiGatewayManagementApiClient(config);
+	const client = new ApiGatewayManagementApiClient({ region: 'us-east-1', endpoint: endpoint });
 
 	// @ts-expect-error // Wrong typing in aws sdk
 	// eslint-disable-next-line @typescript-eslint/naming-convention
-	const input: PostToConnectionCommandInput = {Data: responseData, ConnectionId: connectionId};
-	const command = new PostToConnectionCommand(input);
+	const command = new PostToConnectionCommand({Data: responseData as Uint8Array, ConnectionId: connectionId});
 	return client.send(command);
 }
