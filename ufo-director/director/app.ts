@@ -119,7 +119,11 @@ async function scheduleAudits(event: APIGatewayProxyWebsocketEventV2): Promise<A
   const auditDetails = extractAuditDetails(event);
   await addAuditToScheduledQueue(auditDetails);
   await makeInstanceActive();
-  return generateResponse(200, `Successfully scheduled audit for ${auditDetails.targetUrl}`);
+  const responseData = JSON.stringify({
+    action: 'scheduled',
+    message: `Successfully scheduled audit for ${auditDetails.targetUrl}`,
+  });
+  return generateResponse(200, responseData);
 }
 
 // @TODO - error socket
