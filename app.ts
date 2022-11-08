@@ -10,8 +10,8 @@ import { sendAuditResults } from "./sendResults";
         execSync("sudo shutdown -h now");
     }
 
-    const { targetUrl, requesterId, endpoint } = nextAuditRunParams as AuditRunParams;
     try {
+        const { targetUrl, requesterId, endpoint } = nextAuditRunParams as AuditRunParams;
         execSync(`npx user-flow --url=${targetUrl} --open=false`);
         const resultsUrl = await uploadResultsToBucket(targetUrl);
         await sendAuditResults(requesterId, endpoint, resultsUrl);
