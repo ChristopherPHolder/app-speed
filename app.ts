@@ -7,7 +7,7 @@ import { sendAuditResults } from "./sendResults";
 (async function conductor(): Promise<void> {
     const nextAuditRunParams = await takeNextScheduledAudit();
     if (!nextAuditRunParams) {
-        execSync("sudo shutdown -h now");
+        execSync("sudo shutdown -h && exit 0");
     }
 
     try {
