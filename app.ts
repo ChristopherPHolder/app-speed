@@ -6,7 +6,7 @@ import { sendAuditResults } from "./sendResults";
 
 (async function conductor(): Promise<void> {
     const nextAuditRunParams = await takeNextScheduledAudit();
-    if (!nextAuditRunParams) {
+    if (nextAuditRunParams === undefined) {
         execSync('sudo shutdown -h && exit 0', {shell: '/bin/bash'});
     }
 
