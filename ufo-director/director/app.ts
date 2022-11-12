@@ -17,9 +17,18 @@ import {
 
 import { AuditRunParams } from '../../types';
 
-const INSTANCE_IDS = ['i-0ac92f269c72da99e'];
-const QUEUE_URL = 'https://sqs.us-east-1.amazonaws.com/495685399379/ScheduledUserflows.fifo';
-const REGION = { region: 'us-east-1' };
+import {
+  CONNECTED,
+  DISCONNECTED,
+  DOCUMENT_NAME,
+  ERROR_01,
+  ERROR_02,
+  GROUP_ID,
+  INSTANCE_IDS,
+  QUEUE_URL,
+  REGION,
+  SUCCESS,
+} from './constants';
 
 function generateResponse(
   responseCode: APIGatewayProxyResult['statusCode'],
@@ -47,26 +56,22 @@ function generateResponseHeader(eventHeaders?: APIGatewayProxyEvent['headers']):
 function connectWebsocket(
   event: APIGatewayProxyEventV2WithRequestContext<APIGatewayEventWebsocketRequestContextV2>,
 ): APIGatewayProxyResult {
-  const eventHeaders = event?.headers;
-  const responseBody = 'Websocket connection was successfully open with ufo';
-  return generateResponse(200, responseBody, eventHeaders);
+  return generateResponse(200, CONNECTED, event?.headers);
 }
 
 function disconnectWebsocket(
   event: APIGatewayProxyEventV2WithRequestContext<APIGatewayEventWebsocketRequestContextV2>,
 ): APIGatewayProxyResult {
-  const eventHeaders = event?.headers;
-  const responseBody = 'Websocket connection was successfully closed with ufo';
-  return generateResponse(200, responseBody, eventHeaders);
+  return generateResponse(200, DISCONNECTED, event?.headers);
 }
 
 function extractAuditDetails(event: APIGatewayProxyWebsocketEventV2): AuditRunParams {
   if (!event?.body || event.body === '') {
-    throw new Error('Error: event body seems to have an issue');
+    throw new Error(ERROR_01);
   }
   const body = JSON.parse(event.body);
   if (!body?.targetUrl) {
-    throw new Error('Error: event body is missing the target url');
+    throw new Error(ERROR_02);
   }
   return {
     targetUrl: body.targetUrl,
@@ -77,11 +82,7 @@ function extractAuditDetails(event: APIGatewayProxyWebsocketEventV2): AuditRunPa
 
 async function addAuditToScheduledQueue(auditDetails: object): Promise<void> {
   const client = new SQSClient(REGION);
-  const params = {
-    QueueUrl: QUEUE_URL,
-    MessageBody: JSON.stringify(auditDetails),
-    MessageGroupId: 'scheduled-audit',
-  };
+  const params = { QueueUrl: QUEUE_URL, MessageBody: JSON.stringify(auditDetails), MessageGroupId: GROUP_ID };
   const command = new SendMessageCommand(params);
   await client.send(command);
 }
@@ -111,10 +112,7 @@ async function activateInstance(client: EC2Client): Promise<void> {
 
 async function activateUserFlowConductor(): Promise<SendCommandCommandOutput> {
   const SSM = new SSMClient(REGION);
-  const SendCmdCmdParams = {
-    DocumentName: 'deepblue_userflow_initiator',
-    InstanceIds: INSTANCE_IDS,
-  };
+  const SendCmdCmdParams = { DocumentName: DOCUMENT_NAME, InstanceIds: INSTANCE_IDS };
   const sendCmdCmd = new SendCommandCommand(SendCmdCmdParams);
   return await SSM.send(sendCmdCmd);
 }
@@ -125,7 +123,7 @@ async function scheduleAudits(event: APIGatewayProxyWebsocketEventV2): Promise<A
   await makeInstanceActive();
   const responseData = JSON.stringify({
     action: 'scheduled',
-    message: `Successfully scheduled audit for ${auditDetails.targetUrl}`,
+    message: SUCCESS(auditDetails.targetUrl),
   });
   return generateResponse(200, responseData);
 }
