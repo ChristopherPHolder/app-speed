@@ -3,6 +3,9 @@ import {takeNextScheduledAudit} from './sqs-scheduler';
 import {uploadResultsToBucket} from './s3-uploader';
 import {sendAuditResults} from './sendResults';
 
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 (async function conductor(): Promise<void> {
 	const nextAuditRunParams = await takeNextScheduledAudit();
 	if (!nextAuditRunParams) {
