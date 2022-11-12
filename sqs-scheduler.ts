@@ -1,39 +1,39 @@
 import {
 	SQSClient,
 	ReceiveMessageCommand,
+	Message,
 	ReceiveMessageCommandInput,
 	ReceiveMessageCommandOutput,
 	DeleteMessageCommand,
-	DeleteMessageCommandInput
+	DeleteMessageCommandInput,
 } from '@aws-sdk/client-sqs';
 import type {AuditRunParams} from './types';
 import {SQS_SCHEDULER_CONFIG} from "./constants";
 
 export async function takeNextScheduledAudit(): Promise<AuditRunParams | void> {
 	const client = new SQSClient(SQS_SCHEDULER_CONFIG);
-	const params: ReceiveMessageCommandInput = {QueueUrl: process.env.SQS_URL, WaitTimeSeconds: 20};
-	const command = new ReceiveMessageCommand(params);
-	const response: ReceiveMessageCommandOutput = await client.send(command);
+	const message = await getAuditFromQueue(client);
 
-	await deleteAuditFromQueue(client, response);
+	if (!message || !message.ReceiptHandle) return;
+	await deleteAuditFromQueue(client, message.ReceiptHandle);
 
-	if (response?.Messages && response.Messages[0] && response.Messages[0]?.Body) {
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-		const nextQueueItem = JSON.parse(response.Messages[0]?.Body);
-		if (nextQueueItem?.targetUrl && nextQueueItem?.requesterId && nextQueueItem?.endpoint) {
-			return nextQueueItem as AuditRunParams;
-		}
+	if (!message.Body) return;
+	const body = JSON.parse(message.Body);
+	if (body.targetUrl && body.requesterId && body.endpoint) {
+		return body as AuditRunParams;
 	}
 }
 
-async function deleteAuditFromQueue(client: SQSClient, receiveMessageResponse: ReceiveMessageCommandOutput): Promise<void> {
-	if (!receiveMessageResponse.Messages ||
-		!receiveMessageResponse.Messages[0] ||
-		!receiveMessageResponse.Messages[0].ReceiptHandle
-	) {
-		return;
+async function getAuditFromQueue(client: SQSClient): Promise<Message | void> {
+	const input: ReceiveMessageCommandInput = {QueueUrl: process.env.SQS_URL, WaitTimeSeconds: 20};
+	const command = new ReceiveMessageCommand(input);
+	const response: ReceiveMessageCommandOutput = await client.send(command);
+	if (response.Messages && response.Messages[0]) {
+		return response.Messages[0];
 	}
-	const receiptHandle = receiveMessageResponse.Messages[0].ReceiptHandle;
+}
+
+async function deleteAuditFromQueue(client: SQSClient, receiptHandle: Message['ReceiptHandle']): Promise<void> {
 	const input: DeleteMessageCommandInput = {QueueUrl: process.env.SQS_URL, ReceiptHandle: receiptHandle};
 	const command = new DeleteMessageCommand(input);
 	await client.send(command);
