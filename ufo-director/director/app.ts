@@ -77,7 +77,11 @@ function extractAuditDetails(event: APIGatewayProxyWebsocketEventV2): AuditRunPa
 
 async function addAuditToScheduledQueue(auditDetails: object): Promise<SendMessageCommandOutput> {
   const client = new SQSClient(REGION);
-  const params = { MessageBody: JSON.stringify(auditDetails), QueueUrl: QUEUE_URL };
+  const params = {
+    QueueUrl: QUEUE_URL,
+    MessageBody: JSON.stringify(auditDetails),
+    MessageGroupId: 'scheduled-audit',
+  };
   const command = new SendMessageCommand(params);
   return await client.send(command);
 }
