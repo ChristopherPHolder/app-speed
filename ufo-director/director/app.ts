@@ -5,7 +5,7 @@ import {
   APIGatewayProxyEventV2WithRequestContext,
   APIGatewayEventWebsocketRequestContextV2,
 } from 'aws-lambda';
-import { SendMessageCommand, SendMessageCommandOutput, SQSClient } from '@aws-sdk/client-sqs';
+import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
 import { SendCommandCommand, SendCommandCommandOutput, SSMClient } from '@aws-sdk/client-ssm';
 import {
   DescribeInstanceStatusCommand,
@@ -75,7 +75,7 @@ function extractAuditDetails(event: APIGatewayProxyWebsocketEventV2): AuditRunPa
   };
 }
 
-async function addAuditToScheduledQueue(auditDetails: object): Promise<SendMessageCommandOutput> {
+async function addAuditToScheduledQueue(auditDetails: object): Promise<void> {
   const client = new SQSClient(REGION);
   const params = {
     QueueUrl: QUEUE_URL,
@@ -83,7 +83,7 @@ async function addAuditToScheduledQueue(auditDetails: object): Promise<SendMessa
     MessageGroupId: 'scheduled-audit',
   };
   const command = new SendMessageCommand(params);
-  return await client.send(command);
+  await client.send(command);
 }
 
 async function getInstanceState(client: EC2Client): Promise<DescribeInstanceStatusCommandOutput> {
@@ -100,13 +100,13 @@ async function makeInstanceActive(): Promise<void> {
   }
 }
 
-async function activateInstance(client: EC2Client): Promise<SendCommandCommandOutput> {
+async function activateInstance(client: EC2Client): Promise<void> {
   const StartCmdParams = { InstanceIds: INSTANCE_IDS, DryRun: false };
   const startCmd = new StartInstancesCommand(StartCmdParams);
   await client.send(startCmd);
   const WaiterParams = { client, maxWaitTime: 120 };
   await waitUntilInstanceRunning(WaiterParams, StartCmdParams);
-  return await activateUserFlowConductor();
+  await activateUserFlowConductor();
 }
 
 async function activateUserFlowConductor(): Promise<SendCommandCommandOutput> {
