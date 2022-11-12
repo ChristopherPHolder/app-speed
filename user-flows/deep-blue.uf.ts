@@ -5,11 +5,9 @@ import {
   UserFlowProvider,
 } from '@push-based/user-flow';
 
-import { ScrollAction } from '../actions.uf';
+import { ScrollAction } from './actions/actions.uf';
 
-const interactions: UserFlowInteractionsFn = async (
-  ctx: UserFlowContext
-): Promise<any> => {
+const interactions: UserFlowInteractionsFn = async (ctx: UserFlowContext): Promise<void> => {
   const { flow, collectOptions, page } = ctx;
   const { url } = collectOptions;
 
