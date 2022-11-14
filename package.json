@@ -4,6 +4,7 @@
   "scripts": {
     "lint": "eslint",
     "start-runner": "node dist/apps/user-flow-runner/src/main.js",
+    "build-runner": "nx user-flow-runner:build:prduction",
     "test": "xo"
   },
   "dependencies": {
