@@ -1,8 +1,6 @@
-import dotenv from 'dotenv';
-dotenv.config();
 import {readFileSync, unlinkSync} from 'fs';
 import {S3Client, PutObjectCommand} from '@aws-sdk/client-s3';
-import {S3_RESULTS_BUCKET_URL, S3_RESULTS_BUCKET_NAME} from "./constants";
+import {environment} from '../environments/environment';
 
 export async function uploadResultsToBucket(urlString: string): Promise<string> {
 	const filePath = './measures/deep-blue-performance-test.uf.html';
@@ -10,7 +8,7 @@ export async function uploadResultsToBucket(urlString: string): Promise<string> 
 	const recordKey = getRecordKey(urlString);
 	await uploadRecord(recordKey, recordBody);
 	unlinkSync(filePath);
-	return `${S3_RESULTS_BUCKET_URL}${recordKey}`;
+	return `${environment.s3ResultsBucket.url}${recordKey}`;
 }
 
 function getRecordKey(urlString: string): string {
@@ -40,7 +38,7 @@ async function putRecordInBucket(client: S3Client, recordKey: string, recordBody
 	const cacheControl = 'public, max-age=0, must-revalidate';
 	// eslint-disable-next-line @typescript-eslint/naming-convention
 	const params = {
-		Bucket: S3_RESULTS_BUCKET_NAME,
+		Bucket: environment.s3ResultsBucket.name,
 		Key: recordKey,
 		Body: recordBody,
 		CacheControl: cacheControl,

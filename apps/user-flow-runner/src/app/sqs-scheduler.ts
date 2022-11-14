@@ -8,10 +8,10 @@ import {
 	DeleteMessageCommandInput,
 } from '@aws-sdk/client-sqs';
 import type {AuditRunParams} from './types';
-import {SQS_SCHEDULER_CONFIG} from "./constants";
+import {environment} from '../environments/environment';
 
 export async function takeNextScheduledAudit(): Promise<AuditRunParams | void> {
-	const client = new SQSClient(SQS_SCHEDULER_CONFIG);
+	const client = new SQSClient(environment.sqsSchedulerConfig);
 	const message = await getAuditFromQueue(client);
 
 	if (!message || !message.ReceiptHandle) return;
