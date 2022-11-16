@@ -6,11 +6,10 @@ import {sendAuditResults} from './app/sendResults';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-(async function runner(): Promise<void> {
+(async function runner(): Promise<void|string> {
     const nextAuditRunParams = await takeNextScheduledAudit();
     if (!nextAuditRunParams) {
-        execSync('sudo shutdown -h && exit 0', {shell: '/bin/bash'});
-        return;
+        return execSync('sudo shutdown -h now & exit 0', {shell: '/bin/bash'}).toString();
     }
 
     try {
