@@ -1,9 +1,4 @@
-// Your custom interactions with the page
-import {
-  UserFlowContext,
-  UserFlowInteractionsFn,
-  UserFlowProvider,
-} from '@push-based/user-flow';
+import { UserFlowContext, UserFlowInteractionsFn, UserFlowProvider } from '@push-based/user-flow';
 
 import { ScrollAction } from '../actions.uf';
 
