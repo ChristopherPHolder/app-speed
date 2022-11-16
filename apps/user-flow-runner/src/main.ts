@@ -9,7 +9,7 @@ dotenv.config();
 (async function runner(): Promise<void|string> {
     const nextAuditRunParams = await takeNextScheduledAudit();
     if (!nextAuditRunParams) {
-        execSync('sudo exit 0', {shell: '/bin/bash'});
+        execSync('exit 0', {shell: '/bin/bash'});
         return execSync('sudo shutdown -h now', {shell: '/bin/bash'}).toString();
     }
 
