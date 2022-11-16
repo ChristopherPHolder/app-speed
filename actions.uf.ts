@@ -16,10 +16,7 @@ export class ScrollAction {
 
 	private async _synthesizeTouchScroll(direction: 'down' | 'up'): Promise<void> {
 		const scrollParams = await this._getScrollParams(direction);
-		if (!this.session) {
-			this.session = await this.page.target().createCDPSession();
-		}
-
+		this.session = await this.page.target().createCDPSession();
 		// https://chromedevtools.github.io/devtools-protocol/tot/Input/#method-synthesizeScrollGesture
 		await this.session.send('Input.synthesizeScrollGesture', scrollParams);
 	}
