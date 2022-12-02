@@ -9,6 +9,8 @@
     "strictNullChecks": true,
     "strictFunctionTypes": true,
     "skipLibCheck": true,
-    "paths": { "@user-flow-runner": ["./apps/user-flow-runner/src"]}
+    "paths": {
+      "@user-flow-runner": ["./apps/user-flow-runner/src"]
+    }
   }
 }
