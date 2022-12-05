@@ -2,6 +2,7 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
+    "experimentalDecorators": true,
     "types": []
   },
   "files": ["src/main.ts"],
