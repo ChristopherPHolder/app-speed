@@ -10,8 +10,10 @@
     "strictFunctionTypes": true,
     "skipLibCheck": true,
     "experimentalDecorators": true,
+    "baseUrl": ".",
     "paths": {
-      "@user-flow-runner": ["./apps/user-flow-runner/src"]
+      "@user-flow-runner": ["./apps/user-flow-runner/src"],
+      "core-ui": ["libs/core-ui/src/index.ts"]
     }
   }
 }
