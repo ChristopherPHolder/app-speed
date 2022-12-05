@@ -3,6 +3,7 @@
   "main": "apps/user-flow-runner/src/app/runner.ts",
   "scripts": {
     "lint": "eslint",
+    "start:web": "nx serve user-flow-manager",
     "start-runner": "node dist/apps/user-flow-runner/src/main.js",
     "build-runner": "nx run user-flow-runner:build:prduction",
     "test": "xo"
