@@ -13,7 +13,8 @@
     "baseUrl": ".",
     "paths": {
       "@user-flow-runner": ["./apps/user-flow-runner/src"],
-      "core-ui": ["libs/core-ui/src/index.ts"]
+      "core-ui": ["libs/core-ui/src/index.ts"],
+      "forms": ["libs/forms/src/index.ts"]
     }
   }
 }
