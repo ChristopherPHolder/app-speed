@@ -8,9 +8,17 @@
 </div>
 
 <div class='audit-form-box'>
-  <div class='audit-form'>
-    <input class='audit-input-text' type='text' placeholder='Enter a web page URL to audit'>
+  <form class='audit-form' #f="ngForm" (ngSubmit)="onSubmit(f)" novalidate>
+    <input
+      class='audit-input-text'
+      type='url'
+      pattern="https://.*"
+      placeholder='Enter a web page URL to audit'
+      ngModel
+      name='targetUrl'
+      required
+    >
     <input class='audit-input-btn' type='submit' value='Run Audit'>
-  </div>
+  </form>
 </div>
 
