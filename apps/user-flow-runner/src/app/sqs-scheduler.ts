@@ -7,7 +7,7 @@ import {
 	DeleteMessageCommand,
 	DeleteMessageCommandInput,
 } from '@aws-sdk/client-sqs';
-import type {AuditRunParams} from './types';
+import type { AuditRunParams } from 'shared';
 import {environment} from '../environments/environment';
 
 export async function takeNextScheduledAudit(): Promise<AuditRunParams | void> {

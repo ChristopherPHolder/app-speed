@@ -15,7 +15,7 @@ import {
   waitUntilInstanceRunning,
 } from '@aws-sdk/client-ec2';
 
-import { AuditRunParams } from '../../apps/user-flow-runner/src/app/types';
+import { AuditRunParams } from '../../libs/shared/src/lib/types';
 
 import {
   CONNECTED,

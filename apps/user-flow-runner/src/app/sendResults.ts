@@ -1,5 +1,5 @@
 import {ApiGatewayManagementApiClient, PostToConnectionCommand} from '@aws-sdk/client-apigatewaymanagementapi';
-import type {RunnerResponseMessage} from './types';
+import type {RunnerResponseMessage} from 'shared';
 import {SUCCESSFUL_AUDIT_MSG} from "./constants";
 
 export async function sendAuditResults(connectionId: string, endpoint: string, resultsUrl: string,): Promise<void> {
