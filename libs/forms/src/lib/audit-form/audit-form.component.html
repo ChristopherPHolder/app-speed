@@ -18,7 +18,36 @@
       name='targetUrl'
       required
     >
-    <input class='audit-input-btn' type='submit' value='Run Audit'>
+    <input
+      [style]='webSocketIsConnected ? "audit-input-btn-disabled" : ""'
+      class='audit-input-btn'
+      type='submit'
+      value='Run Audit'
+    >
   </form>
 </div>
 
+<div class='audit-form-box' *ngIf='showResultsBox'>
+
+  <iframe
+    class='html-report-iframe'
+    *ngIf='htmlReportUrl' [src]='htmlReportUrl'
+    title='User-Flow Results'
+  ></iframe>
+
+  <p *ngIf='toastText' class='toast-text'>{{toastText}}</p>
+
+  <!-- Loading spinner should move to separate component -->
+  <div *ngIf='loading'>
+    <div class="lds-roller">
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+  </div>
+</div>

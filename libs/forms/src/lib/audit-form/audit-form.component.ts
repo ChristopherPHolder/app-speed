@@ -3,6 +3,7 @@ import { NgForm } from '@angular/forms';
 import { webSocket } from 'rxjs/webSocket';
 import { AuditRequestParams, RunnerResponseMessage } from 'shared';
 import { Observer } from 'rxjs';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-audit-form',
@@ -14,25 +15,38 @@ export class AuditFormComponent {
   private subject = webSocket('wss://5ag9xf0aab.execute-api.us-east-1.amazonaws.com/ufo');
   private auditRequestParams?: AuditRequestParams;
 
+  showResultsBox = false;
+  loading = false;
+  toastText: string | null = null;
+
+  htmlReportUrl?: SafeResourceUrl;
+
+  webSocketIsConnected?: boolean;
+
+  constructor(private domSanitizer: DomSanitizer) {}
+
   onSubmit(f: NgForm) {
-    // TODO Check Web connection is not open (closed);
-    // before changing the value
-    this.auditRequestParams = {
-      action: 'scheduleAudits',
-      targetUrl: f.value.targetUrl,
+    if (!f.valid || this.webSocketIsConnected) {
+      return console.error('Invalid parameters passed', f.value);
     }
-    console.log(f.value);
-    console.log(f.valid);
+
+    this.auditRequestParams = { action: 'scheduleAudits', targetUrl: f.value.targetUrl }
+
     this.scheduleAudit(this.auditRequestParams);
   }
 
   private scheduleAudit(auditParams: AuditRequestParams): void {
+    console.log('Scheduling audit using', auditParams);
+    this.showResultsBox = true;
+    this.loading = true;
     this.subject.subscribe(this.handleWebSocketMessages());
     this.handleWebSocketOpen(auditParams);
   }
 
   private handleWebSocketOpen(auditParams: AuditRequestParams) {
     console.log('Connection is open!');
+    this.toastText = `Scheduling user-flow audit`;
+    this.webSocketIsConnected = true;
     console.log('Sending request Audit Request:', auditParams);
     this.subject.next(auditParams);
   }
@@ -52,12 +66,18 @@ export class AuditFormComponent {
 
   private handleWebSocketNext(socketResponse: unknown | RunnerResponseMessage): void {
     if (!this.hasProp(socketResponse, 'action') || !this.hasProp(socketResponse, 'message')) {
+      this.loading = false;
+      this.toastText = `Audit Failed`;
       return console.log('Socket response unknown', socketResponse);
     }
     if (socketResponse.action === 'scheduled') {
+      this.toastText = `Audit was successfully schedule\nRunning audit ...`;
       return console.log('Scheduled audit response', socketResponse);
     }
     if (socketResponse.action === 'completed') {
+      this.toastText = null;
+      this.loading = false;
+      // TODO Add check for missing report results;
       return this.receiveAuditResults(socketResponse as RunnerResponseMessage);
     }
   }
@@ -67,11 +87,16 @@ export class AuditFormComponent {
   }
 
   private handleWebSocketComplete(): void {
-    console.log('complete');
+    console.log('Closing Web Socket Connection');
   }
 
   private receiveAuditResults(message: RunnerResponseMessage): void {
-    console.log('message', message);
+    console.log('Audit completed', message);
+
+    if (message?.reports?.htmlReportUrl) {
+      this.htmlReportUrl = this.domSanitizer.bypassSecurityTrustResourceUrl(message.reports.htmlReportUrl)
+    }
+
     this.subject.complete();
   }
 }
