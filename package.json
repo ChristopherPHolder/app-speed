@@ -2,7 +2,7 @@
   "name": "user-flow-server",
   "main": "apps/user-flow-runner/src/app/runner.ts",
   "scripts": {
-    "lint": "eslint",
+    "lint": "nx run-many --all --target=lint",
     "start:web": "nx serve user-flow-manager",
     "start-runner": "node dist/apps/user-flow-runner/src/main.js",
     "build-runner": "nx run user-flow-runner:build:prduction",
