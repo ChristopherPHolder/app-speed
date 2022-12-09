@@ -16,7 +16,7 @@
     }
   },
   "defaultBase": "main",
-  "defaultProject": "user-flow-runner",
+  "defaultProject": "user-flow-manager",
   "generators": {
     "@nrwl/angular:application": {
       "style": "scss",
