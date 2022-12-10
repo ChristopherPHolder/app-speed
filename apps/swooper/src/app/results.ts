@@ -22,7 +22,7 @@ export async function sendAuditResults(connectionId: string, endpoint: string, r
 
   const command = new PostToConnectionCommand({
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
+    // @ts-ignore
     Data: JSON.stringify(responseData),
     ConnectionId: connectionId
   });

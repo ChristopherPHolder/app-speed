@@ -26,6 +26,7 @@
     "@push-based/user-flow": "^0.8.0",
     "aws-sdk": "^2.1218.0",
     "dotenv": "^16.0.3",
+    "lighthouse": "^9.6.8",
     "npx": "^3.0.0",
     "rxjs": "~7.5.0",
     "ts-node": "^10.9.1",

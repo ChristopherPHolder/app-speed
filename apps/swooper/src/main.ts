@@ -3,6 +3,7 @@ import {takeNextScheduledAudit} from './app/queue';
 import {execSync} from 'node:child_process';
 import { uploadResultsToBucket } from './app/store';
 import { sendAuditResults } from './app/results';
+import { runAudits } from './app/audit'
 
 
 (async function swoop(): Promise<void> {
@@ -17,8 +18,8 @@ import { sendAuditResults } from './app/results';
 
   try {
     const {targetUrl, requesterId, endpoint} = nextAuditRunParams;
-    execSync(`npx user-flow --url=${targetUrl} --open=false`, {shell: '/bin/bash'});
-    const resultsUrl = await uploadResultsToBucket(targetUrl);
+    const auditResults = await runAudits({targetUrl});
+    const resultsUrl = await uploadResultsToBucket(targetUrl, auditResults);
     await sendAuditResults(requesterId, endpoint, resultsUrl);
   } catch (error: unknown) {
     console.log(error);

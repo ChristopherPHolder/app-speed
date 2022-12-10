@@ -1,13 +1,11 @@
-import {readFileSync, unlinkSync} from 'fs';
 import {S3Client, PutObjectCommand} from '@aws-sdk/client-s3';
 import {environment} from '../environments/environment';
+import { ResultReports } from 'shared';
 
-export async function uploadResultsToBucket(urlString: string): Promise<string> {
-  const filePath = './measures/deep-blue-performance-test.uf.html';
-  const recordBody = readFileSync(filePath);
+export async function uploadResultsToBucket(urlString: string, reports: ResultReports): Promise<string> {
+  const recordBody = reports.htmlReport;
   const recordKey = getRecordKey(urlString);
   await uploadRecord(recordKey, recordBody);
-  unlinkSync(filePath);
   return `${environment.s3ResultsBucket.url}${recordKey}`;
 }
 
@@ -28,13 +26,12 @@ function generateSimpleHash(length: number): string {
   return result;
 }
 
-async function uploadRecord(recordKey: string, recordBody: Buffer): Promise<void> {
+async function uploadRecord(recordKey: string, recordBody: string): Promise<void> {
   const client = new S3Client({region: 'eu-central-1'});
   await putRecordInBucket(client, recordKey, recordBody);
 }
 
-async function putRecordInBucket(client: S3Client, recordKey: string, recordBody: Buffer): Promise<void> {
-
+async function putRecordInBucket(client: S3Client, recordKey: string, recordBody: string): Promise<void> {
   const cacheControl = 'public, max-age=0, must-revalidate';
   // eslint-disable-next-line @typescript-eslint/naming-convention
   const params = {
