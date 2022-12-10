@@ -1,6 +1,6 @@
 # UFO
 
-The purpuse of this repository it to create a simple way to run lighthouse user-flows online in a stable enviromemnt. It should have a web interface and allow users store and schedule user-flow audits. 
+The purpose of this repository it to create a simple way to run lighthouse user-flows online in a stable enviromemnt. It should have a web interface and allow users store and schedule user-flow audits. 
 
 ## General architecture for user-flow runner
 
