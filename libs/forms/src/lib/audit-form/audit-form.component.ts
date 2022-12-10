@@ -4,6 +4,7 @@ import { webSocket } from 'rxjs/webSocket';
 import { AuditRequestParams, RunnerResponseMessage } from 'shared';
 import { Observer } from 'rxjs';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { environment } from 'shared';
 
 @Component({
   selector: 'app-audit-form',
@@ -11,8 +12,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
   styleUrls: ['./audit-form.component.scss'],
 })
 export class AuditFormComponent {
-  // 'wss://5ag9xf0aab.execute-api.us-east-1.amazonaws.com/ufo'
-  private subject = webSocket('wss://5ag9xf0aab.execute-api.us-east-1.amazonaws.com/ufo');
+  private subject = webSocket(environment.ufoSocketUrl);
   private auditRequestParams?: AuditRequestParams;
 
   showResultsBox = false;
