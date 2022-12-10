@@ -12,6 +12,7 @@
         "compiler": "tsc",
         "outputPath": "dist/apps/user-flow-runner",
         "main": "apps/user-flow-runner/src/main.ts",
+        "rootDir": ".",
         "tsConfig": "apps/user-flow-runner/tsconfig.app.json",
         "assets": ["apps/user-flow-runner/src/assets"]
       },
