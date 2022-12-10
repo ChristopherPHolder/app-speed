@@ -9,7 +9,7 @@
     "deploy:prod": "aws s3 sync ./dist/apps/user-flow-manager s3://app.deep-blue.io --delete",
     "start-runner": "node dist/apps/user-flow-runner/src/main.js",
     "build-runner": "nx run user-flow-runner:build:prduction",
-    "test": "xo"
+    "test": "nx test"
   },
   "dependencies": {
     "@angular/animations": "~15.0.0",
