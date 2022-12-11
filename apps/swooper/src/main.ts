@@ -3,7 +3,7 @@ import {takeNextScheduledAudit} from './app/queue';
 import {execSync} from 'node:child_process';
 import { uploadResultsToBucket } from './app/store';
 import { sendAuditResults } from './app/results';
-import { runAudits } from './app/audit'
+import { UfoRunner } from './app/runner';
 
 
 (async function swoop(): Promise<void> {
@@ -18,7 +18,7 @@ import { runAudits } from './app/audit'
 
   try {
     const {targetUrl, requesterId, endpoint} = nextAuditRunParams;
-    const auditResults = await runAudits({targetUrl});
+    const auditResults = await new UfoRunner({ targetUrl }).run();
     const resultsUrl = await uploadResultsToBucket(targetUrl, auditResults);
     await sendAuditResults(requesterId, endpoint, resultsUrl);
   } catch (error: unknown) {
