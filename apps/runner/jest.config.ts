@@ -1,16 +1,16 @@
 /* eslint-disable */
 export default {
-  displayName: 'user-flow-runner',
+  displayName: 'runner',
   preset: '../../jest.preset.js',
   globals: {
     'ts-jest': {
       tsconfig: '<rootDir>/tsconfig.spec.json',
-    }
+    },
   },
   testEnvironment: 'node',
   transform: {
-    '^.+\\.[tj]s$': 'ts-jest'
+    '^.+\\.[tj]s$': 'ts-jest',
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
-  coverageDirectory: '../../coverage/apps/user-flow-runner'
+  coverageDirectory: '../../coverage/apps/runner',
 };
