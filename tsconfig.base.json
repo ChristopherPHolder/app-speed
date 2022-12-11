@@ -12,7 +12,7 @@
     "experimentalDecorators": true,
     "baseUrl": ".",
     "paths": {
-      "@swooper": ["./apps/swooper/src"],
+      "@runner": ["./apps/runner/src"],
       "@user-flow-runner": ["./apps/user-flow-runner/src"],
       "core-ui": ["libs/core-ui/src/index.ts"],
       "forms": ["libs/forms/src/index.ts"],

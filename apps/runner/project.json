@@ -1,7 +1,7 @@
 {
-  "name": "swooper",
+  "name": "runner",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/swooper/src",
+  "sourceRoot": "apps/runner/src",
   "projectType": "application",
   "targets": {
     "build": {
@@ -11,12 +11,12 @@
         "rootDir": ".",
         "target": "node",
         "compiler": "tsc",
-        "outputPath": "dist/apps/swooper",
-        "main": "apps/swooper/src/main.ts",
-        "bin": "apps/swooper/src/main.ts",
-        "tsConfig": "apps/swooper/tsconfig.app.json",
-        "assets": ["apps/swooper/src/assets"],
-        "external": "none"
+        "outputPath": "dist/apps/runner",
+        "main": "apps/runner/src/main.ts",
+        "bin": "apps/runner/src/main.ts",
+        "tsConfig": "apps/runner/tsconfig.app.json",
+        "assets": ["apps/runner/src/assets"],
+        "external": "all"
       },
       "configurations": {
         "production": {
@@ -25,8 +25,8 @@
           "inspect": false,
           "fileReplacements": [
             {
-              "replace": "apps/swooper/src/environments/environment.ts",
-              "with": "apps/swooper/src/environments/environment.prod.ts"
+              "replace": "apps/runner/src/environments/environment.ts",
+              "with": "apps/runner/src/environments/environment.prod.ts"
             }
           ]
         }
@@ -35,11 +35,11 @@
     "serve": {
       "executor": "@nrwl/js:node",
       "options": {
-        "buildTarget": "swooper:build"
+        "buildTarget": "runner:build"
       },
       "configurations": {
         "production": {
-          "buildTarget": "swooper:build:production"
+          "buildTarget": "runner:build:production"
         }
       }
     },
@@ -47,14 +47,14 @@
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["apps/swooper/**/*.ts"]
+        "lintFilePatterns": ["apps/runner/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "apps/swooper/jest.config.ts",
+        "jestConfig": "apps/runner/jest.config.ts",
         "passWithNoTests": true
       }
     }

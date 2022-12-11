@@ -6,7 +6,7 @@ import { sendAuditResults } from './app/results';
 import { UfoRunner } from './app/runner';
 
 
-(async function swoop(): Promise<void> {
+(async function run(): Promise<void> {
   const nextAuditRunParams = await takeNextScheduledAudit();
   if (!nextAuditRunParams) {
     if (environment.production) {
@@ -25,5 +25,5 @@ import { UfoRunner } from './app/runner';
     console.log(error);
   }
 
-  await swoop();
+  await run();
 })();
