@@ -13,8 +13,10 @@
         "compiler": "tsc",
         "outputPath": "dist/apps/swooper",
         "main": "apps/swooper/src/main.ts",
+        "bin": "apps/swooper/src/main.ts",
         "tsConfig": "apps/swooper/tsconfig.app.json",
-        "assets": ["apps/swooper/src/assets"]
+        "assets": ["apps/swooper/src/assets"],
+        "external": "none"
       },
       "configurations": {
         "production": {
