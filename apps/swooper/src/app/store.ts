@@ -1,6 +1,6 @@
-import {S3Client, PutObjectCommand} from '@aws-sdk/client-s3';
+import {S3Client, PutObjectCommand, S3ClientConfig} from '@aws-sdk/client-s3';
 import {environment} from '../environments/environment';
-import { ResultReports } from 'shared';
+import {ResultReports} from 'shared';
 
 export async function uploadResultsToBucket(urlString: string, reports: ResultReports): Promise<string> {
   const recordBody = reports.htmlReport;
@@ -27,7 +27,8 @@ function generateSimpleHash(length: number): string {
 }
 
 async function uploadRecord(recordKey: string, recordBody: string): Promise<void> {
-  const client = new S3Client({region: 'eu-central-1'});
+  const s3Config: S3ClientConfig = {region: environment.s3ResultsBucket.region};
+  const client = new S3Client(s3Config);
   await putRecordInBucket(client, recordKey, recordBody);
 }
 
