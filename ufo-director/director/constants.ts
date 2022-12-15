@@ -1,4 +1,4 @@
-export const INSTANCE_IDS = ['i-0ac92f269c72da99e'];
+export const INSTANCE_IDS = ['i-0781d8307e3c9e9f7'];
 
 export const QUEUE_URL = 'https://sqs.us-east-1.amazonaws.com/495685399379/ScheduledUserflows.fifo';
 
