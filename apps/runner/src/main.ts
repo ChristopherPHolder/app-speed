@@ -9,8 +9,7 @@ import { UfoRunner } from './app/runner';
 (async function run(): Promise<void> {
   const nextAuditRunParams = await takeNextScheduledAudit();
   if (!nextAuditRunParams) {
-    execSync('exit 0', {shell: '/bin/bash'});
-    execSync('sudo shutdown -h now', {shell: '/bin/bash'});
+    execSync('shutdown -h -t 5 & exit 0', {shell: '/bin/bash'});
     return;
   }
 
