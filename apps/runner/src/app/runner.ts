@@ -1,5 +1,4 @@
 import { launch, Browser, Page } from 'puppeteer';
-import { environment } from '../environments/environment';
 import { ResultReports } from 'shared';
 import { ScrollAction } from './actions';
 
@@ -28,7 +27,13 @@ export class UfoRunner {
   }
 
   private async initRunner(): Promise<void> {
-    this.browser = await launch({headless: environment.production});
+    this.browser = await launch({
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox'
+      ],
+    });
     this.page = await this.browser.newPage();
   }
 
