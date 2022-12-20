@@ -1,6 +1,5 @@
 import { launch, Browser, Page } from 'puppeteer';
 import { ResultReports } from 'shared';
-import { ScrollAction } from './actions';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -27,13 +26,7 @@ export class UfoRunner {
   }
 
   private async initRunner(): Promise<void> {
-    this.browser = await launch({
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox'
-      ],
-    });
+    this.browser = await launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox']});
     this.page = await this.browser.newPage();
   }
 
@@ -42,8 +35,6 @@ export class UfoRunner {
   }
 
   private async runActions(): Promise<void> {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const scrollAction = new ScrollAction(this.page!);
 
     await this.flow.navigate(this.auditDetails.targetUrl, {
       stepName: 'Cold Initial Navigation'
@@ -52,16 +43,6 @@ export class UfoRunner {
     await this.flow.navigate(this.auditDetails.targetUrl, {
       stepName: 'Warm Initial Navigation'
     });
-
-    await this.flow.startTimespan({ stepName: 'Scroll To Bottom Of Page' });
-    await scrollAction.swipeToPageBottom();
-    await this.flow.endTimespan();
-
-    await this.flow.snapshot();
-
-    await this.flow.startTimespan({ stepName: 'Scroll To Top Of Page' });
-    await scrollAction.swipeToPageTop();
-    await this.flow.endTimespan();
   }
 
   private async collectAuditResults(): Promise<ResultReports> {
