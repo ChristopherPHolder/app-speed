@@ -1,5 +1,4 @@
 import { launch, Browser, Page } from 'puppeteer';
-import { environment } from '../environments/environment';
 import { ResultReports } from 'shared';
 import { ScrollAction } from './actions';
 
