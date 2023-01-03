@@ -2,9 +2,7 @@
 
 <div class='audit-heading-container'>
   <h1 class='audit-section-title'>Flow Audits</h1>
-  <p>
-    Measure your sites web performance on more then just the initial load
-  </p>
+  <p>Measure your sites web performance on more then just the initial load</p>
 </div>
 
 <div class='audit-form-box'>
@@ -27,27 +25,9 @@
   </form>
 </div>
 
-<div class='audit-form-box' *ngIf='showResultsBox'>
-
-  <iframe
-    class='html-report-iframe'
-    *ngIf='htmlReportUrl' [src]='htmlReportUrl'
-    title='User-Flow Results'
-  ></iframe>
-
-  <p *ngIf='toastText' class='toast-text'>{{toastText}}</p>
-
-  <!-- Loading spinner should move to separate component -->
-  <div *ngIf='loading'>
-    <div class="lds-roller">
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-    </div>
-  </div>
-</div>
+<app-results
+  *ngIf='showResultsBox'
+  [loading]='loading'
+  [toastText]='toastText'
+  [htmlReportUrl]='htmlReportUrl'
+></app-results>
