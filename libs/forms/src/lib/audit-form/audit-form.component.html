@@ -27,12 +27,10 @@
   </form>
 </div>
 
-<div class='audit-form-box' *ngIf='showResultsBox'>
-
-  <p *ngIf='toastText' class='toast-text'>{{toastText}}</p>
-
-  <iframe class='html-report-iframe' *ngIf='htmlReportUrl' [src]='htmlReportUrl' title='User-Flow Results'></iframe>
-
-  <app-loading-spinner *ngIf='loading'></app-loading-spinner>
-
-</div>
+<app-results-display
+  *ngIf='showResultsBox'
+  [toastText]='toastText'
+  [htmlReportUrl]='htmlReportUrl'
+  [loading]='loading'
+>
+</app-results-display>
