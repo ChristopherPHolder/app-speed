@@ -1,10 +1,17 @@
 <div class='audit-results-box'>
 
-  <p *ngIf='toastText' class='toast-text'>{{toastText}}</p>
+  <p *ngIf="state.select('toastText') | async" class='toast-text'>{{state.select('toastText') | async}}</p>
 
-  <iframe class='html-report-iframe' *ngIf='htmlReportUrl' [src]='htmlReportUrl' title='User-Flow Results'></iframe>
+  <iframe
+    *ngIf="state.select('htmlReportUrl') | async; else loading"
+    [src]="state.select('htmlReportUrl') | async"
+    title='User-Flow Results'
+    class='html-report-iframe'
+  ></iframe>
 
-  <app-loading-spinner *ngIf='loading'></app-loading-spinner>
+  <ng-template #loading>
+    <app-loading-spinner></app-loading-spinner>
+  </ng-template>
 
 </div>
 

@@ -23,8 +23,6 @@ export class AuditFormComponent {
 
   webSocketIsConnected?: boolean;
 
-  constructor(private domSanitizer: DomSanitizer) {}
-
   onSubmit(f: NgForm) {
     if (!f.valid || this.webSocketIsConnected) {
       return console.error('Invalid parameters passed', f.value);
@@ -91,12 +89,6 @@ export class AuditFormComponent {
   }
 
   private receiveAuditResults(message: RunnerResponseMessage): void {
-    console.log('Audit completed', message);
-
-    if (message?.reports?.htmlReportUrl) {
-      this.htmlReportUrl = this.domSanitizer.bypassSecurityTrustResourceUrl(message.reports.htmlReportUrl)
-    }
-
     this.subject.complete();
   }
 }
