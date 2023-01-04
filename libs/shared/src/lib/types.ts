@@ -23,3 +23,4 @@ export type ResultReports = {
 	jsonReport: string
 	htmlReport: string
 }
+export type ResultProgress = 'idle' | 'loading' | 'done';
