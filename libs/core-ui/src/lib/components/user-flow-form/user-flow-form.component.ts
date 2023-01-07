@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, Output, ViewEncapsulation } from '@
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RxActionFactory, preventDefault } from '@rx-angular/state/actions';
-import { RxState } from '@rx-angular/state';
 import { filter, map, withLatestFrom } from 'rxjs';
 
 type UiActions = {
@@ -45,7 +44,6 @@ export class UserFlowFormComponent {
 
   constructor(
     private fb: FormBuilder,
-    private state: RxState<{auditUrl: string;}>,
     private actions: RxActionFactory<UiActions>,
 
   ) {}
