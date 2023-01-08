@@ -1,2 +1,10 @@
-<p>simple-audit works!</p>
-<app-user-flow-form></app-user-flow-form>
+<div class='audit-form-box'>
+  <app-user-flow-form
+    (auditSubmit)='runAudit($event)'
+  ></app-user-flow-form>
+</div>
+
+<app-results-display
+  [htmlReportUrl]="state.select('htmlReportUrl')"
+  [progress]="state.select('progress')"
+></app-results-display>
