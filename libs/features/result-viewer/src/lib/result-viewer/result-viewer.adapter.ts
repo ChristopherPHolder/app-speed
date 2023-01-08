@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { RxState } from '@rx-angular/state';
 import { ResultResource, ResultModel } from 'data-access';
 import { endWith, map, Observable, startWith, tap } from 'rxjs';
+// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { ResultProgress } from 'shared';
 
 type AdapterState = {
