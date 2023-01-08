@@ -36,6 +36,5 @@ export class ResultViewerContainer {
       'progress',
       this.adapter.progress$
     )
-
   }
 }
