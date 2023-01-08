@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { LoadingSpinnerComponentModule } from '../loading-spinner/loading-spinner.component';
 import { map, Observable } from 'rxjs';
+// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { ResultProgress } from 'shared';
 import { RxState } from '@rx-angular/state';
 
