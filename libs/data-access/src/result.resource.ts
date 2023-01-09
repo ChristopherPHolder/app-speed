@@ -16,6 +16,7 @@ export class ResultResource {
 
   getResult(resultName: string): Observable<ResultModel> {
     const url = [this.baseUrl, resultName].join('');
+    // Optional error handling here
     return this.http.get(url);
   }
 }
