@@ -34,13 +34,7 @@ export class ResultsDisplayComponent {
   }
   constructor(
     public state: RxState<ComponentState>,
-    private domSanitizer: DomSanitizer
   ) {}
-
-  private sanitizeUrl(url: string) {
-    console.log('Test', url)
-    return this.domSanitizer.bypassSecurityTrustResourceUrl(url)
-  }
 }
 
 @NgModule({
