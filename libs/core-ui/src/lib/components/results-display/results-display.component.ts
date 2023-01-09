@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation, NgModule, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { SafeResourceUrl } from '@angular/platform-browser';
 import { LoadingSpinnerComponentModule } from '../loading-spinner/loading-spinner.component';
 import { map, Observable } from 'rxjs';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import { ResultProgress } from 'shared';
+import { AuditRunStatus, ResultProgress, BypassSrcDirective} from 'shared';
 import { RxState } from '@rx-angular/state';
 
 const progressMap: Record<ResultProgress, string> = {
@@ -44,7 +44,13 @@ export class ResultsDisplayComponent {
 }
 
 @NgModule({
-  imports: [CommonModule, LoadingSpinnerComponentModule],
+  imports: [
+    CommonModule,
+    BypassSrcDirective,
+    LoadingSpinnerComponentModule,
+    AuditProgressToasterComponent,
+    IfModule
+  ],
   declarations: [ResultsDisplayComponent],
   exports: [ResultsDisplayComponent],
 })
