@@ -1,31 +1,18 @@
 import { Injectable } from '@angular/core';
 import { webSocket } from 'rxjs/webSocket';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import {
-  AuditRequestParams,
-  AuditRunStatus,
-  environment,
-  Reports,
-  RunnerResponseMessage,
-} from 'shared';
-import { filter, map, Observer, startWith } from 'rxjs';
+import { AuditRequestParams, environment, Reports, RunnerResponseMessage } from 'shared';
+import { filter, map, Observer } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class WebsocketResource {
   private readonly wsSubject = webSocket<RunnerResponseMessage>(environment.ufoSocketUrl);
-  readonly progress$ = this.wsSubject.pipe(
-    map(({action}) => action),
-    startWith('idle' as AuditRunStatus ),
-  );
-  readonly reports$ = this.wsSubject.pipe(
-    filter(({reports}) => !!reports),
-    // @TODO fix typing issue
-    map(({reports}) => reports as Reports)
-  );
+  readonly progress$ = this.wsSubject.pipe(map(({action}) => action));
+  // @TODO fix typing issue
+  readonly reports$ = this.wsSubject.pipe(filter(({reports}) => !!reports), map(({reports}) => reports as Reports));
 
-  toastText: string | null = null;
   webSocketIsConnected = false;
 
   scheduleAudit(auditParams: AuditRequestParams): void {
@@ -37,10 +24,8 @@ export class WebsocketResource {
 
   private handleWebSocketOpen(auditParams: AuditRequestParams) {
     console.log('Connection is open!');
-    this.toastText = `Scheduling user-flow audit`;
     this.webSocketIsConnected = true;
     console.log('Sending request Audit Request:', auditParams);
-
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     this.wsSubject.next(auditParams);
@@ -75,11 +60,9 @@ export class WebsocketResource {
 
   private handleWebSocketNext(socketResponse: unknown | RunnerResponseMessage): void {
     if (!this.hasProp(socketResponse, 'action') || !this.hasProp(socketResponse, 'message')) {
-      //this.toastText = `Audit Failed`;
       return console.log('Socket response unknown', socketResponse);
     }
-    if (socketResponse.action === 'scheduled') {
-      //this.toastText = `Audit was successfully schedule\nRunning audit ...`;
+    if (socketResponse.action === 'queued') {
       return console.log('Scheduled audit response', socketResponse);
     }
     if (socketResponse.action === 'completed') {
