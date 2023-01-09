@@ -6,14 +6,12 @@ import { map, Observable } from 'rxjs';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { AuditRunStatus, ResultProgress, BypassSrcDirective} from 'shared';
 import { RxState } from '@rx-angular/state';
+import { AuditProgressToasterComponent } from '../audit-progress-toaster/audit-progress-toaster.component';
+import { IfModule } from '@rx-angular/template/if';
 
-const progressMap: Record<ResultProgress, string> = {
-  idle: "idle result",
-  loading: "Loading the result",
-  done: "",
-}
 
 type ComponentState = {
+  progress: ResultProgress | AuditRunStatus;
   toastText: string;
   htmlReportUrl?: SafeResourceUrl;
 }
@@ -26,11 +24,14 @@ type ComponentState = {
   providers: [RxState]
 })
 export class ResultsDisplayComponent {
-  @Input() set progress (progress$: Observable<ResultProgress>) {
-    this.state.connect('toastText', progress$.pipe(map(v => progressMap[v])));
+
+  toasterTextVisible$ = this.state.select(map(({progress}) => progress !== 'done'))
+
+  @Input() set progress (progress$: Observable<ResultProgress | AuditRunStatus>) {
+    this.state.connect('progress', progress$);
   }
   @Input() set htmlReportUrl (htmlReportUrl$: Observable<string | undefined>) {
-    this.state.connect('htmlReportUrl', htmlReportUrl$.pipe(map(v => this.sanitizeUrl(v as string))));
+    this.state.connect('htmlReportUrl', htmlReportUrl$);
   }
   constructor(
     public state: RxState<ComponentState>,

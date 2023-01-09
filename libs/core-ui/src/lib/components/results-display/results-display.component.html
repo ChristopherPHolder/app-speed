@@ -1,6 +1,9 @@
 <div class='audit-results-box'>
 
-  <p *ngIf="state.select('toastText') | async" class='toast-text'>{{state.select('toastText') | async}}</p>
+  <app-audit-progress-toaster
+    *rxIf='toasterTextVisible$'
+    [progress]="state.select('progress')"
+  ></app-audit-progress-toaster>
 
   <iframe
     *rxIf="state.select('htmlReportUrl'); else loading"
