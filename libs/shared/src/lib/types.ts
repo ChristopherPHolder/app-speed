@@ -26,6 +26,6 @@ export type ResultReports = {
 
 export type ResultProgress = 'loading' | 'done';
 
-export type AuditRunStatus = 'idle' | 'queued'  | 'scheduled' | 'done' | 'failed';
+export type AuditRunStatus = 'idle' | 'scheduling' | 'queued'  | 'scheduled' | 'done' | 'failed';
 
 export type AuditProgressStatus = AuditRunStatus | ResultProgress;

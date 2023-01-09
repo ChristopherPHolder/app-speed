@@ -6,11 +6,12 @@ import { map, Observable } from 'rxjs';
 import { LetModule } from '@rx-angular/template/let';
 
 const progressMap: Record<Partial<AuditProgressStatus>, string> = {
-  idle: "",
+  idle: '',
+  scheduling: 'Audit is being scheduled',
   queued: 'The audit has been scheduled',
   loading: 'Downloading results from storage',
-  scheduled: "",
-  done: "",
+  scheduled: '',
+  done: '',
   failed: 'Sorry there was an error running the audit',
 }
 

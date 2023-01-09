@@ -25,6 +25,9 @@ export class SimpleAuditAdapter extends RxState<AdapterState> {
   }
   initHandleAudit(targetUrl$: Observable<string>): void {
     const t = targetUrl$.pipe(map((targetUrl) => ({targetUrl, action: 'scheduleAudits'})));
-    this.hold(t, auditParams =>  this.webSocket.scheduleAudit(auditParams));
+    this.hold(t, auditParams => {
+      this.webSocket.scheduleAudit(auditParams)
+      this.set({progress: 'scheduling'})
+    });
   }
 }
