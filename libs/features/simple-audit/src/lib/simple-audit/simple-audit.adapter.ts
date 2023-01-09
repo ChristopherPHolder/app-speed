@@ -3,7 +3,7 @@ import { RxState } from '@rx-angular/state';
 import { ResultModel, WebsocketResource } from 'data-access';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { AuditRunStatus } from 'shared';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 
 type AdapterState = {
   reports: ResultModel;
@@ -21,10 +21,10 @@ export class SimpleAuditAdapter extends RxState<AdapterState> {
     super();
     this.connect('progress', this.webSocket.progress$);
     this.connect('reports', this.webSocket.reports$);
-  }
 
-  handleAudit(auditUrl: string): void {
-    const auditParams = {targetUrl: auditUrl, action: 'scheduleAudits'};
-    this.webSocket.scheduleAudit(auditParams);
+  }
+  initHandleAudit(targetUrl$: Observable<string>): void {
+    const t = targetUrl$.pipe(map((targetUrl) => ({targetUrl, action: 'scheduleAudits'})));
+    this.hold(t, auditParams =>  this.webSocket.scheduleAudit(auditParams));
   }
 }
