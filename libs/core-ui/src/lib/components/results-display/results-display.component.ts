@@ -8,6 +8,7 @@ import { AuditRunStatus, ResultProgress, BypassSrcDirective} from 'shared';
 import { RxState } from '@rx-angular/state';
 import { AuditProgressToasterComponent } from '../audit-progress-toaster/audit-progress-toaster.component';
 import { IfModule } from '@rx-angular/template/if';
+import { PushModule } from '@rx-angular/template/push';
 
 
 type ComponentState = {
@@ -23,7 +24,8 @@ type ComponentState = {
     BypassSrcDirective,
     LoadingSpinnerComponent,
     AuditProgressToasterComponent,
-    IfModule
+    IfModule,
+    PushModule,
   ],
   templateUrl: './results-display.component.html',
   styleUrls: ['./results-display.component.scss'],
