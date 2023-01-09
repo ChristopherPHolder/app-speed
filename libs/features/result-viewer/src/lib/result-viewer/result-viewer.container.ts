@@ -5,11 +5,11 @@ import { ResultViewerAdapter } from './result-viewer.adapter';
 import { ResultsDisplayComponent } from 'core-ui';
 import { RxState } from '@rx-angular/state';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import { ResultProgress } from 'shared';
+import { AuditRunStatus } from 'shared';
 import { map } from 'rxjs';
 
 type ContainerState = {
-  progress: ResultProgress;
+  progress: Partial<AuditRunStatus>;
   htmlReportUrl?: string;
 }
 @Component({

@@ -23,9 +23,38 @@ export type ResultReports = {
 	jsonReport: string
 	htmlReport: string
 }
+//
+// const KeyToVal = {
+// 	MyKey1: 'myValue1',
+// 	MyKey2: 'myValue2',
+// } as const; // <----- add the <as const> here
 
-export type ResultProgress = 'loading' | 'done';
+//type Keys = keyof typeof KeyToVal;
 
-export type AuditRunStatus = 'idle' | 'scheduling' | 'queued'  | 'scheduled' | 'done' | 'failed';
+// type ValuesTypes = typeof KeyToVal[Keys];
+//
+//
+// const resultProgress = {
+// 	LOADING: 'loading',
+// } as const;
 
-export type AuditProgressStatus = AuditRunStatus | ResultProgress;
+
+
+//export type ResultProgress = 'loading' | 'done';
+
+export const KeyToAuditRunStatus = {
+	IDLE: 'idle',
+	SCHEDULING: 'scheduling',
+	QUEUED: 'queued',
+	LOADING: 'loading',
+	DONE: 'done',
+	FAILED: 'failed'
+} as const;
+
+type AuditRunStatusKeys = keyof typeof KeyToAuditRunStatus;
+
+export type AuditRunStatus = typeof KeyToAuditRunStatus[AuditRunStatusKeys];
+
+//export type AuditRunStatus = 'idle' | 'scheduling' | 'queued'  | 'scheduled' | 'loading' | 'done' | 'failed';
+
+//export type AuditProgressStatus = AuditRunStatus | ResultProgress;

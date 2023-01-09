@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { webSocket } from 'rxjs/webSocket';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import { AuditRequestParams, environment, Reports, RunnerResponseMessage } from 'shared';
+import { AuditRequestParams, environment, RunnerResponseMessage } from 'shared';
 import { filter, map, Observer } from 'rxjs';
 
 @Injectable({
@@ -10,8 +10,7 @@ import { filter, map, Observer } from 'rxjs';
 export class WebsocketResource {
   private readonly wsSubject = webSocket<RunnerResponseMessage>(environment.ufoSocketUrl);
   readonly progress$ = this.wsSubject.pipe(map(({action}) => action));
-  // @TODO fix typing issue
-  readonly reports$ = this.wsSubject.pipe(filter(({reports}) => !!reports), map(({reports}) => reports as Reports));
+  readonly reports$ = this.wsSubject.pipe(filter(({reports}) => !!reports), map(({reports}) => reports));
 
   webSocketIsConnected = false;
 

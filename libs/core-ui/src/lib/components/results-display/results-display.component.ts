@@ -4,7 +4,7 @@ import { SafeResourceUrl } from '@angular/platform-browser';
 import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
 import { map, Observable } from 'rxjs';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import { AuditRunStatus, ResultProgress, BypassSrcDirective} from 'shared';
+import { AuditRunStatus, BypassSrcDirective} from 'shared';
 import { RxState } from '@rx-angular/state';
 import { AuditProgressToasterComponent } from '../audit-progress-toaster/audit-progress-toaster.component';
 import { IfModule } from '@rx-angular/template/if';
@@ -12,7 +12,7 @@ import { PushModule } from '@rx-angular/template/push';
 
 
 type ComponentState = {
-  progress: ResultProgress | AuditRunStatus;
+  progress: AuditRunStatus;
   toastText: string;
   htmlReportUrl?: SafeResourceUrl;
 }
@@ -54,7 +54,7 @@ export class ResultsDisplayComponent {
   toasterTextVisible$ = this.state.select(map(({progress}) => progress !== 'done'))
   loadingSpinnerVisible$ = this.state.select(map(({progress}) => !['idle', 'done', 'failed'].includes(progress)));
 
-  @Input() set progress (progress$: Observable<ResultProgress | AuditRunStatus>) {
+  @Input() set progress (progress$: Observable<AuditRunStatus>) {
     this.state.connect('progress', progress$);
   }
   @Input() set htmlReportUrl (htmlReportUrl$: Observable<string | undefined>) {
