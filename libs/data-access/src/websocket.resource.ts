@@ -1,7 +1,13 @@
 import { Injectable } from '@angular/core';
 import { webSocket } from 'rxjs/webSocket';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import { AuditRequestParams, environment, Reports, ResultProgress, RunnerResponseMessage } from 'shared';
+import {
+  AuditRequestParams,
+  AuditRunStatus,
+  environment,
+  Reports,
+  RunnerResponseMessage,
+} from 'shared';
 import { filter, map, Observer, startWith } from 'rxjs';
 
 @Injectable({
@@ -11,7 +17,7 @@ export class WebsocketResource {
   private readonly wsSubject = webSocket<RunnerResponseMessage>(environment.ufoSocketUrl);
   readonly progress$ = this.wsSubject.pipe(
     map(({action}) => action),
-    startWith('idle' as ResultProgress ),
+    startWith('idle' as AuditRunStatus ),
   );
   readonly reports$ = this.wsSubject.pipe(
     filter(({reports}) => !!reports),

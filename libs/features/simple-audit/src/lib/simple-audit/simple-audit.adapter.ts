@@ -2,12 +2,12 @@ import { Injectable } from '@angular/core';
 import { RxState } from '@rx-angular/state';
 import { ResultModel, WebsocketResource } from 'data-access';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import { ResultProgress } from 'shared';
-import { Observable} from 'rxjs';
+import { AuditRunStatus } from 'shared';
+import { Observable } from 'rxjs';
 
 type AdapterState = {
   reports: ResultModel;
-  progress: ResultProgress;
+  progress: AuditRunStatus;
 };
 
 @Injectable({
@@ -15,7 +15,7 @@ type AdapterState = {
 })
 export class SimpleAuditAdapter extends RxState<AdapterState> {
 
-  readonly progress$: Observable<ResultProgress> = this.select('progress');
+  readonly progress$: Observable<AuditRunStatus> = this.select('progress');
   readonly results$: Observable<ResultModel> = this.select('reports');
   constructor(private webSocket: WebsocketResource) {
     super();

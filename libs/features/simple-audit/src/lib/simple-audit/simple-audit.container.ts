@@ -4,11 +4,11 @@ import { ResultsDisplayComponentModule, UserFlowFormComponent } from 'core-ui';
 import { RxState } from '@rx-angular/state';
 import { SimpleAuditAdapter } from './simple-audit.adapter';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import { ResultProgress } from 'shared';
+import { AuditRunStatus, ResultProgress } from 'shared';
 import { map } from 'rxjs';
 
 type ContainerState = {
-  progress: ResultProgress;
+  progress: ResultProgress | AuditRunStatus;
   htmlReportUrl?: string;
 }
 

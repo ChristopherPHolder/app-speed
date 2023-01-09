@@ -9,7 +9,7 @@ export async function sendAuditResults(connectionId: string, endpoint: string, r
   };
   const SUCCESSFUL_AUDIT_MSG = 'Successfully completed the User Flow Audit';
   const responseData: RunnerResponseMessage = {
-    action: 'completed',
+    action: 'done',
     message: SUCCESSFUL_AUDIT_MSG,
     reports: reports
   };
