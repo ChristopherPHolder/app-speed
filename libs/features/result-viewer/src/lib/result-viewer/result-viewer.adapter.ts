@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { RxState } from '@rx-angular/state';
 import { ResultResource, ResultModel } from 'data-access';
-import { endWith, map, Observable, startWith, tap } from 'rxjs';
+import { endWith, map, Observable, startWith } from 'rxjs';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { ResultProgress } from 'shared';
 
@@ -28,11 +28,5 @@ export class ResultViewerAdapter extends RxState<AdapterState> {
         startWith({ progress: 'loading' as ResultProgress }),
         endWith({ progress: 'done' as ResultProgress}))
     );
-
-    // ResultModel
-    this.connect(
-      'reports',
-      this.resultResource.getResult(exampleUrl).pipe(tap(console.log)));
   }
-
 }
