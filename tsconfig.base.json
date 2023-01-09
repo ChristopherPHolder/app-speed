@@ -16,7 +16,6 @@
       "data-access": ["libs/data-access/src/index.ts"],
       "features/result-viewer": ["libs/features/result-viewer/src/index.ts"],
       "features/simple-audit": ["libs/features/simple-audit/src/index.ts"],
-      "forms": ["libs/forms/src/index.ts"],
       "shared": ["libs/shared/src/index.ts"]
     }
   }
