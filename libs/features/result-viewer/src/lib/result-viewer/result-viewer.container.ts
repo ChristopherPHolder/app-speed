@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/
 import { CommonModule } from '@angular/common';
 import { ResultViewerAdapter } from './result-viewer.adapter';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import { ResultsDisplayComponentModule } from 'core-ui';
+import { ResultsDisplayComponent } from 'core-ui';
 import { RxState } from '@rx-angular/state';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { ResultProgress } from 'shared';
@@ -15,7 +15,7 @@ type ContainerState = {
 @Component({
   selector: 'app-features-result-viewer',
   standalone: true,
-  imports: [CommonModule, ResultsDisplayComponentModule],
+  imports: [CommonModule, ResultsDisplayComponent],
   templateUrl: './result-viewer.container.html',
   styleUrls: ['./result-viewer.container.scss'],
   encapsulation: ViewEncapsulation.None,

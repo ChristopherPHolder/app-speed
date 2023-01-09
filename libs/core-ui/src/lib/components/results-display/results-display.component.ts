@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, NgModule, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SafeResourceUrl } from '@angular/platform-browser';
-import { LoadingSpinnerComponentModule } from '../loading-spinner/loading-spinner.component';
+import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
 import { map, Observable } from 'rxjs';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { AuditRunStatus, ResultProgress, BypassSrcDirective} from 'shared';
@@ -17,6 +17,14 @@ type ComponentState = {
 }
 @Component({
   selector: 'app-results-display',
+  standalone: true,
+  imports: [
+    CommonModule,
+    BypassSrcDirective,
+    LoadingSpinnerComponent,
+    AuditProgressToasterComponent,
+    IfModule
+  ],
   templateUrl: './results-display.component.html',
   styleUrls: ['./results-display.component.scss'],
   encapsulation: ViewEncapsulation.None,
@@ -37,16 +45,3 @@ export class ResultsDisplayComponent {
     public state: RxState<ComponentState>,
   ) {}
 }
-
-@NgModule({
-  imports: [
-    CommonModule,
-    BypassSrcDirective,
-    LoadingSpinnerComponentModule,
-    AuditProgressToasterComponent,
-    IfModule
-  ],
-  declarations: [ResultsDisplayComponent],
-  exports: [ResultsDisplayComponent],
-})
-export class ResultsDisplayComponentModule {}
