@@ -1,5 +1,9 @@
-.audit-form .ng-invalid {
+.audit-form:not(.ng-untouched) .ng-invalid {
   outline: 1px solid red;
+}
+
+.audit-form .ng-valid {
+  outline: 1px solid green;
 }
 
 .audit-form {
