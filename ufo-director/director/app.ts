@@ -122,7 +122,7 @@ async function scheduleAudits(event: APIGatewayProxyWebsocketEventV2): Promise<A
   await addAuditToScheduledQueue(auditDetails);
   await makeInstanceActive();
   const runnerResponseMessage: RunnerResponseMessage = {
-    action: 'scheduled',
+    action: 'queued',
     message: SUCCESS(auditDetails.targetUrl),
   }
   return generateResponse(200, JSON.stringify(runnerResponseMessage));

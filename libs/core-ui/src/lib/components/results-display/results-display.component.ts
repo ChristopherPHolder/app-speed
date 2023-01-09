@@ -34,6 +34,9 @@ type ComponentState = {
 export class ResultsDisplayComponent {
 
   toasterTextVisible$ = this.state.select(map(({progress}) => progress !== 'done'))
+  loadingSpinnerVisible$ = this.state.select(
+    map(({progress}) => progress !== ('idle' && 'done' && 'failed'))
+  );
 
   @Input() set progress (progress$: Observable<ResultProgress | AuditRunStatus>) {
     this.state.connect('progress', progress$);

@@ -6,15 +6,15 @@
   ></app-audit-progress-toaster>
 
   <iframe
-    *rxIf="state.select('htmlReportUrl'); else loading"
+    *rxIf="state.select('htmlReportUrl')"
     [bypassSrc]="state.select('htmlReportUrl') | async"
     class='html-report-iframe'
     title='User-Flow Results'
   ></iframe>
 
-  <ng-template #loading>
-    <app-loading-spinner></app-loading-spinner>
-  </ng-template>
+  <app-loading-spinner
+    *rxIf='loadingSpinnerVisible$'
+  ></app-loading-spinner>
 
 </div>
 

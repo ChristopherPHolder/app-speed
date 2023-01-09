@@ -4,12 +4,13 @@ import { CommonModule } from '@angular/common';
 import { AuditProgressStatus } from 'shared';
 import { map, Observable } from 'rxjs';
 
-const progressMap: Record<AuditProgressStatus, string> = {
+const progressMap: Record<Partial<AuditProgressStatus>, string> = {
   idle: "",
-  loading: "Loading the result",
+  queued: 'The audit has been scheduled',
+  loading: 'Downloading results from storage',
+  scheduled: "",
   done: "",
-  failed: "",
-  scheduled: ""
+  failed: 'Sorry there was an error running the audit',
 }
 
 @Component({
