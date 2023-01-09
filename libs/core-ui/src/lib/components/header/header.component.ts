@@ -2,7 +2,11 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-header',
-  templateUrl: './header.component.html',
+  template: `
+    <div class='header-navbar'>
+      <img class='header-navbar-logo' src='{{logoSrc}}' alt='{{logoAlt}}'>
+    </div>
+  `,
   styleUrls: ['./header.component.scss'],
 })
 export class HeaderComponent {
