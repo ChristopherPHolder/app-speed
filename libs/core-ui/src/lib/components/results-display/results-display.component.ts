@@ -27,7 +27,23 @@ type ComponentState = {
     IfModule,
     PushModule,
   ],
-  templateUrl: './results-display.component.html',
+  template: `
+    <div class='audit-results-box'>
+      <app-audit-progress-toaster
+        *rxIf='toasterTextVisible$'
+        [progress]="state.select('progress')"
+      ></app-audit-progress-toaster>
+      <iframe
+        *rxIf="state.select('htmlReportUrl')"
+        [bypassSrc]="state.select('htmlReportUrl') | push"
+        class='html-report-iframe'
+        title='User-Flow Results'
+      ></iframe>
+      <app-loading-spinner
+        *rxIf='loadingSpinnerVisible$'
+      ></app-loading-spinner>
+    </div>
+  `,
   styleUrls: ['./results-display.component.scss'],
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
