@@ -6,6 +6,7 @@ import { SimpleAuditAdapter } from './simple-audit.adapter';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { AuditRunStatus, ResultProgress } from 'shared';
 import { map } from 'rxjs';
+import { IfModule } from '@rx-angular/template/if';
 
 type ContainerState = {
   progress: ResultProgress | AuditRunStatus;
@@ -15,7 +16,7 @@ type ContainerState = {
 @Component({
   selector: 'app-simple-audit',
   standalone: true,
-  imports: [CommonModule, UserFlowFormComponent, ResultsDisplayComponentModule],
+  imports: [CommonModule, UserFlowFormComponent, ResultsDisplayComponentModule, IfModule],
   templateUrl: './simple-audit.container.html',
   styleUrls: ['./simple-audit.container.scss'],
   encapsulation: ViewEncapsulation.None,
@@ -23,6 +24,7 @@ type ContainerState = {
   providers: [RxState]
 })
 export class SimpleAuditContainer {
+  resultsBoxVisible$ = this.state.select(map(({progress}) => progress !== 'idle'));
   constructor(
     private adapter: SimpleAuditAdapter,
     public state: RxState<ContainerState>

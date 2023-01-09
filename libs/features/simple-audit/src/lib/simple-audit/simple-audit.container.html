@@ -5,6 +5,7 @@
 </div>
 
 <app-results-display
+  *rxIf='resultsBoxVisible$'
   [htmlReportUrl]="state.select('htmlReportUrl')"
   [progress]="state.select('progress')"
 ></app-results-display>
