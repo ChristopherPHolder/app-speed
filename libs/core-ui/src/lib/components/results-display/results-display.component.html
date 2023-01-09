@@ -7,7 +7,7 @@
 
   <iframe
     *rxIf="state.select('htmlReportUrl')"
-    [bypassSrc]="state.select('htmlReportUrl') | async"
+    [bypassSrc]="state.select('htmlReportUrl') | push"
     class='html-report-iframe'
     title='User-Flow Results'
   ></iframe>
