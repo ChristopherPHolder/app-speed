@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { AuditProgressStatus } from 'shared';
 import { map, Observable } from 'rxjs';
+import { LetModule } from '@rx-angular/template/let';
 
 const progressMap: Record<Partial<AuditProgressStatus>, string> = {
   idle: "",
@@ -16,9 +17,9 @@ const progressMap: Record<Partial<AuditProgressStatus>, string> = {
 @Component({
   selector: 'app-audit-progress-toaster',
   standalone: true,
-  imports: [CommonModule],
-  template: `<output>{{toasterText$ | async}}</output>`,
-  styles: [`.toast-text { text-align: center; }`],
+  imports: [CommonModule, LetModule],
+  template: `<output class='toast-text' *rxLet='toasterText$; let toasterText'>{{toasterText}}</output>`,
+  styles: [`.toast-text { text-align: center; display: block; }`],
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
