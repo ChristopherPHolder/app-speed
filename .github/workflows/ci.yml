@@ -76,7 +76,7 @@ jobs:
 
       - name: Deploy Dev Server
         if: ${{ env.is-pull-request == 'true' }}
-        run: npm run deploy:server
+        run: npm run deploy:runner
 
       - name: Deploy Prod Server
         if: ${{ env.is-main-branch == 'true' }}
