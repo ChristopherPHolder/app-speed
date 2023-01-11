@@ -5,8 +5,15 @@ import {
   APIGatewayProxyEventV2WithRequestContext,
   APIGatewayEventWebsocketRequestContextV2,
 } from 'aws-lambda';
-import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
-import { SendCommandCommand, SendCommandCommandOutput, SSMClient } from '@aws-sdk/client-ssm';
+import {
+  SendMessageCommand,
+  SQSClient
+} from '@aws-sdk/client-sqs';
+import {
+  SendCommandCommand,
+  SendCommandCommandOutput,
+  SSMClient
+} from '@aws-sdk/client-ssm';
 import {
   DescribeInstanceStatusCommand,
   DescribeInstanceStatusCommandOutput,
