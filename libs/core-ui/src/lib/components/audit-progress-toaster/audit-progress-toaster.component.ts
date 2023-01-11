@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, Input, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import { AuditRunStatus } from 'shared';
+import { AuditStatusType } from 'shared';
 import { map, Observable } from 'rxjs';
 import { LetModule } from '@rx-angular/template/let';
 
-const progressMap: Record<Partial<AuditRunStatus>, string> = {
+const progressMap: Record<Partial<AuditStatusType>, string> = {
   idle: '',
   scheduling: 'Audit is being scheduled',
   queued: 'The audit has been scheduled',
@@ -25,7 +25,7 @@ const progressMap: Record<Partial<AuditRunStatus>, string> = {
 })
 export class AuditProgressToasterComponent {
   public toasterText$!: Observable<string>;
-  @Input() set progress (progress$: Observable<AuditRunStatus>) {
+  @Input() set progress (progress$: Observable<AuditStatusType>) {
     this.toasterText$ = progress$.pipe(map((progress) => {
       if (!(progress in progressMap)) {
         throw new Error(`State ${progress} not handled @AuditProgressToasterComponent`);
