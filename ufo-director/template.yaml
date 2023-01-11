@@ -4,7 +4,7 @@ Description: >
   ufo-director
 
   Sample SAM Template for ufo-director
-  
+
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
@@ -26,12 +26,12 @@ Resources:
         Minify: true
         Target: "es2020"
         Sourcemap: false
-        EntryPoints: 
+        EntryPoints:
         - app.ts
 
 Outputs:
   DirectorFunction:
-    Description: "Hello World Lambda Function ARN"
+    Description: "Director Lambda Function ARN"
     Value: !GetAtt DirectorFunction.Arn
   DirectorFunctionIamRole:
     Description: "Implicit IAM Role created for Hello World function"

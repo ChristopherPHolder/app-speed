@@ -5,8 +5,15 @@ import {
   APIGatewayProxyEventV2WithRequestContext,
   APIGatewayEventWebsocketRequestContextV2,
 } from 'aws-lambda';
-import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
-import { SendCommandCommand, SendCommandCommandOutput, SSMClient } from '@aws-sdk/client-ssm';
+import {
+  SendMessageCommand,
+  SQSClient
+} from '@aws-sdk/client-sqs';
+import {
+  SendCommandCommand,
+  SendCommandCommandOutput,
+  SSMClient
+} from '@aws-sdk/client-ssm';
 import {
   DescribeInstanceStatusCommand,
   DescribeInstanceStatusCommandOutput,
@@ -70,11 +77,11 @@ function extractAuditDetails(event: APIGatewayProxyWebsocketEventV2): AuditRunPa
     throw new Error(ERROR_01);
   }
   const body = JSON.parse(event.body);
-  if (!body?.targetUrl) {
+  if (!body?.payload) {
     throw new Error(ERROR_02);
   }
   return {
-    targetUrl: body.targetUrl,
+    targetUrl: body.payload,
     requesterId: event.requestContext.connectionId,
     endpoint: `https://${event.requestContext.domainName}/${event.requestContext.stage}`,
   };
@@ -127,10 +134,6 @@ async function scheduleAudits(event: APIGatewayProxyWebsocketEventV2): Promise<A
   }
   return generateResponse(200, JSON.stringify(runnerResponseMessage));
 }
-
-
-
-// @TODO - error socket
 
 export const lambdaHandler = async (
   event: APIGatewayProxyEventV2WithRequestContext<APIGatewayEventWebsocketRequestContextV2>,
