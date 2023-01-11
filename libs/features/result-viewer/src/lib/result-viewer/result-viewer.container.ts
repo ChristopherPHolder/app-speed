@@ -22,6 +22,7 @@ type ContainerState = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [RxState]
 })
+// eslint-disable-next-line @angular-eslint/component-class-suffix
 export class ResultViewerContainer {
 
   constructor(

@@ -45,6 +45,7 @@ type UiActions = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [RxState, RxActionFactory]
 })
+// eslint-disable-next-line @angular-eslint/component-class-suffix
 export class SimpleAuditContainer {
 
   ui = this.actions.create();
