@@ -20,9 +20,7 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
                 'Access-Control-Allow-Credentials': true,
             },
             statusCode: 200,
-            body: JSON.stringify({
-                online: 'true',
-            }),
+            body: '1',
         };
     } catch (error) {
         console.log(error);
