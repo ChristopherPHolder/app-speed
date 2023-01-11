@@ -14,7 +14,7 @@ export type NetworkInformationType = typeof NETWORK_INFORMATION_TYPE[_];
 })
 export class NetworkConnection extends RxEffects {
   private readonly state = new BehaviorSubject<NetworkInformationType>(NETWORK_INFORMATION_TYPE.UNKNOWN);
-  readonly isOnline$: Observable<NetworkInformationType> = this.state.asObservable();
+  readonly connectionType$: Observable<NetworkInformationType> = this.state.asObservable();
 
   constructor(private http: HttpClient) {
     super();

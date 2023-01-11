@@ -26,7 +26,7 @@ export class Ws<T> extends RxEffects {
     }
 
     this.register(
-      this.networkConnection.isOnline$.pipe(distinctUntilChanged()),
+      this.networkConnection.connectionType$.pipe(distinctUntilChanged()),
       connection => {
         if (connection === NETWORK_INFORMATION_TYPE.WIFI) {
           this.webSocket = webSocket<T>(url);

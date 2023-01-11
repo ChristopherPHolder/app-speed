@@ -11,7 +11,9 @@ import { RxActionFactory } from '@rx-angular/state/actions';
 
 type ContainerState = {
   progress: AuditRunStatus;
+  // @TODO remove optional as state is lazy
   htmlReportUrl?: string;
+  isOnline: boolean;
 }
 
 type UiActions = {
@@ -30,6 +32,7 @@ type UiActions = {
 
     <div class='audit-form-box'>
       <app-user-flow-form
+        [disabled]="state.select('isOnline')"
         (auditSubmit)='ui.submit($event)'
       ></app-user-flow-form>
     </div>
@@ -43,26 +46,28 @@ type UiActions = {
   styleUrls: ['./simple-audit.container.scss'],
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [RxState, RxActionFactory]
+  providers: [RxState, RxActionFactory],
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix
 export class SimpleAuditContainer {
 
   ui = this.actions.create();
-  resultsBoxVisible$ = this.state.select(map(({progress}) => progress !== 'idle'));
+  resultsBoxVisible$ = this.state.select(map(({ progress }) => progress !== 'idle'));
+
   constructor(
     private actions: RxActionFactory<UiActions>,
     private adapter: SimpleAuditAdapter,
-    public state: RxState<ContainerState>
+    public state: RxState<ContainerState>,
   ) {
     this.state.connect(
       'htmlReportUrl',
-      this.adapter.results$.pipe(map(({ htmlReportUrl }) => htmlReportUrl))
-    )
+      this.adapter.results$.pipe(map(({ htmlReportUrl }) => htmlReportUrl)),
+    );
     this.state.connect(
       'progress',
-      this.adapter.progress$.pipe(startWith('idle' as AuditRunStatus ))
+      this.adapter.progress$.pipe(startWith('idle' as AuditRunStatus)),
     );
+    this.state.connect('isOnline', this.adapter.isOnline$);
 
     this.adapter.initHandleAudit(this.ui.submit$);
   }
