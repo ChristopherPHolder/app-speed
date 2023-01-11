@@ -1,5 +1,5 @@
 import {ApiGatewayManagementApiClient, PostToConnectionCommand} from '@aws-sdk/client-apigatewaymanagementapi';
-import type {RunnerResponseMessage} from 'shared';
+import type {UfWsActions} from 'shared';
 
 import { Reports } from 'shared';
 
@@ -7,11 +7,10 @@ export async function sendAuditResults(connectionId: string, endpoint: string, r
   const reports: Reports = {
     htmlReportUrl: resultsUrl
   };
-  const SUCCESSFUL_AUDIT_MSG = 'Successfully completed the User Flow Audit';
-  const responseData: RunnerResponseMessage = {
-    action: 'completed',
-    message: SUCCESSFUL_AUDIT_MSG,
-    reports: reports
+
+  const responseData: UfWsActions = {
+    type: 'done',
+    payload: reports
   };
 
   const client = new ApiGatewayManagementApiClient({

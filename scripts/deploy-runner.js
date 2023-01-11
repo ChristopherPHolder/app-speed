@@ -3,6 +3,7 @@ const {
   DescribeInstanceStatusCommand,
   StartInstancesCommand,
   waitUntilInstanceRunning,
+  waitUntilInstanceStopped,
   StopInstancesCommand
 } = require('@aws-sdk/client-ec2');
 
@@ -24,9 +25,13 @@ const DOCUMENT_NAME = 'ufo-runner-deploy';
 })();
 
 async function stopInstanceCommand(ec2Client) {
-  const command = new StopInstancesCommand({InstanceIds: INSTANCE_IDS});
-  await ec2Client.send(command);
+  const stopCmdParams = { InstanceIds: INSTANCE_IDS, DryRun: false };
+  const stopCmd = new StopInstancesCommand(stopCmdParams);
+  await ec2Client.send(stopCmd);
   console.log('Stopping instance')
+  const waiterParams = { client: ec2Client, maxWaitTime: 120 };
+  await waitUntilInstanceStopped(waiterParams, stopCmdParams)
+  console.log('Instance has stopped');
 }
 
 async function runDeploymentDocumentCommand() {
@@ -73,9 +78,9 @@ async function getInstanceState(client) {
 }
 
 async function activateInstance(client) {
-  const StartCmdParams = { InstanceIds: INSTANCE_IDS, DryRun: false };
-  const startCmd = new StartInstancesCommand(StartCmdParams);
+  const startCmdParams = { InstanceIds: INSTANCE_IDS, DryRun: false };
+  const startCmd = new StartInstancesCommand(startCmdParams);
   await client.send(startCmd);
-  const WaiterParams = { client, maxWaitTime: 120 };
-  await waitUntilInstanceRunning(WaiterParams, StartCmdParams);
+  const waiterParams = { client, maxWaitTime: 120 };
+  await waitUntilInstanceRunning(waiterParams, startCmdParams);
 }

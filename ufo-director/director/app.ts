@@ -15,7 +15,7 @@ import {
   waitUntilInstanceRunning,
 } from '@aws-sdk/client-ec2';
 
-import { AuditRunParams } from '../../libs/shared/src/lib/types';
+import { AuditRunParams, UfWsActions } from '../../libs/shared/src/lib/types';
 
 import {
   CONNECTED,
@@ -121,11 +121,11 @@ async function scheduleAudits(event: APIGatewayProxyWebsocketEventV2): Promise<A
   const auditDetails = extractAuditDetails(event);
   await addAuditToScheduledQueue(auditDetails);
   await makeInstanceActive();
-  const responseData = JSON.stringify({
-    action: 'scheduled',
-    message: SUCCESS(auditDetails.targetUrl),
-  });
-  return generateResponse(200, responseData);
+  const runnerResponseMessage: UfWsActions = {
+    type: 'queued',
+    payload: SUCCESS(auditDetails.targetUrl),
+  }
+  return generateResponse(200, JSON.stringify(runnerResponseMessage));
 }
 
 // @TODO - error socket
