@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input, Output, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ErrorHandler, Input, Output, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RxActionFactory, preventDefault } from '@rx-angular/state/actions';
@@ -51,8 +51,9 @@ export class UserFlowFormComponent extends RxEffects {
   constructor(
     private fb: FormBuilder,
     private actions: RxActionFactory<UiActions>,
+    e: ErrorHandler
   ) {
-    super();
+    super(e);
   }
 
   ui = this.actions.create({
