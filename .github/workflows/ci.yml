@@ -80,7 +80,7 @@ jobs:
 
       - name: Deploy Prod Server
         if: ${{ env.is-main-branch == 'true' }}
-        run: npm run deploy:server
+        run: npm run deploy:runner
 
   deploy-client:
     name: Deploy Client
