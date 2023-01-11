@@ -1,1 +1,1 @@
-export type ResultDto = {};
+//export type ResultDto = {};
