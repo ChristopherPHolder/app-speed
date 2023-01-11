@@ -14,6 +14,11 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
     let response: APIGatewayProxyResult;
     try {
         response = {
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'x-requested-with',
+                'Access-Control-Allow-Credentials': true,
+            },
             statusCode: 200,
             body: JSON.stringify({
                 online: 'true',
