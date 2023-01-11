@@ -1,22 +1,15 @@
 import { Injectable } from '@angular/core';
 import { Ws } from 'data-access';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import {
-  environment,
-  AUDIT_STATUS,
-  UfWsActions,
-  AUDIT_REQUEST,
-  AuditRunParams,
-  UfWsSendActions,
-  UfWsRecieveActions,
-} from 'shared';
-import { filter, map, Observable, Observer } from 'rxjs';
+import { AUDIT_REQUEST, AUDIT_STATUS, AuditRunParams, environment, UfWsRecieveActions, UfWsSendActions } from 'shared';
+import { filter, map, Observable } from 'rxjs';
 import { ResultModel } from './result.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class WebsocketResource {
+  private _initialized = false;
   readonly progress$ = this.ws.messages$.pipe(map(({ type }) => type));
   readonly reports$: Observable<ResultModel> = this.ws.messages$.pipe(
     filter(({ type }) => type === AUDIT_STATUS.DONE),
@@ -25,14 +18,15 @@ export class WebsocketResource {
   );
 
   constructor(private readonly ws: Ws<UfWsRecieveActions, UfWsSendActions>) {
-    this.ws.init({
-      url: environment.ufoSocketUrl,
-      closingObserver: {
-        next: () => {
-          console.log('WebSocket Closed');
-        },
-      },
-    });
+    // @TODO init on runAudit to save bandwidth
+    this.init();
+  }
+
+  init() {
+    if (!this._initialized) {
+      this._initialized = true;
+      this.ws.init(environment.ufoSocketUrl);
+    }
   }
 
   runAudit(payload: AuditRunParams) {
