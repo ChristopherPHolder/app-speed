@@ -2,12 +2,12 @@ import { Injectable } from '@angular/core';
 import { RxState } from '@rx-angular/state';
 import { NETWORK_INFORMATION_TYPE, NetworkConnection, ResultModel, WebsocketResource } from 'data-access';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import { AuditRunStatus } from 'shared';
+import { AuditRunParams, AuditStatusType } from 'shared';
 import { map, Observable } from 'rxjs';
 
 type AdapterState = {
   reports: ResultModel;
-  progress: AuditRunStatus;
+  progress: AuditStatusType;
   isOnline: boolean;
 };
 
@@ -16,7 +16,7 @@ type AdapterState = {
 })
 export class SimpleAuditAdapter extends RxState<AdapterState> {
 
-  readonly progress$: Observable<AuditRunStatus> = this.select('progress');
+  readonly progress$: Observable<AuditStatusType> = this.select('progress');
   readonly results$: Observable<ResultModel> = this.select('reports');
   readonly isOnline$: Observable<boolean> = this.select('isOnline');
   constructor(
@@ -31,9 +31,9 @@ export class SimpleAuditAdapter extends RxState<AdapterState> {
 
   }
   initHandleAudit(targetUrl$: Observable<string>): void {
-    const t = targetUrl$.pipe(map((targetUrl) => ({targetUrl, action: 'scheduleAudits'})));
+    const t = targetUrl$.pipe(map((targetUrl) => ({targetUrl})));
     this.hold(t, auditParams => {
-      this.webSocket.scheduleAudit(auditParams)
+      this.webSocket.runAudit(auditParams as unknown as AuditRunParams)
       this.set({progress: 'scheduling'})
     });
   }

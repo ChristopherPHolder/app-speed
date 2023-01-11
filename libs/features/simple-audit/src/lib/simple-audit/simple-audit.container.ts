@@ -4,13 +4,13 @@ import { ResultsDisplayComponent, UserFlowFormComponent } from 'core-ui';
 import { RxState } from '@rx-angular/state';
 import { SimpleAuditAdapter } from './simple-audit.adapter';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import { AuditRunStatus } from 'shared';
-import { map, startWith } from 'rxjs';
+import { AuditStatusType } from 'shared';
+import { map, startWith, tap } from 'rxjs';
 import { IfModule } from '@rx-angular/template/if';
 import { RxActionFactory } from '@rx-angular/state/actions';
 
 type ContainerState = {
-  progress: AuditRunStatus;
+  progress: AuditStatusType;
   // @TODO remove optional as state is lazy
   htmlReportUrl?: string;
   isOnline: boolean;
@@ -65,10 +65,10 @@ export class SimpleAuditContainer {
     );
     this.state.connect(
       'progress',
-      this.adapter.progress$.pipe(startWith('idle' as AuditRunStatus)),
+      this.adapter.progress$.pipe(startWith('idle' as AuditStatusType)),
     );
     this.state.connect('isOnline', this.adapter.isOnline$);
 
-    this.adapter.initHandleAudit(this.ui.submit$);
+    this.adapter.initHandleAudit(this.ui.submit$.pipe(tap(i=>console.log('!!!!!!!!!!!', i))));
   }
 }
