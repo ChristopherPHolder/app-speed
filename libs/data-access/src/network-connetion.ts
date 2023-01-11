@@ -1,6 +1,6 @@
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { environment } from 'shared';
-import { Injectable } from '@angular/core';
+import { ErrorHandler, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, catchError, distinctUntilChanged, map, Observable, of, switchMap, timer } from 'rxjs';
 import { RxEffects } from '@rx-angular/state/effects';
@@ -16,8 +16,11 @@ export class NetworkConnection extends RxEffects {
   private readonly state = new BehaviorSubject<NetworkInformationType>(NETWORK_INFORMATION_TYPE.UNKNOWN);
   readonly connectionType$: Observable<NetworkInformationType> = this.state.pipe(distinctUntilChanged());
 
-  constructor(private http: HttpClient) {
-    super();
+  constructor(
+    private http: HttpClient,
+    e: ErrorHandler
+  ) {
+    super(e);
     this.register(
       timer(0, 5000).pipe(switchMap(() => this.isOnline())),
       type => this.state.next(type),

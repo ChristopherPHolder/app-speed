@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { ErrorHandler, Injectable } from '@angular/core';
 import { Observable, Subject, switchAll } from 'rxjs';
 import { webSocket, WebSocketSubject, WebSocketSubjectConfig } from 'rxjs/webSocket';
 import { RxEffects } from '@rx-angular/state/effects';
@@ -12,8 +12,11 @@ export class Ws<I, O = I> extends RxEffects {
   private webSocket: WebSocketSubject<I | O> | undefined = undefined;
   readonly messages$: Observable<I> = this._ws.pipe(switchAll()) as Observable<I>;
 
-  constructor(private readonly networkConnection: NetworkConnection) {
-    super();
+  constructor(
+    private readonly networkConnection: NetworkConnection,
+    e: ErrorHandler
+  ) {
+    super(e);
   }
 
   init(cfg: string | WebSocketSubjectConfig<I | O>) {
