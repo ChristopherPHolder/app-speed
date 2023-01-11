@@ -15,7 +15,7 @@ import {
   waitUntilInstanceRunning,
 } from '@aws-sdk/client-ec2';
 
-import { AuditRunParams, UfWsActions } from '../../libs/shared/src/lib/types';
+import { AuditRunParams} from '../../libs/shared/src/lib/types';
 
 import {
   CONNECTED,
@@ -29,6 +29,7 @@ import {
   REGION,
   SUCCESS,
 } from './constants';
+import { UfWsActions } from '../../libs/shared/src/lib/ws-types';
 
 function generateResponse(
   responseCode: APIGatewayProxyResult['statusCode'],
