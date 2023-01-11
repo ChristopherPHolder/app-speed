@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, Output, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ErrorHandler, Input, Output, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RxActionFactory, preventDefault } from '@rx-angular/state/actions';
-import { filter, map, withLatestFrom } from 'rxjs';
+import { filter, map, Observable, withLatestFrom } from 'rxjs';
+import { RxEffects } from '@rx-angular/state/effects';
 
 type UiActions = {
   inputChange: string;
@@ -36,17 +37,24 @@ type UiActions = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [RxActionFactory],
 })
-export class UserFlowFormComponent {
+export class UserFlowFormComponent extends RxEffects {
   private readonly urlValidatorPattern = '(https?://)?([\\da-z.-]+)\\.([a-z.]{2,6})[/\\w .-]*/?';
   userflowForm: FormGroup = this.fb.group({
     url: ['', [Validators.required, Validators.pattern(this.urlValidatorPattern)]]
   });
 
+  @Input()
+  set disabled(disabled$: Observable<boolean>) {
+    this.register(disabled$, d => d ? this.userflowForm.enable() : this.userflowForm.disable());
+  }
+
   constructor(
     private fb: FormBuilder,
     private actions: RxActionFactory<UiActions>,
-
-  ) {}
+    e: ErrorHandler
+  ) {
+    super(e);
+  }
 
   ui = this.actions.create({
     inputChange: String,

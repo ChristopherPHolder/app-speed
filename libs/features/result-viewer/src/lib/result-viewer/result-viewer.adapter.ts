@@ -3,11 +3,11 @@ import { RxState } from '@rx-angular/state';
 import { ResultResource, ResultModel } from 'data-access';
 import { endWith, map, Observable, startWith } from 'rxjs';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import { AuditRunStatus, KeyToAuditRunStatus } from 'shared';
+import { AuditStatusType, AUDIT_STATUS } from 'shared';
 
 type AdapterState = {
   reports: ResultModel;
-  progress: AuditRunStatus;
+  progress: AuditStatusType;
 };
 
 const exampleUrl = 'results-viewer.example.json'
@@ -17,7 +17,7 @@ const exampleUrl = 'results-viewer.example.json'
 })
 export class ResultViewerAdapter extends RxState<AdapterState> {
   readonly results$: Observable<ResultModel> = this.select('reports');
-  readonly progress$: Observable<AuditRunStatus> = this.select('progress');
+  readonly progress$: Observable<AuditStatusType> = this.select('progress');
 
   constructor(private resultResource: ResultResource) {
     super();
@@ -25,8 +25,8 @@ export class ResultViewerAdapter extends RxState<AdapterState> {
     this.connect(
       this.resultResource.getResult(exampleUrl).pipe(
         map(reports => ({reports})),
-        startWith({ progress: KeyToAuditRunStatus.LOADING }),
-        endWith({ progress: KeyToAuditRunStatus.DONE }))
+        startWith({ progress: AUDIT_STATUS.LOADING }),
+        endWith({ progress: AUDIT_STATUS.DONE }))
     );
   }
 }

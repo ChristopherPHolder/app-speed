@@ -1,3 +1,7 @@
+# IDEs
+.idea
+.vscode
+
 # Logs
 logs
 *.log
@@ -103,6 +107,6 @@ dist
 # TernJS port file
 .tern-port
 
-# DS_Store Mac 
+# DS_Store Mac
 .DS_Store
 .angular
