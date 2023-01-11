@@ -16,19 +16,25 @@ export class Ws<I, O = I> extends RxEffects {
     super();
   }
 
-  init(url: string | WebSocketSubjectConfig<I | O>) {
-    if (!url) {
+  init(cfg: string | WebSocketSubjectConfig<I | O>) {
+    if (!cfg) {
       throw new Error('WS needs a URL to connect to.');
     }
     if (this.webSocket) {
       throw new Error('WS already initialized');
     }
 
+    if(typeof cfg === 'string') {
+      cfg = {
+        url: cfg
+      }
+    }
+
     this.register(
       this.networkConnection.connectionType$,
       connection => {
         if (connection === NETWORK_INFORMATION_TYPE.WIFI) {
-          this.webSocket = webSocket<I | O>(url);
+          this.webSocket = webSocket<I | O>(cfg);
           this._ws.next(this.webSocket);
         } else {
           this.webSocket && this.webSocket.complete();
