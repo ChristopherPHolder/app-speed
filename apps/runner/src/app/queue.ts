@@ -29,7 +29,7 @@ export async function takeNextScheduledAudit(): Promise<AuditRunParams | void> {
 async function getAuditFromQueue(client: SQSClient): Promise<Message | void> {
 	const input: ReceiveMessageCommandInput = {
 		QueueUrl: environment.sqsScheduler.url,
-		WaitTimeSeconds: 20
+		WaitTimeSeconds: 5
 	};
 	const command = new ReceiveMessageCommand(input);
 	const response: ReceiveMessageCommandOutput = await client.send(command);

@@ -36,7 +36,7 @@ import {
   REGION,
   SUCCESS,
 } from './constants';
-import { UfWsActions } from '../../libs/shared/src/lib/ws-types';
+import { UfWsRecieveActions, UfWsSendActions } from '../../libs/shared/src/lib/ws-types';
 
 function generateResponse(
   responseCode: APIGatewayProxyResult['statusCode'],
@@ -77,12 +77,12 @@ function extractAuditDetails(event: APIGatewayProxyWebsocketEventV2): AuditRunPa
   if (!event?.body || event.body === '') {
     throw new Error(ERROR_01);
   }
-  const body = JSON.parse(event.body);
-  if (!body?.payload) {
+  const body: UfWsSendActions = JSON.parse(event.body);
+  if (!body?.payload?.targetUrl) {
     throw new Error(ERROR_02);
   }
   return {
-    targetUrl: body.payload,
+    targetUrl: body.payload.targetUrl,
     requesterId: event.requestContext.connectionId,
     endpoint: `https://${event.requestContext.domainName}/${event.requestContext.stage}`,
   };
@@ -129,7 +129,7 @@ async function scheduleAudits(event: APIGatewayProxyWebsocketEventV2): Promise<A
   const auditDetails = extractAuditDetails(event);
   await addAuditToScheduledQueue(auditDetails);
   await makeInstanceActive();
-  const runnerResponseMessage: UfWsActions = {
+  const runnerResponseMessage: UfWsRecieveActions = {
     type: 'queued',
     payload: SUCCESS(auditDetails.targetUrl),
   }
