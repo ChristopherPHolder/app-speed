@@ -12,4 +12,4 @@ export type AuditRunParams = {
 	targetUrl: string;
 	requesterId: string;
 	endpoint: string;
-} & Record<string, string>;
+};
