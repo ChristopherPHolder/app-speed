@@ -1,4 +1,3 @@
-
 export type Reports = {
 	htmlReportUrl?: string;
 }

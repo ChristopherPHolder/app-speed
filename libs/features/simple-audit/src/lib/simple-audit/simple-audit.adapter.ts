@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
 import { RxState } from '@rx-angular/state';
-import { NETWORK_INFORMATION_TYPE, NetworkConnection, ResultModel, WebsocketResource } from 'data-access';
+// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+import { ResultModel, WebsocketResource } from 'data-access';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { AuditRunParams, AuditStatusType } from 'shared';
 import { map, Observable } from 'rxjs';
+import { NetworkConnection, NETWORK_INFORMATION_TYPE } from 'shared';
 
 type AdapterState = {
   reports: ResultModel;

@@ -19,7 +19,8 @@
           "tsConfig": "libs/core-ui/tsconfig.lib.json"
         }
       },
-      "defaultConfiguration": "production"
+      "defaultConfiguration": "production",
+      "dependsOn": ["^build"]
     },
     "test": {
       "executor": "@nrwl/jest:jest",

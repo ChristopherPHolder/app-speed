@@ -2,6 +2,7 @@
   "name": "user-flow-server",
   "main": "apps/user-flow-runner/src/app/runner.ts",
   "scripts": {
+    "nx": "nx",
     "start": "npm run start:web",
     "lint": "nx run-many --all --target=lint",
     "build": "nx build",

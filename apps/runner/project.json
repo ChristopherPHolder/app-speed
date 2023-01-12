@@ -30,7 +30,8 @@
             }
           ]
         }
-      }
+      },
+      "dependsOn": ["^build"]
     },
     "serve": {
       "executor": "@nrwl/js:node",
