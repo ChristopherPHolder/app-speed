@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Ws } from 'data-access';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import { AUDIT_REQUEST, AUDIT_STATUS, AuditRunParams, environment, UfWsRecieveActions, UfWsSendActions } from 'shared';
+import { AUDIT_REQUEST, AUDIT_STATUS, AuditRunParams, UfWsRecieveActions, UfWsSendActions } from 'shared';
 import { filter, map, Observable } from 'rxjs';
 import { ResultModel } from './result.model';
+import { environment } from 'environments';
 
 @Injectable({
   providedIn: 'root',
