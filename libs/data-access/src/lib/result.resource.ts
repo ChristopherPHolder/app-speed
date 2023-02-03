@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ResultModel } from './result.model';
-// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { environment } from 'environments'
 import { HttpClient } from '@angular/common/http';
 
