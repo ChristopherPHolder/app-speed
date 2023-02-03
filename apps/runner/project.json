@@ -15,8 +15,7 @@
         "main": "apps/runner/src/main.ts",
         "bin": "apps/runner/src/main.ts",
         "tsConfig": "apps/runner/tsconfig.app.json",
-        "assets": ["apps/runner/src/assets"],
-        "external": "all"
+        "assets": ["apps/runner/src/assets"]
       },
       "configurations": {
         "production": {
