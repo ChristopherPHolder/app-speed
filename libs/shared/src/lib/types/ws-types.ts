@@ -1,5 +1,5 @@
 import { AuditRunParams, Reports } from './types';
-import { AUDIT_REQUEST, AUDIT_STATUS } from './constants';
+import { AUDIT_REQUEST, AUDIT_STATUS } from '../constants/constants';
 
 type _ = keyof typeof AUDIT_STATUS;
 export type AuditStatusType = typeof AUDIT_STATUS[_];
