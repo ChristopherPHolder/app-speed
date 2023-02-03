@@ -5,10 +5,18 @@ import { Component } from '@angular/core';
   standalone: true,
   template: `
     <div class='header-navbar'>
-      <img class='header-navbar-logo' src='{{logoSrc}}' alt='{{logoAlt}}'>
+      <img
+        class='header-navbar-logo' 
+        loading="eager"
+        [src]='logoSrc' 
+        [alt]='logoAlt'
+      >
     </div>
   `,
-  styleUrls: ['./header.component.scss'],
+  styles: [
+    `.header-navbar { height: 48px; border-bottom: 1px solid #dadce0; display: flex; }`,
+    `.header-navbar-logo { margin: -20px; height: 165%; }`
+  ]
 })
 export class HeaderComponent {
   logoSrc = 'https://deep-blue.io/static/80dd2dce56de67693d11cb3ec7ed1efe/507b0/deepblue-logo.webp';
