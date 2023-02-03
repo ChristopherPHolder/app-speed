@@ -1,9 +1,8 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ResultsDisplayComponent, UserFlowFormComponent } from 'core-ui';
+import { ResultsDisplayComponent, UserFlowFormComponent } from 'ui';
 import { RxState } from '@rx-angular/state';
 import { SimpleAuditAdapter } from './simple-audit.adapter';
-// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { AuditStatusType } from 'shared';
 import { map, startWith, tap } from 'rxjs';
 import { IfModule } from '@rx-angular/template/if';

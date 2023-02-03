@@ -3,13 +3,11 @@ import { CommonModule } from '@angular/common';
 import { SafeResourceUrl } from '@angular/platform-browser';
 import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
 import { map, Observable } from 'rxjs';
-// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { AuditStatusType, BypassSrcDirective} from 'shared';
 import { RxState } from '@rx-angular/state';
-import { AuditProgressToasterComponent } from '../audit-progress-toaster/audit-progress-toaster.component';
 import { IfModule } from '@rx-angular/template/if';
 import { PushModule } from '@rx-angular/template/push';
-
+import { ProgressToasterComponent } from '../progress-toaster/progress-toaster.component';
 
 type ComponentState = {
   progress: AuditStatusType;
@@ -23,16 +21,16 @@ type ComponentState = {
     CommonModule,
     BypassSrcDirective,
     LoadingSpinnerComponent,
-    AuditProgressToasterComponent,
+    ProgressToasterComponent,
     IfModule,
     PushModule,
   ],
   template: `
     <div class='audit-results-box'>
-      <app-audit-progress-toaster
+      <app-progress-toaster
         *rxIf='toasterTextVisible$'
         [progress]="state.select('progress')"
-      ></app-audit-progress-toaster>
+      ></app-progress-toaster>
       <iframe
         *rxIf="state.select('htmlReportUrl')"
         [bypassSrc]="state.select('htmlReportUrl') | push"

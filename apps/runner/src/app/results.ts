@@ -1,6 +1,5 @@
 import {ApiGatewayManagementApiClient, PostToConnectionCommand} from '@aws-sdk/client-apigatewaymanagementapi';
 import type {UfWsActions} from 'shared';
-
 import { Reports } from 'shared';
 
 export async function sendAuditResults(connectionId: string, endpoint: string, resultsUrl: string,): Promise<void> {

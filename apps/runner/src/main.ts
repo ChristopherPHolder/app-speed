@@ -1,10 +1,8 @@
-// import {environment} from './environments/environment';
 import {takeNextScheduledAudit} from './app/queue';
 import {execSync} from 'node:child_process';
 import { uploadResultsToBucket } from './app/store';
 import { sendAuditResults } from './app/results';
 import { UfoRunner } from './app/runner';
-
 
 (async function run(): Promise<void> {
   const nextAuditRunParams = await takeNextScheduledAudit();

@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-header',
+  standalone: true,
   template: `
     <div class='header-navbar'>
       <img class='header-navbar-logo' src='{{logoSrc}}' alt='{{logoAlt}}'>

@@ -1,9 +1,7 @@
-import { ChangeDetectionStrategy, Component, Input, ViewEncapsulation } from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input, ViewEncapsulation} from '@angular/core';
 import { CommonModule } from '@angular/common';
-// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import { AuditStatusType } from 'shared';
-import { map, Observable } from 'rxjs';
-import { LetModule } from '@rx-angular/template/let';
+import {map, Observable} from 'rxjs';
+import {AuditStatusType} from 'shared';
 
 const progressMap: Record<Partial<AuditStatusType>, string> = {
   idle: '',
@@ -15,15 +13,15 @@ const progressMap: Record<Partial<AuditStatusType>, string> = {
 }
 
 @Component({
-  selector: 'app-audit-progress-toaster',
+  selector: 'app-progress-toaster',
   standalone: true,
-  imports: [CommonModule, LetModule],
+  imports: [CommonModule],
   template: `<output class='toast-text' *rxLet='toasterText$; let toasterText'>{{toasterText}}</output>`,
   styles: [`.toast-text { text-align: center; display: block; }`],
-  encapsulation: ViewEncapsulation.None,
+  encapsulation: ViewEncapsulation.Emulated,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AuditProgressToasterComponent {
+export class ProgressToasterComponent {
   public toasterText$!: Observable<string>;
   @Input() set progress (progress$: Observable<AuditStatusType>) {
     this.toasterText$ = progress$.pipe(map((progress) => {

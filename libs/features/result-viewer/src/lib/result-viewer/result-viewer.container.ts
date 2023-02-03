@@ -1,10 +1,8 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ResultViewerAdapter } from './result-viewer.adapter';
-// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import { ResultsDisplayComponent } from 'core-ui';
+import { ResultsDisplayComponent } from 'ui';
 import { RxState } from '@rx-angular/state';
-// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { AuditStatusType } from 'shared';
 import { map } from 'rxjs';
 
