@@ -18,7 +18,8 @@
       "features/result-viewer": ["libs/features/result-viewer/src/index.ts"],
       "features/simple-audit": ["libs/features/simple-audit/src/index.ts"],
       "shared": ["libs/shared/src/index.ts"],
-      "ui": ["libs/ui/src/index.ts"]
+      "ui": ["libs/ui/src/index.ts"],
+      "user-flow-runner": ["libs/user-flow-runner/src/index.ts"]
     }
   }
 }
