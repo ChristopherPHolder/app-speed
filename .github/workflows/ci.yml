@@ -161,11 +161,11 @@ jobs:
 
       - name: Deploy Dev Client
         if: ${{ env.is-pull-request == 'true' }}
-        run: npm run deploy:dev
+        run: npx nx affected --target=deploy --environment=dev
 
       - name: Deploy Prod Client
         if: ${{ env.is-main-branch == 'true' }}
-        run: npm run deploy:prod
+        run: npx nx affected --target=deploy --environment=prod
 
 #  deploy-server:
 #    name: Deploy Server
@@ -199,36 +199,3 @@ jobs:
 #      - name: Deploy Prod Server
 #        if: ${{ env.is-main-branch == 'true' }}
 #        run: npm run deploy:runner
-
-#  deploy-client:
-#    name: Deploy Client
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#      - uses: actions/checkout@v3
-#
-#      - uses: actions/setup-node@v3
-#        with:
-#          node-version: ${{ env.NODE_VERSION }}
-#          cache: npm
-#
-#      - name: Configure AWS Credentials
-#        uses: aws-actions/configure-aws-credentials@v1
-#        with:
-#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#          aws-region: eu-central-1
-#
-#      - name: Install dependencies
-#        run: npm install
-#
-#      - name: Build Dev
-#        run: npm run build
-#
-#      - name: Deploy Dev Client
-#        if: ${{ env.is-pull-request == 'true' }}
-#        run: npm run deploy:dev
-#
-#      - name: Deploy Prod Client
-#        if: ${{ env.is-main-branch == 'true' }}
-#        run: npm run deploy:prod
