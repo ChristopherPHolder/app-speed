@@ -5,21 +5,19 @@ import { ResultReports } from 'shared';
 // @ts-ignore
 import { startFlow, UserFlow } from 'lighthouse/lighthouse-core/fraggle-rock/api';
 
-type AuditParams = {
+export type AuditParams = {
   targetUrl: string
 }
 
-export class UfoRunner {
+export class UserFlowRunner {
   private browser?: Browser;
   private page?: Page;
   private flow?: UserFlow;
 
-  constructor(private readonly auditDetails: AuditParams) {}
-
-  async run(): Promise<ResultReports> {
+  async run(auditDetails: AuditParams): Promise<ResultReports> {
     await this.initRunner();
     await this.initAuditor();
-    await this.runActions();
+    await this.runActions(auditDetails);
     const results = await this.collectAuditResults();
     await this.killRunner();
     return results;
@@ -34,13 +32,13 @@ export class UfoRunner {
     this.flow = await startFlow(this.page);
   }
 
-  private async runActions(): Promise<void> {
+  private async runActions(auditDetails: AuditParams): Promise<void> {
 
-    await this.flow.navigate(this.auditDetails.targetUrl, {
+    await this.flow.navigate(auditDetails.targetUrl, {
       stepName: 'Cold Initial Navigation'
     });
 
-    await this.flow.navigate(this.auditDetails.targetUrl, {
+    await this.flow.navigate(auditDetails.targetUrl, {
       stepName: 'Warm Initial Navigation'
     });
   }
@@ -57,4 +55,3 @@ export class UfoRunner {
     }
   }
 }
-
