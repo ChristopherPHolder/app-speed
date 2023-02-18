@@ -135,6 +135,7 @@ jobs:
 
   deploy-front-end:
     name: Deploy Front-End
+    needs: [build, lint, test]
     runs-on: ubuntu-latest
 
     steps:
