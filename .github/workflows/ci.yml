@@ -1,4 +1,4 @@
-name: Markets CI
+name: UFO CI
 
 env:
   NODE_VERSION: 18
@@ -13,26 +13,128 @@ on:
       - main
 
 jobs:
-  lint:
-    name: Lint
+  setup:
+    name: Setup CI
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
-
+        with:
+          # We need to fetch all branches and commits so that Nx affected has a base to compare against.
+          fetch-depth: 0
+      # Derive appropriate SHAs for base and head for `nx affected` commands
+      - uses: nrwl/nx-set-shas@v3
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
 
-      - name: Install dependencies
-        run: npm install
+      # Aggressive NPM dependency caching
+      # https://dev.to/drakulavich/aggressive-dependency-caching-in-github-actions-3c64
+      - name: Cache NPM dependencies
+        uses: actions/cache@v3
+        id: cache-primes
+        with:
+          path: |
+            node_modules
+            ~/.cache
+            dist
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
 
-      - name: Lint
-        run: npm run lint
+      - name: Clean Install Dependencies
+        if: steps.cache-primes.outputs.cache-hit != 'true'
+        run: npm ci
+
+  lint:
+    name: Lint Affected
+    needs: setup
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          # We need to fetch all branches and commits so that Nx affected has a base to compare against.
+          fetch-depth: 0
+      # Derive appropriate SHAs for base and head for `nx affected` commands
+      - uses: nrwl/nx-set-shas@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Cache NPM Dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            ~/.cache
+            dist
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
+      - name: Lint Affected
+        run: npx nx affected --target=lint --parallel=3
 
   test:
-    name: Test
+    name: Test Affected
+    needs: setup
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          # We need to fetch all branches and commits so that Nx affected has a base to compare against.
+          fetch-depth: 0
+      # Derive appropriate SHAs for base and head for `nx affected` commands
+      - uses: nrwl/nx-set-shas@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Cache NPM Dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            ~/.cache
+            dist
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
+      - name: Test Affected
+        run: npx nx affected --target=test --parallel=3
+
+  build:
+    name: Build Affected
+    needs: setup
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          # We need to fetch all branches and commits so that Nx affected has a base to compare against.
+          fetch-depth: 0
+      # Derive appropriate SHAs for base and head for `nx affected` commands
+      - uses: nrwl/nx-set-shas@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Cache NPM Dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            ~/.cache
+            dist
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
+      - name: Build Affected
+        run: npx nx affected --target=build --parallel=3
+
+
+  deploy-front-end:
+    name: Deploy Front-End
     runs-on: ubuntu-latest
 
     steps:
@@ -43,11 +145,26 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
+
       - name: Install dependencies
         run: npm install
 
-      - name: Test
-        run: npm run test
+      - name: Build Dev
+        run: npm run build
+
+      - name: Deploy Dev Client
+        if: ${{ env.is-pull-request == 'true' }}
+        run: npm run deploy:dev
+
+      - name: Deploy Prod Client
+        if: ${{ env.is-main-branch == 'true' }}
+        run: npm run deploy:prod
 
 #  deploy-server:
 #    name: Deploy Server
@@ -82,35 +199,35 @@ jobs:
 #        if: ${{ env.is-main-branch == 'true' }}
 #        run: npm run deploy:runner
 
-  deploy-client:
-    name: Deploy Client
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-central-1
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build Dev
-        run: npm run build
-
-      - name: Deploy Dev Client
-        if: ${{ env.is-pull-request == 'true' }}
-        run: npm run deploy:dev
-
-      - name: Deploy Prod Client
-        if: ${{ env.is-main-branch == 'true' }}
-        run: npm run deploy:prod
+#  deploy-client:
+#    name: Deploy Client
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - uses: actions/checkout@v3
+#
+#      - uses: actions/setup-node@v3
+#        with:
+#          node-version: ${{ env.NODE_VERSION }}
+#          cache: npm
+#
+#      - name: Configure AWS Credentials
+#        uses: aws-actions/configure-aws-credentials@v1
+#        with:
+#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#          aws-region: eu-central-1
+#
+#      - name: Install dependencies
+#        run: npm install
+#
+#      - name: Build Dev
+#        run: npm run build
+#
+#      - name: Deploy Dev Client
+#        if: ${{ env.is-pull-request == 'true' }}
+#        run: npm run deploy:dev
+#
+#      - name: Deploy Prod Client
+#        if: ${{ env.is-main-branch == 'true' }}
+#        run: npm run deploy:prod
