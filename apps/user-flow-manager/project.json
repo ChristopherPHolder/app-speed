@@ -77,6 +77,30 @@
         "jestConfig": "apps/user-flow-manager/jest.config.ts",
         "passWithNoTests": true
       }
+    },
+    "deploy": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "commands": [
+          {
+            "command": "`[ {args.environment} != dev ]` && `[ {args.environment} != prod ]` && exit 1 || exit 0",
+            "forwardAllArgs": true
+          },
+          {
+            "command": "echo 'Deploying to {args.environment} environment'",
+            "forwardAllArgs": true
+          },
+          {
+            "command": "`[ {args.environment} == prod ]` && aws s3 sync ./dist/apps/user-flow-manager s3://app.deep-blue.io --delete || exit 0",
+            "forwardAllArgs": true
+          },
+          {
+            "command": "`[ {args.environment} == dev ]` && aws s3 sync ./dist/apps/user-flow-manager s3://dev.deep-blue.io --delete || exit 0",
+            "forwardAllArgs": true
+          }
+        ]
+      }
     }
   },
   "tags": []
