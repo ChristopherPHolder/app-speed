@@ -1,0 +1,50 @@
+.radial-chart {
+  width: 100px;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+svg {
+  transform: rotate(-90deg);
+}
+
+.background, .progress {
+  stroke-width: 8;
+}
+
+.background {
+  opacity: 15%;
+}
+
+.progress {
+  stroke-dasharray: 282.743;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.3s;
+  fill: none;
+}
+
+.green {
+  color: #30c730;
+  stroke: #30c730;
+  fill: #30c730;
+}
+
+.orange {
+  color: #ffd300;
+  stroke: #ffd300;
+  fill: #ffd300;
+}
+
+.red {
+  color: #ff0000;
+  stroke: #ff0000;
+  fill: #ff0000;
+}
+
+.score-text {
+  font-size: 32px;
+  font-weight: bold;
+  position: absolute;
+}
