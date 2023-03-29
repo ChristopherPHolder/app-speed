@@ -130,7 +130,7 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
 
       - name: Build Affected
-        run: npx nx affected --target=build --parallel=3
+        run: npx nx affected --target=build --parallel=1
 
 
   deploy-front-end:
