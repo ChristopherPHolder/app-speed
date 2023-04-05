@@ -30,17 +30,14 @@ type UiActions = {
     </div>
 
     <div class='audit-form-box'>
-      <app-user-flow-form
-        [disabled]="state.select('isOnline')"
-        (auditSubmit)='ui.submit($event)'
-      ></app-user-flow-form>
+      <app-user-flow-form [disabled]="state.select('isOnline')" (auditSubmit)='ui.submit($event)'/>
     </div>
 
     <app-results-display
       *rxIf='resultsBoxVisible$'
       [htmlReportUrl]="state.select('htmlReportUrl')"
       [progress]="state.select('progress')"
-    ></app-results-display>
+    />
   `,
   styleUrls: ['./simple-audit.container.scss'],
   encapsulation: ViewEncapsulation.None,

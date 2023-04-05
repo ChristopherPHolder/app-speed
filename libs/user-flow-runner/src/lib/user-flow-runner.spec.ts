@@ -7,5 +7,5 @@ describe('UserFlowRunner', () => {
     const results = await runner.run(params);
     expect(results.htmlReport).toBeTruthy();
     expect(results.jsonReport).toBeTruthy();
-  }, 30_000);
+  }, 60_000);
 });

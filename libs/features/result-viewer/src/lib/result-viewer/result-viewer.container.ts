@@ -14,8 +14,9 @@ type ContainerState = {
   selector: 'app-features-result-viewer',
   standalone: true,
   imports: [CommonModule, ResultsDisplayComponent],
-  templateUrl: './result-viewer.container.html',
-  styleUrls: ['./result-viewer.container.scss'],
+  template: `
+    <app-results-display [htmlReportUrl]="state.select('htmlReportUrl')" [progress]="state.select('progress')" />
+  `,
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [RxState]
