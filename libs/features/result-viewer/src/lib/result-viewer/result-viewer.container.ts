@@ -17,7 +17,6 @@ type ContainerState = {
   template: `
     <app-results-display [htmlReportUrl]="state.select('htmlReportUrl')" [progress]="state.select('progress')" />
   `,
-  styleUrls: ['./result-viewer.container.scss'],
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [RxState]
