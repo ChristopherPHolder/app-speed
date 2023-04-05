@@ -64,5 +64,9 @@
       },
       "rules": {}
     }
+  ],
+  "extends": [
+    null,
+    "plugin:storybook/recommended"
   ]
 }
