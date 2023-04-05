@@ -4,7 +4,7 @@ import { Component, Input, ViewEncapsulation } from '@angular/core';
   selector: 'app-radial-chart',
   standalone: true,
   template: `
-      <div class="radial-chart {{getColorScheme()}}">
+      <div class="radial-chart {{getColorScheme()}} {{size}}">
           <svg viewBox="0 0 100 100" >
               <circle cx="50" cy="50" r="45" class="background" />
               <circle cx="50" cy="50" r="45" class="progress" [attr.stroke-dashoffset]="getOffset()"/>
@@ -16,7 +16,8 @@ import { Component, Input, ViewEncapsulation } from '@angular/core';
   encapsulation: ViewEncapsulation.Emulated,
 })
 export class RadialChartComponent {
-  @Input() score = 0;
+  @Input() public score = 0;
+  @Input() public size: 'sm' | 'md' | 'lg' = 'md';
 
   getColorScheme(): 'green' | 'orange' | 'red' {
     if (this.score > 90) return 'green';
