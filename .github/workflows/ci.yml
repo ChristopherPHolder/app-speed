@@ -132,7 +132,6 @@ jobs:
       - name: Build Affected
         run: npx nx affected --target=build --parallel=3
 
-
   deploy-front-end:
     name: Deploy Front-End
     needs: [build, lint, test]
