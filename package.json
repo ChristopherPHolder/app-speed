@@ -14,7 +14,8 @@
     "deploy:prod": "aws s3 sync ./dist/apps/user-flow-manager s3://app.deep-blue.io --delete",
     "start-runner": "node dist/apps/user-flow-runner/src/main.js",
     "build-runner": "nx run user-flow-runner:build:prduction",
-    "test": "nx test"
+    "test": "nx test",
+    "nx-migrate": "nx migrate latest && nx migrate --run-migrations"
   },
   "dependencies": {
     "@angular/animations": "15.2.4",
@@ -51,14 +52,14 @@
     "@angular/cli": "~15.2.0",
     "@angular/compiler-cli": "15.2.4",
     "@angular/language-service": "15.2.4",
-    "@nrwl/angular": "15.8.9",
-    "@nrwl/cypress": "15.8.9",
-    "@nrwl/eslint-plugin-nx": "15.8.9",
-    "@nrwl/jest": "15.8.9",
+    "@nrwl/angular": "15.9.2",
+    "@nrwl/cypress": "15.9.2",
+    "@nrwl/eslint-plugin-nx": "15.9.2",
+    "@nrwl/jest": "15.9.2",
     "@nrwl/js": "15.9.2",
-    "@nrwl/linter": "15.8.9",
-    "@nrwl/node": "15.8.9",
-    "@nrwl/storybook": "^15.9.2",
+    "@nrwl/linter": "15.9.2",
+    "@nrwl/node": "15.9.2",
+    "@nrwl/storybook": "15.9.2",
     "@schematics/angular": "15.2.4",
     "@storybook/addon-essentials": "^7.1.0-alpha.0",
     "@storybook/addon-mdx-gfm": "^7.1.0-alpha.0",
@@ -79,7 +80,7 @@
     "jest-environment-jsdom": "29.4.3",
     "jest-preset-angular": "13.0.1",
     "ng-packagr": "15.2.2",
-    "nx": "15.8.9",
+    "nx": "15.9.2",
     "postcss": "^8.4.5",
     "postcss-import": "~14.1.0",
     "postcss-preset-env": "~7.5.0",
@@ -92,3 +93,4 @@
     "webpack": "^5.64.0"
   }
 }
+
