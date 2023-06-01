@@ -24,7 +24,7 @@ export class UserFlowRunner {
   }
 
   private async initRunner(): Promise<void> {
-    this.browser = await launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox']});
+    this.browser = await launch({ headless: "new", args: ['--no-sandbox', '--disable-setuid-sandbox']});
     this.page = await this.browser.newPage();
   }
 
