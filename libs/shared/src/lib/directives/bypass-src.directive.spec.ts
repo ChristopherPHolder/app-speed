@@ -1,4 +1,4 @@
-import {BypassSrcDirective} from 'shared';
+import {BypassSrcDirective} from './bypass-src.directive';
 import {Component} from '@angular/core';
 import {ComponentFixture, TestBed, waitForAsync} from '@angular/core/testing';
 import {By} from '@angular/platform-browser';
