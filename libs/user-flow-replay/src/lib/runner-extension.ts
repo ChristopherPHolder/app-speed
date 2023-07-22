@@ -1,7 +1,7 @@
 import {PuppeteerRunnerExtension, Step, UserFlow as UserFlowRecording} from "@puppeteer/replay";
 import {Browser, Page} from "puppeteer";
 import { MeasurementStep, UserFlowRecordingStep } from './types';
-import {isMeasureType} from "./utils";
+import { isMeasureType } from "./utils";
 import {UserFlow} from 'lighthouse';
 
 export class UserFlowRunnerExtension extends PuppeteerRunnerExtension {
@@ -12,14 +12,15 @@ export class UserFlowRunnerExtension extends PuppeteerRunnerExtension {
         super(browser, page, opts);
     }
 
-    // eslint-disable-next-line
-    // @ts-ignore
-    async runStep(step: UserFlowRecordingStep, flowRecording: UserFlowRecording): Promise<void> {
+    override async runStep(step: UserFlowRecordingStep, flowRecording: UserFlowRecording): Promise<void> {
         if (isMeasureType(step.type) && !this.flow?.currentTimespan) {
             const userFlowStep = step as MeasurementStep;
             const stepOptions = userFlowStep?.stepOptions;
             if (userFlowStep.type === 'navigate') {
-                return this.flow[userFlowStep.type](userFlowStep?.url, {...stepOptions});
+                if (!userFlowStep.url) {
+                    throw new Error(`Lighthouse User-Flow Navigation Step is missing a Url`)
+                }
+                return this.flow[userFlowStep.type](userFlowStep.url, {...stepOptions});
             }
             return this.flow[userFlowStep.type]({...stepOptions});
         } else {

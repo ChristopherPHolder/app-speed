@@ -2,20 +2,26 @@ import { UserFlowRecordingStep, UserFlowReportJson } from './types';
 import { parse as puppeteerReplayParse, StepType } from '@puppeteer/replay';
 import { isMeasureType } from './utils';
 
+// @TODO parse() should have a more specific type
 export function parse(recordingJson: any): UserFlowReportJson {
   // custom events to exclude from the default parser
   const ufArr: UserFlowRecordingStep[] = [];
 
-  // filter out user-flow specific actions
-  const steps = recordingJson.steps.filter(
-    (value: any, index: number) => {
-      if (isMeasureType(value?.type)) {
-        ufArr[index] = value;
-        return false;
+  let steps;
+  try {
+    // filter out user-flow specific actions
+    steps = recordingJson.steps.filter(
+      (value: any, index: number) => {
+        if (isMeasureType(value?.type)) {
+          ufArr[index] = value;
+          return false;
+        }
+        return true;
       }
-      return true;
-    }
-  );
+    );
+    // eslint-disable-next-line no-empty
+  } catch {}
+
 
   // parse the clean steps
   const parsed: UserFlowReportJson = puppeteerReplayParse({ ...recordingJson, steps });

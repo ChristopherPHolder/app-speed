@@ -24,8 +24,8 @@
           "[data-test=Mocha]"
         ]
       ],
-      "offsetY": 144.24940490722656,
-      "offsetX": 186.73519897460938
+      "offsetY": 0,
+      "offsetX": 0
     },
     {
       "type": "click",
@@ -38,12 +38,12 @@
           "[data-test=checkout]"
         ]
       ],
-      "offsetY": 17.7916259765625,
-      "offsetX": 146.8541259765625
+      "offsetY": 0,
+      "offsetX": 0
     },
     {
       "type": "change",
-      "value": "michael@hladky.at",
+      "value": "chris@holder.dev",
       "selectors": [
         [
           "aria/Name"

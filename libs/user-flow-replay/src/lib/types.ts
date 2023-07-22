@@ -1,12 +1,22 @@
-import { UserFlow, Step } from '@puppeteer/replay';
+import {
+  UserFlow as PuppeteerReplayUserFlow,
+  Step as PuppeteerReplayStep
+} from '@puppeteer/replay';
+import { UserFlow as LightHouseUserFlow } from 'lighthouse';
 
 // @TODO Move to global types and explain what it does
 type Modify<T, R> = Omit<T, keyof R> & R;
 
+type FunctionKeys<T> = {
+  [K in keyof T]: T[K] extends (...args: any[]) => any ? K : never;
+}[keyof T];
+
+export type LhUserFlowStep = FunctionKeys<LightHouseUserFlow>;
+
 /**
  *  'navigation' is already covered by `@puppeteer/replay`
  */
-export type MeasureModes = 'navigate' |'snapshot' | 'startTimespan' | 'endTimespan';
+export type MeasureModes = 'navigate' | 'startNavigation' | 'endNavigation' |'snapshot' | 'startTimespan' | 'endTimespan';
 
 /*
 // Consider modify the Step type
@@ -15,13 +25,13 @@ export type MeasureModes = 'navigate' |'snapshot' | 'startTimespan' | 'endTimesp
 }>;*/
 export type MeasurementStep = {
   type: MeasureModes;
-  stepOptions?: { stepName?: string; }
+  stepOptions?: { name?: string; }
   url?: string;
 }
 
-export type UserFlowRecordingStep = MeasurementStep | Step;
+export type UserFlowRecordingStep = MeasurementStep | PuppeteerReplayStep;
 
-export type UserFlowReportJson = Modify<UserFlow, {
+export type UserFlowReportJson = Modify<PuppeteerReplayUserFlow, {
   steps: UserFlowRecordingStep[];
 }>;
 
