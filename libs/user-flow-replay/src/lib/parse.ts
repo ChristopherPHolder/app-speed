@@ -7,6 +7,7 @@ export function parse(recordingJson: any): UserFlowReportJson {
   // custom events to exclude from the default parser
   const ufArr: UserFlowRecordingStep[] = [];
 
+  // @TODO fix error catching, should be able to handle incorrect input
   let steps;
   try {
     // filter out user-flow specific actions
