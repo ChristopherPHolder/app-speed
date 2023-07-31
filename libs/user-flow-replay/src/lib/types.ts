@@ -9,10 +9,6 @@ import LighthouseStepFlags = UserFlow.StepFlags;
 // @TODO Move to global types and explain what it does
 type Modify<T, R> = Omit<T, keyof R> & R;
 
-/**
- *  'navigation' is already covered by `@puppeteer/replay`
- */
-export type MeasureModes = 'startNavigation' | 'endNavigation' |'snapshot' | 'startTimespan' | 'endTimespan';
 declare enum LighthouseStepType {
   StartNavigation = 'startNavigation',
   EndNavigation = 'endNavigation',
@@ -20,6 +16,14 @@ declare enum LighthouseStepType {
   EndTimespan = 'endTimespan',
   Snapshot = 'snapshot',
 }
+
+export type MeasureModes =
+  LighthouseStepType.StartNavigation |
+  LighthouseStepType.EndNavigation |
+  LighthouseStepType.StartTimespan |
+  LighthouseStepType.EndTimespan |
+  LighthouseStepType.Snapshot;
+
 
 
 export interface StartNavigationStep {

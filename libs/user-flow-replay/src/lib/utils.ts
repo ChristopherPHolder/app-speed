@@ -3,13 +3,14 @@ import { MeasureModes, UserFlowRecordingStep } from './types';
 
 export function isMeasureType(str: string) {
     switch (str as MeasureModes) {
-        case 'navigate':
-        case 'snapshot':
-        case 'startTimespan':
-        case 'endTimespan':
-            return true;
-        default:
-            return false;
+      case 'startNavigation':
+      case 'endNavigation':
+      case 'startTimespan':
+      case 'endTimespan':
+      case 'snapshot':
+        return true;
+      default:
+        return false;
     }
 }
 
