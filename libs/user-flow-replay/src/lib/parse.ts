@@ -1,13 +1,12 @@
-import { UserFlowRecordingStep, UserFlowReportJson } from './types';
+import { AppSpeedUserFlowStep, UserFlowRecordingStep, UserFlowReportJson } from './types';
 import { parse as puppeteerReplayParse, StepType } from '@puppeteer/replay';
 import { isMeasureType } from './utils';
 
 // @TODO parse() should have a more specific type
-export function parse(recordingJson: any): UserFlowReportJson {
+export function parse(recordingJson: any | AppSpeedUserFlowStep): UserFlowReportJson {
   // custom events to exclude from the default parser
   const ufArr: UserFlowRecordingStep[] = [];
 
-  // @TODO fix error catching, should be able to handle incorrect input
   let steps;
   try {
     // filter out user-flow specific actions
