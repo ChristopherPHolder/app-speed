@@ -1,11 +1,11 @@
-import { UserFlowRecordingStep, UserFlowReportJson } from './types';
+import { AppSpeedUserFlow, AppSpeedUserFlowStep } from './types';
 import { parse as puppeteerReplayParse, StepType } from '@puppeteer/replay';
 import { isMeasureType } from './utils';
 
 // @TODO parse() should have a more specific type
-export function parse(recordingJson: any): UserFlowReportJson {
+export function parse(recordingJson: any): AppSpeedUserFlow {
   // custom events to exclude from the default parser
-  const ufArr: UserFlowRecordingStep[] = [];
+  const ufArr: AppSpeedUserFlowStep[] = [];
 
   let steps;
   try {
@@ -24,7 +24,7 @@ export function parse(recordingJson: any): UserFlowReportJson {
 
 
   // parse the clean steps
-  const parsed: UserFlowReportJson = puppeteerReplayParse({ ...recordingJson, steps });
+  const parsed: AppSpeedUserFlow = puppeteerReplayParse({ ...recordingJson, steps });
   // add in user-flow specific actions
   ufArr.forEach((value, index) => {
     value && (parsed.steps.splice(index, 0, value));
@@ -34,7 +34,7 @@ export function parse(recordingJson: any): UserFlowReportJson {
   parsed.steps = parsed.steps.map((step) => {
     if (step.type === StepType.CustomStep && isMeasureType(step.name)) {
       const { name: type, parameters } = step as any;
-      return { type, parameters } as UserFlowRecordingStep;
+      return { type, parameters } as AppSpeedUserFlowStep;
     }
     return step;
   });

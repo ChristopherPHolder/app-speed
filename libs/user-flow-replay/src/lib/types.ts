@@ -49,40 +49,13 @@ export interface SnapshotStep {
   flags?: LighthouseStepFlags
 }
 
-type LighthouseStep = StartNavigationStep | EndNavigationStep | StartTimespanStep | EndTimespanStep | SnapshotStep;
-
-export type MeasurementStep = {
-  type: MeasureModes;
-  stepOptions?: { name?: string; }
-  url?: string;
-}
-
-export type UserFlowRecordingStep = MeasurementStep | PuppeteerReplayStep;
-
-export type UserFlowReportJson = Modify<PuppeteerReplayUserFlow, {
-  steps: UserFlowRecordingStep[];
-}>;
+export type LighthouseStep = StartNavigationStep | EndNavigationStep | StartTimespanStep | EndTimespanStep | SnapshotStep;
 
 export type AppSpeedUserFlowStep = PuppeteerReplayStep | LighthouseStep;
 
-export type AppSpeedUserFlow =  {
-  /**
-   * Human-readble title describing the recorder user flow.
-   */
-  title: string;
-  /**
-   * Timeout in milliseconds.
-   */
-  timeout?: number;
-  /**
-   * The name of the attribute to use to generate selectors instead of regular
-   * CSS selectors. For example, specifying `data-testid` would generate the
-   * selector `[data-testid=value]` for the element `<div data-testid=value>`.
-   */
-  selectorAttribute?: string;
+export type AppSpeedUserFlow = Modify<PuppeteerReplayUserFlow, {
   steps: AppSpeedUserFlowStep[];
-}
-
+}>;
 // It should work with an empty user-flow
 const example0: AppSpeedUserFlow = {
   title: 'Example Title',
