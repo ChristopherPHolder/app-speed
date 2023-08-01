@@ -6,10 +6,11 @@ import {
 import UserFlow from 'lighthouse/types/user-flow';
 import LighthouseStepFlags = UserFlow.StepFlags;
 
+export { PuppeteerReplayStepType };
 // @TODO Move to global types and explain what it does
 type Modify<T, R> = Omit<T, keyof R> & R;
 
-declare enum LighthouseStepType {
+export declare enum LighthouseStepType {
   StartNavigation = 'startNavigation',
   EndNavigation = 'endNavigation',
   StartTimespan = 'startTimespan',
