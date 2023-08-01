@@ -20,6 +20,10 @@ export function parse(recordingJson: any): AppSpeedUserFlow {
     return isNotMeasureType;
   });
 
+  if (ufArr.length === 0) {
+    throw new Error('Recording is missing a lighthouse measurement step');
+  }
+
   const parsed: AppSpeedUserFlow = puppeteerReplayParse({ ...recordingJson, steps });
 
   ufArr.forEach((value, index) => {

@@ -1,5 +1,5 @@
 import { CustomStep, Step, StepType } from '@puppeteer/replay';
-import { MeasureModes, UserFlowRecordingStep } from './types';
+import { MeasureModes, AppSpeedUserFlowStep } from './types';
 
 export function isMeasureType(str: string) {
     switch (str as MeasureModes) {
@@ -14,14 +14,14 @@ export function isMeasureType(str: string) {
     }
 }
 
-export function stringify(enrichedRecordingJson: { title: string, steps: UserFlowRecordingStep[] }): string {
+export function stringify(enrichedRecordingJson: { title: string, steps: AppSpeedUserFlowStep[] }): string {
   const { title, steps } = enrichedRecordingJson;
   const standardizedJson = {
     title,
     steps: (steps).map(
       (step) => {
         if (isMeasureType(step.type)) {
-          return userFlowStepToCustomStep(step as unknown as UserFlowRecordingStep);
+          return userFlowStepToCustomStep(step as unknown as AppSpeedUserFlowStep);
         }
         return step;
       }
@@ -30,7 +30,7 @@ export function stringify(enrichedRecordingJson: { title: string, steps: UserFlo
   return JSON.stringify(standardizedJson);
 }
 
-function userFlowStepToCustomStep(step: UserFlowRecordingStep): Step {
+function userFlowStepToCustomStep(step: AppSpeedUserFlowStep): Step {
   const { type: name, parameters } = step as any;
   const stdStp: CustomStep = {
     type: StepType.CustomStep,
