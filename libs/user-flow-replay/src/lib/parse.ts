@@ -7,25 +7,21 @@ export function parse(recordingJson: any): AppSpeedUserFlow {
   // custom events to exclude from the default parser
   const ufArr: AppSpeedUserFlowStep[] = [];
 
-  let steps;
-  try {
-    // filter out user-flow specific actions
-    steps = recordingJson.steps.filter(
-      (value: any, index: number) => {
-        if (isMeasureType(value?.type)) {
-          ufArr[index] = value;
-          return false;
-        }
-        return true;
-      }
-    );
-    // eslint-disable-next-line no-empty
-  } catch {}
+  if (typeof recordingJson.title !== 'string') {
+    throw new Error('Recording is missing `title`');
+  }
+  if (!Array.isArray(recordingJson.steps)) {
+    throw new Error('Recording is missing `steps`');
+  }
 
+  const steps = recordingJson.steps.filter((value: AppSpeedUserFlowStep, index: number) => {
+    const isNotMeasureType = !isMeasureType(value.type);
+    if (!isNotMeasureType) ufArr[index] = value;
+    return isNotMeasureType;
+  });
 
-  // parse the clean steps
   const parsed: AppSpeedUserFlow = puppeteerReplayParse({ ...recordingJson, steps });
-  // add in user-flow specific actions
+
   ufArr.forEach((value, index) => {
     value && (parsed.steps.splice(index, 0, value));
   });
