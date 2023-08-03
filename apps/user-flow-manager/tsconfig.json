@@ -22,6 +22,7 @@
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
+    "types": ["vitest"]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
