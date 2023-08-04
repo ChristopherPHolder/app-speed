@@ -42,6 +42,7 @@
     "rxjs": "~7.5.0",
     "ts-node": "^10.9.1",
     "tslib": "^2.3.0",
+    "yargs": "^17.7.2",
     "zone.js": "0.13.0"
   },
   "devDependencies": {
@@ -72,6 +73,7 @@
     "@storybook/core-server": "7.0.18",
     "@types/jest": "^29.5.2",
     "@types/node": "18.7.1",
+    "@types/yargs": "^17.0.24",
     "@typescript-eslint/eslint-plugin": "5.59.8",
     "@typescript-eslint/parser": "5.59.8",
     "@vitest/coverage-c8": "^0.31.0",
