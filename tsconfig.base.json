@@ -12,6 +12,8 @@
     "experimentalDecorators": true,
     "baseUrl": ".",
     "paths": {
+      "@ufo/audit-runner": ["apps/audit-runner/src/index"],
+      "@ufo/audit-queue": ["libs/audit-queue/src/index.ts"],
       "@ufo/user-flow-replay": ["libs/user-flow-replay/src/index.ts"],
       "core-ui": ["libs/core-ui/src/index.ts"],
       "data-access": ["libs/data-access/src/index.ts"],

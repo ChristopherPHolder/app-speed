@@ -10,13 +10,10 @@ const i = await yargs(hideBin(process.argv))
     (argv) => {console.info('Handler', argv)}
   )
   .alias('h', 'help')
-  .option('verbose', {
-    alias: 'v',
-    type: 'boolean',
-    description: 'Run with verbose logging'
-  })
+  .option('verbose', { alias: 'v', type: 'boolean', description: 'Run with verbose logging' })
   .demandCommand(1)
   .parse();
 
+const { default: factory } = await import('./utils/queue');
 
-console.info('parse', i);
+const auditQueue =  await factory.createAuditQueue('')
