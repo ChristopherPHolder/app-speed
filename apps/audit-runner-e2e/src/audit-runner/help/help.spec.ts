@@ -33,6 +33,10 @@ describe('CLI tests', () => {
     helpOutput.options.forEach(options => expect(commandOutput).toContain(options));
   }
 
+  it('should run user-flow', () => {
+    expectHelpLog(commandOutput('user-flow'));
+  });
+
   it('should print a help message', () => {
     expectHelpLog(commandOutput('--help'));
     expectHelpLog(commandOutput('--help true'));
