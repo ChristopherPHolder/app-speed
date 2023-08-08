@@ -1,4 +1,4 @@
-import { AuditQueue } from 'shared';
+import { AuditQueue } from '@ufo/cli-middleware';
 
 export class LocalQueue implements AuditQueue {
 
@@ -10,3 +10,5 @@ export class LocalQueue implements AuditQueue {
     return console.info('Next item Void');
   }
 }
+
+export default LocalQueue;

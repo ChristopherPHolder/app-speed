@@ -9,8 +9,8 @@ const i = await yargs(hideBin(process.argv))
     () => {},
     async (argv) => {
       console.info('Handler', argv);
-      const { default: factory } = await import('./utils/queue');
-      const auditQueue =  await factory.createAuditQueue('dist\\libs\\audit-queue\\index.js');
+      const createAuditQueue = await import('@ufo/cli-middleware').then((i) => i.createAuditQueue);
+      const auditQueue =  await createAuditQueue('dist\\libs\\audit-queue\\index.js');
       await auditQueue.nextItem();
     }
   )

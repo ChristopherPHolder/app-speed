@@ -2,6 +2,7 @@
   "name": "audit-runner-e2e",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "implicitDependencies": ["audit-runner"],
+  "projectType": "application",
   "targets": {
     "e2e": {
       "executor": "@nx/vite:test",
