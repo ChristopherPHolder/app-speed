@@ -1,2 +1,1 @@
-import { LocalQueue } from './lib/audit-queue';
-export default LocalQueue;
+export * from './lib/local-queue';

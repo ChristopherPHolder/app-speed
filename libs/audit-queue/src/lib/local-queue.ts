@@ -1,13 +1,47 @@
+import { join } from 'path';
+import { cwd } from 'process';
+import { readdirSync, readFileSync } from 'fs'
+
 import { AuditQueue } from '@ufo/cli-middleware';
+import { AuditRunParams } from 'shared';
+
+export type LocalQueueConfig = {
+  path: string
+}
 
 export class LocalQueue implements AuditQueue {
 
-  constructor(config: any) {
-    console.info('Config', config)
+  private readonly localPath: string;
+  private readonly queuedRef: string[];
+
+  constructor(config: LocalQueueConfig) {
+    console.info('log', config);
+    this.localPath = config.path;
+    this.queuedRef = readdirSync(join(cwd(), this.localPath));
+    console.info('Queue Ref', this.queuedRef);
   }
 
-  async nextItem(): Promise<any> {
-    return console.info('Next item Void');
+  private readReadItem(item: string) {
+    console.info('Reading', item);
+    const file = readFileSync(join(this.localPath, item), { encoding: 'utf-8' });
+    return JSON.parse(file);
+  }
+
+  // @TODO create proper audit guard;
+  private isValidAuditParams(item: any): item is AuditRunParams {
+    return !!item;
+  }
+
+  async nextItem(): Promise<AuditRunParams | void> {
+    if (!this.queuedRef || !this.queuedRef.length) {
+      return;
+    }
+    const item = this.readReadItem(this.queuedRef[0]);
+    this.queuedRef.shift();
+    if (!this.isValidAuditParams(item)) {
+      return await this.nextItem();
+    }
+    return item;
   }
 }
 
