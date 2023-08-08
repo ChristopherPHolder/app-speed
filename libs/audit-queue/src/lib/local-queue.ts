@@ -15,14 +15,11 @@ export class LocalQueue implements AuditQueue {
   private readonly queuedRef: string[];
 
   constructor(config: LocalQueueConfig) {
-    console.info('log', config);
     this.localPath = config.path;
     this.queuedRef = readdirSync(join(cwd(), this.localPath));
-    console.info('Queue Ref', this.queuedRef);
   }
 
   private readReadItem(item: string) {
-    console.info('Reading', item);
     const file = readFileSync(join(this.localPath, item), { encoding: 'utf-8' });
     return JSON.parse(file);
   }
