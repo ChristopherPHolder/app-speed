@@ -1,3 +1,3 @@
 export * from './lib/cli-middleware';
-export { AuditQueue } from './lib/queue/queue.types';
 export { createAuditQueue } from './lib/queue/queue.factory';
+export { readJSONFromFile } from './lib/load-json';

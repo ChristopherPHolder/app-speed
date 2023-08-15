@@ -20,9 +20,13 @@ export class AwsSqs implements AuditQueue {
 
   private sqsClient!: SQSClient;
   private config: SQSConfig;
+  private defaultConfig: SQSConfig = {
+    region: 'us-east-1',
+    url: 'https://sqs.us-east-1.amazonaws.com/495685399379/ScheduledUserflows.fifo',
+  };
 
   constructor(config: SQSConfig) {
-    this.config = config;
+    this.config = config || this.defaultConfig;
     const sqsClientConfig:  SQSClientConfig = {region: config.region};
     this.sqsClient = new SQSClient(sqsClientConfig);
   }

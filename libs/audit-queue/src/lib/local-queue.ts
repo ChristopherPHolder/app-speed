@@ -2,7 +2,7 @@ import { join } from 'path';
 import { cwd } from 'process';
 import { readdirSync, readFileSync } from 'fs'
 
-import { AuditQueue } from '@ufo/cli-middleware';
+import { AuditQueue } from 'shared';
 import { AuditRunParams } from 'shared';
 
 export type LocalQueueConfig = {
@@ -11,20 +11,23 @@ export type LocalQueueConfig = {
 
 export class LocalQueue implements AuditQueue {
 
+  private readonly defaultConfig = { path: './user-flow' };
   private readonly localPath: string;
   private readonly queuedRef: string[];
 
   constructor(config: LocalQueueConfig) {
-    this.localPath = config.path;
+    this.localPath = config?.path || this.defaultConfig.path;
     this.queuedRef = readdirSync(join(cwd(), this.localPath));
   }
 
-  private readReadItem(item: string) {
+  private readReadItem(item: string): object | void {
+    if (!item.includes('json')) {
+      return;
+    }
     const file = readFileSync(join(this.localPath, item), { encoding: 'utf-8' });
     return JSON.parse(file);
   }
 
-  // @TODO create proper audit guard;
   private isValidAuditParams(item: any): item is AuditRunParams {
     return !!item;
   }

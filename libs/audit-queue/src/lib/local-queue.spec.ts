@@ -9,7 +9,6 @@ describe('local queue', async () => {
   const mockPath =  './src/lib/mock-data';
 
   beforeAll(() => {
-    console.info('CWD', )
     mkdirSync(mockPath);
     writeFileSync(join(mockPath, 'mock-audit.json'), '{ "audit": "mock-audit" }');
   })

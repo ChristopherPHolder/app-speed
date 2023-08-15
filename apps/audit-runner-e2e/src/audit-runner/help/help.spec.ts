@@ -10,7 +10,7 @@ const helpOutput = {
     'Options:',
   ],
   commands: [
-    'audit-runner user-flow  run user-flow and store results',
+    'audit-runner user-flow  Load, Run and Store user-flow audits',
   ],
   options: [
     '--version  Show version number',
@@ -19,7 +19,7 @@ const helpOutput = {
   ]
 }
 
-describe('CLI tests', () => {
+describe('help argument', () => {
   const cliPath = getCliPath();
   const execPath = `node ${cliPath}`;
 
