@@ -1,4 +1,4 @@
-import { AuditQueue } from 'shared';
+import { AuditQueue } from '@ufo/cli-interfaces';
 
 const queueMap = new Map<string, Promise<any>>();
 queueMap.set('local', import('@ufo/audit-queue/local-queue'));

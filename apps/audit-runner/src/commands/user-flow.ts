@@ -1,11 +1,12 @@
 import yargs from 'yargs';
 import { createAuditQueue } from '@ufo/cli-middleware';
+import { AuditQueue } from '@ufo/cli-interfaces';
 
 const userFlowHandler = async (args: yargs.ArgumentsCamelCase ) => {
   console.info('user-flow Args: ', args);
 
   const queuePath = args.q as string;
-  const auditQueue = await createAuditQueue(queuePath);
+  const auditQueue: AuditQueue = await createAuditQueue(queuePath);
   let item = await auditQueue.nextItem();
   while(item) {
     console.log('While Item', item);

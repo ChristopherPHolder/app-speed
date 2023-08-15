@@ -1,0 +1,39 @@
+{
+  "name": "cli-interface",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/cli-interface",
+        "main": "libs/cli-interface/src/index.ts",
+        "tsConfig": "libs/cli-interface/tsconfig.lib.json",
+        "assets": ["libs/cli-interface/*.md"],
+        "generatePackageJson": true
+      }
+    },
+    "publish": {
+      "command": "node tools/scripts/publish.mjs cli-interface {args.ver} {args.tag}",
+      "dependsOn": ["build"]
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/cli-interface/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["coverage/libs/cli-interface"],
+      "options": {
+        "passWithNoTests": true,
+        "reportsDirectory": "../../coverage/libs/cli-interface"
+      }
+    }
+  },
+  "tags": []
+}

@@ -1,4 +1,4 @@
-import { AuditRunParams } from '../types/types';
+import { AuditRunParams } from 'shared';
 
 export type AuditQueue = Queue<AuditRunParams>;
 
