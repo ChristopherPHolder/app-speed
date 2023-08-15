@@ -1,3 +1,5 @@
+import { ResultReports } from 'shared';
+
 export interface AuditStore {
-  store(i: any): Promise<any>;
+  store(auditResults: ResultReports): Promise<void>;
 }
