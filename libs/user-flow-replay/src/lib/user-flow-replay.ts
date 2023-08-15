@@ -2,18 +2,14 @@ import { createRunner, Runner, UserFlow as PRUserFlow } from '@puppeteer/replay'
 import { UserFlowRunnerExtension } from './runner-extension';
 import { parse } from './parse';
 import { Browser, launch, Page } from 'puppeteer';
-import { FlowResult as LHFlowResult, startFlow, UserFlow as LHUserFlow } from 'lighthouse';
+import { startFlow, UserFlow as LHUserFlow } from 'lighthouse';
+import { ResultReports } from 'shared';
 
 export type UserFlowRunnerContext = {
   browser: Browser;
   page: Page;
   flow: LHUserFlow;
 };
-
-export type UserFlowAuditResult = {
-  jsonReport: LHFlowResult;
-  htmlReport: string;
-}
 
 export type UserFlowAuditConfiguration = {
   options: object;
@@ -27,6 +23,9 @@ export class UserFlowAudit {
     this.replayScript = parse(configuration.replayScript);
   }
 
+  public async results(): Promise<ResultReports> {
+    return await this.run();
+  }
   public async run() {
     const runnerContext = await this.initializeRunnerContext();
     const replayRunner = await this.createRunner(runnerContext);
@@ -53,8 +52,8 @@ export class UserFlowAudit {
     await replayRunner.run();
   }
 
-  private async extractResults(runnerContext: UserFlowRunnerContext): Promise<UserFlowAuditResult> {
-    const jsonReport = await runnerContext.flow.createFlowResult();
+  private async extractResults(runnerContext: UserFlowRunnerContext): Promise<ResultReports> {
+    const jsonReport = JSON.stringify(await runnerContext.flow.createFlowResult());
     const htmlReport = await runnerContext.flow.generateReport();
     return {jsonReport, htmlReport};
   }

@@ -9,7 +9,8 @@ import {
 } from '@aws-sdk/client-sqs';
 
 import { Message } from '@aws-sdk/client-sqs/dist-types/models/models_0';
-import { AuditQueue, AuditRunParams } from 'shared';
+import { AuditQueue } from '@ufo/cli-interfaces';
+import { AuditRunParams } from 'shared';
 
 type SQSConfig = {
   region: string;
