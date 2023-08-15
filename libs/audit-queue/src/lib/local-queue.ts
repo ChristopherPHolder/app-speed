@@ -2,7 +2,7 @@ import { join } from 'path';
 import { cwd } from 'process';
 import { readdirSync, readFileSync } from 'fs'
 
-import { AuditQueue } from 'shared';
+import { AuditQueue } from '@ufo/cli-interfaces';
 import { AuditRunParams } from 'shared';
 
 export type LocalQueueConfig = {
@@ -28,6 +28,7 @@ export class LocalQueue implements AuditQueue {
     return JSON.parse(file);
   }
 
+  // TODO implement validator
   private isValidAuditParams(item: any): item is AuditRunParams {
     return !!item;
   }
