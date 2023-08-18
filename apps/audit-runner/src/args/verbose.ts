@@ -1,7 +1,12 @@
-import yargs from 'yargs';
+import { Options } from 'yargs';
 
-export const verbose: yargs.Options = {
+export const verbose: Options = {
   alias: 'v',
   default: false,
   type: 'boolean'
+}
+
+export interface VerboseOption {
+  verbose: boolean;
+  v: boolean;
 }

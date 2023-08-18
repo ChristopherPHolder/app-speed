@@ -2,16 +2,15 @@
 
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { userFlowCommand } from './commands/user-flow';
-import { verbose } from './args/verbose';
-import { help } from './args/help';
-import { queue } from './args/queue';
+import { userFlowCommand } from './commands';
+import { verbose, help, dryRun, shutdown } from './args';
+import { execSync } from 'node:child_process';
 
-const commands: yargs.CommandModule[] = [ userFlowCommand ];
-const options: Record<string, yargs.Options> = { verbose, help, queue };
+const argv = await yargs(hideBin(process.argv))
+  .command([ userFlowCommand ])
+  .options({ verbose, help, shutdown, dryRun })
+  .parse();
 
-const cliYargs = yargs(hideBin(process.argv));
-commands.forEach(command => cliYargs.command(command));
-Object.keys(options).forEach(key => cliYargs.option(key, options[key]));
-
-await cliYargs.demandCommand(1).parse();
+if (argv.shutdown === true) {
+  execSync('shutdown -h -t 5 & exit 0', { shell: '/bin/bash' });
+}

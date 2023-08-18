@@ -15,5 +15,4 @@ describe('user-flow command', () => {
     const u = commandOutput(`uf --queue local`);
     expect(u).toBe('');
   });
-
 });
