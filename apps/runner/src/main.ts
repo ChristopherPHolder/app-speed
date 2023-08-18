@@ -3,6 +3,9 @@ import { takeNextScheduledAudit } from './app/queue';
 import { execSync } from 'node:child_process';
 import { uploadResultsToBucket } from './app/store';
 import { sendAuditResults } from './app/results';
+// TODO This app will be completly deleted once the new one is deployed :)
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import { UserFlowRunner } from 'user-flow-runner';
 
 (async function run(): Promise<void> {
