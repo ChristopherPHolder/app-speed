@@ -6,7 +6,7 @@ import { writeFileSync, rmSync, mkdirSync } from 'fs';
 import { LocalQueue, LocalQueueConfig } from './local-queue';
 
 describe('local queue', async () => {
-  const mockPath =  './src/lib/mock-data';
+  const mockPath =  './user-flow';
 
   beforeAll(() => {
     mkdirSync(mockPath);
@@ -25,4 +25,4 @@ describe('local queue', async () => {
     const secondItem = await queue.nextItem();
     expect(secondItem).toBeFalsy();
   });
-})
+});
