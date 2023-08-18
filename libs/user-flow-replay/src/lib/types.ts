@@ -3,56 +3,56 @@ import {
   StepType as PuppeteerReplayStepType,
   UserFlow as PuppeteerReplayUserFlow,
 } from '@puppeteer/replay';
-import UserFlow from 'lighthouse/types/user-flow';
-import LighthouseStepFlags = UserFlow.StepFlags;
+import { Flags } from 'lighthouse';
 
 export { PuppeteerReplayStepType };
 // @TODO Move to global types and explain what it does
 type Modify<T, R> = Omit<T, keyof R> & R;
 
-export declare enum LighthouseStepType {
-  StartNavigation = 'startNavigation',
-  EndNavigation = 'endNavigation',
-  StartTimespan = 'startTimespan',
-  EndTimespan = 'endTimespan',
-  Snapshot = 'snapshot',
+interface LighthouseStepFlags extends Flags {
+  name?: string;
 }
+export const  LighthouseStepType = {
+  StartNavigation: 'startNavigation',
+  EndNavigation: 'endNavigation',
+  StartTimespan: 'startTimespan',
+  EndTimespan: 'endTimespan',
+  Snapshot: 'snapshot',
+} as const;
 
 export type MeasureModes =
-  LighthouseStepType.StartNavigation |
-  LighthouseStepType.EndNavigation |
-  LighthouseStepType.StartTimespan |
-  LighthouseStepType.EndTimespan |
-  LighthouseStepType.Snapshot;
-
-
+  typeof LighthouseStepType.StartNavigation |
+  typeof LighthouseStepType.EndNavigation |
+  typeof LighthouseStepType.StartTimespan |
+  typeof LighthouseStepType.EndTimespan |
+  typeof LighthouseStepType.Snapshot;
 
 export interface StartNavigationStep {
-  type: LighthouseStepType.StartNavigation;
+  type: typeof LighthouseStepType.StartNavigation;
   stepOptions?: LighthouseStepFlags
 }
 
 export interface EndNavigationStep {
-  type: LighthouseStepType.EndNavigation;
+  type: typeof LighthouseStepType.EndNavigation;
 }
 
 export interface StartTimespanStep {
-  type: LighthouseStepType.StartTimespan;
-  flags?: LighthouseStepFlags
+  type: typeof LighthouseStepType.StartTimespan;
+  flags?: Flags
 }
 
 export interface EndTimespanStep {
-  type: LighthouseStepType.EndTimespan;
+  type: typeof LighthouseStepType.EndTimespan;
 }
 
 export interface SnapshotStep {
-  type: LighthouseStepType.Snapshot;
-  flags?: LighthouseStepFlags
+  type: typeof LighthouseStepType.Snapshot;
+  flags?: Flags;
 }
 
-export type LighthouseStep = StartNavigationStep | EndNavigationStep | StartTimespanStep | EndTimespanStep | SnapshotStep;
+export declare type LighthouseStep = StartNavigationStep | EndNavigationStep | StartTimespanStep | EndTimespanStep | SnapshotStep;
 
-export type AppSpeedUserFlowStep = PuppeteerReplayStep | LighthouseStep;
+export declare type AppSpeedUserFlowStep = PuppeteerReplayStep | LighthouseStep;
 
 export type AppSpeedUserFlow = Modify<PuppeteerReplayUserFlow, {
   steps: AppSpeedUserFlowStep[];

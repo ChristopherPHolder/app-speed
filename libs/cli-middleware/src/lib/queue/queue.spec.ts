@@ -16,7 +16,7 @@ describe('queue factory', async () => {
   afterAll(() => rmSync(mockPath, {recursive: true}));
 
   it('should load local audit', async () => {
-    const queue = await createAuditQueue('@ufo/audit-queue/local-queue', {path: './src/lib/queue/mock-data'});
+    const queue = await createAuditQueue('@ufo/audit-queue/local-queue', { path: './src/lib/queue/mock-data' });
 
     const firstItem = await queue.nextItem();
     expect(firstItem).toBeTruthy();

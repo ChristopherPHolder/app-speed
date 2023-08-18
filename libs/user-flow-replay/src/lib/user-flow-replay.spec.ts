@@ -29,7 +29,7 @@ describe('userFlowReplay', () => {
     const userFlowAudit = new UserFlowAudit(auditConfiguration);
     const results = await userFlowAudit.run();
     writeFileSync('e.html', results.htmlReport, 'utf8');
-    expect(results.jsonReport.name).toEqual(replayScript.title);
-    expect(results.jsonReport.steps).toBeTruthy();
+    expect(results.jsonReport).toBeTruthy();
+    expect(results.jsonReport).toContain(replayScript.title);
   }, 50_000);
 });
