@@ -28,7 +28,7 @@ export class AwsSqs implements AuditQueue {
 
   constructor(config: SQSConfig) {
     this.config = config || this.defaultConfig;
-    const sqsClientConfig:  SQSClientConfig = {region: config.region};
+    const sqsClientConfig:  SQSClientConfig = {region: this.config.region};
     this.sqsClient = new SQSClient(sqsClientConfig);
   }
 

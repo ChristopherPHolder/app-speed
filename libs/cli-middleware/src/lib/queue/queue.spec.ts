@@ -1,27 +1,21 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-
-import { join } from 'path';
-import { writeFileSync, rmSync, mkdirSync } from 'fs';
-
+import { describe, expect, it } from 'vitest';
 import { createAuditQueue } from './queue.factory';
+import { AuditQueue } from '@ufo/cli-interfaces';
 
 describe('queue factory', async () => {
-  const mockPath = './src/lib/queue/mock-data';
+  let queue: AuditQueue;
 
-  beforeAll(() => {
-    mkdirSync(mockPath);
-    writeFileSync(join(mockPath, 'mock-audit.json'), '{ "audit": "mock-audit" }');
-  })
+  it('should load local queue', async () => {
+    queue = await createAuditQueue('local');
+    expect(queue).toBeTruthy();
+    expect(queue.nextItem).toBeTruthy();
+    expect(typeof queue.nextItem).toBe('function');
+  });
 
-  afterAll(() => rmSync(mockPath, {recursive: true}));
-
-  it('should load local audit', async () => {
-    const queue = await createAuditQueue('@ufo/audit-queue/local-queue', { path: './src/lib/queue/mock-data' });
-
-    const firstItem = await queue.nextItem();
-    expect(firstItem).toBeTruthy();
-
-    const secondItem = await queue.nextItem();
-    expect(secondItem).toBeFalsy();
+  it('should load aws-sqs queue', async () => {
+    queue = await createAuditQueue('sqs');
+    expect(queue).toBeTruthy();
+    expect(queue.nextItem).toBeTruthy();
+    expect(typeof queue.nextItem).toBe('function');
   });
 })

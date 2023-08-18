@@ -17,7 +17,11 @@ export class LocalQueue implements AuditQueue {
 
   constructor(config: LocalQueueConfig) {
     this.localPath = config?.path || this.defaultConfig.path;
-    this.queuedRef = readdirSync(join(cwd(), this.localPath));
+    try {
+      this.queuedRef = readdirSync(join(cwd(), this.localPath));
+    } catch {
+      this.queuedRef = []
+    }
   }
 
   private readReadItem(item: string): object | void {
