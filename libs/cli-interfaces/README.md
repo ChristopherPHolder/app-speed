@@ -1,11 +1,15 @@
 # cli-interface
 
-This library was generated with [Nx](https://nx.dev).
+This library contains all the interfaces that the cli application audit-runner depends on.
 
 ## Building
 
 Run `nx build cli-interface` to build the library.
 
-## Running unit tests
+## Linting
 
-Run `nx test cli-interface` to execute the unit tests via [Jest](https://jestjs.io).
+Run `nx lint cli-interface` to build the library.
+
+## Publishing
+
+Run `nx publish cli-interface` to build the library.
