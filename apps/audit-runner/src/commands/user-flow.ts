@@ -1,8 +1,8 @@
 import { ArgumentsCamelCase, CommandBuilder, CommandModule } from 'yargs';
 import { createAuditQueue, UserFlowExecutor } from '@ufo/cli-middleware';
 import { AuditExecutor, AuditQueue, AuditStore } from '@ufo/cli-interfaces';
-import { queue, QueueOption } from '../args/queue';
-import { GlobalOptions } from '../args/globals';
+import { queue, QueueOption } from '../args';
+import { GlobalOptions } from '../args';
 
 type UserFlowCommandOptions = GlobalOptions & QueueOption;
 
@@ -12,7 +12,7 @@ const userFlowHandler = async (args: ArgumentsCamelCase<GlobalOptions & QueueOpt
   const auditQueue: AuditQueue = await createAuditQueue(args.queue);
   const auditStore = {} as AuditStore;
   const audit: AuditExecutor = new UserFlowExecutor(auditQueue, auditStore);
-  await audit.exec();
+  args.dryRun || await audit.exec();
 };
 
 export const userFlowCommand: CommandModule<NonNullable<unknown>, UserFlowCommandOptions> = {

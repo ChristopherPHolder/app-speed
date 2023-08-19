@@ -12,7 +12,7 @@ describe('user-flow command', () => {
   }
 
   it('should print a help message', () => {
-    const u = commandOutput(`uf --queue local`);
+    const u = commandOutput(`uf --queue local --dry-run`);
     expect(u).toBe('');
   });
 });

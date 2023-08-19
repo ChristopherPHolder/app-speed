@@ -12,5 +12,6 @@ const argv = await yargs(hideBin(process.argv))
   .parse();
 
 if (argv.shutdown === true) {
-  execSync('shutdown -h -t 5 & exit 0', { shell: '/bin/bash' });
+  argv.verbose && console.info('Node is set to shut down');
+  argv.dryRun || execSync('shutdown -h -t 5 & exit 0', { shell: '/bin/bash' });
 }
