@@ -13,6 +13,7 @@
     "baseUrl": ".",
     "paths": {
       "@ufo/audit-queue/*": ["libs/audit-queue/src/lib/*"],
+      "@ufo/audit-store": ["libs/audit-store/src/index.ts"],
       "@ufo/cli-interfaces": ["libs/cli-interfaces/src/index.ts"],
       "@ufo/cli-middleware": ["libs/cli-middleware/src/index.ts"],
       "@ufo/user-flow-replay": ["libs/user-flow-replay/src/index.ts"],
