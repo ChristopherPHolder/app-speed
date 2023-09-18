@@ -1,16 +1,15 @@
 import { ArgumentsCamelCase, CommandBuilder, CommandModule } from 'yargs';
-import { createAuditQueue, UserFlowExecutor } from '@ufo/cli-middleware';
+import { createAuditQueue, createAuditStore, UserFlowExecutor } from '@ufo/cli-middleware';
 import { AuditExecutor, AuditQueue, AuditStore } from '@ufo/cli-interfaces';
-import { queue, QueueOption } from '../args';
-import { GlobalOptions } from '../args';
+import { GlobalOptions, queue, QueueOption, store, StoreOption } from '../args';
 
-type UserFlowCommandOptions = GlobalOptions & QueueOption;
+type UserFlowCommandOptions = GlobalOptions & QueueOption & StoreOption;
 
-const userFlowBuilder: CommandBuilder = { queue };
+const userFlowBuilder: CommandBuilder = { queue, store };
 
-const userFlowHandler = async (args: ArgumentsCamelCase<GlobalOptions & QueueOption>): Promise<void> => {
+const userFlowHandler = async (args: ArgumentsCamelCase<UserFlowCommandOptions>): Promise<void> => {
   const auditQueue: AuditQueue = await createAuditQueue(args.queue);
-  const auditStore = {} as AuditStore;
+  const auditStore: AuditStore = await createAuditStore(args.store);
   const audit: AuditExecutor = new UserFlowExecutor(auditQueue, auditStore);
   args.dryRun || await audit.exec();
 };

@@ -1,5 +1,5 @@
 import { ResultReports } from 'shared';
 
 export interface AuditStore {
-  store(auditResults: ResultReports): Promise<boolean>;
+  store(auditResults: ResultReports, location?: string): Promise<boolean>;
 }
