@@ -4,6 +4,7 @@ import { parse } from './parse';
 import { Browser, launch, Page } from 'puppeteer';
 import { startFlow, UserFlow as LHUserFlow } from 'lighthouse';
 import { ResultReports } from 'shared';
+import { AppSpeedUserFlow } from './types';
 
 export type UserFlowRunnerContext = {
   browser: Browser;
@@ -11,16 +12,11 @@ export type UserFlowRunnerContext = {
   flow: LHUserFlow;
 };
 
-export type UserFlowAuditConfiguration = {
-  options: object;
-  replayScript: object;
-}
-
 export class UserFlowAudit {
-  private readonly replayScript;
+  private readonly replayScript: AppSpeedUserFlow;
 
-  constructor(configuration: UserFlowAuditConfiguration) {
-    this.replayScript = parse(configuration.replayScript);
+  constructor(appSpeedUserFlow: object | AppSpeedUserFlow) {
+    this.replayScript = parse(appSpeedUserFlow);
   }
 
   public async results(): Promise<ResultReports> {

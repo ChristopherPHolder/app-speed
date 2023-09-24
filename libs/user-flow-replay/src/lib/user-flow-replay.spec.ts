@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { UserFlowAudit, UserFlowAuditConfiguration } from './user-flow-replay';
+import { UserFlowAudit } from './user-flow-replay';
 import { writeFileSync } from 'fs';
 import { AppSpeedUserFlow, LighthouseStepType, PuppeteerReplayStepType } from './types';
 
@@ -21,12 +21,7 @@ describe('userFlowReplay', () => {
       ]
     }
 
-    const auditConfiguration: UserFlowAuditConfiguration = {
-      options: {},
-      replayScript: replayScript
-    };
-
-    const userFlowAudit = new UserFlowAudit(auditConfiguration);
+    const userFlowAudit = new UserFlowAudit(replayScript);
     const results = await userFlowAudit.run();
     writeFileSync('e.html', results.htmlReport, 'utf8');
     expect(results.jsonReport).toBeTruthy();
