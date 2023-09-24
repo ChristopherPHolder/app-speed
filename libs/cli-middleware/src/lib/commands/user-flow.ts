@@ -14,7 +14,9 @@ export class UserFlowExecutor implements AuditExecutor {
       const { requesterId, endpoint, targetUrl } = queueItem;
       const userFlowAudit = new UserFlowAudit(JSON.parse(targetUrl));
       const results = await userFlowAudit.results();
+      console.log('Audit Results', results);
       const destination = await this.store.store(results);
+      console.log('Audit results stored at', destination);
       await sendAuditResults(requesterId, endpoint, destination);
       queueItem = await this.queue.nextItem();
     }

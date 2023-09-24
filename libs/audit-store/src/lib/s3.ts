@@ -14,8 +14,9 @@ export class S3Store implements AuditStore {
     this.client = new S3Client(this.defaultConfig);
   }
 
-  public async store(auditResults: ResultReports, location: string): Promise<string> {
-    return  await this.uploadResultsToBucket(auditResults, location);
+  public async store(auditResults: ResultReports, location?: string): Promise<string> {
+    const urlLocation = location || this.bucketUrl;
+    return  await this.uploadResultsToBucket(auditResults, urlLocation);
   }
 
   async uploadResultsToBucket(auditResults: ResultReports, location: string): Promise<string> {
