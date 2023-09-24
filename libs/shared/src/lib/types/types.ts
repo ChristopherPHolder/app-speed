@@ -8,7 +8,7 @@ export type ResultReports = {
 }
 
 export type AuditRunParams = {
-	targetUrl: object;
+	targetUrl: string;
 	requesterId: string;
 	endpoint: string;
 };
