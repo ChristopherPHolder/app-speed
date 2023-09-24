@@ -46,7 +46,7 @@ export class AwsSqs implements AuditQueue {
     return await this.sqsClient.send(command);
   }
 
-  private isValidAuditParams(message: any): message is AuditRunParams {
+  private isValidAuditParams(message: object): message is AuditRunParams {
     return 'requesterId' in message;
   }
 
@@ -57,11 +57,18 @@ export class AwsSqs implements AuditQueue {
     }
     await this.deleteMessage(message.ReceiptHandle);
 
-    if (!this.isValidAuditParams(message)) {
+    if (!message.Body) {
+      console.error('Invalid SQS Message, it missing body!');
+      return await this.nextItem();
+    }
+
+    const auditParams = JSON.parse(message.Body);
+
+    if (!this.isValidAuditParams(auditParams)) {
       console.error('Invalid Audit Params in Queue', message);
       return await this.nextItem();
     }
-    return message;
+    return auditParams;
   }
 }
 
