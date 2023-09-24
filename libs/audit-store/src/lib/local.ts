@@ -15,8 +15,8 @@ export class LocalStore implements AuditStore {
   }
 
   // TODO implement local store logic
-  public async store(auditResults: ResultReports): Promise<boolean> {
-    return true;
+  public async store(auditResults: ResultReports): Promise<string> {
+    return 'destination';
   }
 }
 

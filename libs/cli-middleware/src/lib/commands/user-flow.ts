@@ -11,7 +11,7 @@ export class UserFlowExecutor implements AuditExecutor {
       // TODO Pass correct config and typing
       const userFlowAudit = new UserFlowAudit(queueItem as any);
       const results = await userFlowAudit.results();
-      await this.store.store(results);
+      const destination = await this.store.store(results);
       queueItem = await this.queue.nextItem();
     }
   }
