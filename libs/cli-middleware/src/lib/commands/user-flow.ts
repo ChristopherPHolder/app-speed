@@ -7,8 +7,10 @@ export class UserFlowExecutor implements AuditExecutor {
   constructor(private queue: AuditQueue, private store: AuditStore) {}
 
   public async exec(): Promise<void> {
+    console.log('Running UserFlowExecutor');
     let queueItem: AuditRunParams | void = await this.queue.nextItem();
     while (queueItem) {
+      console.log('Executing Runner on', queueItem);
       const { requesterId, endpoint, audit } = queueItem;
       const userFlowAudit = new UserFlowAudit(audit);
       const results = await userFlowAudit.results();

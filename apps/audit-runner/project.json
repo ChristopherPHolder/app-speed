@@ -27,7 +27,6 @@
       "configurations": {
         "development": {},
         "production": {
-          "minify": true,
           "esbuildOptions": {
             "sourcemap": false,
             "outExtension": {

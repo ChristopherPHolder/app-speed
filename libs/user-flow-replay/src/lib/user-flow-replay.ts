@@ -16,7 +16,9 @@ export class UserFlowAudit {
   private readonly replayScript: AppSpeedUserFlow;
 
   constructor(appSpeedUserFlow: object | AppSpeedUserFlow) {
+    console.log('Init UserFlowAudit with', appSpeedUserFlow);
     this.replayScript = parse(appSpeedUserFlow);
+    console.log('Successfully parsed Replay script');
   }
 
   public async results(): Promise<ResultReports> {
