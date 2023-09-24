@@ -1,0 +1,22 @@
+{
+  "name": "audit-runner-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "implicitDependencies": ["audit-runner"],
+  "projectType": "application",
+  "targets": {
+    "e2e": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{workspaceRoot}/coverage/{e2eProjectRoot}"],
+      "options": {
+        "passWithNoTests": true
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/audit-runner-e2e/**/*.{js,ts}"]
+      }
+    }
+  }
+}

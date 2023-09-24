@@ -1,0 +1,39 @@
+{
+  "name": "audit-store",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/audit-store/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/audit-store",
+        "main": "libs/audit-store/src/index.ts",
+        "tsConfig": "libs/audit-store/tsconfig.lib.json",
+        "assets": ["libs/audit-store/*.md"],
+        "generatePackageJson": true
+      }
+    },
+    "publish": {
+      "command": "node tools/scripts/publish.mjs audit-store {args.ver} {args.tag}",
+      "dependsOn": ["build"]
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/audit-store/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["coverage/libs/audit-store"],
+      "options": {
+        "passWithNoTests": true,
+        "reportsDirectory": "../../coverage/libs/audit-store"
+      }
+    }
+  },
+  "tags": ["server"]
+}

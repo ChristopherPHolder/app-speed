@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "es2022",
-    "module": "commonjs",
-    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "noImplicitAny": true,
@@ -12,14 +12,18 @@
     "experimentalDecorators": true,
     "baseUrl": ".",
     "paths": {
+      "@ufo/audit-queue/*": ["libs/audit-queue/src/lib/*"],
+      "@ufo/audit-store/*": ["libs/audit-store/src/lib/*"],
+      "@ufo/cli-interfaces": ["libs/cli-interfaces/src/index.ts"],
+      "@ufo/cli-middleware": ["libs/cli-middleware/src/index.ts"],
+      "@ufo/user-flow-replay": ["libs/user-flow-replay/src/index.ts"],
       "core-ui": ["libs/core-ui/src/index.ts"],
       "data-access": ["libs/data-access/src/index.ts"],
       "environments": ["libs/environments/src/index.ts"],
       "features/result-viewer": ["libs/features/result-viewer/src/index.ts"],
       "features/simple-audit": ["libs/features/simple-audit/src/index.ts"],
       "shared": ["libs/shared/src/index.ts"],
-      "ui": ["libs/ui/src/index.ts"],
-      "user-flow-runner": ["libs/user-flow-runner/src/index.ts"]
+      "ui": ["libs/ui/src/index.ts"]
     }
   }
 }

@@ -7,7 +7,6 @@ export type ResultReports = {
 	htmlReport: string
 }
 
-// @TODO remove unused types
 export type AuditRunParams = {
 	targetUrl: string;
 	requesterId: string;

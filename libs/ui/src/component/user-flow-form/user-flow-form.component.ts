@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, ErrorHandler, Input, Output, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { RxActionFactory, preventDefault } from '@rx-angular/state/actions';
 import { filter, map, Observable, withLatestFrom } from 'rxjs';
 import { RxEffects } from '@rx-angular/state/effects';
@@ -24,7 +24,7 @@ type UiActions = {
       <input 
         class='audit-input-text' 
         formControlName='url' 
-        placeholder='Enter a web page URL to audit'
+        placeholder='Enter a puppeteer replay user-flow'
       >
       <button
         class='audit-input-btn' 
@@ -38,9 +38,10 @@ type UiActions = {
   providers: [RxActionFactory],
 })
 export class UserFlowFormComponent extends RxEffects {
+  // TODO REmove!
   private readonly urlValidatorPattern = '(https?://)?([\\da-z.-]+)\\.([a-z.]{2,6})[/\\w .-]*/?';
   userflowForm: FormGroup = this.fb.group({
-    url: ['', [Validators.required, Validators.pattern(this.urlValidatorPattern)]]
+    url: [''],
   });
 
   @Input()
