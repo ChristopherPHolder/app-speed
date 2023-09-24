@@ -24,7 +24,7 @@ type UiActions = {
       <input 
         class='audit-input-text' 
         formControlName='url' 
-        placeholder='Enter a web page URL to audit'
+        placeholder='Enter a puppeteer replay user-flow'
       >
       <button
         class='audit-input-btn' 
