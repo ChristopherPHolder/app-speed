@@ -1,5 +1,5 @@
 {
-  "name": "user-flow-server",
+  "name": "app-speed",
   "main": "apps/user-flow-runner/src/app/runner.ts",
   "scripts": {
     "start": "npm run start:web",
