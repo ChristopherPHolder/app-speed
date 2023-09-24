@@ -1,4 +1,4 @@
-# UFO
+# AppSpeed
 
 The purpose of this repository it to create a simple way to run lighthouse user-flows online in a stable environment. 
 It should have a web interface and allow users store and schedule user-flow audits. 
