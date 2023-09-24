@@ -28,7 +28,7 @@
     },
     "test": {
       "executor": "@nx/vite:test",
-      "outputs": ["coverage/libs/user-flow-replay"],
+      "outputs": ["{workspaceRoot}/coverage/libs/user-flow-replay"],
       "options": {
         "passWithNoTests": true,
         "reportsDirectory": "../../coverage/libs/user-flow-replay"

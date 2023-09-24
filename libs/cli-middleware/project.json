@@ -28,7 +28,7 @@
     },
     "test": {
       "executor": "@nx/vite:test",
-      "outputs": ["coverage/libs/cli-middleware"],
+      "outputs": ["{workspaceRoot}/coverage/libs/cli-middleware"],
       "options": {
         "passWithNoTests": true,
         "reportsDirectory": "../../coverage/libs/cli-middleware"
