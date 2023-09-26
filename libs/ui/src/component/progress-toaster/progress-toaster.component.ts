@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, Component, Input, ViewEncapsulation} from '@angular/core';
 import {map, Observable} from 'rxjs';
 import {AuditStatusType} from 'shared';
-import {LetModule} from '@rx-angular/template/let';
+import { RxLet } from '@rx-angular/template/let';
 
 const progressMap: Record<Partial<AuditStatusType>, string> = {
   idle: '',
@@ -15,7 +15,7 @@ const progressMap: Record<Partial<AuditStatusType>, string> = {
 @Component({
   selector: 'app-progress-toaster',
   standalone: true,
-  imports: [LetModule],
+  imports: [RxLet],
   template: `<output class='toast-text' *rxLet='toasterText$; let toasterText'>{{toasterText}}</output>`,
   styles: [`.toast-text { text-align: center; display: block; }`],
   encapsulation: ViewEncapsulation.Emulated,
