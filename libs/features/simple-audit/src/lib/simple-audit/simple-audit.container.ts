@@ -5,7 +5,7 @@ import { RxState } from '@rx-angular/state';
 import { SimpleAuditAdapter } from './simple-audit.adapter';
 import { AuditStatusType } from 'shared';
 import { map, startWith, tap } from 'rxjs';
-import { IfModule } from '@rx-angular/template/if';
+import { RxIf } from '@rx-angular/template/if';
 import { RxActionFactory } from '@rx-angular/state/actions';
 
 type ContainerState = {
@@ -22,7 +22,7 @@ type UiActions = {
 @Component({
   selector: 'app-simple-audit',
   standalone: true,
-  imports: [CommonModule, UserFlowFormComponent, ResultsDisplayComponent, IfModule],
+  imports: [CommonModule, UserFlowFormComponent, ResultsDisplayComponent, RxIf],
   template: `
     <div class='audit-heading-container'>
       <h1 class='audit-section-title'>Flow Audits</h1>
