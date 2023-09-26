@@ -42,6 +42,7 @@
       "options": {
         "port": 4400,
         "configDir": "libs/ui/.storybook",
+        "tsConfig": "libs/ui/tsconfig.storybook.json",
         "browserTarget": "ui:build-storybook",
         "compodoc": false
       },
@@ -56,6 +57,7 @@
       "outputs": ["{options.outputDir}"],
       "options": {
         "outputDir": "dist/storybook/ui",
+        "tsConfig": "libs/ui/tsconfig.storybook.json",
         "configDir": "libs/ui/.storybook",
         "browserTarget": "ui:build-storybook",
         "compodoc": false
