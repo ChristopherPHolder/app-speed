@@ -5,8 +5,8 @@ import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.comp
 import { map, Observable } from 'rxjs';
 import { AuditStatusType, BypassSrcDirective} from 'shared';
 import { RxState } from '@rx-angular/state';
-import { IfModule } from '@rx-angular/template/if';
-import { PushModule } from '@rx-angular/template/push';
+import { RxIf } from '@rx-angular/template/if';
+import { RxPush } from '@rx-angular/template/push';
 import { ProgressToasterComponent } from '../progress-toaster/progress-toaster.component';
 
 type ComponentState = {
@@ -22,8 +22,8 @@ type ComponentState = {
     BypassSrcDirective,
     LoadingSpinnerComponent,
     ProgressToasterComponent,
-    IfModule,
-    PushModule,
+    RxPush,
+    RxIf,
   ],
   template: `
     <div class='audit-results-box'>
