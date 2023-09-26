@@ -1,7 +1,7 @@
-import { Meta, Story } from '@storybook/angular';
+import { Meta, StoryObj } from '@storybook/angular';
 import { RadialChartComponent } from './radial-chart.component';
 
-export default {
+const meta: Meta<RadialChartComponent> = {
   title: 'Radial Chart',
   component: RadialChartComponent,
   argTypes: {
@@ -19,12 +19,18 @@ export default {
       options: ['sm', 'md', 'lg'],
       control: { type: 'select' },
       defaultValue: 'md',
-    },
+    }
   }
-}as Meta<RadialChartComponent>;
+};
+export default meta;
 
-const Template: Story = (args) => ({
-  props: args,
-});
+type Story = StoryObj<RadialChartComponent>;
 
-export const Default = Template.bind({});
+export const Default: Story = {};
+
+export const Poor: Story = { args: { score: 49 }};
+export const NeedsImprovement: Story = { args: { score: 89 }};
+export const Good: Story = { args: { score: 100 }};
+export const Small: Story = { args: { size: 'sm' }};
+export const Medium: Story = { args: { size: 'md' }};
+export const Big: Story = { args: { size: 'lg' }};
