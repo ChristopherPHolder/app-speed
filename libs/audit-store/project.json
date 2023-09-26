@@ -28,7 +28,7 @@
     },
     "test": {
       "executor": "@nx/vite:test",
-      "outputs": ["coverage/libs/audit-store"],
+      "outputs": ["{workspaceRoot}/coverage/libs/audit-store"],
       "options": {
         "passWithNoTests": true,
         "reportsDirectory": "../../coverage/libs/audit-store"

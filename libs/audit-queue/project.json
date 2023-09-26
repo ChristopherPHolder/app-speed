@@ -28,7 +28,7 @@
     },
     "test": {
       "executor": "@nx/vite:test",
-      "outputs": ["coverage/libs/audit-queue"],
+      "outputs": ["{workspaceRoot}/coverage/libs/audit-queue"],
       "options": {
         "passWithNoTests": true,
         "reportsDirectory": "../../coverage/libs/audit-queue"
