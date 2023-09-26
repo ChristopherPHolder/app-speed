@@ -32,8 +32,8 @@
     "@aws-sdk/client-sqs": "^3.186.0",
     "@aws-sdk/client-ssm": "^3.226.0",
     "@puppeteer/replay": "^2.13.4",
-    "@rx-angular/state": "2.0.0",
-    "@rx-angular/template": "2.0.0",
+    "@rx-angular/state": "16.0.0",
+    "@rx-angular/template": "16.1.0",
     "aws-sdk": "^2.1218.0",
     "axios": "^1.0.0",
     "lighthouse": "^10.4.0",
@@ -110,3 +110,4 @@
     "webpack": "^5.64.0"
   }
 }
+
