@@ -1,5 +1,8 @@
 import { Meta, StoryObj } from '@storybook/angular';
 import { RadialChartComponent } from './radial-chart.component';
+import { RADIAL_CHART_SIZE } from './radial-chart.types';
+
+const sizeOptions = Object.values(RADIAL_CHART_SIZE);
 
 const meta: Meta<RadialChartComponent> = {
   title: 'Radial Chart',
@@ -16,9 +19,8 @@ const meta: Meta<RadialChartComponent> = {
     },
     size: {
       description: 'Size of the radial chart with options of small, medium and large',
-      options: ['sm', 'md', 'lg'],
+      options: sizeOptions,
       control: { type: 'select' },
-      defaultValue: 'md',
     }
   }
 };
@@ -27,10 +29,9 @@ export default meta;
 type Story = StoryObj<RadialChartComponent>;
 
 export const Default: Story = {};
-
 export const Poor: Story = { args: { score: 49 }};
 export const NeedsImprovement: Story = { args: { score: 89 }};
 export const Good: Story = { args: { score: 100 }};
-export const Small: Story = { args: { size: 'sm' }};
-export const Medium: Story = { args: { size: 'md' }};
-export const Big: Story = { args: { size: 'lg' }};
+export const Small: Story = { args: { size: RADIAL_CHART_SIZE.SMALL }};
+export const Medium: Story = { args: { size: RADIAL_CHART_SIZE.MEDIUM }};
+export const Large: Story = { args: { size: RADIAL_CHART_SIZE.LARGE }};

@@ -1,4 +1,5 @@
 import { Component, Input, ViewEncapsulation } from '@angular/core';
+import { RADIAL_CHART_COLOR, RADIAL_CHART_SIZE, RadialChartColor, RadialChartSize } from './radial-chart.types';
 
 @Component({
   selector: 'app-radial-chart',
@@ -17,12 +18,12 @@ import { Component, Input, ViewEncapsulation } from '@angular/core';
 })
 export class RadialChartComponent {
   @Input() public score = 0;
-  @Input() public size: 'sm' | 'md' | 'lg' = 'md';
+  @Input() public size: RadialChartSize = RADIAL_CHART_SIZE.MEDIUM;
 
-  getColorScheme(): 'green' | 'orange' | 'red' {
-    if (this.score > 90) return 'green';
-    if (this.score > 50) return 'orange';
-    return 'red';
+  getColorScheme(): RadialChartColor {
+    if (this.score > 90) return RADIAL_CHART_COLOR.GREEN;
+    if (this.score > 50) return RADIAL_CHART_COLOR.ORANGE;
+    return RADIAL_CHART_COLOR.RED;
   }
   getOffset(): number {
     const progress = (100 - 50) / 100 ;
