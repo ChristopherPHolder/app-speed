@@ -1,4 +1,5 @@
-import { Component, Input, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, ViewEncapsulation } from '@angular/core';
+import { RADIAL_CHART_COLOR, RADIAL_CHART_SIZE, RadialChartColor, RadialChartSize } from './radial-chart.types';
 
 @Component({
   selector: 'app-radial-chart',
@@ -14,18 +15,19 @@ import { Component, Input, ViewEncapsulation } from '@angular/core';
   `,
   styleUrls: ['./radial-chart.component.scss'],
   encapsulation: ViewEncapsulation.Emulated,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RadialChartComponent {
   @Input() public score = 0;
-  @Input() public size: 'sm' | 'md' | 'lg' = 'md';
+  @Input() public size: RadialChartSize = RADIAL_CHART_SIZE.MEDIUM;
 
-  getColorScheme(): 'green' | 'orange' | 'red' {
-    if (this.score > 90) return 'green';
-    if (this.score > 50) return 'orange';
-    return 'red';
+  getColorScheme(): RadialChartColor {
+    if (this.score > 90) return RADIAL_CHART_COLOR.GREEN;
+    if (this.score > 50) return RADIAL_CHART_COLOR.ORANGE;
+    return RADIAL_CHART_COLOR.RED;
   }
   getOffset(): number {
-    const progress = (100 - 50) / 100 ;
+    const progress = (100 - this.score) / 100 ;
     const circumference = 2 * Math.PI * 45;
     return progress * circumference;
   }

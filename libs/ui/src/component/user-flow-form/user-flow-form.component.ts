@@ -38,8 +38,6 @@ type UiActions = {
   providers: [RxActionFactory],
 })
 export class UserFlowFormComponent extends RxEffects {
-  // TODO REmove!
-  private readonly urlValidatorPattern = '(https?://)?([\\da-z.-]+)\\.([a-z.]{2,6})[/\\w .-]*/?';
   userflowForm: FormGroup = this.fb.group({
     url: [''],
   });
@@ -64,10 +62,7 @@ export class UserFlowFormComponent extends RxEffects {
 
   @Output() auditSubmit = this.ui.formSubmit$.pipe(
     withLatestFrom(this.userflowForm.statusChanges,this.userflowForm.valueChanges),
-    // @TODO fix unused vars
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    filter(([submitEvent, formState, formValue]) => formState === 'VALID'),
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    map(([submitEvent, formState, formValue]) => formValue.url)
+    filter(([,formState,]) => formState === 'VALID'),
+    map(([,, formValue]) => formValue.url)
   );
 }
