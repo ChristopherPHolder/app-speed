@@ -1,4 +1,4 @@
-import { Component, Input, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, ViewEncapsulation } from '@angular/core';
 import { RADIAL_CHART_COLOR, RADIAL_CHART_SIZE, RadialChartColor, RadialChartSize } from './radial-chart.types';
 
 @Component({
@@ -15,6 +15,7 @@ import { RADIAL_CHART_COLOR, RADIAL_CHART_SIZE, RadialChartColor, RadialChartSiz
   `,
   styleUrls: ['./radial-chart.component.scss'],
   encapsulation: ViewEncapsulation.Emulated,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RadialChartComponent {
   @Input() public score = 0;
@@ -26,7 +27,7 @@ export class RadialChartComponent {
     return RADIAL_CHART_COLOR.RED;
   }
   getOffset(): number {
-    const progress = (100 - 50) / 100 ;
+    const progress = (100 - this.score) / 100 ;
     const circumference = 2 * Math.PI * 45;
     return progress * circumference;
   }
