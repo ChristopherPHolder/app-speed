@@ -38,7 +38,7 @@ type UiActions = {
   providers: [RxActionFactory],
 })
 export class UserFlowFormComponent extends RxEffects {
-  // TODO REmove!
+  // TODO Implement Proper User-Flow-Validator!
   private readonly urlValidatorPattern = '(https?://)?([\\da-z.-]+)\\.([a-z.]{2,6})[/\\w .-]*/?';
   userflowForm: FormGroup = this.fb.group({
     url: [''],
