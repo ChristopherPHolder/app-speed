@@ -2,20 +2,10 @@
   "name": "app-speed",
   "main": "apps/user-flow-runner/src/app/runner.ts",
   "scripts": {
-    "start": "npm run start:web",
-    "lint": "nx run-many --all --target=lint",
-    "build": "nx build",
-    "start:web": "nx serve user-flow-manager",
-    "build:prod:runner": "npm run build-runner",
-    "deploy:runner": "npm run build:prod:runner && npm run deploy:s3:runner && npm run deploy:ec3:runner",
-    "deploy:ec3:runner": "node ./scripts/deploy-runner.js",
-    "deploy:s3:runner": "aws s3 sync ./dist/apps/audit-runner s3://ufo-runner-dev --delete",
-    "deploy:dev": "aws s3 sync ./dist/apps/user-flow-manager s3://dev.deep-blue.io --delete",
-    "deploy:prod": "aws s3 sync ./dist/apps/user-flow-manager s3://app.deep-blue.io --delete",
-    "start-runner": "node dist/apps/user-flow-runner/src/main.js",
-    "build-runner": "nx run audit-runner:build:production",
-    "test": "nx test",
-    "nx-migrate": "nx migrate latest && nx migrate --run-migrations"
+    "start": "nx serve user-flow-manager",
+    "lint:affected": "nx run-many --all --t lint",
+    "build:affected": "nx run-many --all -t build",
+    "test:affected": "nx run-many --all -t test"
   },
   "dependencies": {
     "@angular/animations": "16.2.6",
