@@ -173,14 +173,15 @@ jobs:
 
       - name: Deploy Dev Client
         if: ${{ env.is-pull-request == 'true' }}
-        run: npx nx affected --target=deploy --environment=dev
+        run: npx nx affected --target=deploy  --exclude='*,!tag:frontend' --environment=dev
 
       - name: Deploy Prod Client
         if: ${{ env.is-main-branch == 'true' }}
-        run: npx nx affected --target=deploy --environment=prod
+        run: npx nx affected --target=deploy  --exclude='*,!tag:frontend' --environment=prod
 
   deploy-server:
     name: Deploy Server
+    needs: [build, lint, test]
     runs-on: ubuntu-latest
 
     steps:
@@ -206,8 +207,8 @@ jobs:
 
       - name: Deploy Dev Server
         if: ${{ env.is-pull-request == 'true' }}
-        run: npm run deploy:runner
+        run: npx nx affected --target=deploy  --exclude='*,!tag:backend' --environment=dev
 
       - name: Deploy Prod Server
         if: ${{ env.is-main-branch == 'true' }}
-        run: npm run deploy:runner
+        run: npx nx affected --target=deploy  --exclude='*,!tag:backend' --environment=dev
