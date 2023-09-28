@@ -7,4 +7,4 @@ export const dryRun: Options = {
 
 export interface DryRunOption {
   dryRun?: boolean;
-};
+}
