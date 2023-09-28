@@ -70,6 +70,31 @@
           "codeCoverage": true
         }
       }
+    },
+    "deploy": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "parallel": false,
+        "commands": [
+          {
+            "command": "`[ {args.environment} != dev ]` && `[ {args.environment} != prod ]` && exit 1 || exit 0",
+            "forwardAllArgs": true
+          },
+          {
+            "command": "echo 'Deploying Server to {args.environment} environment'",
+            "forwardAllArgs": true
+          },
+          {
+            "command": "`[ {args.environment} == prod ]` &&  aws s3 sync ./dist/apps/audit-runner s3://ufo-runner-dev --delete && node ./scripts/deploy-runner.js || exit 0",
+            "forwardAllArgs": true
+          },
+          {
+            "command": "`[ {args.environment} == dev ]` &&  aws s3 sync ./dist/apps/audit-runner s3://ufo-runner-dev --delete && node ./scripts/deploy-runner.js || exit 0",
+            "forwardAllArgs": true
+          }
+        ]
+      }
     }
   },
   "tags": ["backend"]
