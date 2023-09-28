@@ -5,7 +5,7 @@ import { RADIAL_CHART_SIZE } from './radial-chart.types';
 const sizeOptions = Object.values(RADIAL_CHART_SIZE);
 
 const meta: Meta<RadialChartComponent> = {
-  title: 'Radial Chart',
+  title: 'Components/Radial Chart',
   component: RadialChartComponent,
   argTypes: {
     score: {

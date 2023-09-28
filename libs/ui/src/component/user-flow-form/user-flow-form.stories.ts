@@ -3,7 +3,7 @@ import { UserFlowFormComponent } from './user-flow-form.component';
 import { of } from 'rxjs';
 
 const meta: Meta<UserFlowFormComponent> = {
-  title: 'User-Flow Form',
+  title: 'Components/User-Flow Form',
   component: UserFlowFormComponent,
 };
 export default meta;
