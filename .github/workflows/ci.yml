@@ -165,12 +165,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-central-1
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build Dev
-        run: npm run build
-
       - name: Deploy Dev Client
         if: ${{ env.is-pull-request == 'true' }}
         run: npx nx affected --target=deploy  --exclude='*,!tag:frontend' --environment=dev
@@ -186,11 +180,22 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-
+        with:
+          fetch-depth: 0
+      - uses: nrwl/nx-set-shas@v3
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
+
+      - name: Cache NPM Dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            ~/.cache
+            dist
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -198,12 +203,6 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-central-1
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build Dev
-        run: npm run build
 
       - name: Deploy Dev Server
         if: ${{ env.is-pull-request == 'true' }}
