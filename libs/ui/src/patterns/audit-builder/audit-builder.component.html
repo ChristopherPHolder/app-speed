@@ -1,26 +1,25 @@
-<form class='form' [formGroup]='userflowForm' (ngSubmit)="ui.formSubmit($event)">
+<form class='form' [formGroup]='auditForm' (ngSubmit)="ui.formSubmit($event)">
   <div class='form__row'>
     <input
       formControlName='title'
       class="form__input form__input--medium form__input--longest"
       type='text'
-      placeholder='Audit Title'
     >
     <button class="form__submit form__submit--medium form__submit--active" type='submit'>Analyze</button>
     <input type='button' value='+'>
   </div>
-<!--  <ng-container *ngFor='let step of auditSteps; index as i'>-->
-<!--    <div class='box'>-->
-<!--      <div class='form__row'>-->
-<!--        <span> {{i}} {{step.type }} </span>-->
-<!--        <input type='button' value='+'>-->
-<!--      </div>-->
-<!--      <div class='box box&#45;&#45;info box&#45;&#45;small'>-->
-<!--        <span class='form__row' *ngFor='let keys of Object.keys(step); index as i'>-->
-<!--          <label>{{i}} {{keys}}</label>-->
-<!--          <input class='form__input form__input&#45;&#45;small' type='text'>-->
-<!--        </span>-->
-<!--      </div>-->
-<!--    </div>-->
-<!--  </ng-container>-->
+  <ng-container formArrayName='steps' *ngFor='let step of auditSteps.controls; let i = index'>
+    <div class='box' [formGroupName]="i">
+      <div class='form__row'>
+        <span> {{i}} >> {{ step.controls.type.value }} </span>
+        <input type='button' value='+'>
+      </div>
+      <div class='box box--info'>
+        <span>
+          <label> {{ Object.keys(step.controls) }} </label>
+          <input class='form__input form__input--small' formControlName="type">
+        </span>
+      </div>
+    </div>
+  </ng-container>
 </form>

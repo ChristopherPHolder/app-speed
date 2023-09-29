@@ -1,8 +1,23 @@
-import { ChangeDetectionStrategy, Component, inject, Input, OnInit, Output, ViewEncapsulation } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  Input,
+  OnInit,
+  Output,
+  ViewEncapsulation,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormArray,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 
-import type { AppSpeedUserFlow } from '@ufo/user-flow-replay';
+import type { AppSpeedUserFlow, AppSpeedUserFlowStep } from '@ufo/user-flow-replay';
 import { preventDefault, RxActionFactory, RxActions } from '@rx-angular/state/actions';
 import { filter, map, withLatestFrom } from 'rxjs';
 
@@ -44,13 +59,12 @@ const defaultAudit: AppSpeedUserFlow = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [RxActionFactory],
 })
-export class AuditBuilderComponent {
-  private formBuilder = inject(FormBuilder);
-  userflowForm: FormGroup = this.formBuilder.group(
+export class AuditBuilderComponent implements AfterViewInit {
+  auditForm = new FormGroup(
     {
-      title: ['']
-    }
-  );
+    title: new FormControl<string>(defaultAudit.title, Validators.required),
+    steps: new FormArray(defaultAudit.steps.map(step => this.createStepGroup(step)))
+  });
 
   ui: RxActions<UiActions> = inject(RxActionFactory<UiActions>).create({
     inputChange: String,
@@ -59,19 +73,39 @@ export class AuditBuilderComponent {
 
   @Input()
   set auditDetails(details: AppSpeedUserFlow) {
-    this._auditDetails = details;
+    this.updateAuditForm(details);
   }
 
   @Output() auditSubmit = this.ui.formSubmit$.pipe(
-    withLatestFrom(this.userflowForm.statusChanges,this.userflowForm.valueChanges),
+    withLatestFrom(this.auditForm.statusChanges,this.auditForm.valueChanges),
     filter(([,formState,]) => formState === 'VALID'),
     map(([,, formValue]) => formValue),
   );
 
-  get auditSteps() {
-    return this._auditDetails.steps;
+  private createStepGroup(step: AppSpeedUserFlowStep){
+    return new FormGroup({
+      type: new FormControl<string>(step.type, Validators.required)
+    })
   };
 
-  private _auditDetails: AppSpeedUserFlow = defaultAudit;
+  get auditSteps() {
+    // TODO fix typing
+    return this.auditForm.get('steps') as FormArray<FormGroup<{type: FormControl<string | null>}>>;
+  }
+
+  updateAuditForm(auditDetails?: AppSpeedUserFlow): void {
+    this.auditForm.get('title')?.setValue('defaultAudit.title');
+  }
+
+  isFormArry() {
+
+  }
+
+  ngAfterViewInit() {
+    setTimeout(() => {
+      this.updateAuditForm();
+    });
+  }
+
   protected readonly Object = Object;
 }
