@@ -97,10 +97,6 @@ export class AuditBuilderComponent implements AfterViewInit {
     this.auditForm.get('title')?.setValue('defaultAudit.title');
   }
 
-  isFormArry() {
-
-  }
-
   ngAfterViewInit() {
     setTimeout(() => {
       this.updateAuditForm();
