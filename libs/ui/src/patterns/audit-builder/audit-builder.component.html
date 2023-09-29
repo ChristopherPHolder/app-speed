@@ -1,0 +1,26 @@
+<form class='form' [formGroup]='userflowForm' (ngSubmit)="ui.formSubmit($event)">
+  <div class='form__row'>
+    <input
+      formControlName='title'
+      class="form__input form__input--medium form__input--longest"
+      type='text'
+      placeholder='Audit Title'
+    >
+    <button class="form__submit form__submit--medium form__submit--active" type='submit'>Analyze</button>
+    <input type='button' value='+'>
+  </div>
+<!--  <ng-container *ngFor='let step of auditSteps; index as i'>-->
+<!--    <div class='box'>-->
+<!--      <div class='form__row'>-->
+<!--        <span> {{i}} {{step.type }} </span>-->
+<!--        <input type='button' value='+'>-->
+<!--      </div>-->
+<!--      <div class='box box&#45;&#45;info box&#45;&#45;small'>-->
+<!--        <span class='form__row' *ngFor='let keys of Object.keys(step); index as i'>-->
+<!--          <label>{{i}} {{keys}}</label>-->
+<!--          <input class='form__input form__input&#45;&#45;small' type='text'>-->
+<!--        </span>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--  </ng-container>-->
+</form>
