@@ -22,7 +22,7 @@ export class AuditStepComponent implements OnInit {
   @Input() stepData: any;
   stepForm!: FormGroup;
 
-  constructor(private fb: FormBuilder) { }
+  constructor(private fb: FormBuilder) {}
 
   ngOnInit(): void {
     this.initializeStepForm();
@@ -33,21 +33,14 @@ export class AuditStepComponent implements OnInit {
   }
 
   createFormGroup(step: AppSpeedUserFlowStep): FormGroup {
-    const controls = Object.fromEntries(
-      Object.entries(step).map(([key, value]) => {
-        if (typeof value === 'string') {
-          return [key, [value]];
-        }
-        console.log('Value', value)
-        return [key, [this.createFormGroup(value)]];
-      })
-    );
-    this.stepForm = this.fb.group(controls);
-    return this.fb.group(controls);
+    return  this.fb.group(Object.fromEntries(
+      Object.entries(step).map(([key, value]) => (
+        typeof value === 'string' ? [key, [value]] : [key, [this.createFormGroup(value)]]
+      ))
+    ));
   }
 
   getKeys(obj: any): string[] {
-    console.log(obj);
     return Object.keys(obj);
   }
 
