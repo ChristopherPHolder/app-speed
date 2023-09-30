@@ -1,10 +1,8 @@
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   inject,
   Input,
-  OnInit,
   Output,
   ViewEncapsulation,
 } from '@angular/core';
@@ -20,6 +18,7 @@ import {
 import type { AppSpeedUserFlow, AppSpeedUserFlowStep } from '@ufo/user-flow-replay';
 import { preventDefault, RxActionFactory, RxActions } from '@rx-angular/state/actions';
 import { filter, map, withLatestFrom } from 'rxjs';
+import { AuditStepComponent } from '../audit-step/audit-step.component';
 
 type UiActions = {
   inputChange: string;
@@ -28,7 +27,7 @@ type UiActions = {
 }
 
 const defaultAudit: AppSpeedUserFlow = {
-  title: '',
+  title: 'AppSpeed User-Flow Audit',
   steps: [
     {
       type: 'startNavigation',
@@ -52,14 +51,15 @@ const defaultAudit: AppSpeedUserFlow = {
 @Component({
   selector: 'app-audit-builder',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, AuditStepComponent],
   templateUrl: './audit-builder.component.html',
   styleUrls: ['./audit-builder.component.scss', './../../component/input/input.scss', '../../component/box/box.scss'],
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [RxActionFactory],
 })
-export class AuditBuilderComponent implements AfterViewInit {
+export class AuditBuilderComponent {
+  defaultAudit = defaultAudit;
   auditForm = new FormGroup(
     {
     title: new FormControl<string>(defaultAudit.title, Validators.required),
@@ -73,7 +73,7 @@ export class AuditBuilderComponent implements AfterViewInit {
 
   @Input()
   set auditDetails(details: AppSpeedUserFlow) {
-    this.updateAuditForm(details);
+    this.auditForm.get('title')?.setValue(details.title);
   }
 
   @Output() auditSubmit = this.ui.formSubmit$.pipe(
@@ -92,16 +92,4 @@ export class AuditBuilderComponent implements AfterViewInit {
     // TODO fix typing
     return this.auditForm.get('steps') as FormArray<FormGroup<{type: FormControl<string | null>}>>;
   }
-
-  updateAuditForm(auditDetails?: AppSpeedUserFlow): void {
-    this.auditForm.get('title')?.setValue('defaultAudit.title');
-  }
-
-  ngAfterViewInit() {
-    setTimeout(() => {
-      this.updateAuditForm();
-    });
-  }
-
-  protected readonly Object = Object;
 }

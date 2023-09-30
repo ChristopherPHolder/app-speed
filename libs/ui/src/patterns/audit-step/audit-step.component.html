@@ -1,0 +1,18 @@
+<div class='box' [formGroup]="stepForm">
+  <div class='form__row'>
+    <span> {{ stepType }} </span>
+    <span><input type='button' value='+'></span>
+  </div>
+    <div class='box box--info' *ngFor="let controlName of getKeys(stepForm.controls)">
+      <span>
+        <label> {{controlName}} </label>
+        <input *ngIf='isInputString(stepForm.controls[controlName])' class='form__input form__input--small' [formControlName]="controlName">
+        <div *ngIf='!isInputString(stepForm.controls[controlName])' [formGroup]='stepForm.controls[controlName].value'>
+          <div class='box' *ngFor="let subControlName of getKeys(stepForm.controls[controlName].value.controls)">
+            <label> {{subControlName}} </label>
+            <input class='form__input form__input--small' [formControlName]="subControlName">
+          </div>
+        </div>
+      </span>
+  </div>
+</div>

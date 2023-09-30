@@ -1,25 +1,10 @@
 <form class='form' [formGroup]='auditForm' (ngSubmit)="ui.formSubmit($event)">
   <div class='form__row'>
-    <input
-      formControlName='title'
-      class="form__input form__input--medium form__input--longest"
-      type='text'
-    >
+    <input formControlName='title' class="form__input form__input--medium form__input--longest" type='text'>
     <button class="form__submit form__submit--medium form__submit--active" type='submit'>Analyze</button>
     <input type='button' value='+'>
   </div>
-  <ng-container formArrayName='steps' *ngFor='let step of auditSteps.controls; let i = index'>
-    <div class='box' [formGroupName]="i">
-      <div class='form__row'>
-        <span> {{i}} >> {{ step.controls.type.value }} </span>
-        <input type='button' value='+'>
-      </div>
-      <div class='box box--info'>
-        <span>
-          <label> {{ Object.keys(step.controls) }} </label>
-          <input class='form__input form__input--small' formControlName="type">
-        </span>
-      </div>
-    </div>
+  <ng-container formArrayName='steps' *ngFor='let step of defaultAudit.steps; let i = index'>
+    <app-audit-step [stepData]='step'/>
   </ng-container>
 </form>

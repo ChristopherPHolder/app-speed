@@ -7,7 +7,7 @@ import {Browser, Page} from "puppeteer";
 import { AppSpeedUserFlowStep,
 } from './types';
 import { isMeasureType } from "./utils";
-import {UserFlow} from 'lighthouse';
+import { UserFlow } from 'lighthouse';
 
 export class UserFlowRunnerExtension extends PuppeteerRunnerExtension {
 
