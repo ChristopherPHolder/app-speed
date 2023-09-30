@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Input,
-  OnInit,
-  ViewEncapsulation,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Input, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { AppSpeedUserFlowStep } from '@ufo/user-flow-replay';
@@ -14,30 +8,25 @@ import { AppSpeedUserFlowStep } from '@ufo/user-flow-replay';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './audit-step.component.html',
-  styleUrls: ['./audit-step.component.scss'],
+  styleUrls: ['./audit-step.component.scss', './../../component/input/input.scss', '../../component/box/box.scss'],
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AuditStepComponent implements OnInit {
-  @Input() stepData: any;
-  stepForm!: FormGroup;
-
-  constructor(private fb: FormBuilder) {}
-
-  ngOnInit(): void {
-    this.initializeStepForm();
+export class AuditStepComponent {
+  @Input({ required: true })
+  set stepDetails(details: AppSpeedUserFlowStep) {
+    this.stepForm = this.createFormGroup(details);
   }
 
-  initializeStepForm() {
-    this.stepForm = this.createFormGroup(this.stepData)
-  }
+  private fb = inject(FormBuilder);
+  stepForm: FormGroup = this.createFormGroup({
+    type: 'Audit Step'
+  } as unknown as AppSpeedUserFlowStep);
 
   createFormGroup(step: AppSpeedUserFlowStep): FormGroup {
-    return  this.fb.group(Object.fromEntries(
-      Object.entries(step).map(([key, value]) => (
+    return  this.fb.group(Object.fromEntries(Object.entries(step).map(([key, value]) =>
         typeof value === 'string' ? [key, [value]] : [key, [this.createFormGroup(value)]]
-      ))
-    ));
+    )));
   }
 
   getKeys(obj: any): string[] {
@@ -49,7 +38,7 @@ export class AuditStepComponent implements OnInit {
   }
 
   get stepType() {
-    return this.stepForm.controls['type'].value
+    return this.stepForm.controls['type'].value;
   }
 }
 

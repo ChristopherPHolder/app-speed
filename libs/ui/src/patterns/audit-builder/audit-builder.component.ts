@@ -79,7 +79,7 @@ export class AuditBuilderComponent {
   @Output() auditSubmit = this.ui.formSubmit$.pipe(
     withLatestFrom(this.auditForm.statusChanges,this.auditForm.valueChanges),
     filter(([,formState,]) => formState === 'VALID'),
-    map(([,, formValue]) => formValue),
+    map(([,, formValue]) => formValue)
   );
 
   private createStepGroup(step: AppSpeedUserFlowStep){
@@ -87,9 +87,4 @@ export class AuditBuilderComponent {
       type: new FormControl<string>(step.type, Validators.required)
     })
   };
-
-  get auditSteps() {
-    // TODO fix typing
-    return this.auditForm.get('steps') as FormArray<FormGroup<{type: FormControl<string | null>}>>;
-  }
 }

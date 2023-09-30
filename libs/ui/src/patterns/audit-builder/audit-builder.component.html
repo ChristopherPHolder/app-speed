@@ -5,6 +5,6 @@
     <input type='button' value='+'>
   </div>
   <ng-container formArrayName='steps' *ngFor='let step of defaultAudit.steps; let i = index'>
-    <app-audit-step [stepData]='step'/>
+    <app-audit-step [stepDetails]='step'/>
   </ng-container>
 </form>

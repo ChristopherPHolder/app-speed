@@ -3,7 +3,7 @@ import { AuditStepComponent } from './audit-step.component';
 
 
 const meta: Meta<AuditStepComponent> = {
-  title: 'Patterns/Audit Builder',
+  title: 'Patterns/Audit Step',
   component: AuditStepComponent
 };
 export default meta;
