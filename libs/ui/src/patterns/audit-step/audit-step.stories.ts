@@ -11,3 +11,12 @@ export default meta;
 type Story = StoryObj<AuditStepComponent>;
 
 export const Default: Story = {};
+
+export const StartNavigation: Story = { args: {
+    stepDetails: {
+      type: 'startNavigation',
+      stepOptions: {
+        name: 'Initial Navigation'
+      }
+    }
+}}
