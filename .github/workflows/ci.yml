@@ -157,7 +157,7 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
 
       - name: Publish Storybook Affected
-        run: npx nx affected --target=publish-storybook --parallel=3
+        run: npx nx affected --target=publish-storybook --parallel=3 --project-token=${{ secrets.CHROMATIC_PROJECT_TOKEN }}
 
   deploy-front-end:
     name: Deploy Front-End
