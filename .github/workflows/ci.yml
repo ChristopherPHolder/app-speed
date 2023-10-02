@@ -134,7 +134,6 @@ jobs:
 
   publish-storybook:
     name: Publish Affected Storybook
-    needs: [build, lint, test]
     runs-on: ubuntu-latest
 
     steps:
