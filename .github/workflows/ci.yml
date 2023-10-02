@@ -132,6 +132,33 @@ jobs:
       - name: Build Affected
         run: npx nx affected --target=build --parallel=3
 
+  publish-storybook:
+    name: Publish Storybook
+    needs: [build, lint, test]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: nrwl/nx-set-shas@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Cache NPM Dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            ~/.cache
+            dist
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
+      - name: Publish Storybook Affected
+        run: npx nx affected --target=publish-storybook --parallel=3 --project-token=${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+
   deploy-front-end:
     name: Deploy Front-End
     needs: [build, lint, test]
