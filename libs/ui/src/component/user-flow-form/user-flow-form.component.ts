@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, ErrorHandler, Input, Output, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RxActionFactory, preventDefault } from '@rx-angular/state/actions';
 import { filter, map, Observable, withLatestFrom } from 'rxjs';
 import { RxEffects } from '@rx-angular/state/effects';
@@ -39,7 +39,7 @@ type UiActions = {
 })
 export class UserFlowFormComponent extends RxEffects {
   userflowForm: FormGroup = this.fb.group({
-    url: [''],
+    url: ['', Validators.required],
   });
 
   @Input()
