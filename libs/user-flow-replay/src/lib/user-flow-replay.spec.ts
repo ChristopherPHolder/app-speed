@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { UserFlowAudit } from './user-flow-replay';
 import { writeFileSync } from 'fs';
-import { AppSpeedUserFlow, LighthouseStepType, PuppeteerReplayStepType } from './types';
+import { AppSpeedUserFlow, LighthouseStepType, PuppeteerReplayStepType } from 'shared';
 
 describe('userFlowReplay', () => {
   it('should work', async () => {
