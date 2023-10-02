@@ -67,7 +67,15 @@
           "quiet": true
         }
       }
+    },
+    "publish-storybook": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build-storybook"],
+      "options": {
+        "parallel": false,
+        "commands": ["npx chromatic ./dist/storybook/ui"]
+      }
     }
   },
-  "tags": []
+  "tags": ["frontend"]
 }
