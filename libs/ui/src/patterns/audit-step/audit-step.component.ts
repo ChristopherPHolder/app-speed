@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, Input, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { AppSpeedUserFlowStep } from '@ufo/user-flow-replay';
+import type { AppSpeedUserFlowStep } from 'shared';
 
 @Component({
   selector: 'app-audit-step',

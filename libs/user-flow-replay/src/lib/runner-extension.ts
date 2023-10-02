@@ -5,7 +5,7 @@ import {
 } from '@puppeteer/replay';
 import {Browser, Page} from "puppeteer";
 import { AppSpeedUserFlowStep,
-} from './types';
+} from 'shared';
 import { isMeasureType } from "./utils";
 import { UserFlow } from 'lighthouse';
 

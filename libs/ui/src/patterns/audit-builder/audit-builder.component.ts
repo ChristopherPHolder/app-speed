@@ -15,7 +15,7 @@ import {
   Validators,
 } from '@angular/forms';
 
-import type { AppSpeedUserFlow, AppSpeedUserFlowStep } from '@ufo/user-flow-replay';
+import type { AppSpeedUserFlow, AppSpeedUserFlowStep } from 'shared';
 import { preventDefault, RxActionFactory, RxActions } from '@rx-angular/state/actions';
 import { filter, map, withLatestFrom } from 'rxjs';
 import { AuditStepComponent } from '../audit-step/audit-step.component';
@@ -63,7 +63,7 @@ export class AuditBuilderComponent {
   auditForm = new FormGroup(
     {
     title: new FormControl<string>(defaultAudit.title, Validators.required),
-    steps: new FormArray(defaultAudit.steps.map(step => this.createStepGroup(step)))
+    steps: new FormArray(defaultAudit.steps.map((step: AppSpeedUserFlowStep) => this.createStepGroup(step)))
   });
 
   ui: RxActions<UiActions> = inject(RxActionFactory<UiActions>).create({
