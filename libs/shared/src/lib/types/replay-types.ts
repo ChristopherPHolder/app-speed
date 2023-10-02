@@ -1,18 +1,18 @@
-import {
+import type {
   Step as PuppeteerReplayStep,
   StepType as PuppeteerReplayStepType,
   UserFlow as PuppeteerReplayUserFlow,
 } from '@puppeteer/replay';
-import { Flags } from 'lighthouse';
+import type { Flags } from 'lighthouse';
 
-export { PuppeteerReplayStepType };
+export type { PuppeteerReplayStepType };
 // @TODO Move to global types and explain what it does
 type Modify<T, R> = Omit<T, keyof R> & R;
 
 interface LighthouseStepFlags extends Flags {
   name?: string;
 }
-export const  LighthouseStepType = {
+export const LighthouseStepType = {
   StartNavigation: 'startNavigation',
   EndNavigation: 'endNavigation',
   StartTimespan: 'startTimespan',
@@ -64,20 +64,20 @@ const example0: AppSpeedUserFlow = {
 }
 
 // It should work with a puppeteer step
-const example1: AppSpeedUserFlow = {
-  title: 'Example Title',
-  steps: [
-    {
-      type: PuppeteerReplayStepType.Navigate,
-      url: 'https://example.com'
-    }
-  ]
-}
-
-const replayStep: PuppeteerReplayStep = {
-  type: PuppeteerReplayStepType.Navigate,
-  url: 'https://example.com'
-}
+// const example1: AppSpeedUserFlow = {
+//   title: 'Example Title',
+//   steps: [
+//     {
+//       type: PuppeteerReplayStepType.Navigate,
+//       url: 'https://example.com'
+//     }
+//   ]
+// }
+//
+// const replayStep: PuppeteerReplayStep = {
+//   type: PuppeteerReplayStepType.Navigate,
+//   url: 'https://example.com'
+// }
 
 const example2: AppSpeedUserFlow = {
   title: 'Example Title',
