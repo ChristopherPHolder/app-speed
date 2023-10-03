@@ -1,6 +1,6 @@
-<form class='form' [formGroup]='auditForm' (ngSubmit)="ui.formSubmit($event)">
+<form class='form box--medium' [formGroup]='auditForm' (ngSubmit)="ui.formSubmit($event)">
   <!--  TODO Convert Form Row into Separate Core -->
-  <div class='form__row box--small'>
+  <div class='form__row'>
     <input formControlName='title' class="form__input form__input--medium form__input--longest" type='text'>
     <button class="form__submit form__submit--medium form__submit--active" type='submit'>Analyze</button>
     <span class='box'>⚙️</span>

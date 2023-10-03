@@ -24,14 +24,12 @@ type UiActions = {
   standalone: true,
   imports: [CommonModule, UserFlowFormComponent, ResultsDisplayComponent, RxIf, AuditBuilderComponent],
   template: `
-    <div class='audit-heading-container'>
-      <h1 class='audit-section-title'>Flow Audits</h1>
-      <p>Measure your sites web performance on more then just the initial load</p>
+    <div class='audit-heading-container box--medium'>
+      <h1 class='audit-section-title box--medium'>Flow Audits</h1>
+      <p class='box--small'>Audit you applications performance on user interaction, not just the initial navigation</p>
     </div>
+    <app-audit-builder (auditSubmit)='checkSubmit($event)'></app-audit-builder>
 
-    <div class='audit-form-box'>
-      <app-audit-builder (auditSubmit)='checkSubmit($event)'></app-audit-builder>
-    </div>
     
     <div class='audit-form-box'>
       <app-user-flow-form [disabled]="state.select('isOnline')" (auditSubmit)='checkSubmit($event)'/>

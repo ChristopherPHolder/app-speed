@@ -3,7 +3,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 20px;
+    gap: 8px;
   }
   &__submit {
     border-radius: 6px;
@@ -32,7 +32,7 @@
       padding: 0 10px;
     }
     &--medium {
-      min-width: 180px;
+      width: 180px;
       height: 38px;
       padding: 0 12px;
     }

@@ -4,13 +4,8 @@ import { Component } from '@angular/core';
   selector: 'app-header',
   standalone: true,
   template: `
-    <div class='header-navbar'>
-      <img
-        class='header-navbar-logo' 
-        loading="eager"
-        [src]='logoSrc' 
-        [alt]='logoAlt'
-      >
+    <div class='header-navbar box--small'>
+      <img class='header-navbar-logo' loading="eager" [src]='logoSrc' [alt]='logoAlt'>
     </div>
   `,
   styles: [
