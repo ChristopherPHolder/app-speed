@@ -1,29 +1,25 @@
 <div class='box box--gray box--medium' [formGroup]="stepForm">
+  <!--  TODO Convert Form Row into Separate Core -->
   <div class='form__row box--small'>
-    <span class='box box--small'> {{ stepType }} </span>
-    <span class='box box--gray-dark box--small'>⚙️</span>
+    <span class='box'>  > {{ stepType }} </span>
+    <span class='box'>⚙️</span>
   </div>
-  <div class='box box--info box--small'>
-    <div class='box box--info box--small' *ngFor="let controlName of getKeys(stepForm.controls)">
-    <span>
-      <label class='box box--small'> {{controlName}} </label>
-      <input
-        *ngIf='isInputString(stepForm.controls[controlName])'
-        class='form__input form__input--small'
-        [formControlName]="controlName"
-      >
-      <div
-        *ngIf='!isInputString(stepForm.controls[controlName])'
-        [formGroup]='stepForm.controls[controlName].value'
-      >
-        <div
-          *ngFor="let subControlName of getKeys(stepForm.controls[controlName].value.controls)"
+  <div class='box box--gray-dark'>
+    <div class='box box--small' *ngFor="let controlName of getKeys(stepForm.controls)">
+      <span>
+        <label> {{controlName}} </label>
+        <input
+          *ngIf='isInputString(stepForm.controls[controlName])'
+          class='form__input form__input--small'
+          [formControlName]="controlName"
         >
-          <label class='box box--small'> {{subControlName}} </label>
-          <input class='form__input form__input--small' [formControlName]="subControlName">
+        <div *ngIf='!isInputString(stepForm.controls[controlName])' [formGroup]='stepForm.controls[controlName].value'>
+          <div class='box box--small' *ngFor="let subControlName of getKeys(stepForm.controls[controlName].value.controls)">
+            <label> > {{subControlName}} </label>
+            <input class='form__input form__input--small' [formControlName]="subControlName">
+          </div>
         </div>
-      </div>
-    </span>
+      </span>
     </div>
   </div>
 </div>

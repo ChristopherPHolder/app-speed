@@ -2,7 +2,7 @@
   border-radius: 6px;
 
   &--gray {
-    background-color: var(--color-gray-100);
+    background-color: var(--color-gray-200);
   }
   &--gray-dark {
     background-color: var(--color-gray-300);
@@ -13,12 +13,12 @@
   }
 
   &--small {
-    margin: 5px;
-    padding: 5px;
+    padding: 8px;
   }
-
   &--medium {
-    margin: 20px 10px;
-    padding: 20px;
+    padding: 16px;
+  }
+  &--large {
+    padding: 32px;
   }
 }
