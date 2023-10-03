@@ -28,9 +28,7 @@ type UiActions = {
       <h1 class='audit-section-title box--medium'>Flow Audits</h1>
       <p class='box--small'>Audit you applications performance on user interaction, not just the initial navigation</p>
     </div>
-    <app-audit-builder (auditSubmit)='checkSubmit($event)'></app-audit-builder>
-
-    
+    <app-audit-builder (auditSubmit)='checkSubmit($event)' />
     <div class='audit-form-box'>
       <app-user-flow-form [disabled]="state.select('isOnline')" (auditSubmit)='checkSubmit($event)'/>
     </div>
