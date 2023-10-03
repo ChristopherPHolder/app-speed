@@ -82,6 +82,10 @@ export class AuditBuilderComponent {
     map(([,, formValue]) => formValue)
   );
 
+  addStep(event: any, index: any) {
+    this.defaultAudit.steps.splice(index, 0, { type: 'startNavigation' })
+  }
+
   private createStepGroup(step: AppSpeedUserFlowStep){
     return new FormGroup({
       type: new FormControl<string>(step.type, Validators.required)

@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, inject, Input, ViewEncapsulation } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  Output,
+  ViewEncapsulation,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import type { AppSpeedUserFlowStep } from 'shared';
@@ -13,9 +21,15 @@ import type { AppSpeedUserFlowStep } from 'shared';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuditStepComponent {
-  @Input({ required: true })
-  set stepDetails(details: AppSpeedUserFlowStep) {
+  @Input({ required: true }) set stepDetails(details: AppSpeedUserFlowStep) {
     this.stepForm = this.createFormGroup(details);
+  }
+
+  @Output() addStep = new EventEmitter<any>;
+
+  openEditToggle() {
+    console.log(this.stepForm);
+    this.addStep.emit(this.stepForm);
   }
 
   private fb = inject(FormBuilder);

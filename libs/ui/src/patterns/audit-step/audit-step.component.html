@@ -2,7 +2,7 @@
   <!--  TODO Convert Form Row into Separate Core -->
   <div class='form__row box--small'>
     <span class='box'>  > {{ stepType }} </span>
-    <span class='box'>⚙️</span>
+    <span (click)='openEditToggle()' class='box'>⚙️</span>
   </div>
   <div class='box box--gray-dark'>
     <div class='box box--small' *ngFor="let controlName of getKeys(stepForm.controls)">
