@@ -1,23 +1,12 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  Input,
-  Output,
-  ViewEncapsulation,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Input, Output, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  FormArray,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+
+import { preventDefault, RxActionFactory, RxActions } from '@rx-angular/state/actions';
+import { filter, map, Observable, withLatestFrom } from 'rxjs';
+import { RxEffects } from '@rx-angular/state/effects';
 
 import type { AppSpeedUserFlow, AppSpeedUserFlowStep } from 'shared';
-import { preventDefault, RxActionFactory, RxActions } from '@rx-angular/state/actions';
-import { filter, map, withLatestFrom } from 'rxjs';
 import { AuditStepComponent } from '../audit-step/audit-step.component';
 
 type UiActions = {
@@ -58,10 +47,9 @@ const defaultAudit: AppSpeedUserFlow = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [RxActionFactory],
 })
-export class AuditBuilderComponent {
+export class AuditBuilderComponent extends RxEffects {
   defaultAudit = defaultAudit;
-  auditForm = new FormGroup(
-    {
+  auditForm = new FormGroup({
     title: new FormControl<string>(defaultAudit.title, Validators.required),
     steps: new FormArray(defaultAudit.steps.map((step: AppSpeedUserFlowStep) => this.createStepGroup(step)))
   });
@@ -74,6 +62,11 @@ export class AuditBuilderComponent {
   @Input()
   set auditDetails(details: AppSpeedUserFlow) {
     this.auditForm.get('title')?.setValue(details.title);
+  }
+
+  @Input()
+  set disabled(disabled$: Observable<boolean>) {
+    this.register(disabled$, d => d ? this.auditForm.enable() : this.auditForm.disable());
   }
 
   @Output() auditSubmit = this.ui.formSubmit$.pipe(

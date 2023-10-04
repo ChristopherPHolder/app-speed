@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AuditBuilderComponent, ResultsDisplayComponent, UserFlowFormComponent } from 'ui';
+import { AuditBuilderComponent, ResultsDisplayComponent } from 'ui';
 import { RxState } from '@rx-angular/state';
 import { SimpleAuditAdapter } from './simple-audit.adapter';
 import { AuditStatusType } from 'shared';
@@ -22,16 +22,13 @@ type UiActions = {
 @Component({
   selector: 'app-simple-audit',
   standalone: true,
-  imports: [CommonModule, UserFlowFormComponent, ResultsDisplayComponent, RxIf, AuditBuilderComponent],
+  imports: [CommonModule, ResultsDisplayComponent, RxIf, AuditBuilderComponent],
   template: `
     <div class='audit-heading-container box--medium'>
       <h1 class='audit-section-title box--medium'>Flow Audits</h1>
       <p class='box--small'>Audit you applications performance on user interaction, not just the initial navigation</p>
     </div>
-    <app-audit-builder (auditSubmit)='checkSubmit($event)' />
-    <div class='audit-form-box'>
-      <app-user-flow-form [disabled]="state.select('isOnline')" (auditSubmit)='checkSubmit($event)'/>
-    </div>
+    <app-audit-builder (auditSubmit)='checkSubmit($event)' [disabled]="state.select('isOnline')"/>
 
     <app-results-display
       *rxIf='resultsBoxVisible$'
