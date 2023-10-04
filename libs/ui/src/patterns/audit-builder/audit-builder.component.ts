@@ -82,8 +82,13 @@ export class AuditBuilderComponent {
     map(([,, formValue]) => formValue)
   );
 
-  addStep(event: any, index: any) {
-    this.defaultAudit.steps.splice(index, 0, { type: 'startNavigation' })
+  addStep(location: 'before' | 'after', index: number) {
+    const i = location === 'before' ? index : index + 1;
+    this.defaultAudit.steps.splice(i, 0, { type: 'startNavigation' })
+  }
+
+  removeStep(location: number) {
+    this.defaultAudit.steps.splice(location,1);
   }
 
   private createStepGroup(step: AppSpeedUserFlowStep){

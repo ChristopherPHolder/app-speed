@@ -6,6 +6,11 @@
     <span class='box'>⚙️</span>
   </div>
   <ng-container formArrayName='steps' *ngFor='let step of defaultAudit.steps; let i = index'>
-    <app-audit-step class='box box--small' [stepDetails]='step' (addStep)='addStep($event, i)'/>
+    <app-audit-step
+      class='box box--small'
+      [stepDetails]='step'
+      (addStep)='addStep($event, i)'
+      (removeStep)='removeStep(i)'
+    />
   </ng-container>
 </form>

@@ -2,7 +2,15 @@
   <!--  TODO Convert Form Row into Separate Core -->
   <div class='form__row box--small'>
     <span class='box'>  > {{ stepType }} </span>
-    <span (click)='openEditToggle()' class='box'>⚙️</span>
+    <span (click)='openEditToggle()' class='box' #editStepButton>⚙️</span>
+    <dialog class='box' #editDialog>
+      <span>Manage Steps</span>
+      <ul class='box--small'>
+        <li class='box--small' (click)='addAuditStep("before")'>Add Step Before</li>
+        <li class='box--small' (click)='addAuditStep("after")'>Add Step After</li>
+        <li class='box--small' (click)='removeStep.emit()'>Remove Step</li>
+      </ul>
+    </dialog>
   </div>
   <div class='box box--gray-dark'>
     <div class='box box--small' *ngFor="let controlName of getKeys(stepForm.controls)">

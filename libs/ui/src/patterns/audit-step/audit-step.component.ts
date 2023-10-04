@@ -1,10 +1,10 @@
 import {
   ChangeDetectionStrategy,
-  Component,
+  Component, ElementRef,
   EventEmitter,
   inject,
   Input,
-  Output,
+  Output, ViewChild,
   ViewEncapsulation,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -25,12 +25,27 @@ export class AuditStepComponent {
     this.stepForm = this.createFormGroup(details);
   }
 
-  @Output() addStep = new EventEmitter<any>;
+  @Output() addStep = new EventEmitter<'before' | 'after'>;
+  @Output() removeStep = new EventEmitter<void>;
+
+  @ViewChild('editDialog') editDialogRef!: ElementRef<HTMLDialogElement>;
+  @ViewChild('editStepButton') editStepRef!: ElementRef<HTMLElement>;
 
   openEditToggle() {
-    console.log(this.stepForm);
-    this.addStep.emit(this.stepForm);
+    const buttonRect: DOMRect = this.editStepRef.nativeElement.getBoundingClientRect();
+    const dialog: HTMLDialogElement = this.editDialogRef.nativeElement;
+    dialog.style.visibility = 'hidden';
+    !dialog.open ? dialog.show() : dialog.close();
+    dialog.style.top = `${buttonRect.bottom + 4}px`;
+    dialog.style.left = `${buttonRect.right - dialog.offsetWidth}px`;
+    dialog.style.visibility = 'visible';
   }
+
+  addAuditStep(location: 'before' | 'after') {
+    this.addStep.emit(location);
+    this.editDialogRef.nativeElement.close();
+  }
+
 
   private fb = inject(FormBuilder);
   stepForm: FormGroup = this.createFormGroup({
