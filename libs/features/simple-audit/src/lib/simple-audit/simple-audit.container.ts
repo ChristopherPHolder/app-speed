@@ -25,8 +25,8 @@ type UiActions = {
   imports: [CommonModule, ResultsDisplayComponent, RxIf, AuditBuilderComponent],
   template: `
     <div class='audit-heading-container box--medium'>
-      <h1 class='audit-section-title box--medium'>User Flow Audit</h1>
-      <h2>Beyond First Impressions: Measure your apps performance on user interactions</h2>
+      <h1 class='box--medium'>User Flow Audit</h1>
+      <div class='box--small'>Beyond First Impressions: Measure your apps performance on user interactions</div>
     </div>
     <app-audit-builder (auditSubmit)='checkSubmit($event)' [disabled]="state.select('isOnline')"/>
 
