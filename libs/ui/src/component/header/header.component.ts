@@ -11,7 +11,7 @@ import { Component } from '@angular/core';
   styles: [
     `.header-navbar {
         padding: 10px;
-        height: 48px;
+        height: 38px;
         border-bottom: 1px solid #dadce0;
         display: flex;
     }`,
@@ -19,7 +19,7 @@ import { Component } from '@angular/core';
 })
 export class HeaderComponent {
   public readonly logo = {
-    src: '/assets/app-speed-logo.svg',
+    src: '/assets/app-speed-logo-with-name.svg',
     alt: 'App Speed Header Navigation Logo',
   }
 }
