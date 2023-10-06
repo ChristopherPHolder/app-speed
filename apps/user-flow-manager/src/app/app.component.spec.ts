@@ -16,9 +16,9 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have as title 'user-flow-manager'`, () => {
+  it(`should have as title 'App Speed'`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('user-flow-manager');
+    expect(app.title).toEqual('App Speed');
   });
 });
