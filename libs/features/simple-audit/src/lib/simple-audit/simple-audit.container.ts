@@ -25,8 +25,8 @@ type UiActions = {
   imports: [CommonModule, UserFlowFormComponent, ResultsDisplayComponent, RxIf],
   template: `
     <div class='audit-heading-container'>
-      <h1 class='audit-section-title'>Flow Audits</h1>
-      <p>Measure your sites web performance on more then just the initial load</p>
+      <h1 class='audit-section-title'>User Flow Audit</h1>
+      <h2>Beyond First Impressions: Measure your apps performance on user interactions</h2>
     </div>
 
     <div class='audit-form-box'>
