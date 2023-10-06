@@ -9,5 +9,5 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
-  title = 'user-flow-manager';
+  title = 'App Speed';
 }
