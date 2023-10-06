@@ -25,11 +25,11 @@ describe('HeaderComponent', () => {
 
   it('should set src attribute on the image', () => {
     fixture.detectChanges();
-    expect(imgEl.src).toBe(component.logoSrc);
+    expect(imgEl.src).toBe(component.logo.src);
   });
 
   it('should set alt attribute on the image', () => {
     fixture.detectChanges();
-    expect(imgEl.alt).toBe(component.logoAlt);
+    expect(imgEl.alt).toBe(component.logo.alt);
   });
 });
