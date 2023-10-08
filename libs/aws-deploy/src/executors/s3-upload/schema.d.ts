@@ -1,1 +1,4 @@
-export interface S3UploadExecutorSchema {} // eslint-disable-line
+export interface S3UploadExecutorSchema {
+  bucket: string;
+  dryRun: boolean
+}
