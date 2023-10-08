@@ -40,7 +40,11 @@
       "executor": "@nx/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["libs/aws-deploy/**/*.ts", "libs/aws-deploy/package.json"]
+        "lintFilePatterns": [
+          "libs/aws-deploy/**/*.ts",
+          "libs/aws-deploy/package.json",
+          "libs/aws-deploy/executors.json"
+        ]
       }
     },
     "test": {
