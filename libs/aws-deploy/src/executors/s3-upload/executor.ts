@@ -1,6 +1,6 @@
 import { S3UploadExecutorSchema } from './schema';
 import { EXECUTOR_FAIL_BASE, EXECUTOR_SUCCESS_BASE, INVALID_BUCKET, MISSING_BUCKET, MISSING_UPLOAD } from './constants';
-import { ExecutorContext } from 'nx/src/config/misc-interfaces';
+import { ExecutorContext } from '@nx/devkit';
 import { execSync } from 'child_process';
 
 type ExecutorExit = {
