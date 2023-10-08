@@ -79,28 +79,20 @@
       }
     },
     "deploy": {
-      "executor": "nx:run-commands",
+      "executor": "@app-speed/aws-deploy:s3-upload",
       "dependsOn": ["build"],
       "options": {
-        "commands": [
-          {
-            "command": "`[ {args.environment} != dev ]` && `[ {args.environment} != prod ]` && exit 1 || exit 0",
-            "forwardAllArgs": true
-          },
-          {
-            "command": "echo 'Deploying Front-End to {args.environment} environment'",
-            "forwardAllArgs": true
-          },
-          {
-            "command": "`[ {args.environment} == prod ]` && aws s3 sync ./dist/apps/user-flow-manager s3://app.deep-blue.io --delete || exit 0",
-            "forwardAllArgs": true
-          },
-          {
-            "command": "`[ {args.environment} == dev ]` && aws s3 sync ./dist/apps/user-flow-manager s3://dev.deep-blue.io --delete || exit 0",
-            "forwardAllArgs": true
-          }
-        ]
-      }
+        "upload": "dist/apps/user-flow-manager"
+      },
+      "configurations": {
+        "production": {
+          "bucket": "s3://app.deep-blue.io"
+        },
+        "development": {
+          "bucket": "s3://dev.deep-blue.io"
+        }
+      },
+      "defaultConfiguration": "development"
     }
   },
   "tags": ["frontend"]
