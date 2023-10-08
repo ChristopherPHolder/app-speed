@@ -1,0 +1,66 @@
+{
+  "name": "aws-deploy",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/aws-deploy/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/aws-deploy",
+        "main": "libs/aws-deploy/src/index.ts",
+        "tsConfig": "libs/aws-deploy/tsconfig.lib.json",
+        "assets": [
+          "libs/aws-deploy/*.md",
+          {
+            "input": "./libs/aws-deploy/src",
+            "glob": "**/!(*.ts)",
+            "output": "./src"
+          },
+          {
+            "input": "./libs/aws-deploy/src",
+            "glob": "**/*.d.ts",
+            "output": "./src"
+          },
+          {
+            "input": "./libs/aws-deploy",
+            "glob": "generators.json",
+            "output": "."
+          },
+          {
+            "input": "./libs/aws-deploy",
+            "glob": "executors.json",
+            "output": "."
+          }
+        ]
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": [
+          "libs/aws-deploy/**/*.ts",
+          "libs/aws-deploy/package.json",
+          "libs/aws-deploy/executors.json"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/aws-deploy/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    }
+  },
+  "tags": []
+}

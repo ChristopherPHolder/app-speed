@@ -193,12 +193,13 @@ jobs:
           aws-region: eu-central-1
 
       - name: Deploy Dev Client
-        if: ${{ env.is-pull-request == 'true' }}
-        run: npx nx affected --target=deploy  --exclude='*,!tag:frontend' --environment=dev
+        if: ${{ env.is-main-branch != 'true' }}
+        run: npx nx affected --target=deploy  --exclude='*,!tag:frontend' --configuration=development
+
 
       - name: Deploy Prod Client
         if: ${{ env.is-main-branch == 'true' }}
-        run: npx nx affected --target=deploy  --exclude='*,!tag:frontend' --environment=prod
+        run: npx nx affected --target=deploy  --exclude='*,!tag:frontend' --configuration=production
 
   deploy-server:
     name: Deploy Server
@@ -232,9 +233,9 @@ jobs:
           aws-region: eu-central-1
 
       - name: Deploy Dev Server
-        if: ${{ env.is-pull-request == 'true' }}
-        run: npx nx affected --target=deploy  --exclude='*,!tag:backend' --environment=dev
+        if: ${{ env.is-main-branch != 'true' }}
+        run: npx nx affected --target=deploy  --exclude='*,!tag:backend' --configuration=development
 
       - name: Deploy Prod Server
         if: ${{ env.is-main-branch == 'true' }}
-        run: npx nx affected --target=deploy  --exclude='*,!tag:backend' --environment=dev
+        run: npx nx affected --target=deploy  --exclude='*,!tag:backend' --configuration=production
