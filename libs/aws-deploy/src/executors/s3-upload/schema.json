@@ -4,6 +4,15 @@
   "title": "S3Upload executor",
   "description": "",
   "type": "object",
-  "properties": {},
+  "properties": {
+    "bucket": {
+      "type": "string",
+      "description": "S3 bucket to upload the content too"
+    },
+    "upload": {
+      "type": "string",
+      "description": "Path from root to file of directory being uploaded"
+    }
+  },
   "required": []
 }
