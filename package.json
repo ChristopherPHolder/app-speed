@@ -53,6 +53,7 @@
     "@nx/js": "16.9.1",
     "@nx/linter": "16.9.1",
     "@nx/node": "16.9.1",
+    "@nx/plugin": "^16.10.0",
     "@nx/storybook": "16.9.1",
     "@nx/vite": "16.9.1",
     "@schematics/angular": "16.2.3",
