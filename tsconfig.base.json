@@ -22,7 +22,6 @@
       "environments": ["libs/environments/src/index.ts"],
       "features/result-viewer": ["libs/features/result-viewer/src/index.ts"],
       "features/simple-audit": ["libs/features/simple-audit/src/index.ts"],
-      "s3-upload": ["libs/s3-upload/src/index.ts"],
       "shared": ["libs/shared/src/index.ts"],
       "ui": ["libs/ui/src/index.ts"]
     }
