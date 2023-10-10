@@ -86,7 +86,7 @@
       },
       "configurations": {
         "production": {
-          "bucket": "s3://app.deep-blue.io"
+          "bucket": "s3://appspeed.dev"
         },
         "development": {
           "bucket": "s3://dev.deep-blue.io"
