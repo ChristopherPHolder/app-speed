@@ -16,7 +16,7 @@ It should have a web interface and allow users store and schedule user-flow audi
 
 ## The application is deployed using GitHub CI
 
-[Production Url](http://app.deep-blue.io)
+[Production Url](http://app.appspeed.dev)
 
-[Development URL](http://dev.deep-blue.io.s3-website.eu-central-1.amazonaws.com)
+[Development URL](http://dev.appspeed.dev.s3-website-us-east-1.amazonaws.com)
 
