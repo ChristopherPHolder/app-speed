@@ -10,11 +10,12 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import type { AppSpeedUserFlowStep } from 'shared';
+import { KebabMenuComponent } from '../../component/icons/kebab-menu.component';
 
 @Component({
   selector: 'app-audit-step',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, KebabMenuComponent],
   templateUrl: './audit-step.component.html',
   styleUrls: ['./audit-step.component.scss', './../../component/input/input.scss', '../../component/box/box.scss'],
   encapsulation: ViewEncapsulation.None,
