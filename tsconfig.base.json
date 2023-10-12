@@ -13,6 +13,8 @@
     "baseUrl": ".",
     "paths": {
       "@app-speed/aws-deploy": ["libs/aws-deploy/src/index.ts"],
+      "@app-speed/feature": ["libs/feature/src/index.ts"],
+      "@app-speed/feature/audit-builder": ["libs/feature/audit-builder/src/index.ts"],
       "@ufo/audit-queue/*": ["libs/audit-queue/src/lib/*"],
       "@ufo/audit-store/*": ["libs/audit-store/src/lib/*"],
       "@ufo/cli-interfaces": ["libs/cli-interfaces/src/index.ts"],
@@ -24,7 +26,8 @@
       "features/result-viewer": ["libs/features/result-viewer/src/index.ts"],
       "features/simple-audit": ["libs/features/simple-audit/src/index.ts"],
       "shared": ["libs/shared/src/index.ts"],
-      "ui": ["libs/ui/src/index.ts"]
+      "ui": ["libs/ui/src/index.ts"],
+      "ui/shell": ["libs/ui/shell/src/index.ts"]
     }
   }
 }
