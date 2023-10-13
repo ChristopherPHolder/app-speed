@@ -38,6 +38,7 @@ const defaultAudit: AppSpeedUserFlow = {
 };
 
 @Component({
+  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'app-audit-builder',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, AuditStepComponent],
