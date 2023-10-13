@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -13,7 +13,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { deviceTypes, stepNameTypes, StepType } from './data';
 import { MatSelectModule } from '@angular/material/select';
-import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 interface StepFormGroup {
   type: FormControl<StepType | string>;
@@ -48,8 +48,6 @@ interface AuditBuilder {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuditBuilderComponent implements OnInit {
-  @ViewChild(MatAccordion) accordion!: MatAccordion;
-
   public readonly deviceTypes = deviceTypes;
   private readonly stepTypes = stepNameTypes;
   public readonly stepTypeValidatorPattern = `^(${this.stepTypes.join('|')})$`;
