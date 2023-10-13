@@ -35,7 +35,7 @@ export type StepType =
 export const stepNameTypes = stepTypes.map(i => i.replace(/([A-Z])/g, ' $1').trim());
 
 
-export const deviceTypes = [
+export const DEVICE_TYPES = [
   {
     value: 'mobile',
     viewValue: 'Mobile'
