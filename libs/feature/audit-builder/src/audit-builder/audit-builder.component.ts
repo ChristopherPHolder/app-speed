@@ -6,14 +6,13 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { deviceTypes, stepNameTypes, StepType } from './data';
 import { MatSelectModule } from '@angular/material/select';
-import { preventDefault } from '@rx-angular/state/actions';
 import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
 
 interface StepFormGroup {
@@ -53,7 +52,7 @@ export class AuditBuilderComponent implements OnInit {
 
   public readonly deviceTypes = deviceTypes;
   private readonly stepTypes = stepNameTypes;
-  panelOpenState = false;
+  public readonly stepTypeValidatorPattern = `^(${this.stepTypes.join('|')})$`;
 
   public readonly auditBuilderForm = new FormGroup<AuditBuilder>({
     title: new FormControl('', {
@@ -77,42 +76,19 @@ export class AuditBuilderComponent implements OnInit {
   }
 
   ngOnInit() {
-    const step = new FormGroup<StepFormGroup>({
-      type: new FormControl('test', {
-        validators: [Validators.required],
-        nonNullable: true
-      })
-    })
-
-    this.auditBuilderForm.controls.steps.insert(1, step)
-
-    console.log('Test', this.auditBuilderForm.controls.steps)
-    // this.filteredOptions = this.myControl.valueChanges.pipe(
-    //   startWith(''),
-    //   map(value => this._filter(value || '')),
-    // );
-  }
-
-  // private _filter(value: string): string[] {
-  //   const filterValue = value.toLowerCase();
-  //
-  //   return this.options.filter(option => option.toLowerCase().includes(filterValue));
-  // }
-
-  removeStep(index: number) {
-    this.auditBuilderForm.controls.steps.removeAt(index);
+    this.addStep(0);
+    this.addStep(0);
+    this.addStep(0);
+    this.cards.subscribe(console.log)
   }
 
   addStep(index: number) {
-    console.log(index)
-    const step = new FormGroup<StepFormGroup>({
-      type: new FormControl(`Creation Index ${index}`, {
-        validators: [Validators.required],
+    this.auditBuilderForm.controls.steps.insert(index, new FormGroup<StepFormGroup>({
+      type: new FormControl('', {
+        validators: [Validators.required, Validators.pattern(this.stepTypeValidatorPattern)],
         nonNullable: true
       })
-    })
-
-    this.auditBuilderForm.controls.steps.insert(index, step)
+    }))
   }
 
   onSubmit(event: any): void {
@@ -121,26 +97,7 @@ export class AuditBuilderComponent implements OnInit {
   }
 
   private breakpointObserver = inject(BreakpointObserver);
-
-  /** Based on the screen size, switch from standard to one column per row */
   cards = this.breakpointObserver.observe(Breakpoints.Handset).pipe(
-    map(({ matches }) => {
-      if (matches) {
-        return [
-          { title: 'Card 1', cols: 1, rows: 1 },
-          { title: 'Card 2', cols: 1, rows: 1 },
-          { title: 'Card 3', cols: 1, rows: 1 },
-          { title: 'Card 4', cols: 1, rows: 1 }
-        ];
-      }
-
-      return [
-        { title: 'Card 1', cols: 1, rows: 1 },
-        { title: 'Card 2', cols: 1, rows: 1 },
-        { title: 'Card 3', cols: 1, rows: 2 },
-        { title: 'Card 4', cols: 1, rows: 1 }
-      ];
-    })
+    tap(console.log)
   );
-  protected readonly preventDefault = preventDefault;
 }

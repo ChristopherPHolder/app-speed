@@ -6,7 +6,7 @@
             <mat-form-field class="full-width">
               <mat-label>Audit Title</mat-label>
               <input matInput placeholder="Title of your audit" [formControl]='auditBuilderForm.controls.title'>
-              <mat-error *ngIf="auditBuilderForm.controls['title'].hasError('required')">
+              <mat-error *ngIf="auditBuilderForm.controls.title.hasError('required')">
                 Audit title is <strong>required</strong>
               </mat-error>
             </mat-form-field>
@@ -45,69 +45,41 @@
                   <button mat-raised-button color="primary" type="submit">Analyze</button>
                 </mat-card-actions>
               </div>
-              <div class='col'>
-                <button mat-icon-button class="more-button" [matMenuTriggerFor]="menu" aria-label="Toggle menu">
-                  <mat-icon>more_vert</mat-icon>
-                </button>
-                <mat-menu #menu="matMenu" xPosition="before">
-                  <button mat-menu-item>Add Step Before</button>
-                  <button mat-menu-item>Add Step After</button>
-                </mat-menu>
-              </div>
             </div>
           </div>
         </div>
-        <mat-card *ngFor='let stepFormGroup of auditBuilderForm.controls.steps.controls; let i = index'>
-          <mat-card-content>
-            <mat-card-header>
-              <mat-card-title>
-                {{i}} -- {{ stepFormGroup.controls.type.value }}
-              </mat-card-title>
-              <div>
-                <button mat-icon-button class="more-button" (click)='preventDefault($event)' [matMenuTriggerFor]="menu" aria-label="Toggle menu">
-                  <mat-icon>more_vert</mat-icon>
-                </button>
-                <mat-menu #menu="matMenu" xPosition="before">
-                  <button mat-menu-item (click)='addStep(i - 1)'>Add Step Before</button>
-                  <button mat-menu-item (click)='addStep(i + 1)'>Add Step After</button>
-                  <button mat-menu-item (click)='auditBuilderForm.controls.steps.removeAt(i)'>Remove Step</button>
-                </mat-menu>
-              </div>
-            </mat-card-header>
-            <mat-card-content>
-              <div class='row'>
-                <div>
-                  <mat-form-field>
-                    <mat-label>Step Type</mat-label>
-                    <input
-                      matInput
-                      type='text'
-                      placeholder='Audit Step'
-                      aria-label='Audit Step'
-                      [formControl]='stepFormGroup.controls.type'
-                      [matAutocomplete]='auto'
-                    >
-                    <mat-autocomplete #auto="matAutocomplete">
-                      <mat-option *ngFor="let option of filteredOptions(stepFormGroup.controls.type.value)" [value]="option">
-                        {{option}}
-                      </mat-option>
-                    </mat-autocomplete>
-                  </mat-form-field>
-                </div>
-              </div>
-            </mat-card-content>
-          </mat-card-content>
-        </mat-card>
-
         <mat-accordion multi>
-          <mat-expansion-panel
-            (opened)="panelOpenState = true"
-            (closed)="panelOpenState = false"
-            *ngFor='let stepFormGroup of auditBuilderForm.controls.steps.controls; let i = index'
-          >
+          <mat-expansion-panel *ngFor='let stepFormGroup of auditBuilderForm.controls.steps.controls; let i = index'>
             <mat-expansion-panel-header>
-              <mat-panel-title>
-                <button mat-icon-button (click)='preventDefault($event)' [matMenuTriggerFor]="menu" aria-label="Toggle menu">
+              <mat-panel-title>{{ stepFormGroup.controls.type.value || 'Audit Step Required!' }}</mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class='row'>
+              <div class='col'>
+                <mat-form-field>
+                  <mat-label>Step Type</mat-label>
+                  <input
+                    matInput
+                    type='text'
+                    required
+                    [pattern]='stepTypeValidatorPattern'
+                    placeholder='Audit Step'
+                    aria-label='Audit Step'
+                    [formControl]='stepFormGroup.controls.type'
+                    [matAutocomplete]='auto'
+                  >
+                  <mat-autocomplete #auto="matAutocomplete">
+                    <mat-option *ngFor="let option of filteredOptions(stepFormGroup.controls.type.value)" [value]="option">
+                      {{option}}
+                    </mat-option>
+                  </mat-autocomplete>
+                  <mat-error *ngIf="stepFormGroup.controls.type.hasError('required')">
+                    Step type is <strong>required</strong>
+                  </mat-error>
+                  <mat-error *ngIf="stepFormGroup.controls.type.hasError('pattern')">
+                    Step type is <strong>not supported</strong>
+                  </mat-error>
+                </mat-form-field>
+                <button mat-icon-button style='top: 40px' class="more-button" (click)='$event.preventDefault()' [matMenuTriggerFor]="menu" aria-label="Toggle menu">
                   <mat-icon>more_vert</mat-icon>
                 </button>
                 <mat-menu #menu="matMenu" xPosition="before">
@@ -115,30 +87,10 @@
                   <button mat-menu-item (click)='addStep(i + 1)'>Add Step After</button>
                   <button mat-menu-item (click)='auditBuilderForm.controls.steps.removeAt(i)'>Remove Step</button>
                 </mat-menu>
-                {{i}} -- {{ stepFormGroup.controls.type.value }}
-              </mat-panel-title>
-            </mat-expansion-panel-header>
-            <p>I'm visible because I am open</p>
+              </div>
+            </div>
           </mat-expansion-panel>
         </mat-accordion>
       </mat-card-content>
     </mat-card>
 </form>
-
-<mat-accordion multi>
-  <mat-expansion-panel>
-    <mat-expansion-panel-header>
-      <mat-panel-title>
-        Personal data
-      </mat-panel-title>
-      <mat-panel-description>
-        Type your name and age
-        <mat-icon>account_circle</mat-icon>
-      </mat-panel-description>
-    </mat-expansion-panel-header>
-
-Text
-
-  </mat-expansion-panel>
-</mat-accordion>
-
