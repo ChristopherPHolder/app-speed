@@ -6,13 +6,11 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { map, startWith } from 'rxjs/operators';
-import { AuditFormComponent } from '../audit-form/audit-form.component';
-import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { map } from 'rxjs/operators';
+import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { Observable } from 'rxjs';
 import { deviceTypes, stepNameTypes, StepType } from './data';
 import { MatSelectModule } from '@angular/material/select';
 import { preventDefault } from '@rx-angular/state/actions';
@@ -39,7 +37,6 @@ interface AuditBuilder {
     MatGridListModule,
     MatIconModule,
     MatMenuModule,
-    AuditFormComponent,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
