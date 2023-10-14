@@ -28,8 +28,9 @@ It is aimed at reducing the coupling between high-level and low-level modules th
 
 **Key Points:**
 
-High-level modules should not depend on low-level modules. Both should depend on abstractions (interfaces or abstract classes).
-Abstractions should not depend on details. Details should depend on abstractions.
+- High-level modules should not depend on low-level modules. 
+- Both should depend on abstractions (interfaces or abstract classes).
+- Abstractions should not depend on details. Details should depend on abstractions.
 
 **Objective:** 
 
@@ -37,5 +38,5 @@ To achieve decoupling in order to make the system more modular, easier to unders
 
 **Implementation**
 
-// TODO
+Abstractions are not defined in the cli they implemented in a separate lib called cli interfaces. 
 
