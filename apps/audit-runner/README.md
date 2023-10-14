@@ -38,4 +38,10 @@ To achieve decoupling in order to make the system more modular, easier to unders
 
 **Implementation:**
 
-Abstractions are not defined in the app they are implemented in a separate lib called cli interfaces. 
+Abstractions are not defined in the app they are implemented in a separate lib called cli interfaces.
+
+These abstractions define the building blocks of the cli and the apis it can call. 
+
+The abstractions are then implemented in the lower level modules and are called and executed in the higher level modules. 
+
+
