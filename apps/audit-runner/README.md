@@ -46,9 +46,3 @@ The abstractions are then implemented in the lower level modules and are called 
 
 The abstraction build apone each other and are assembel in the middleware to them be executed in the cli.
 
-
-
-
-
-
-
