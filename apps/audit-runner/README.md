@@ -36,7 +36,6 @@ It is aimed at reducing the coupling between high-level and low-level modules th
 
 To achieve decoupling in order to make the system more modular, easier to understand, change, and update.
 
-**Implementation**
+**Implementation:**
 
-Abstractions are not defined in the cli they implemented in a separate lib called cli interfaces. 
-
+Abstractions are not defined in the app they are implemented in a separate lib called cli interfaces. 
