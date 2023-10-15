@@ -36,7 +36,13 @@ It is aimed at reducing the coupling between high-level and low-level modules th
 
 To achieve decoupling in order to make the system more modular, easier to understand, change, and update.
 
-**Implementation**
+**Implementation:**
 
-Abstractions are not defined in the cli they implemented in a separate lib called cli interfaces. 
+Abstractions are not defined in the app they are implemented in a separate lib called cli interfaces.
+
+These abstractions define the building blocks of the cli and the apis it can call. 
+
+The abstractions are then implemented in the lower level modules and are called and executed in the higher level modules. 
+
+The abstraction build apone each other and are assembel in the middleware to them be executed in the cli.
 
