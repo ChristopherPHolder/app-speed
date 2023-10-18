@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -48,6 +48,8 @@ interface AuditBuilder {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuditBuilderComponent implements OnInit {
+  @Input({required: true}) details!: { title: string; device: string; timeout: string };
+
   public readonly deviceTypes = DEVICE_TYPES;
   private readonly stepTypes = stepNameTypes;
   public readonly stepTypeValidatorPattern = `^(${this.stepTypes.join('|')})$`;
