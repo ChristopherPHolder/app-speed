@@ -28,9 +28,11 @@ interface StepFormGroup {
   type: FormControl<StepType | string>;
 }
 
+type DeviceOption = 'mobile' | 'tablet' | 'desktop'
+
 interface AuditBuilder {
   title: FormControl<string>;
-  device: FormControl<'mobile' | 'tablet' | 'desktop'>;
+  device: FormControl<DeviceOption>;
   timeout: FormControl<number>;
   steps: FormArray<FormGroup<StepFormGroup>>;
 }
@@ -58,7 +60,15 @@ interface AuditBuilder {
   providers: [RxActionFactory],
 })
 export class AuditBuilderComponent extends RxEffects implements OnInit {
-  @Input({required: true}) details!: { title: string; device: string; timeout: string };
+  @Input({required: true}) set auditDetails(details: { title: string; device: DeviceOption; timeout: number }) {
+    this.updateAuditDetails(details);
+  }
+
+  updateAuditDetails(auditDetails: { title: string; device: DeviceOption; timeout: number }) {
+    this.auditBuilderForm.controls.title.setValue(auditDetails.title);
+    this.auditBuilderForm.controls.device.setValue(auditDetails.device);
+    this.auditBuilderForm.controls.timeout.setValue(auditDetails.timeout);
+  }
 
   ui: RxActions<UiActions> = inject(RxActionFactory<UiActions>).create({
     inputChange: String,
@@ -102,9 +112,6 @@ export class AuditBuilderComponent extends RxEffects implements OnInit {
   ngOnInit() {
     this.inputChange.subscribe()
     this.addStep(0);
-    this.addStep(0);
-    this.addStep(0);
-    this.cards.subscribe(console.log)
   }
 
   addStep(index: number) {

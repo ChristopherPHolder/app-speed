@@ -6,6 +6,8 @@ import { RxPush } from '@rx-angular/template/push';
 import { tap } from 'rxjs/operators';
 import { RxIf } from '@rx-angular/template/if';
 
+type DeviceOption = 'mobile' | 'tablet' | 'desktop';
+
 @Component({
   standalone: true,
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -13,7 +15,7 @@ import { RxIf } from '@rx-angular/template/if';
   template: `
     <lib-audit-builder 
       *rxIf='auditDetails$; let auditDetails' 
-      [details]='auditDetails'  
+      [auditDetails]='auditDetails'  
       (auditSubmit)='submited($event)'
       (auditInputChange)='updateAuditDetails($event)'
     />`,
@@ -28,7 +30,7 @@ import { RxIf } from '@rx-angular/template/if';
 export class AuditBuilderContainer {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  public readonly auditDetails$: Observable<{ title: string; device: string; timeout: string }> = this.route.queryParamMap.pipe(
+  public readonly auditDetails$: Observable<{ title: string; device: DeviceOption; timeout: number }> = this.route.queryParamMap.pipe(
     map(params => params.get('auditDetails')),
     tap(auditDetails => auditDetails || this.updateAuditDetails(this.defaultAudit)),
     filter(Boolean),
