@@ -18,6 +18,14 @@ import { preventDefault, RxActionFactory, RxActions } from '@rx-angular/state/ac
 import { RxEffects } from '@rx-angular/state/effects';
 import { map, withLatestFrom } from 'rxjs';
 
+
+interface AuditDetails  {
+  title: string;
+  device: DeviceOption;
+  timeout: number
+  steps: []
+};
+
 type UiActions = {
   inputChange: string;
   formSubmit: Event;
@@ -60,14 +68,17 @@ interface AuditBuilder {
   providers: [RxActionFactory],
 })
 export class AuditBuilderComponent extends RxEffects implements OnInit {
-  @Input({required: true}) set auditDetails(details: { title: string; device: DeviceOption; timeout: number }) {
-    this.updateAuditDetails(details);
+  @Input({required: true}) set auditDetails(details: AuditDetails) {
+    this.auditBuilderForm.controls.title.setValue(details.title);
+    this.auditBuilderForm.controls.device.setValue(details.device);
+    this.auditBuilderForm.controls.timeout.setValue(details.timeout);
+    this.updateAuditSteps(details.steps);
   }
 
-  updateAuditDetails(auditDetails: { title: string; device: DeviceOption; timeout: number }) {
-    this.auditBuilderForm.controls.title.setValue(auditDetails.title);
-    this.auditBuilderForm.controls.device.setValue(auditDetails.device);
-    this.auditBuilderForm.controls.timeout.setValue(auditDetails.timeout);
+  updateAuditSteps(steps: []) {
+    // TODO Fix pef of this setup! Its just for initial test
+    this.auditBuilderForm.controls.steps.clear();
+    steps.map((step, index) => this.addStep(index, step));
   }
 
   ui: RxActions<UiActions> = inject(RxActionFactory<UiActions>).create({
@@ -105,18 +116,18 @@ export class AuditBuilderComponent extends RxEffects implements OnInit {
     map(([,, formValue]) => formValue)
   )
 
-  inputChange = this.auditBuilderForm.valueChanges.pipe(
+  inputChange$ = this.auditBuilderForm.valueChanges.pipe(
     tap(input => this.ui.inputChange(JSON.stringify(input)))
   );
 
   ngOnInit() {
-    this.inputChange.subscribe()
-    this.addStep(0);
+    this.inputChange$.subscribe()
   }
 
-  addStep(index: number) {
+  addStep(index: number, step?: any) {
+    const stepType = step?.type || '';
     this.auditBuilderForm.controls.steps.insert(index, new FormGroup<StepFormGroup>({
-      type: new FormControl('', {
+      type: new FormControl(stepType, {
         validators: [Validators.required, Validators.pattern(this.stepTypeValidatorPattern)],
         nonNullable: true
       })

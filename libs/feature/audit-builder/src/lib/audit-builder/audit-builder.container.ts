@@ -8,6 +8,13 @@ import { RxIf } from '@rx-angular/template/if';
 
 type DeviceOption = 'mobile' | 'tablet' | 'desktop';
 
+interface AuditDetails  {
+  title: string;
+  device: DeviceOption;
+  timeout: number
+  steps: []
+};
+
 @Component({
   standalone: true,
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -30,7 +37,7 @@ type DeviceOption = 'mobile' | 'tablet' | 'desktop';
 export class AuditBuilderContainer {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  public readonly auditDetails$: Observable<{ title: string; device: DeviceOption; timeout: number }> = this.route.queryParamMap.pipe(
+  public readonly auditDetails$: Observable<AuditDetails> = this.route.queryParamMap.pipe(
     map(params => params.get('auditDetails')),
     tap(auditDetails => auditDetails || this.updateAuditDetails(this.defaultAudit)),
     filter(Boolean),
@@ -43,6 +50,7 @@ export class AuditBuilderContainer {
 
   updateAuditDetails(auditDetails: object) {
     const auditDetailsString = JSON.stringify(auditDetails);
+    console.log(auditDetailsString);
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { auditDetails: auditDetailsString },
