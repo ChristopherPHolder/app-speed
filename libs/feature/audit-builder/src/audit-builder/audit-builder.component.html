@@ -84,7 +84,7 @@
                   <mat-icon>more_vert</mat-icon>
                 </button>
                 <mat-menu #menu="matMenu" xPosition="before">
-                  <button mat-menu-item (click)='addStep(i - 1)'>Add Step Before</button>
+                  <button mat-menu-item (click)='addStep(i)'>Add Step Before</button>
                   <button mat-menu-item (click)='addStep(i + 1)'>Add Step After</button>
                   <button mat-menu-item (click)='auditBuilderForm.controls.steps.removeAt(i)'>Remove Step</button>
                 </mat-menu>
