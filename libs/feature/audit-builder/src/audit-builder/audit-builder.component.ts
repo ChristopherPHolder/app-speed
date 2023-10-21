@@ -77,14 +77,11 @@ export class AuditBuilderComponent extends RxEffects implements OnInit {
 
   updateAuditSteps(steps: []) {
     const formSteps = this.auditBuilderForm.controls.steps;
-    const stepsValue = formSteps.getRawValue();
-    if (JSON.stringify(stepsValue) === JSON.stringify(steps)) {
+    if (JSON.stringify(formSteps.getRawValue()) === JSON.stringify(steps)) {
       return;
     }
-    if (stepsValue.length !== steps.length) {
-      formSteps.clear();
-      steps.forEach((step, index) => this.addStep(index, step));
-    }
+    formSteps.clear();
+    steps.forEach((step, index) => this.addStep(index, step));
   }
 
   ui: RxActions<UiActions> = inject(RxActionFactory<UiActions>).create({
