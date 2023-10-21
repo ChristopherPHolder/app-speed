@@ -50,7 +50,6 @@ export class AuditBuilderContainer {
 
   updateAuditDetails(auditDetails: object) {
     const auditDetailsString = JSON.stringify(auditDetails);
-    console.log(auditDetailsString);
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { auditDetails: auditDetailsString },

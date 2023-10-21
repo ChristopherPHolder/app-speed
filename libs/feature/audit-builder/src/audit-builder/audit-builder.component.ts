@@ -16,7 +16,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { preventDefault, RxActionFactory, RxActions } from '@rx-angular/state/actions';
 import { RxEffects } from '@rx-angular/state/effects';
-import { map, withLatestFrom } from 'rxjs';
+import { filter, map, withLatestFrom } from 'rxjs';
 
 
 interface AuditDetails  {
@@ -76,9 +76,15 @@ export class AuditBuilderComponent extends RxEffects implements OnInit {
   }
 
   updateAuditSteps(steps: []) {
-    // TODO Fix pef of this setup! Its just for initial test
-    this.auditBuilderForm.controls.steps.clear();
-    steps.map((step, index) => this.addStep(index, step));
+    const formSteps = this.auditBuilderForm.controls.steps;
+    const stepsValue = formSteps.getRawValue();
+    if (JSON.stringify(stepsValue) === JSON.stringify(steps)) {
+      return;
+    }
+    if (stepsValue.length !== steps.length) {
+      formSteps.clear();
+      steps.forEach((step, index) => this.addStep(index, step));
+    }
   }
 
   ui: RxActions<UiActions> = inject(RxActionFactory<UiActions>).create({
@@ -108,6 +114,7 @@ export class AuditBuilderComponent extends RxEffects implements OnInit {
 
   @Output() auditSubmit = this.ui.formSubmit$.pipe(
     withLatestFrom(this.auditBuilderForm.statusChanges,this.auditBuilderForm.valueChanges),
+    filter(([,formState,]) => formState === 'VALID'),
     map(([,, formValue]) => formValue)
   )
 
