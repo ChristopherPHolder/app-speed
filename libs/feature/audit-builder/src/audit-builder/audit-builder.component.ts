@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, Input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -14,6 +14,15 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { DEVICE_TYPES, stepNameTypes, StepType } from './data';
 import { MatSelectModule } from '@angular/material/select';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { preventDefault, RxActionFactory, RxActions } from '@rx-angular/state/actions';
+import { RxEffects } from '@rx-angular/state/effects';
+import { map, withLatestFrom } from 'rxjs';
+
+type UiActions = {
+  inputChange: string;
+  formSubmit: Event;
+  formClick: Event;
+}
 
 interface StepFormGroup {
   type: FormControl<StepType | string>;
@@ -46,18 +55,24 @@ interface AuditBuilder {
   templateUrl: './audit-builder.component.html',
   styleUrls: ['./audit-builder.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [RxActionFactory],
 })
-export class AuditBuilderComponent implements OnInit {
+export class AuditBuilderComponent extends RxEffects implements OnInit {
   @Input({required: true}) details!: { title: string; device: string; timeout: string };
 
+  ui: RxActions<UiActions> = inject(RxActionFactory<UiActions>).create({
+    inputChange: String,
+    formSubmit: preventDefault
+  });
+
   public readonly deviceTypes = DEVICE_TYPES;
+
   private readonly stepTypes = stepNameTypes;
   public readonly stepTypeValidatorPattern = `^(${this.stepTypes.join('|')})$`;
   private readonly baseFormControlOptions:  FormControlOptions & {nonNullable: true} = {
     validators: [Validators.required],
     nonNullable: true
   };
-
   public readonly auditBuilderForm = new FormGroup<AuditBuilder>({
     title: new FormControl('', this.baseFormControlOptions),
     device: new FormControl('mobile', this.baseFormControlOptions),
@@ -70,7 +85,22 @@ export class AuditBuilderComponent implements OnInit {
     return this.stepTypes.filter(option => option.toLowerCase().includes(filterValue));
   }
 
+  @Output() auditSubmit = this.ui.formSubmit$.pipe(
+    withLatestFrom(this.auditBuilderForm.statusChanges,this.auditBuilderForm.valueChanges),
+    map(([,, formValue]) => formValue)
+  )
+
+  @Output() auditInputChange = this.ui.inputChange$.pipe(
+    withLatestFrom(this.auditBuilderForm.statusChanges,this.auditBuilderForm.valueChanges),
+    map(([,, formValue]) => formValue)
+  )
+
+  inputChange = this.auditBuilderForm.valueChanges.pipe(
+    tap(input => this.ui.inputChange(JSON.stringify(input)))
+  );
+
   ngOnInit() {
+    this.inputChange.subscribe()
     this.addStep(0);
     this.addStep(0);
     this.addStep(0);
@@ -84,11 +114,6 @@ export class AuditBuilderComponent implements OnInit {
         nonNullable: true
       })
     }))
-  }
-
-  onSubmit(event: any): void {
-    event.preventDefault()
-    alert('Thanks!');
   }
 
   private breakpointObserver = inject(BreakpointObserver);

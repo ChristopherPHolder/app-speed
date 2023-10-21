@@ -11,7 +11,12 @@ import { RxIf } from '@rx-angular/template/if';
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'audit-builder-container',
   template: `
-    <lib-audit-builder *rxIf='auditDetails$; let auditDetails' [details]='auditDetails'  />`,
+    <lib-audit-builder 
+      *rxIf='auditDetails$; let auditDetails' 
+      [details]='auditDetails'  
+      (auditSubmit)='submited($event)'
+      (auditInputChange)='updateAuditDetails($event)'
+    />`,
   imports: [
     AuditBuilderComponent,
     RxPush,
@@ -30,7 +35,11 @@ export class AuditBuilderContainer {
     map(auditDetails => JSON.parse(auditDetails)),
   )
 
-  private updateAuditDetails(auditDetails: object) {
+  submited(event: any) {
+    alert(`WOLOLO\n${event}`)
+  }
+
+  updateAuditDetails(auditDetails: object) {
     const auditDetailsString = JSON.stringify(auditDetails);
     this.router.navigate([], {
       relativeTo: this.route,

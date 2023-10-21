@@ -1,4 +1,4 @@
-<form class="grid-container" [formGroup]="auditBuilderForm" novalidate (ngSubmit)="onSubmit($event)">
+<form class="grid-container" [formGroup]="auditBuilderForm" novalidate (ngSubmit)="ui.formSubmit($event)">
   {{details['title']}}
   <mat-card>
       <mat-card-content>
