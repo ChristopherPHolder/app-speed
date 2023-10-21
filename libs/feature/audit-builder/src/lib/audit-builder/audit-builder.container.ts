@@ -18,7 +18,7 @@ import { RxIf } from '@rx-angular/template/if';
     RxIf,
   ],
 })
-
+// TODO Change linter to only accept container suffix
 // eslint-disable-next-line @angular-eslint/component-class-suffix
 export class AuditBuilderContainer {
   private readonly route = inject(ActivatedRoute);
