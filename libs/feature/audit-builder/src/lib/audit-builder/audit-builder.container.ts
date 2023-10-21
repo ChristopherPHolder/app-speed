@@ -63,9 +63,9 @@ export class AuditBuilderContainer {
     device: 'mobile',
     timeout: '30000',
     steps: [
-      { type: 'startNavigation', stepOptions: { name: 'Initial Navigation' } },
-      { type:  'navigate', url: 'https://google.com' },
-      { type: 'endNavigation' },
+      { type: 'Start Navigation', stepOptions: { name: 'Initial Navigation' } },
+      { type:  'Navigate', url: 'https://google.com' },
+      { type: 'End Navigation' },
     ]
   };
 }
