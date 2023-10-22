@@ -129,35 +129,32 @@ export class AuditBuilderComponent extends RxEffects implements OnInit {
   }
 
   private createFormGroup(data: any): FormGroup {
-    const group: any = {};
-
-    Object.keys(data).forEach(key => {
-      if (data[key] instanceof Array) {
-        group[key] = new FormArray([]);
-        data[key].forEach((item: any) => {
-          (group[key] as FormArray).push(this.createFormGroup(item));
-        });
-      } else if (typeof data[key] === 'object') {
-        group[key] = this.createFormGroup(data[key]);
-      } else {
-        group[key] = new FormControl(data[key], {
-          validators: [Validators.required],
-          nonNullable: true
-        });
-      }
-    });
-
-    return new FormGroup(group);
+    return new FormGroup(
+      Object.keys(data).reduce((accumulator, key) => ({
+        ...accumulator, [key]: this.createFormControl(data[key])
+      }), {})
+    );
   }
 
-  addStep(index: number, step?: any) {
-    const stepFormGroup = step ? this.createFormGroup(step): new FormGroup<StepFormGroup>({
-      type: new FormControl('', {
-        validators: [Validators.required, Validators.pattern(this.stepTypeValidatorPattern)],
-        nonNullable: true
-      })
+  private createFormControl(value: any) {
+    if (value instanceof Array) return this.createFormArray(value);
+    if (typeof value === 'object') return this.createFormGroup(value);
+    return this.createValueControl(value);
+  }
+
+  private createFormArray(items: any[]): FormArray<any> {
+    return  new FormArray<any>(items.map(item => this.createFormGroup(item)));
+  }
+
+  private createValueControl(value: any): FormControl {
+    return new FormControl(value, {
+      validators: [Validators.required],
+      nonNullable: true
     });
-    this.auditBuilderForm.controls.steps.insert(index, stepFormGroup);
+  }
+
+  addStep(index: number, step?: any): void {
+    this.auditBuilderForm.controls.steps.insert(index, this.createFormGroup(step || { type: '' }));
   }
 
   private breakpointObserver = inject(BreakpointObserver);
