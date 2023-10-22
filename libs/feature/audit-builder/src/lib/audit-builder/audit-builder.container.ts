@@ -13,7 +13,7 @@ interface AuditDetails  {
   device: DeviceOption;
   timeout: number
   steps: []
-};
+}
 
 @Component({
   standalone: true,
