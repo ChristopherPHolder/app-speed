@@ -128,14 +128,36 @@ export class AuditBuilderComponent extends RxEffects implements OnInit {
     this.inputChange$.subscribe()
   }
 
+  private createFormGroup(data: any): FormGroup {
+    const group: any = {};
+
+    Object.keys(data).forEach(key => {
+      if (data[key] instanceof Array) {
+        group[key] = new FormArray([]);
+        data[key].forEach((item: any) => {
+          (group[key] as FormArray).push(this.createFormGroup(item));
+        });
+      } else if (typeof data[key] === 'object') {
+        group[key] = this.createFormGroup(data[key]);
+      } else {
+        group[key] = new FormControl(data[key], {
+          validators: [Validators.required],
+          nonNullable: true
+        });
+      }
+    });
+
+    return new FormGroup(group);
+  }
+
   addStep(index: number, step?: any) {
-    const stepType = step?.type || '';
-    this.auditBuilderForm.controls.steps.insert(index, new FormGroup<StepFormGroup>({
-      type: new FormControl(stepType, {
+    const stepFormGroup = step ? this.createFormGroup(step): new FormGroup<StepFormGroup>({
+      type: new FormControl('', {
         validators: [Validators.required, Validators.pattern(this.stepTypeValidatorPattern)],
         nonNullable: true
       })
-    }))
+    });
+    this.auditBuilderForm.controls.steps.insert(index, stepFormGroup);
   }
 
   private breakpointObserver = inject(BreakpointObserver);
