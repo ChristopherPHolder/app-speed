@@ -11,14 +11,12 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatSelectModule } from '@angular/material/select';
 import { MatExpansionModule } from '@angular/material/expansion';
 
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-
 import { preventDefault, RxActionFactory, RxActions } from '@rx-angular/state/actions';
 import { RxEffects } from '@rx-angular/state/effects';
 import { RxIf } from '@rx-angular/template/if';
 import { RxFor } from '@rx-angular/template/for';
 
-import { filter, map, tap, withLatestFrom } from 'rxjs';
+import { filter, map, withLatestFrom } from 'rxjs';
 
 import { AuditBuilder, AuditDetails, UiActions } from './audit-builder.types';
 import {
@@ -128,9 +126,4 @@ export class AuditBuilderComponent extends RxEffects {
   addStep(index: number, step?: any): void {
     this.auditBuilderForm.controls.steps.insert(index, this.createFormGroup(step || { type: '' }));
   }
-
-  private breakpointObserver = inject(BreakpointObserver);
-  cards = this.breakpointObserver.observe(Breakpoints.Handset).pipe(
-    tap(console.log)
-  );
 }
