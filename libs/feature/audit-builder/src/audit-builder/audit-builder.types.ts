@@ -1,6 +1,6 @@
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 
-import { LIGHTHOUSE_REPLY_STEP_TYPES, PUPPETEER_REPLAY_STEP_TYPES } from './data';
+import { LIGHTHOUSE_REPLY_STEP_TYPES, PUPPETEER_REPLAY_STEP_TYPES } from './audit-builder.constants';
 
 export type StepType =
   | typeof LIGHTHOUSE_REPLY_STEP_TYPES[keyof typeof LIGHTHOUSE_REPLY_STEP_TYPES]

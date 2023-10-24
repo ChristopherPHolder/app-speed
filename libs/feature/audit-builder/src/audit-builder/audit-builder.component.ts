@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, Input, Output } from '@angular/core';
-import { FormArray, FormControl, FormControlOptions, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatGridListModule } from '@angular/material/grid-list';
@@ -20,8 +20,13 @@ import { RxFor } from '@rx-angular/template/for';
 
 import { filter, map, tap, withLatestFrom } from 'rxjs';
 
-import { DEVICE_TYPES, stepNameTypes } from './audit-builder.data';
 import { AuditBuilder, AuditDetails, UiActions } from './audit-builder.types';
+import {
+  BASE_FORM_CONTROL_OPTIONS,
+  DEVICE_TYPES,
+  STEP_TYPES,
+  STEP_TYPES_VALIDATOR_PATTERN,
+} from './audit-builder.constants';
 
 @Component({
   selector: 'lib-audit-builder',
@@ -70,22 +75,18 @@ export class AuditBuilderComponent extends RxEffects {
 
   public readonly deviceTypes = DEVICE_TYPES;
 
-  private readonly stepTypes = stepNameTypes;
-  public readonly stepTypeValidatorPattern = `^(${this.stepTypes.join('|')})$`;
-  private readonly baseFormControlOptions:  FormControlOptions & {nonNullable: true} = {
-    validators: [Validators.required],
-    nonNullable: true
-  };
+  public readonly stepTypeValidatorPattern = STEP_TYPES_VALIDATOR_PATTERN;
+
   public readonly auditBuilderForm = new FormGroup<AuditBuilder>({
-    title: new FormControl('', this.baseFormControlOptions),
-    device: new FormControl('mobile', this.baseFormControlOptions),
-    timeout: new FormControl(30000, this.baseFormControlOptions),
+    title: new FormControl('', BASE_FORM_CONTROL_OPTIONS),
+    device: new FormControl('mobile', BASE_FORM_CONTROL_OPTIONS),
+    timeout: new FormControl(30000, BASE_FORM_CONTROL_OPTIONS),
     steps: new FormArray<any>([])
   });
 
   filteredOptions(value: string) {
     const filterValue = value.toLowerCase();
-    return this.stepTypes.filter(option => option.toLowerCase().includes(filterValue));
+    return STEP_TYPES.filter(option => option.toLowerCase().includes(filterValue));
   }
 
   @Output() auditSubmit = this.ui.formSubmit$.pipe(
