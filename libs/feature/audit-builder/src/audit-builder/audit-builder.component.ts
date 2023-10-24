@@ -13,59 +13,33 @@ import { MatExpansionModule } from '@angular/material/expansion';
 
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 
+import { preventDefault, RxActionFactory, RxActions } from '@rx-angular/state/actions';
+import { RxEffects } from '@rx-angular/state/effects';
 import { RxIf } from '@rx-angular/template/if';
 import { RxFor } from '@rx-angular/template/for';
-import { preventDefault, RxActionFactory, RxActions } from '@rx-angular/state/actions';
-
-import { RxEffects } from '@rx-angular/state/effects';
 
 import { filter, map, tap, withLatestFrom } from 'rxjs';
-import { DEVICE_TYPES, stepNameTypes, StepType } from './data';
 
-
-interface AuditDetails  {
-  title: string;
-  device: DeviceOption;
-  timeout: number
-  steps: []
-};
-
-type UiActions = {
-  inputChange: Event;
-  formSubmit: Event;
-  formClick: Event;
-}
-
-interface StepFormGroup {
-  type: FormControl<StepType | string>;
-}
-
-type DeviceOption = 'mobile' | 'tablet' | 'desktop'
-
-interface AuditBuilder {
-  title: FormControl<string>;
-  device: FormControl<DeviceOption>;
-  timeout: FormControl<number>;
-  steps: FormArray<FormGroup<StepFormGroup>>;
-}
+import { DEVICE_TYPES, stepNameTypes } from './audit-builder.data';
+import { AuditBuilder, AuditDetails, UiActions } from './audit-builder.types';
 
 @Component({
   selector: 'lib-audit-builder',
   standalone: true,
   imports: [
+    RxIf,
+    RxFor,
+    ReactiveFormsModule,
     MatButtonModule,
     MatCardModule,
     MatGridListModule,
     MatIconModule,
     MatMenuModule,
-    ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
     MatAutocompleteModule,
     MatSelectModule,
     MatExpansionModule,
-    RxIf,
-    RxFor,
   ],
   templateUrl: './audit-builder.component.html',
   styleUrls: ['./audit-builder.component.scss'],

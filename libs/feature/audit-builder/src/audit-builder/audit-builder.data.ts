@@ -1,4 +1,4 @@
-const puppeteerReplayStepTypes = {
+export const PUPPETEER_REPLAY_STEP_TYPES = {
   Change: 'change',
   Click: 'click',
   Close: 'close',
@@ -15,25 +15,14 @@ const puppeteerReplayStepTypes = {
   WaitForExpression: 'waitForExpression',
 } as const;
 
-const lighthouseReplayStepTypes  = {
+// TODO reuse shared type
+export const LIGHTHOUSE_REPLY_STEP_TYPES  = {
   StartNavigation: 'startNavigation',
   EndNavigation: 'endNavigation',
   StartTimespan: 'startTimespan',
   EndTimespan: 'endTimespan',
   Snapshot: 'snapshot'
 } as const;
-
-const stepTypes = [
-  ...Object.keys(puppeteerReplayStepTypes),
-  ...Object.keys(lighthouseReplayStepTypes)
-] as const;
-
-export type StepType =
-  | typeof lighthouseReplayStepTypes[keyof typeof lighthouseReplayStepTypes]
-  | typeof puppeteerReplayStepTypes[keyof typeof puppeteerReplayStepTypes] ;
-
-export const stepNameTypes = stepTypes.map(i => i.replace(/([A-Z])/g, ' $1').trim());
-
 
 export const DEVICE_TYPES = [
   {
@@ -48,4 +37,11 @@ export const DEVICE_TYPES = [
     value: 'desktop',
     viewValue: 'Desktop'
   }
-];
+] as const;
+
+const stepTypes = [
+  ...Object.keys(PUPPETEER_REPLAY_STEP_TYPES),
+  ...Object.keys(LIGHTHOUSE_REPLY_STEP_TYPES)
+] as const;
+
+export const stepNameTypes = stepTypes.map(i => i.replace(/([A-Z])/g, ' $1').trim());
