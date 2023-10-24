@@ -1,4 +1,4 @@
-<form class="grid-container" [formGroup]="auditBuilderForm" novalidate (ngSubmit)="ui.formSubmit($event)">
+<form class="grid-container" [formGroup]="auditBuilderForm" novalidate (ngSubmit)="ui.formSubmit($event)" (change)='ui.inputChange($event)'>
   <mat-card>
       <mat-card-content>
         <div class="row">
@@ -6,7 +6,7 @@
             <mat-form-field class="full-width">
               <mat-label>Audit Title</mat-label>
               <input matInput placeholder="Title of your audit" [formControl]='auditBuilderForm.controls.title'>
-              <mat-error *ngIf="auditBuilderForm.controls.title.hasError('required')">
+              <mat-error *rxIf="auditBuilderForm.controls.title.hasError('required')">
                 Audit title is <strong>required</strong>
               </mat-error>
             </mat-form-field>
@@ -16,7 +16,7 @@
               <mat-form-field class="full-width">
                 <mat-label>Device Type</mat-label>
                 <mat-select required [formControl]='auditBuilderForm.controls.device'>
-                  <mat-option *ngFor="let device of deviceTypes" [value]="device.value">
+                  <mat-option *rxFor="let device of deviceTypes" [value]="device.value">
                     {{device.viewValue}}
                   </mat-option>
                 </mat-select>
@@ -34,7 +34,7 @@
                   placeholder="Timeout in milliseconds"
                   [formControl]='auditBuilderForm.controls.timeout'
                 >
-                <mat-error *ngIf="auditBuilderForm.controls.timeout.hasError('required')">
+                <mat-error *rxIf="auditBuilderForm.controls.timeout.hasError('required')">
                   Audit title is <strong>required</strong>
                 </mat-error>
               </mat-form-field>
@@ -49,7 +49,7 @@
           </div>
         </div>
         <mat-accordion multi>
-          <mat-expansion-panel *ngFor='let stepFormGroup of auditBuilderForm.controls.steps.controls; let i = index'>
+          <mat-expansion-panel *rxFor='let stepFormGroup of auditBuilderForm.controls.steps.controls; let i = index'>
             <mat-expansion-panel-header>
               <mat-panel-title>{{ stepFormGroup.controls.type.value || 'Audit Step Required!' }}</mat-panel-title>
             </mat-expansion-panel-header>
@@ -68,14 +68,14 @@
                     [matAutocomplete]='auto'
                   >
                   <mat-autocomplete #auto="matAutocomplete">
-                    <mat-option *ngFor="let option of filteredOptions(stepFormGroup.controls.type.value)" [value]="option">
+                    <mat-option *rxFor="let option of filteredOptions(stepFormGroup.controls.type.value)" [value]="option">
                       {{option}}
                     </mat-option>
                   </mat-autocomplete>
-                  <mat-error *ngIf="stepFormGroup.controls.type.hasError('required')">
+                  <mat-error *rxIf="stepFormGroup.controls.type.hasError('required')">
                     Step type is <strong>required</strong>
                   </mat-error>
-                  <mat-error *ngIf="stepFormGroup.controls.type.hasError('pattern')">
+                  <mat-error *rxIf="stepFormGroup.controls.type.hasError('pattern')">
                     Step type is <strong>not supported</strong>
                   </mat-error>
                 </mat-form-field>

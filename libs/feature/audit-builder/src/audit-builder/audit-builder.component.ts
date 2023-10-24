@@ -1,22 +1,26 @@
-import { ChangeDetectionStrategy, Component, inject, Input, OnInit, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, Input, Output } from '@angular/core';
+import { FormArray, FormControl, FormControlOptions, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { tap } from 'rxjs/operators';
-import { FormArray, FormControl, FormControlOptions, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { DEVICE_TYPES, stepNameTypes, StepType } from './data';
 import { MatSelectModule } from '@angular/material/select';
 import { MatExpansionModule } from '@angular/material/expansion';
+
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+
+import { RxIf } from '@rx-angular/template/if';
+import { RxFor } from '@rx-angular/template/for';
 import { preventDefault, RxActionFactory, RxActions } from '@rx-angular/state/actions';
+
 import { RxEffects } from '@rx-angular/state/effects';
-import { filter, map, withLatestFrom } from 'rxjs';
+
+import { filter, map, tap, withLatestFrom } from 'rxjs';
+import { DEVICE_TYPES, stepNameTypes, StepType } from './data';
 
 
 interface AuditDetails  {
@@ -27,7 +31,7 @@ interface AuditDetails  {
 };
 
 type UiActions = {
-  inputChange: string;
+  inputChange: Event;
   formSubmit: Event;
   formClick: Event;
 }
@@ -49,7 +53,6 @@ interface AuditBuilder {
   selector: 'lib-audit-builder',
   standalone: true,
   imports: [
-    CommonModule,
     MatButtonModule,
     MatCardModule,
     MatGridListModule,
@@ -61,13 +64,15 @@ interface AuditBuilder {
     MatAutocompleteModule,
     MatSelectModule,
     MatExpansionModule,
+    RxIf,
+    RxFor,
   ],
   templateUrl: './audit-builder.component.html',
   styleUrls: ['./audit-builder.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [RxActionFactory],
 })
-export class AuditBuilderComponent extends RxEffects implements OnInit {
+export class AuditBuilderComponent extends RxEffects {
   @Input({required: true}) set auditDetails(details: AuditDetails) {
     this.auditBuilderForm.controls.title.setValue(details.title);
     this.auditBuilderForm.controls.device.setValue(details.device);
@@ -85,7 +90,7 @@ export class AuditBuilderComponent extends RxEffects implements OnInit {
   }
 
   ui: RxActions<UiActions> = inject(RxActionFactory<UiActions>).create({
-    inputChange: String,
+    inputChange: preventDefault,
     formSubmit: preventDefault
   });
 
@@ -119,14 +124,6 @@ export class AuditBuilderComponent extends RxEffects implements OnInit {
     withLatestFrom(this.auditBuilderForm.statusChanges,this.auditBuilderForm.valueChanges),
     map(([,, formValue]) => formValue)
   )
-
-  inputChange$ = this.auditBuilderForm.valueChanges.pipe(
-    tap(input => this.ui.inputChange(JSON.stringify(input)))
-  );
-
-  ngOnInit() {
-    this.inputChange$.subscribe()
-  }
 
   private createFormGroup(data: any): FormGroup {
     return new FormGroup(
