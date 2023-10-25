@@ -16,7 +16,7 @@
               <mat-form-field class="full-width">
                 <mat-label>Device Type</mat-label>
                 <mat-select required [formControl]='auditBuilderForm.controls.device'>
-                  <mat-option *rxFor="let device of deviceTypes" [value]="device.value">
+                  <mat-option *rxFor="let device of DEVICE_TYPES" [value]="device.value">
                     {{device.viewValue}}
                   </mat-option>
                 </mat-select>
@@ -61,16 +61,17 @@
                     matInput
                     type='text'
                     required
-                    [pattern]='stepTypeValidatorPattern'
+                    [pattern]='STEP_TYPES_VALIDATOR_PATTERN'
                     placeholder='Audit Step'
                     aria-label='Audit Step'
                     [formControl]='stepFormGroup.controls.type'
                     [matAutocomplete]='auto'
                   >
                   <mat-autocomplete #auto="matAutocomplete">
-                    <mat-option *rxFor="let option of filteredOptions(stepFormGroup.controls.type.value)" [value]="option">
-                      {{option}}
-                    </mat-option>
+                    <mat-option
+                      *rxFor="let option of filteredOptions(STEP_TYPES, stepFormGroup.controls.type.value)"
+                      [value]="option"
+                    >{{option}}</mat-option>
                   </mat-autocomplete>
                   <mat-error *rxIf="stepFormGroup.controls.type.hasError('required')">
                     Step type is <strong>required</strong>

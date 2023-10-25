@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, Input, Output } from '@angular/core';
-import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatGridListModule } from '@angular/material/grid-list';
@@ -50,11 +50,45 @@ import {
   providers: [RxActionFactory],
 })
 export class AuditBuilderComponent extends RxEffects {
+  public readonly DEVICE_TYPES = DEVICE_TYPES;
+  public readonly STEP_TYPES = STEP_TYPES;
+  public readonly STEP_TYPES_VALIDATOR_PATTERN = STEP_TYPES_VALIDATOR_PATTERN;
+  public readonly ui: RxActions<UiActions> = inject(RxActionFactory<UiActions>).create({
+    inputChange: preventDefault,
+    formSubmit: preventDefault
+  });
+
+  public readonly auditBuilderForm = new FormGroup<AuditBuilder>({
+    title: new FormControl('', BASE_FORM_CONTROL_OPTIONS),
+    device: new FormControl('mobile', BASE_FORM_CONTROL_OPTIONS),
+    timeout: new FormControl(30000, BASE_FORM_CONTROL_OPTIONS),
+    steps: new FormArray<any>([])
+  });
+
   @Input({required: true}) set auditDetails(details: AuditDetails) {
     this.auditBuilderForm.controls.title.setValue(details.title);
     this.auditBuilderForm.controls.device.setValue(details.device);
     this.auditBuilderForm.controls.timeout.setValue(details.timeout);
     this.updateAuditSteps(details.steps);
+  }
+
+  @Output() auditSubmit = this.ui.formSubmit$.pipe(
+    withLatestFrom(this.auditBuilderForm.statusChanges,this.auditBuilderForm.valueChanges),
+    filter(([,formState,]) => formState === 'VALID'),
+    map(([,, formValue]) => formValue)
+  )
+  @Output() auditInputChange = this.ui.inputChange$.pipe(
+    withLatestFrom(this.auditBuilderForm.statusChanges,this.auditBuilderForm.valueChanges),
+    map(([,, formValue]) => formValue)
+  )
+
+  public filteredOptions(options: string[], value: string) {
+    const filterValue = value.toLowerCase();
+    return options.filter(option => option.toLowerCase().includes(filterValue));
+  }
+
+  addStep(index: number, step?: any): void {
+    this.auditBuilderForm.controls.steps.insert(index, this.createFormGroup(step || { type: '' }));
   }
 
   updateAuditSteps(steps: []) {
@@ -66,64 +100,24 @@ export class AuditBuilderComponent extends RxEffects {
     steps.forEach((step, index) => this.addStep(index, step));
   }
 
-  ui: RxActions<UiActions> = inject(RxActionFactory<UiActions>).create({
-    inputChange: preventDefault,
-    formSubmit: preventDefault
-  });
-
-  public readonly deviceTypes = DEVICE_TYPES;
-
-  public readonly stepTypeValidatorPattern = STEP_TYPES_VALIDATOR_PATTERN;
-
-  public readonly auditBuilderForm = new FormGroup<AuditBuilder>({
-    title: new FormControl('', BASE_FORM_CONTROL_OPTIONS),
-    device: new FormControl('mobile', BASE_FORM_CONTROL_OPTIONS),
-    timeout: new FormControl(30000, BASE_FORM_CONTROL_OPTIONS),
-    steps: new FormArray<any>([])
-  });
-
-  filteredOptions(value: string) {
-    const filterValue = value.toLowerCase();
-    return STEP_TYPES.filter(option => option.toLowerCase().includes(filterValue));
+  private createFormGroup(data: Record<string, string | NonNullable<unknown> | []>): FormGroup {
+    const controls = Object.keys(data).reduce((acc, key) => ({
+      ...acc, [key]: this.createFormControl(data[key])
+    }), {});
+    return new FormGroup(controls);
   }
 
-  @Output() auditSubmit = this.ui.formSubmit$.pipe(
-    withLatestFrom(this.auditBuilderForm.statusChanges,this.auditBuilderForm.valueChanges),
-    filter(([,formState,]) => formState === 'VALID'),
-    map(([,, formValue]) => formValue)
-  )
-
-  @Output() auditInputChange = this.ui.inputChange$.pipe(
-    withLatestFrom(this.auditBuilderForm.statusChanges,this.auditBuilderForm.valueChanges),
-    map(([,, formValue]) => formValue)
-  )
-
-  private createFormGroup(data: any): FormGroup {
-    return new FormGroup(
-      Object.keys(data).reduce((accumulator, key) => ({
-        ...accumulator, [key]: this.createFormControl(data[key])
-      }), {})
-    );
-  }
-
-  private createFormControl(value: any) {
+  private createFormControl(value: string | [] | Record<string, string | NonNullable<unknown> | []>) {
     if (value instanceof Array) return this.createFormArray(value);
-    if (typeof value === 'object') return this.createFormGroup(value);
-    return this.createValueControl(value);
+    if (typeof value === 'string') return this.createValueControl(value);
+    return this.createFormGroup(value);
   }
 
-  private createFormArray(items: any[]): FormArray<any> {
-    return  new FormArray<any>(items.map(item => this.createFormGroup(item)));
+  private createFormArray(items: []): FormArray {
+    return  new FormArray(items.map(item => this.createFormControl(item)));
   }
 
-  private createValueControl(value: any): FormControl {
-    return new FormControl(value, {
-      validators: [Validators.required],
-      nonNullable: true
-    });
-  }
-
-  addStep(index: number, step?: any): void {
-    this.auditBuilderForm.controls.steps.insert(index, this.createFormGroup(step || { type: '' }));
+  private createValueControl(value: string): FormControl<string> {
+    return new FormControl<string>(value, BASE_FORM_CONTROL_OPTIONS);
   }
 }
