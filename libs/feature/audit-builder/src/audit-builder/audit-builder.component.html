@@ -1,62 +1,20 @@
 <form class="grid-container" [formGroup]="auditBuilderForm" novalidate (ngSubmit)="ui.formSubmit($event)" (change)='ui.inputChange($event)'>
   <mat-card>
       <mat-card-content>
-        <div class="row">
-          <div class="col">
-            <mat-form-field class="full-width">
-              <mat-label>Audit Title</mat-label>
-              <input matInput placeholder="Title of your audit" [formControl]='auditBuilderForm.controls.title'>
-              <mat-error *rxIf="auditBuilderForm.controls.title.hasError('required')">
-                Audit title is <strong>required</strong>
-              </mat-error>
-            </mat-form-field>
-          </div>
-          <div class='col row'>
-            <div class='col'>
-              <mat-form-field class="full-width">
-                <mat-label>Device Type</mat-label>
-                <mat-select required [formControl]='auditBuilderForm.controls.device'>
-                  <mat-option *rxFor="let device of DEVICE_TYPES" [value]="device.value">
-                    {{device.viewValue}}
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
-            </div>
-            <div class='col'>
-              <mat-form-field class="full-width">
-                <mat-label>Timeout</mat-label>
-                <input
-                  matInput
-                  type="number"
-                  min='1'
-                  max='99999'
-                  maxlength="5"
-                  placeholder="Timeout in milliseconds"
-                  [formControl]='auditBuilderForm.controls.timeout'
-                >
-                <mat-error *rxIf="auditBuilderForm.controls.timeout.hasError('required')">
-                  Audit title is <strong>required</strong>
-                </mat-error>
-              </mat-form-field>
-            </div>
-            <div class='col row'>
-              <div class='col'>
-                <mat-card-actions>
-                  <button mat-raised-button color="primary" type="submit">Analyze</button>
-                </mat-card-actions>
-              </div>
-            </div>
-          </div>
-        </div>
+        <lib-audit-global
+          [title]='auditBuilderForm.controls.title'
+          [timeout]='auditBuilderForm.controls.timeout'
+          [device]='auditBuilderForm.controls.device'
+        />
         <mat-accordion multi>
-          <mat-expansion-panel *rxFor='let stepFormGroup of auditBuilderForm.controls.steps.controls; let i = index'>
+          <mat-expansion-panel *ngFor='let stepFormGroup of auditBuilderForm.controls.steps.controls; let i = index'>
             <mat-expansion-panel-header>
               <mat-panel-title>{{ stepFormGroup.controls.type.value || 'Audit Step Required!' }}</mat-panel-title>
             </mat-expansion-panel-header>
-            <div class='row'>
-              <div class='col'>
+            <div class='row' *ngFor='let controlKey of getStepControlsKeys(stepFormGroup)'>
+              <div class='col' *ngIf='isValueControl(getControl(stepFormGroup, controlKey))'>
                 <mat-form-field>
-                  <mat-label>Step Type</mat-label>
+                  <mat-label>{{controlKey}}</mat-label>
                   <input
                     matInput
                     type='text'
@@ -64,19 +22,48 @@
                     [pattern]='STEP_TYPES_VALIDATOR_PATTERN'
                     placeholder='Audit Step'
                     aria-label='Audit Step'
-                    [formControl]='stepFormGroup.controls.type'
+                    [formControl]='getControl(stepFormGroup, controlKey)'
                     [matAutocomplete]='auto'
                   >
                   <mat-autocomplete #auto="matAutocomplete">
                     <mat-option
-                      *rxFor="let option of filteredOptions(STEP_TYPES, stepFormGroup.controls.type.value)"
+                      *ngFor="let option of filteredOptions(STEP_TYPES, stepFormGroup.controls.type.value)"
                       [value]="option"
                     >{{option}}</mat-option>
                   </mat-autocomplete>
-                  <mat-error *rxIf="stepFormGroup.controls.type.hasError('required')">
+                  <mat-error *ngIf="stepFormGroup.controls.type.hasError('required')">
                     Step type is <strong>required</strong>
                   </mat-error>
-                  <mat-error *rxIf="stepFormGroup.controls.type.hasError('pattern')">
+                  <mat-error *ngIf="stepFormGroup.controls.type.hasError('pattern')">
+                    Step type is <strong>not supported</strong>
+                  </mat-error>
+                </mat-form-field>
+                <button mat-icon-button style='top: 40px' class="more-button" (click)='$event.preventDefault()' [matMenuTriggerFor]="menu" aria-label="Toggle menu">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #menu="matMenu" xPosition="before">
+                  <button mat-menu-item (click)='addStep(i)'>Add Step Before</button>
+                  <button mat-menu-item (click)='addStep(i + 1)'>Add Step After</button>
+                  <button mat-menu-item (click)='auditBuilderForm.controls.steps.removeAt(i)'>Remove Step</button>
+                </mat-menu>
+              </div>
+              <div class='col' *ngIf='!isValueControl(getControl(stepFormGroup, controlKey))'>
+                <p>{{controlKey}}</p>
+                <mat-form-field *ngFor='let subControlKey of getStepControlsKeys(getControl(stepFormGroup, controlKey))'>
+                  <mat-label>{{subControlKey}}</mat-label>
+                  <input
+                    matInput
+                    type='text'
+                    required
+                    [pattern]='STEP_TYPES_VALIDATOR_PATTERN'
+                    placeholder='Audit Step'
+                    aria-label='Audit Step'
+                    [formControl]='getControl(getControl(stepFormGroup, controlKey), subControlKey)'
+                  >
+                  <mat-error *ngIf="stepFormGroup.controls.type.hasError('required')">
+                    Step type is <strong>required</strong>
+                  </mat-error>
+                  <mat-error *ngIf="stepFormGroup.controls.type.hasError('pattern')">
                     Step type is <strong>not supported</strong>
                   </mat-error>
                 </mat-form-field>

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, Input, Output } from '@angular/core';
-import { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatGridListModule } from '@angular/material/grid-list';
@@ -25,6 +25,8 @@ import {
   STEP_TYPES,
   STEP_TYPES_VALIDATOR_PATTERN,
 } from './audit-builder.constants';
+import { KeyValuePipe, NgFor, NgIf } from '@angular/common';
+import { AuditGlobalsComponent } from '../audit-globals/audit-globals.component';
 
 @Component({
   selector: 'lib-audit-builder',
@@ -43,6 +45,10 @@ import {
     MatAutocompleteModule,
     MatSelectModule,
     MatExpansionModule,
+    KeyValuePipe,
+    NgIf,
+    NgFor,
+    AuditGlobalsComponent,
   ],
   templateUrl: './audit-builder.component.html',
   styleUrls: ['./audit-builder.component.scss'],
@@ -50,7 +56,6 @@ import {
   providers: [RxActionFactory],
 })
 export class AuditBuilderComponent extends RxEffects {
-  public readonly DEVICE_TYPES = DEVICE_TYPES;
   public readonly STEP_TYPES = STEP_TYPES;
   public readonly STEP_TYPES_VALIDATOR_PATTERN = STEP_TYPES_VALIDATOR_PATTERN;
   public readonly ui: RxActions<UiActions> = inject(RxActionFactory<UiActions>).create({
@@ -59,7 +64,10 @@ export class AuditBuilderComponent extends RxEffects {
   });
 
   public readonly auditBuilderForm = new FormGroup<AuditBuilder>({
-    title: new FormControl('', BASE_FORM_CONTROL_OPTIONS),
+    title: new FormControl('', {
+      validators: [Validators.required],
+      nonNullable: true
+    }),
     device: new FormControl('mobile', BASE_FORM_CONTROL_OPTIONS),
     timeout: new FormControl(30000, BASE_FORM_CONTROL_OPTIONS),
     steps: new FormArray<any>([])
@@ -119,5 +127,17 @@ export class AuditBuilderComponent extends RxEffects {
 
   private createValueControl(value: string): FormControl<string> {
     return new FormControl<string>(value, BASE_FORM_CONTROL_OPTIONS);
+  }
+
+  public getStepControlsKeys(stepFormGroup: any) {
+    return Object.keys(stepFormGroup.controls);
+  }
+
+  getControl(stepFormGroup: any, controlKey: any) {
+    return stepFormGroup.get(controlKey) as FormControl;
+  }
+
+  isValueControl(control: FormControl) {
+    return typeof control.value === 'string';
   }
 }
