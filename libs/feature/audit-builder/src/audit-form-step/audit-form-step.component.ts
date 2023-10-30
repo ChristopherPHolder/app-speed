@@ -11,11 +11,23 @@ import { MatButtonModule } from '@angular/material/button';
 import { StepFormGroup } from '../audit-builder/audit-builder.types';
 
 import { STEP_TYPES } from '../audit-builder/audit-builder.constants';
+import { RxFor } from '@rx-angular/template/for';
+import { RxIf } from '@rx-angular/template/if';
 
 @Component({
   selector: 'lib-audit-form-step',
   standalone: true,
-  imports: [CommonModule, MatExpansionModule, MatInputModule, ReactiveFormsModule, MatAutocompleteModule, MatMenuModule, MatIconModule, MatButtonModule],
+  imports: [
+    RxIf,
+    RxFor,
+    ReactiveFormsModule,
+    MatExpansionModule,
+    MatInputModule,
+    MatAutocompleteModule,
+    MatMenuModule,
+    MatIconModule,
+    MatButtonModule
+  ],
   templateUrl: './audit-form-step.component.html',
   styleUrls: ['./audit-form-step.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

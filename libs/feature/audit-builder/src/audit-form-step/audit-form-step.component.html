@@ -5,8 +5,8 @@
   <button  class='toggle_menu' mat-icon-button (click)='$event.preventDefault()' [matMenuTriggerFor]="menu" aria-label="Toggle menu">
     <mat-icon>more_vert</mat-icon>
   </button>
-  <div class='row' *ngFor='let controlKey of getStepControlsKeys(stepFormGroup)'>
-    <div class='col' *ngIf='isValueControl(getControl(stepFormGroup, controlKey))'>
+  <div class='row' *rxFor='let controlKey of getStepControlsKeys(stepFormGroup)'>
+    <div class='col' *rxIf='isValueControl(getControl(stepFormGroup, controlKey))'>
       <mat-form-field>
         <mat-label>{{controlKey}}</mat-label>
         <input
@@ -20,21 +20,21 @@
         >
         <mat-autocomplete (optionSelected)='valueChange.emit($event)' autoActiveFirstOption #auto="matAutocomplete">
           <mat-option
-            *ngFor="let option of filteredOptions(STEP_TYPES, stepFormGroup.controls.type.value)"
+            *rxFor="let option of filteredOptions(STEP_TYPES, stepFormGroup.controls.type.value)"
             [value]="option"
           >{{option}}</mat-option>
         </mat-autocomplete>
-        <mat-error *ngIf="getControl(stepFormGroup, controlKey).hasError('required')">
+        <mat-error *rxIf="getControl(stepFormGroup, controlKey).hasError('required')">
           {{controlKey}} is <strong>required</strong>
         </mat-error>
-        <mat-error *ngIf="getControl(stepFormGroup, controlKey).hasError('pattern')">
+        <mat-error *rxIf="getControl(stepFormGroup, controlKey).hasError('pattern')">
           {{controlKey}} is <strong>not supported</strong>
         </mat-error>
       </mat-form-field>
     </div>
-    <div class='col' *ngIf='!isValueControl(getControl(stepFormGroup, controlKey))'>
+    <div class='col' *rxIf='!isValueControl(getControl(stepFormGroup, controlKey))'>
       <p>{{controlKey}}</p>
-      <mat-form-field *ngFor='let subControlKey of getStepControlsKeys(getControl(stepFormGroup, controlKey))'>
+      <mat-form-field *rxFor='let subControlKey of getStepControlsKeys(getControl(stepFormGroup, controlKey))'>
         <mat-label>{{subControlKey}}</mat-label>
         <input
           matInput
@@ -44,10 +44,10 @@
           aria-label='Audit Step'
           [formControl]='getControl(getControl(stepFormGroup, controlKey), subControlKey)'
         >
-        <mat-error *ngIf="stepFormGroup.controls.type.hasError('required')">
+        <mat-error *rxIf="stepFormGroup.controls.type.hasError('required')">
           Step type is <strong>required</strong>
         </mat-error>
-        <mat-error *ngIf="stepFormGroup.controls.type.hasError('pattern')">
+        <mat-error *rxIf="stepFormGroup.controls.type.hasError('pattern')">
           Step type is <strong>not supported</strong>
         </mat-error>
       </mat-form-field>
