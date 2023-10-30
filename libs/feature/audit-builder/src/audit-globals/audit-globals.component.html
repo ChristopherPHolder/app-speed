@@ -2,27 +2,27 @@
   <mat-form-field class="full-width">
     <mat-label>Audit Title</mat-label>
     <input matInput placeholder="Audit Title" [formControl]='title'>
-    <mat-error *ngIf="title.hasError">Title <strong>required</strong></mat-error>
+    <mat-error *rxIf="title.hasError">Title <strong>required</strong></mat-error>
   </mat-form-field>
   <mat-card-actions class='cta'>
     <button class='cta__submit' mat-raised-button color="primary" type="submit">Analyze</button>
-    <button mat-icon-button (click)='$event.preventDefault()' [matMenuTriggerFor]="menu" aria-label="Toggle menu">
-      <mat-icon>more_vert</mat-icon>
-    </button>
+<!--    <button mat-icon-button (click)='$event.preventDefault()' [matMenuTriggerFor]="menu" aria-label="Toggle menu">-->
+<!--      <mat-icon>more_vert</mat-icon>-->
+<!--    </button>-->
   </mat-card-actions>
 </div>
 <div class='row'>
   <mat-form-field class="full-width col">
     <mat-label>Device Type</mat-label>
     <mat-select [formControl]='device' (selectionChange)='valueChange.emit($event)'>
-      <mat-option *ngFor="let device of DEVICE_TYPES" [value]="device.value">{{device.viewValue}}</mat-option>
+      <mat-option *rxFor="let device of DEVICE_TYPES" [value]="device.value">{{device.viewValue}}</mat-option>
     </mat-select>
   </mat-form-field>
   <mat-form-field class="full-width col end__col">
     <mat-label>Timeout</mat-label>
     <input matInput type="number" min='1' max='99999' placeholder="Timeout in ms" [formControl]='timeout'>
-    <mat-error *ngIf="timeout.hasError">Invalid Value</mat-error>
+    <mat-error *rxIf="timeout.hasError">Invalid Value</mat-error>
   </mat-form-field>
 </div>
 
-<mat-menu #menu="matMenu" xPosition="before"></mat-menu>
+<!--<mat-menu #menu="matMenu" xPosition="before"></mat-menu>-->
