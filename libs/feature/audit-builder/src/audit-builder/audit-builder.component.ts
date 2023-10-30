@@ -1,5 +1,8 @@
-import { ChangeDetectionStrategy, Component, inject, Input, Output } from '@angular/core';
+import { Component, inject, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { KeyValuePipe, NgFor, NgIf } from '@angular/common';
+
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatGridListModule } from '@angular/material/grid-list';
@@ -11,22 +14,17 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatSelectModule } from '@angular/material/select';
 import { MatExpansionModule } from '@angular/material/expansion';
 
-import { preventDefault, RxActionFactory, RxActions } from '@rx-angular/state/actions';
+import { eventValue, preventDefault, RxActionFactory, RxActions } from '@rx-angular/state/actions';
 import { RxEffects } from '@rx-angular/state/effects';
 import { RxIf } from '@rx-angular/template/if';
+
 import { RxFor } from '@rx-angular/template/for';
 
 import { filter, map, withLatestFrom } from 'rxjs';
-
 import { AuditBuilder, AuditDetails, UiActions } from './audit-builder.types';
-import {
-  BASE_FORM_CONTROL_OPTIONS,
-  DEVICE_TYPES,
-  STEP_TYPES,
-  STEP_TYPES_VALIDATOR_PATTERN,
-} from './audit-builder.constants';
-import { KeyValuePipe, NgFor, NgIf } from '@angular/common';
+import { BASE_FORM_CONTROL_OPTIONS } from './audit-builder.constants';
 import { AuditGlobalsComponent } from '../audit-globals/audit-globals.component';
+import { AuditFormStepComponent } from '../audit-form-step/audit-form-step.component';
 
 @Component({
   selector: 'lib-audit-builder',
@@ -49,17 +47,16 @@ import { AuditGlobalsComponent } from '../audit-globals/audit-globals.component'
     NgIf,
     NgFor,
     AuditGlobalsComponent,
+    AuditFormStepComponent,
   ],
   templateUrl: './audit-builder.component.html',
   styleUrls: ['./audit-builder.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [RxActionFactory],
 })
 export class AuditBuilderComponent extends RxEffects {
-  public readonly STEP_TYPES = STEP_TYPES;
-  public readonly STEP_TYPES_VALIDATOR_PATTERN = STEP_TYPES_VALIDATOR_PATTERN;
+
   public readonly ui: RxActions<UiActions> = inject(RxActionFactory<UiActions>).create({
-    inputChange: preventDefault,
+    inputChange: eventValue,
     formSubmit: preventDefault
   });
 
@@ -89,11 +86,6 @@ export class AuditBuilderComponent extends RxEffects {
     withLatestFrom(this.auditBuilderForm.statusChanges,this.auditBuilderForm.valueChanges),
     map(([,, formValue]) => formValue)
   )
-
-  public filteredOptions(options: string[], value: string) {
-    const filterValue = value.toLowerCase();
-    return options.filter(option => option.toLowerCase().includes(filterValue));
-  }
 
   addStep(index: number, step?: any): void {
     this.auditBuilderForm.controls.steps.insert(index, this.createFormGroup(step || { type: '' }));
@@ -127,17 +119,5 @@ export class AuditBuilderComponent extends RxEffects {
 
   private createValueControl(value: string): FormControl<string> {
     return new FormControl<string>(value, BASE_FORM_CONTROL_OPTIONS);
-  }
-
-  public getStepControlsKeys(stepFormGroup: any) {
-    return Object.keys(stepFormGroup.controls);
-  }
-
-  getControl(stepFormGroup: any, controlKey: any) {
-    return stepFormGroup.get(controlKey) as FormControl;
-  }
-
-  isValueControl(control: FormControl) {
-    return typeof control.value === 'string';
   }
 }

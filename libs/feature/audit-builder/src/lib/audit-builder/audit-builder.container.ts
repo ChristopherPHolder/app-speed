@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { AuditBuilderComponent } from '../../audit-builder/audit-builder.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { filter, map, Observable } from 'rxjs';
@@ -31,6 +31,7 @@ interface AuditDetails  {
     RxPush,
     RxIf,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 // TODO Change linter to only accept container suffix
 // eslint-disable-next-line @angular-eslint/component-class-suffix
