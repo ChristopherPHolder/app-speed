@@ -15,9 +15,10 @@
       />
       <mat-accordion multi>
         <lib-audit-form-step
-          (valueChange)='ui.inputChange($event)'
           *ngFor='let stepFormGroup of auditBuilderForm.controls.steps.controls; let i = index'
           [stepFormGroup]='stepFormGroup'
+          (valueChange)='ui.inputChange($event)'
+          (action)='stepAction($event, i)'
         />
       </mat-accordion>
     </mat-card-content>

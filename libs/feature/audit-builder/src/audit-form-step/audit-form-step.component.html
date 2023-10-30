@@ -56,7 +56,7 @@
 </mat-expansion-panel>
 
 <mat-menu #menu="matMenu" xPosition="before">
-    <button mat-menu-item>Add Step Before</button>
-    <button mat-menu-item>Add Step After</button>
-    <button mat-menu-item>Remove Step</button>
+    <button mat-menu-item (click)='action.emit("add-before")'>Add Step Before</button>
+    <button mat-menu-item (click)='action.emit("add-after")'>Add Step After</button>
+    <button mat-menu-item (click)='action.emit("remove")'>Remove Step</button>
 </mat-menu>

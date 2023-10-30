@@ -120,4 +120,17 @@ export class AuditBuilderComponent extends RxEffects {
   private createValueControl(value: string): FormControl<string> {
     return new FormControl<string>(value, BASE_FORM_CONTROL_OPTIONS);
   }
+
+  // TODO Create an Action Map
+  public stepAction(action: string, index: number): void {
+    if (action === 'add-before') {
+      return this.addStep(index)
+    }
+    if (action === 'add-after') {
+      return this.addStep(index - 1)
+    }
+    if (action === 'remove') {
+      this.auditBuilderForm.controls.steps.removeAt(index)
+    }
+  }
 }

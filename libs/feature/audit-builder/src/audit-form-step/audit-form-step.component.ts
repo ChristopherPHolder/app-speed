@@ -23,6 +23,7 @@ import { STEP_TYPES } from '../audit-builder/audit-builder.constants';
 export class AuditFormStepComponent {
   @Input() stepFormGroup!: FormGroup<StepFormGroup>;
   @Output() valueChange = new EventEmitter();
+  @Output() action = new EventEmitter();
   // protected readonly STEP_TYPES_VALIDATOR_PATTERN = STEP_TYPES_VALIDATOR_PATTERN;
   protected readonly STEP_TYPES = STEP_TYPES;
 
