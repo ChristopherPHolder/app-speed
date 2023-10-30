@@ -1,22 +1,12 @@
-import { Component, inject, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
-import { KeyValuePipe, NgFor, NgIf } from '@angular/common';
+import { Component, inject, Input, Output } from '@angular/core';
+import { KeyValuePipe } from '@angular/common';
 
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-
-import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatGridListModule } from '@angular/material/grid-list';
-import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatSelectModule } from '@angular/material/select';
 import { MatExpansionModule } from '@angular/material/expansion';
 
 import { eventValue, preventDefault, RxActionFactory, RxActions } from '@rx-angular/state/actions';
 import { RxEffects } from '@rx-angular/state/effects';
-import { RxIf } from '@rx-angular/template/if';
 
 import { RxFor } from '@rx-angular/template/for';
 
@@ -30,22 +20,10 @@ import { AuditFormStepComponent } from '../audit-form-step/audit-form-step.compo
   selector: 'lib-audit-builder',
   standalone: true,
   imports: [
-    RxIf,
-    RxFor,
     ReactiveFormsModule,
-    MatButtonModule,
+    RxFor,
     MatCardModule,
-    MatGridListModule,
-    MatIconModule,
-    MatMenuModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatAutocompleteModule,
-    MatSelectModule,
     MatExpansionModule,
-    KeyValuePipe,
-    NgIf,
-    NgFor,
     AuditGlobalsComponent,
     AuditFormStepComponent,
   ],
