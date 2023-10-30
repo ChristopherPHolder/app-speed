@@ -20,11 +20,11 @@ interface AuditDetails  {
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'audit-builder-container',
   template: `
-    <lib-audit-builder 
-      *rxIf='auditDetails$; let auditDetails' 
-      [auditDetails]='auditDetails'  
-      (auditSubmit)='submited($event)'
-      (auditInputChange)='updateAuditDetails($event)'
+    <lib-audit-builder
+      *rxIf='auditDetails$; let auditDetails'
+      [auditDetails]='auditDetails'
+      (auditSubmit)='submitted($event)'
+      (auditDetailsChange)='updateAuditDetails($event)'
     />`,
   imports: [
     AuditBuilderComponent,
@@ -45,8 +45,8 @@ export class AuditBuilderContainer {
     map(auditDetails => JSON.parse(auditDetails)),
   )
 
-  submited(event: any) {
-    alert(`WOLOLO\n${event}`)
+  submitted(event: any) {
+    alert(`WOLOLO\n${JSON.stringify(event)}`)
   }
 
   updateAuditDetails(auditDetails: object) {

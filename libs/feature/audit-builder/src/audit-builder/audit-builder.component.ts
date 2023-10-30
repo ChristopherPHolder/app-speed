@@ -60,7 +60,7 @@ export class AuditBuilderComponent extends RxEffects {
     filter(([,formState,]) => formState === 'VALID'),
     map(([,, formValue]) => formValue)
   )
-  @Output() auditInputChange = this.ui.inputChange$.pipe(
+  @Output() auditDetailsChange = this.ui.inputChange$.pipe(
     withLatestFrom(this.auditBuilderForm.statusChanges,this.auditBuilderForm.valueChanges),
     map(([,, formValue]) => formValue)
   )
