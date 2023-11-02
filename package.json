@@ -30,7 +30,7 @@
     "@swc/helpers": "~0.5.2",
     "aws-sdk": "^2.1218.0",
     "axios": "^1.0.0",
-    "lighthouse": "^10.4.0",
+    "lighthouse": "^11.2.0",
     "npx": "^3.0.0",
     "puppeteer": "^21.3.5",
     "rxjs": "~7.5.0",
