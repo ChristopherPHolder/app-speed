@@ -1,5 +1,4 @@
 import { Component, inject, Input, Output } from '@angular/core';
-import { KeyValuePipe } from '@angular/common';
 
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -17,7 +16,7 @@ import { AuditGlobalsComponent } from '../audit-globals/audit-globals.component'
 import { AuditFormStepComponent } from '../audit-form-step/audit-form-step.component';
 
 @Component({
-  selector: 'lib-audit-builder',
+  selector: 'ui-audit-builder',
   standalone: true,
   imports: [
     ReactiveFormsModule,

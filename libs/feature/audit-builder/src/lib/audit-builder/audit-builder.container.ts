@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { AuditBuilderComponent } from '../../audit-builder/audit-builder.component';
+import { AuditBuilderComponent } from 'ui/audit-builder';
 import { ActivatedRoute, Router } from '@angular/router';
 import { filter, map, Observable } from 'rxjs';
 import { RxPush } from '@rx-angular/template/push';
@@ -20,16 +20,16 @@ interface AuditDetails  {
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'audit-builder-container',
   template: `
-    <lib-audit-builder
+    <ui-audit-builder
       *rxIf='auditDetails$; let auditDetails'
       [auditDetails]='auditDetails'
       (auditSubmit)='submitted($event)'
       (auditDetailsChange)='updateAuditDetails($event)'
     />`,
   imports: [
-    AuditBuilderComponent,
     RxPush,
     RxIf,
+    AuditBuilderComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

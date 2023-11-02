@@ -1,1 +1,1 @@
-export { AuditBuilderComponent } from './audit-builder/audit-builder.component';
+export { auditBuilderRoutes } from './lib/audit-builder.routes';

@@ -34,7 +34,14 @@
       "executor": "@nx/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["libs/ui/**/*.ts", "libs/ui/**/*.html", "libs/ui/shell/**/*.ts", "libs/ui/shell/**/*.html"]
+        "lintFilePatterns": [
+          "libs/ui/**/*.ts",
+          "libs/ui/**/*.html",
+          "libs/ui/shell/**/*.ts",
+          "libs/ui/shell/**/*.html",
+          "libs/ui/audit-builder/**/*.ts",
+          "libs/ui/audit-builder/**/*.html"
+        ]
       }
     },
     "storybook": {
@@ -43,9 +50,7 @@
         "port": 4400,
         "configDir": "libs/ui/.storybook",
         "tsConfig": "libs/ui/tsconfig.storybook.json",
-        "styles": [
-          "@angular/material/prebuilt-themes/indigo-pink.css"
-        ],
+        "styles": ["@angular/material/prebuilt-themes/indigo-pink.css"],
         "browserTarget": "ui:build-storybook",
         "compodoc": false
       },
