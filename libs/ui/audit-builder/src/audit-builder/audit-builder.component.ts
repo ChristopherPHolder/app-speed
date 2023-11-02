@@ -19,8 +19,8 @@ import { AuditFormStepComponent } from '../audit-form-step/audit-form-step.compo
   selector: 'ui-audit-builder',
   standalone: true,
   imports: [
-    ReactiveFormsModule,
     RxFor,
+    ReactiveFormsModule,
     MatCardModule,
     MatExpansionModule,
     AuditGlobalsComponent,
