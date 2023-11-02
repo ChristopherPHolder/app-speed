@@ -10,7 +10,7 @@ import { RxIf } from '@rx-angular/template/if';
 import { RxFor } from '@rx-angular/template/for';
 
 @Component({
-  selector: 'lib-audit-global',
+  selector: 'ui-audit-global',
   standalone: true,
   imports: [
     RxIf,

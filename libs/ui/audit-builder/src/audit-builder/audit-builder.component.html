@@ -7,14 +7,14 @@
 >
   <mat-card>
     <mat-card-content>
-      <lib-audit-global
+      <ui-audit-global
         [title]='auditBuilderForm.controls.title'
         [timeout]='auditBuilderForm.controls.timeout'
         [device]='auditBuilderForm.controls.device'
         (valueChange)='ui.inputChange($event)'
       />
       <mat-accordion multi>
-        <lib-audit-form-step
+        <ui-audit-form-step
           *rxFor='let stepFormGroup of auditBuilderForm.controls.steps.controls; let i = index'
           [stepFormGroup]='stepFormGroup'
           (valueChange)='ui.inputChange($event)'

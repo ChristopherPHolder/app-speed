@@ -15,7 +15,7 @@ import { RxFor } from '@rx-angular/template/for';
 import { RxIf } from '@rx-angular/template/if';
 
 @Component({
-  selector: 'lib-audit-form-step',
+  selector: 'ui-audit-form-step',
   standalone: true,
   imports: [
     RxIf,
