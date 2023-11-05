@@ -14,7 +14,7 @@ on:
 
 jobs:
   setup:
-    uses: ./.github/workflows/setup-cache.yml
+    uses: ./.github/workflows/setup-cache.yml@main
     with:
       node-version: ${{ env.NODE_VERSION }}
 
