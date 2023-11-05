@@ -16,7 +16,7 @@ jobs:
   setup:
     uses: ./.github/workflows/setup-cache.yml
     with:
-      node-version: ${{ env.NODE_VERSION }}
+      node-version: '18'
 
   lint:
     name: Lint Affected
