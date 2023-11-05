@@ -13,7 +13,7 @@ const progressMap: Record<Partial<AuditStatusType>, string> = {
 }
 
 @Component({
-  selector: 'app-progress-toaster',
+  selector: 'ui-progress-toaster',
   standalone: true,
   imports: [RxLet],
   template: `<output class='toast-text' *rxLet='toasterText$; let toasterText'>{{toasterText}}</output>`,

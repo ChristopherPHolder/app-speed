@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-header',
+  selector: 'ui-header',
   standalone: true,
   template: `
     <div class='header-navbar box--small'>

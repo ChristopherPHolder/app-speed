@@ -15,7 +15,7 @@ type ComponentState = {
   htmlReportUrl?: SafeResourceUrl;
 }
 @Component({
-  selector: 'app-results-display',
+  selector: 'ui-results-display',
   standalone: true,
   imports: [
     CommonModule,

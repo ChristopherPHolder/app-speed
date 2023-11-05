@@ -13,7 +13,7 @@ import type { AppSpeedUserFlowStep } from 'shared';
 import { KebabMenuComponent } from '../../component/icons/kebab-menu.component';
 
 @Component({
-  selector: 'app-audit-step',
+  selector: 'ui-audit-step',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, KebabMenuComponent],
   templateUrl: './audit-step.component.html',
