@@ -1,4 +1,4 @@
-name: App Speed CI
+name: App Speed CI Pipeline
 
 env:
   NODE_VERSION: '18'
