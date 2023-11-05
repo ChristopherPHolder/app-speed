@@ -1,7 +1,7 @@
-name: App Speed CI
+name: UFO CI
 
 env:
-  NODE_VERSION: '18'
+  NODE_VERSION: 18
   is-main-branch: ${{ github.ref == 'refs/heads/main' }}
   is-pull-request: ${{ github.event_name == 'pull_request' }}
 
@@ -14,15 +14,63 @@ on:
 
 jobs:
   setup:
-    uses: ./.github/workflows/setup-cache.yml@main
-    with:
-      node-version: ${{ env.NODE_VERSION }}
+    name: Setup CI
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          # We need to fetch all branches and commits so that Nx affected has a base to compare against.
+          fetch-depth: 0
+      # Derive appropriate SHAs for base and head for `nx affected` commands
+      - uses: nrwl/nx-set-shas@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      # Aggressive NPM dependency caching
+      # https://dev.to/drakulavich/aggressive-dependency-caching-in-github-actions-3c64
+      - name: Cache NPM dependencies
+        uses: actions/cache@v3
+        id: cache-primes
+        with:
+          path: |
+            node_modules
+            ~/.cache
+            dist
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
+      - name: Clean Install Dependencies
+        if: steps.cache-primes.outputs.cache-hit != 'true'
+        run: npm ci
 
   lint:
     name: Lint Affected
     needs: setup
     runs-on: ubuntu-latest
+
     steps:
+      - uses: actions/checkout@v3
+        with:
+          # We need to fetch all branches and commits so that Nx affected has a base to compare against.
+          fetch-depth: 0
+      # Derive appropriate SHAs for base and head for `nx affected` commands
+      - uses: nrwl/nx-set-shas@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Cache NPM Dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            ~/.cache
+            dist
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
       - name: Lint Affected
         run: npx nx affected --target=lint --parallel=3
 
@@ -30,7 +78,28 @@ jobs:
     name: Test Affected
     needs: setup
     runs-on: ubuntu-latest
+
     steps:
+      - uses: actions/checkout@v3
+        with:
+          # We need to fetch all branches and commits so that Nx affected has a base to compare against.
+          fetch-depth: 0
+      # Derive appropriate SHAs for base and head for `nx affected` commands
+      - uses: nrwl/nx-set-shas@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Cache NPM Dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            ~/.cache
+            dist
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
       - name: Test Affected
         run: npx nx affected --target=test --parallel=3
 
@@ -38,42 +107,135 @@ jobs:
     name: Build Affected
     needs: setup
     runs-on: ubuntu-latest
+
     steps:
+      - uses: actions/checkout@v3
+        with:
+          # We need to fetch all branches and commits so that Nx affected has a base to compare against.
+          fetch-depth: 0
+      # Derive appropriate SHAs for base and head for `nx affected` commands
+      - uses: nrwl/nx-set-shas@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Cache NPM Dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            ~/.cache
+            dist
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
       - name: Build Affected
         run: npx nx affected --target=build --parallel=3
+
+  publish-storybook:
+    name: Publish Storybook
+    needs: [build, lint, test]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: nrwl/nx-set-shas@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Cache NPM Dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            ~/.cache
+            dist
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
+      - name: Publish Storybook Affected
+        run: npx nx affected --target=publish-storybook --parallel=3 --project-token=${{ secrets.CHROMATIC_PROJECT_TOKEN }}
 
   deploy-front-end:
     name: Deploy Front-End
     needs: [build, lint, test]
     runs-on: ubuntu-latest
+
     steps:
+      - uses: actions/checkout@v3
+        with:
+          # We need to fetch all branches and commits so that Nx affected has a base to compare against.
+          fetch-depth: 0
+      # Derive appropriate SHAs for base and head for `nx affected` commands
+      - uses: nrwl/nx-set-shas@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Cache NPM Dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            ~/.cache
+            dist
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-central-1
+
       - name: Deploy Dev Client
-        if: ${{ env.is-pull-request == 'true' }}
-        run: npx nx affected --target=deploy --exclude='*,!tag:frontend' --environment=dev
+        if: ${{ env.is-main-branch != 'true' }}
+        run: npx nx affected --target=deploy  --exclude='*,!tag:frontend' --configuration=development
+
+
       - name: Deploy Prod Client
         if: ${{ env.is-main-branch == 'true' }}
-        run: npx nx affected --target=deploy --exclude='*,!tag:frontend' --environment=prod
+        run: npx nx affected --target=deploy  --exclude='*,!tag:frontend' --configuration=production
 
   deploy-server:
     name: Deploy Server
     needs: [build, lint, test]
     runs-on: ubuntu-latest
+
     steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: nrwl/nx-set-shas@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Cache NPM Dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            ~/.cache
+            dist
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-central-1
+
       - name: Deploy Dev Server
-        if: ${{ env.is-pull-request == 'true' }}
-        run: npx nx affected --target=deploy --exclude='*,!tag:backend' --environment=dev
+        if: ${{ env.is-main-branch != 'true' }}
+        run: npx nx affected --target=deploy  --exclude='*,!tag:backend' --configuration=development
+
       - name: Deploy Prod Server
         if: ${{ env.is-main-branch == 'true' }}
-        run: npx nx affected --target=deploy --exclude='*,!tag:backend' --environment=prod
+        run: npx nx affected --target=deploy  --exclude='*,!tag:backend' --configuration=production
