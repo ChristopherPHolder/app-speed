@@ -15,7 +15,7 @@ type ContainerState = {
   standalone: true,
   imports: [CommonModule, ResultsDisplayComponent],
   template: `
-    <app-results-display [htmlReportUrl]="state.select('htmlReportUrl')" [progress]="state.select('progress')" />
+    <ui-results-display [htmlReportUrl]="state.select('htmlReportUrl')" [progress]="state.select('progress')" />
   `,
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,

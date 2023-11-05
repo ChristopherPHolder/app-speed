@@ -30,7 +30,7 @@ type UiActions = {
     </div>
     <app-audit-builder (auditSubmit)='checkSubmit($event)' [disabled]="state.select('isOnline')"/>
 
-    <app-results-display
+    <ui-results-display
       *rxIf='resultsBoxVisible$'
       [htmlReportUrl]="state.select('htmlReportUrl')"
       [progress]="state.select('progress')"

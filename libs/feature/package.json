@@ -2,22 +2,13 @@
   "name": "@app-speed/feature",
   "version": "0.0.1",
   "peerDependencies": {
-
-
-  
-    "jest-preset-angular": "13.1.1"
-  },
-  "dependencies": {
     "ui": "*",
     "rxjs": "~7.5.0",
     "@angular/router": "16.2.6",
     "@angular/common": "^16.2.0",
     "@angular/core": "^16.2.0",
-    "@rx-angular/template": "16.1.0"
-  },
-  "devDependencies": {
-    "jest-preset-angular": "13.1.1",
-    "tslib": "^2.3.0"
+    "@rx-angular/template": "16.1.0",
+    "jest-preset-angular": "13.1.1"
   },
   "sideEffects": false
 }
