@@ -1,57 +1,37 @@
-<mat-expansion-panel >
+<mat-expansion-panel>
   <mat-expansion-panel-header>
     <mat-panel-title>{{ stepFormGroup.controls.type.value || 'Audit Step Required!' }}</mat-panel-title>
   </mat-expansion-panel-header>
   <button  class='toggle_menu' mat-icon-button (click)='$event.preventDefault()' [matMenuTriggerFor]="menu" aria-label="Toggle menu">
     <mat-icon>more_vert</mat-icon>
   </button>
-  <div class='row' *rxFor='let controlKey of getStepControlsKeys(stepFormGroup)'>
-    <div class='col' *rxIf='isValueControl(getControl(stepFormGroup, controlKey))'>
+  <div class='row'>
+    <div class='col'>
       <mat-form-field>
-        <mat-label>{{controlKey}}</mat-label>
-        <input
-          matInput
-          type='text'
-          required
-          placeholder='Audit Step'
-          aria-label='Audit Step'
-          [formControl]='getControl(stepFormGroup, controlKey)'
-          [matAutocomplete]='auto'
-        >
-        <mat-autocomplete (optionSelected)='valueChange.emit($event)' autoActiveFirstOption #auto="matAutocomplete">
-          <mat-option
-            *rxFor="let option of filteredOptions(STEP_TYPES, stepFormGroup.controls.type.value)"
-            [value]="option"
-          >{{option}}</mat-option>
-        </mat-autocomplete>
-        <mat-error *rxIf="getControl(stepFormGroup, controlKey).hasError('required')">
-          {{controlKey}} is <strong>required</strong>
-        </mat-error>
-        <mat-error *rxIf="getControl(stepFormGroup, controlKey).hasError('pattern')">
-          {{controlKey}} is <strong>not supported</strong>
-        </mat-error>
+        <mat-label>Step Type</mat-label>
+        <mat-select [formControl]='stepFormGroup.controls.type' (selectionChange)='valueChange.emit($event)'>
+          <mat-optgroup *rxFor='let GROUP of AUDIT_STEP_OPTION_GROUPS' [label]='GROUP.name'>
+            <mat-option *rxFor='let OPTION of GROUP.options' [value]='OPTION.value'>
+              {{OPTION.value}}
+            </mat-option>
+          </mat-optgroup>
+        </mat-select>
       </mat-form-field>
     </div>
-    <div class='col' *rxIf='!isValueControl(getControl(stepFormGroup, controlKey))'>
-      <p>{{controlKey}}</p>
-      <mat-form-field *rxFor='let subControlKey of getStepControlsKeys(getControl(stepFormGroup, controlKey))'>
-        <mat-label>{{subControlKey}}</mat-label>
-        <input
-          matInput
-          type='text'
-          required
-          placeholder='Audit Step'
-          aria-label='Audit Step'
-          [formControl]='getControl(getControl(stepFormGroup, controlKey), subControlKey)'
-        >
-        <mat-error *rxIf="stepFormGroup.controls.type.hasError('required')">
-          Step type is <strong>required</strong>
-        </mat-error>
-        <mat-error *rxIf="stepFormGroup.controls.type.hasError('pattern')">
-          Step type is <strong>not supported</strong>
-        </mat-error>
+  </div>
+  <div class='row' *rxFor='let prop of getTopLevelProps()'>
+    <div class='col'>
+      <mat-form-field>
+        <mat-label>{{prop.name}}</mat-label>
+        <input matInput [formControl]='prop.control'>
       </mat-form-field>
     </div>
+  </div>
+
+  <mat-divider />
+
+  <div class='col'>
+    <button style='margin: 8px 8px 0 0;' *rxFor='let prop of unusedProperties()' mat-raised-button>{{prop}}</button>
   </div>
 </mat-expansion-panel>
 
