@@ -12,7 +12,7 @@ type AutoCompleteOption = {
   properties?: any[]
 }
 
-const LIGHTHOUSE_STEP_OPTIONS: AutoCompleteOption[] = [
+export const LIGHTHOUSE_STEP_OPTIONS: AutoCompleteOption[] = [
   {
     value: 'startNavigation'
   },
@@ -30,7 +30,7 @@ const LIGHTHOUSE_STEP_OPTIONS: AutoCompleteOption[] = [
   }
 ];
 
-const PUPPETEER_REPLY_STEP_OPTIONS: AutoCompleteOption[] = [
+export const PUPPETEER_REPLY_STEP_OPTIONS: AutoCompleteOption[] = [
   {
     value: 'change',
   },

@@ -1,6 +1,7 @@
 <mat-expansion-panel>
   <mat-expansion-panel-header>
-    <mat-panel-title>{{ stepFormGroup.controls.type.value || 'Audit Step Required!' }}</mat-panel-title>
+    <mat-panel-title>{{ stepControl.type.value || 'Audit Step Required!' }}</mat-panel-title>
+    <!-- TODO implement Logo for actionType -->
   </mat-expansion-panel-header>
   <button  class='toggle_menu' mat-icon-button (click)='$event.preventDefault()' [matMenuTriggerFor]="menu" aria-label="Toggle menu">
     <mat-icon>more_vert</mat-icon>
@@ -9,11 +10,9 @@
     <div class='col'>
       <mat-form-field>
         <mat-label>Step Type</mat-label>
-        <mat-select [formControl]='stepFormGroup.controls.type' (selectionChange)='valueChange.emit($event)'>
+        <mat-select [formControl]='stepControl.type' (selectionChange)='resetStep()'>
           <mat-optgroup *rxFor='let GROUP of AUDIT_STEP_OPTION_GROUPS' [label]='GROUP.name'>
-            <mat-option *rxFor='let OPTION of GROUP.options' [value]='OPTION.value'>
-              {{OPTION.value}}
-            </mat-option>
+            <mat-option *rxFor='let OPTION of GROUP.options' [value]='OPTION.value'>{{OPTION.value}}</mat-option>
           </mat-optgroup>
         </mat-select>
       </mat-form-field>
@@ -28,11 +27,12 @@
     </div>
   </div>
 
-  <mat-divider />
-
-  <div class='col'>
-    <button style='margin: 8px 8px 0 0;' *rxFor='let prop of unusedProperties()' mat-raised-button>{{prop}}</button>
-  </div>
+  <ng-container *rxIf='stepControl.additionalProps'>
+    <mat-divider />
+    <div class='col'>
+      <button style='margin: 8px 8px 0 0;' *rxFor='let prop of stepControl.additionalProps' mat-raised-button>{{prop}}</button>
+    </div>
+  </ng-container>
 </mat-expansion-panel>
 
 <mat-menu #menu="matMenu" xPosition="before">

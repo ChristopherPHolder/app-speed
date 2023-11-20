@@ -1,9 +1,9 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  EventEmitter,
+  EventEmitter, inject,
   Input,
-  OnChanges,
+  OnChanges, OnInit,
   Output,
   SimpleChanges,
 } from '@angular/core';
@@ -25,6 +25,7 @@ import { AUDIT_STEP_OPTION_GROUPS } from './audit-form-step.constants';
 
 import { StepFormGroup } from '../audit-builder/audit-builder.types';
 import { MatCardModule } from '@angular/material/card';
+import { AuditStepControlService } from './audit-step-control.service';
 
 @Component({
   selector: 'ui-audit-form-step',
@@ -46,20 +47,32 @@ import { MatCardModule } from '@angular/material/card';
   templateUrl: './audit-form-step.component.html',
   styleUrls: ['./audit-form-step.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [AuditStepControlService]
 })
-export class AuditFormStepComponent implements OnChanges {
+export class AuditFormStepComponent implements OnChanges, OnInit {
   @Input() stepFormGroup!: FormGroup<StepFormGroup>;
   @Output() valueChange = new EventEmitter();
   @Output() action = new EventEmitter();
 
+  stepControl = inject(AuditStepControlService);
+
   private topLevelPropsCache: { name: string, control: FormControl }[] | null = null;
-  private unusedPropertiesCache: string[] | null = null;
   protected readonly AUDIT_STEP_OPTION_GROUPS = AUDIT_STEP_OPTION_GROUPS;
+
+  ngOnInit() {
+    this.stepControl.initStep(this.stepFormGroup);
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['stepFormGroup']) {
       this.resetCaches();
     }
+  }
+
+  resetStep(): void {
+    this.stepControl.reset();
+    this.valueChange.emit();
+    console.log('WOLOLO');
   }
 
   getTopLevelProps(): { name: string, control: FormControl }[] {
@@ -73,28 +86,12 @@ export class AuditFormStepComponent implements OnChanges {
     return this.topLevelPropsCache;
   }
 
-  unusedProperties(): string[] | null {
-    if (this.unusedPropertiesCache !== null) {
-      return this.unusedPropertiesCache;
-    }
-    const stepProperties = this.stepProps(this.stepFormGroup.controls.type.value);
-    this.unusedPropertiesCache = stepProperties?.filter(v => !Object.keys(this.stepFormGroup.controls).includes(v)) ?? null;
-    return this.unusedPropertiesCache;
-  }
 
   private isFormControl(control: AbstractControl | null): control is FormControl {
     return control != null && control.constructor !== FormArray && control.constructor !== FormGroup;
   }
 
-  private stepProps(type: string): string[] | null {
-    return this.AUDIT_STEP_OPTION_GROUPS
-      .flatMap(group => group.options)
-      .find(step => step.value === type)
-      ?.properties?.flatMap(props => props.value) ?? null;
-  }
-
   private resetCaches(): void {
     this.topLevelPropsCache = null;
-    this.unusedPropertiesCache = null;
   }
 }
