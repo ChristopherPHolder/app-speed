@@ -26,6 +26,8 @@ import { AUDIT_STEP_OPTION_GROUPS } from './audit-form-step.constants';
 import { StepFormGroup } from '../audit-builder/audit-builder.types';
 import { MatCardModule } from '@angular/material/card';
 import { AuditStepControlService } from './audit-step-control.service';
+import { JsonPipe, NgForOf, NgIf } from '@angular/common';
+import { tap } from 'rxjs';
 
 @Component({
   selector: 'ui-audit-form-step',
@@ -43,55 +45,23 @@ import { AuditStepControlService } from './audit-step-control.service';
     MatSelectModule,
     MatDividerModule,
     MatCardModule,
+    JsonPipe,
+    NgForOf,
+    NgIf,
   ],
   templateUrl: './audit-form-step.component.html',
   styleUrls: ['./audit-form-step.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [AuditStepControlService]
 })
-export class AuditFormStepComponent implements OnChanges, OnInit {
-  @Input() stepFormGroup!: FormGroup<StepFormGroup>;
+export class AuditFormStepComponent {
+  protected readonly AUDIT_STEP_OPTION_GROUPS = AUDIT_STEP_OPTION_GROUPS;
+
+  @Input({required: true}) set stepFormGroup(formGroup: FormGroup<StepFormGroup>) {
+    this.controller.set(formGroup);
+  };
   @Output() valueChange = new EventEmitter();
   @Output() action = new EventEmitter();
 
-  stepControl = inject(AuditStepControlService);
-
-  private topLevelPropsCache: { name: string, control: FormControl }[] | null = null;
-  protected readonly AUDIT_STEP_OPTION_GROUPS = AUDIT_STEP_OPTION_GROUPS;
-
-  ngOnInit() {
-    this.stepControl.initStep(this.stepFormGroup);
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['stepFormGroup']) {
-      this.resetCaches();
-    }
-  }
-
-  resetStep(): void {
-    this.stepControl.reset();
-    this.valueChange.emit();
-    console.log('WOLOLO');
-  }
-
-  getTopLevelProps(): { name: string, control: FormControl }[] {
-    if (this.topLevelPropsCache !== null) {
-      return this.topLevelPropsCache;
-    }
-    this.topLevelPropsCache = Object.keys(this.stepFormGroup.controls)
-      .filter(key => key !== 'type')
-      .map(key => ({ name: key, control: this.stepFormGroup.get(key) as FormControl }))
-      .filter(({ control }) => this.isFormControl(control));
-    return this.topLevelPropsCache;
-  }
-
-
-  private isFormControl(control: AbstractControl | null): control is FormControl {
-    return control != null && control.constructor !== FormArray && control.constructor !== FormGroup;
-  }
-
-  private resetCaches(): void {
-    this.topLevelPropsCache = null;
-  }
+  controller = inject(AuditStepControlService);
 }

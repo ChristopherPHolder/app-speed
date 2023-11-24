@@ -7,38 +7,44 @@ import {
 } from './audit-form-step.constants';
 
 // TODO add a step options map
-type StepPropControl = FormControl<string> | FormControl<number> | FormGroup | FormArray;
 type ActionType = 'lighthouse' | 'puppeteer';
-type FormType = 'string' | 'number' | 'array' | 'object';
+type ControlType = 'string' | 'number' | 'array' | 'object';
+
+type StepProp = {
+  name: string;
+  type: ControlType;
+  control: FormControl;
+  subProps?: {
+    name: string,
+    type: ControlType,
+    control: FormControl;
+  }[]
+};
 
 @Injectable()
 export class AuditStepControlService {
   private formGroup!: FormGroup;
   type!: FormControl<string>;
   actionType?: ActionType;
-  stepProps?: {
-    formType: FormType;
-    formControl: StepPropControl;
-  }[];
+  stepProps: StepProp[] = [];
   additionalProps?: string[] | null;
 
-  initStep(formGroup: FormGroup) {
+  set(formGroup: FormGroup) {
     this.formGroup = formGroup;
     this.type = this.formGroup.get('type') as FormControl<string>;
     this.actionType = this.getStepType(this.type.value);
-
+    this.stepProps = this.getStepProps(this.formGroup);
     this.additionalProps = this.getAdditionalProps();
-    console.log('Additional Props', this.additionalProps);
   }
 
   reset(): void {
-    this.stepPropKeys().forEach(name => {
-      this.formGroup.removeControl(name, { emitEvent: true });
-    });
+    this.stepPropKeys(this.formGroup).filter(k => k !== 'type').forEach(name => this.formGroup.removeControl(name));
+    this.stepProps = this.getStepProps(this.formGroup);
+    this.additionalProps = this.getAdditionalProps();
   };
 
-  private stepPropKeys(): string[] {
-    return Object.keys(this.formGroup.controls).filter(k => k !== 'type')
+  private stepPropKeys(control: FormGroup | FormArray): string[] {
+    return Object.keys(control.controls)
   }
 
   private getStepType(stepType: string): ActionType | undefined {
@@ -47,8 +53,22 @@ export class AuditStepControlService {
         : undefined;
   }
 
+  private getStepProps(_control: FormGroup | FormArray): StepProp[] {
+    return this.stepPropKeys(_control).filter(k => k !== 'type').map(name => {
+      const control = _control.get(name) as FormControl;
+      const type = this.getStepPropsControlType(control);
+      const subProps = type === 'string' ? undefined : this.getStepProps(control as unknown as FormGroup | FormArray)
+      return { name, type, control, subProps };
+    });
+
+  }
+
+  private getStepPropsControlType(control: FormControl): ControlType {
+    return control.constructor === FormGroup ? 'object' : control.constructor === FormArray ? 'array' : 'string';
+  }
+
   private getAdditionalProps() {
-    const propKeys = this.stepPropKeys();
+    const propKeys = this.stepPropKeys(this.formGroup);
     const stepPropOptions = AUDIT_STEP_OPTION_GROUPS
       .flatMap(group => group.options)
       .find(step => step.value === this.type.value)

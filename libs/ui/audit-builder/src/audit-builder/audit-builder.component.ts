@@ -104,7 +104,7 @@ export class AuditBuilderComponent extends RxEffects {
       return this.addStep(index)
     }
     if (action === 'add-after') {
-      return this.addStep(index - 1)
+      return this.addStep(index + 1)
     }
     if (action === 'remove') {
       this.auditBuilderForm.controls.steps.removeAt(index)
