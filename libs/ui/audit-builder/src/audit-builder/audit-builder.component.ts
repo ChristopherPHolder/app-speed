@@ -1,4 +1,4 @@
-import { Component, inject, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Input, Output } from '@angular/core';
 
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -29,9 +29,9 @@ import { AuditFormStepComponent } from '../audit-form-step/audit-form-step.compo
   templateUrl: './audit-builder.component.html',
   styleUrls: ['./audit-builder.component.scss'],
   providers: [RxActionFactory],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuditBuilderComponent extends RxEffects {
-
   public readonly ui: RxActions<UiActions> = inject(RxActionFactory<UiActions>).create({
     inputChange: eventValue,
     formSubmit: preventDefault
@@ -100,14 +100,17 @@ export class AuditBuilderComponent extends RxEffects {
 
   // TODO Create an Action Map
   public stepAction(action: string, index: number): void {
-    if (action === 'add-before') {
-      return this.addStep(index)
-    }
-    if (action === 'add-after') {
-      return this.addStep(index + 1)
-    }
-    if (action === 'remove') {
-      this.auditBuilderForm.controls.steps.removeAt(index)
+    switch (action) {
+      case 'add-before':
+        return this.addStep(index);
+      case 'add-after':
+        return this.addStep(index + 1);
+      case 'remove':
+        console.log(this.auditBuilderForm.controls.steps.getRawValue())
+        if (this.auditBuilderForm.controls.steps.getRawValue().length === 1) {
+          return;
+        }
+        return this.auditBuilderForm.controls.steps.removeAt(index);
     }
   }
 }

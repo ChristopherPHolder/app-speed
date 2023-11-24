@@ -1,13 +1,5 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter, inject,
-  Input,
-  OnChanges, OnInit,
-  Output,
-  SimpleChanges,
-} from '@angular/core';
-import { AbstractControl, FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatInputModule } from '@angular/material/input';
@@ -27,7 +19,6 @@ import { StepFormGroup } from '../audit-builder/audit-builder.types';
 import { MatCardModule } from '@angular/material/card';
 import { AuditStepControlService } from './audit-step-control.service';
 import { JsonPipe, NgForOf, NgIf } from '@angular/common';
-import { tap } from 'rxjs';
 
 @Component({
   selector: 'ui-audit-form-step',
