@@ -1,28 +1,13 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { AuditBuilderComponent } from 'ui/audit-builder';
 import { ActivatedRoute, Router } from '@angular/router';
+
 import { RxPush } from '@rx-angular/template/push';
 import { RxIf } from '@rx-angular/template/if';
 
-type DeviceOption = 'mobile' | 'tablet' | 'desktop';
+import { AuditBuilderComponent } from 'ui/audit-builder';
 
-interface AuditDetails  {
-  title: string;
-  device: DeviceOption;
-  timeout: number
-  steps: any[]
-}
-
-const DEFAULT_AUDIT_DETAILS: AuditDetails = {
-  title: '',
-  device: 'mobile',
-  timeout: 30000,
-  steps: [
-    { type: 'startNavigation', stepOptions: { name: 'Initial Navigation' } },
-    { type:  'navigate', url: 'https://google.com' },
-    { type: 'endNavigation' },
-  ]
-};
+import { AuditDetails } from './audit-builder.types';
+import { DEFAULT_AUDIT_DETAILS } from './audit-builder.constants';
 
 @Component({
   standalone: true,
@@ -54,6 +39,7 @@ export class AuditBuilderContainer {
     this.updateAuditDetails(DEFAULT_AUDIT_DETAILS);
     return DEFAULT_AUDIT_DETAILS;
   }
+
   submitted(event: any) {
     alert(`${JSON.stringify(event, null, 2)}`)
   }
