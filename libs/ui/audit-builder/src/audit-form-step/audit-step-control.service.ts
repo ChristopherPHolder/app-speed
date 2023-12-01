@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { FormArray, FormControl, FormGroup } from '@angular/forms';
+import { AbstractControl, FormArray, FormControl, FormGroup } from '@angular/forms';
 import {
   AUDIT_STEP_OPTION_GROUPS,
   LIGHTHOUSE_STEP_OPTIONS,
@@ -27,7 +27,7 @@ export class AuditStepControlService {
   type!: FormControl<string>;
   actionType?: ActionType;
   stepProps: StepProp[] = [];
-  additionalProps?: string[] | null;
+  additionalProps?: any[] | null;
 
   set(formGroup: FormGroup) {
     this.formGroup = formGroup;
@@ -72,11 +72,25 @@ export class AuditStepControlService {
     const stepPropOptions = AUDIT_STEP_OPTION_GROUPS
       .flatMap(group => group.options)
       .find(step => step.value === this.type.value)
-      ?.properties?.flatMap(props => props.value) ?? null;
-    return stepPropOptions?.filter(v => !propKeys.includes(v)) ?? null;
+      ?.properties?.flat() ?? null;
+    return stepPropOptions?.filter(v => !propKeys.includes(v.value)) ?? null;
   }
 
-  addProp(): void {
-    console.log('Add Prop Value');
+  getPropControler(prop: any) {
+    if (prop.type === 'object') {
+      return new FormGroup('');
+    }
+    if (prop.type === 'array') {
+      return new FormArray([]);
+    }
+    return new FormControl('');
+  }
+
+  addProp(prop: any): void {
+    const control = this.getPropControler(prop);
+    this.formGroup.addControl(prop.value, control);
+    this.stepProps = this.getStepProps(this.formGroup);
+    this.additionalProps = this.getAdditionalProps();
+    console.log('Add Prop Value', prop);
   };
 }

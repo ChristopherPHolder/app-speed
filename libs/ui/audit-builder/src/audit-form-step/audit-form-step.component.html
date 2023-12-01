@@ -38,10 +38,15 @@
     </div>
   </div>
 
-  <ng-container *rxIf='controller.additionalProps'>
-    <mat-divider />
+  <ng-container *rxIf='controller.additionalProps; let additionalProps'>
+    <mat-divider *ngIf='additionalProps.length' />
     <div class='col'>
-      <button style='margin: 8px 8px 0 0;' *rxFor='let prop of controller.additionalProps' mat-raised-button>{{prop}}</button>
+      <button
+        mat-raised-button
+        *rxFor='let prop of additionalProps'
+        (click)='controller.addProp(prop);valueChange.emit()'
+        style='margin: 8px 8px 0 0;'
+      >{{prop.value}}</button>
     </div>
   </ng-container>
 </mat-expansion-panel>
