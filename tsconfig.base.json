@@ -15,6 +15,7 @@
       "@app-speed/aws-deploy": ["libs/aws-deploy/src/index.ts"],
       "@app-speed/feature": ["libs/feature/src/index.ts"],
       "@app-speed/feature/audit-builder": ["libs/feature/audit-builder/src/index.ts"],
+      "@app-speed/feature/build-audit": ["libs/feature/build-audit/src/index.ts"],
       "@ufo/audit-queue/*": ["libs/audit-queue/src/lib/*"],
       "@ufo/audit-store/*": ["libs/audit-store/src/lib/*"],
       "@ufo/cli-interfaces": ["libs/cli-interfaces/src/index.ts"],
