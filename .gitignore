@@ -109,9 +109,4 @@ dist
 
 # DS_Store Mac
 .DS_Store
-
-# Angular Cache
 .angular
-
-# Nx Cache
-.nx

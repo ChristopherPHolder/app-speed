@@ -45,9 +45,7 @@
           "libs/feature/**/*.html",
           "libs/feature/package.json",
           "libs/feature/audit-builder/**/*.ts",
-          "libs/feature/audit-builder/**/*.html",
-          "libs/feature/build-audit/**/*.ts",
-          "libs/feature/build-audit/**/*.html"
+          "libs/feature/audit-builder/**/*.html"
         ]
       }
     }
