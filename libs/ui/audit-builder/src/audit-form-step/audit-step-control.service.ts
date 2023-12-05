@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AbstractControl, FormArray, FormControl, FormGroup } from '@angular/forms';
+import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import {
   AUDIT_STEP_OPTION_GROUPS,
   LIGHTHOUSE_STEP_OPTIONS,
