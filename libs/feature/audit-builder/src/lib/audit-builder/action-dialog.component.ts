@@ -18,35 +18,27 @@ export type DialogActions = DialogAction[];
     MatButtonModule,
     MatIconModule,
     MatMenuModule,
-    NgIf,
-    RxFor,
   ],
   template: `
-    <ng-container *ngIf='actions'>
       <button  
         class='toggle_menu'
         mat-icon-button
         [matMenuTriggerFor]="menu"
         aria-label="Toggle menu"
         (click)='$event.preventDefault()'
-      >
-        <mat-icon>more_vert</mat-icon>
-      </button>
+      ><mat-icon>more_vert</mat-icon></button>
       <mat-menu #menu="matMenu" xPosition="before">
-        <button 
-          *rxFor='let action of actions'
-          mat-menu-item
-          (click)='selected.emit(action.output)'
-        >
-          {{ action.display }}
-        </button>
+          @for (action of actions; track action.display) {
+              <button mat-menu-item (click)='selected.emit(action.output)'>
+                  {{ action.display }}
+              </button>
+          }
       </mat-menu>
-    </ng-container>
   `,
   styles: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StepActionDialogComponent {
-  @Input() actions?: DialogAction[]
+  @Input({required: true}) actions!: DialogAction[]
   @Output() selected = new EventEmitter();
 }

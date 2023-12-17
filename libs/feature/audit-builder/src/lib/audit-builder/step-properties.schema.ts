@@ -170,7 +170,7 @@ export const DEVICE_SCALE_FACTOR: StepProperty = {
 
 export const HAS_TOUCH: StepProperty = {
   name: PROPERTY_NAME.HAS_TOUCH,
-  inputType: 'boolean'
+  inputType: INPUT_TYPE.BOOLEAN
 }
 
 export const HEIGHT: StepProperty = {
@@ -180,12 +180,12 @@ export const HEIGHT: StepProperty = {
 
 export const IS_LANDSCAPE: StepProperty = {
   name: PROPERTY_NAME.IS_LANDSCAPE,
-  inputType: 'boolean'
+  inputType: INPUT_TYPE.BOOLEAN
 }
 
 export const IS_MOBILE: StepProperty = {
   name: PROPERTY_NAME.IS_MOBILE,
-  inputType: 'boolean'
+  inputType: INPUT_TYPE.BOOLEAN
 }
 
 export const WIDTH: StepProperty = {

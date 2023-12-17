@@ -1,34 +1,44 @@
 import { ChangeDetectionStrategy, Component, inject, Input } from '@angular/core';
-import { KeyValuePipe, NgFor, NgIf } from '@angular/common';
+import { KeyValuePipe } from '@angular/common';
 import { MatExpansionModule } from '@angular/material/expansion';
+
 import { ToTitleCasePipe } from './toTitleCase.pipe';
 import { AuditBuilderService } from './audit-builder.service';
 import { DialogActions, StepActionDialogComponent } from './action-dialog.component';
 import { StepPropertyComponent } from './property.component';
-import { PropertyName } from './audit-builder.types';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'lib-audit-step',
   standalone: true,
   imports: [
-    NgIf,
-    NgFor,
     MatExpansionModule,
-    ToTitleCasePipe,
     ToTitleCasePipe,
     StepActionDialogComponent,
     StepPropertyComponent,
     KeyValuePipe,
+    MatButtonModule,
   ],
   template: `
     <mat-expansion-panel [expanded]='true'>
       <mat-expansion-panel-header>
         <mat-panel-title>
-          {{(builder.steps.at(stepIndex).get('type')!.value | toTitleCase) || 'Audit Step Required!'}}
+            @if (builder.steps.at(stepIndex).get('type')!.value; as title) {
+                {{ title | toTitleCase }}
+            } @else {
+                'Audit Step Required!'
+            }
         </mat-panel-title>
       </mat-expansion-panel-header>
       <lib-step-action-dialog [actions]='actions' class='toggle_menu'/>
-      <lib-step-property *ngFor='let key of builder.getStepPropertyKeys(stepIndex)' [controlKey]='key' [stepIndex]='stepIndex' />
+        @for (key of builder.getStepPropertyKeys(stepIndex); track key) {
+            <lib-step-property [controlKey]='key' [stepIndex]='stepIndex' />
+        }
+        @for (key of builder.getStepOptionalProperties(stepIndex); track key) {
+            <button mat-fab [extended]='true' color="primary">
+                Add {{ key }}
+            </button>
+        }
     </mat-expansion-panel>
   `,
   styles: [

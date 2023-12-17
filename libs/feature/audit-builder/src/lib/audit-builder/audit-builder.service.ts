@@ -10,7 +10,7 @@ import {
   PropertyName,
   Step,
   StepDetails,
-  StepProperty,
+  StepProperty, StepType,
 } from './audit-builder.types';
 import { EMPTY_STEP, STEP_OPTIONS } from './audit-step.scheme';
 import { STEP_PROPERTY } from './step-properties.schema';
@@ -29,7 +29,6 @@ type FallbackValue<T extends InputType> =
 
 type PropertyFallbackValueMap = { [K in InputType]: FallbackValue<K> };
 
-// Define a mapping of InputType to function types
 interface ControlBuilderFunctionMap {
   [INPUT_TYPE.STRING]: (value: string) => FormControl<string>;
   [INPUT_TYPE.NUMBER]: (value: number) => FormControl<number>;
@@ -71,14 +70,14 @@ export class AuditBuilderService {
   }
 
   private initStep(step: Step, index: number): void {
-    const stepSchema: StepDetails = this.getStepSchema(step);
+    const stepSchema: StepDetails = this.getStepSchema(step['type']);
     if (!stepSchema) return;
     const stepFormGroup = this.getStepFormGroup(step, stepSchema);
     return this.formGroup.controls.steps.insert(index, stepFormGroup);
   }
 
-  private getStepSchema(step: Step): StepDetails {
-    return STEP_OPTIONS.find(({type}) => type === step['type']) || EMPTY_STEP;
+  private getStepSchema(stepType: StepType): StepDetails {
+    return STEP_OPTIONS.find(({type}) => type === stepType) || EMPTY_STEP;
   }
 
   private getStepFormGroup(step: Step, schema: StepDetails): FormGroup {
@@ -101,12 +100,32 @@ export class AuditBuilderService {
   }
 
   private getPropertyValue(inputType: InputType, property?: InputValue, defaultValue?: InputValue): InputValue {
-    const isValid = this.inputTypeValidatorMap[inputType]
+    const isValid = this.inputTypeValidatorMap[inputType];
     return isValid(property) ? property! : isValid(defaultValue) ? defaultValue! : this.propertyFallbackValueMap[inputType]!;
   }
 
   private typedKeys<T extends object>(obj: T): (keyof T)[] {
     return Object.keys(obj) as (keyof T)[];
+  }
+
+  changeStepType(index: number, type: StepType) {
+    const stepSchema = this.getStepSchema(type);
+    const schemaPropertyNames = stepSchema.properties.map((property) => property.name);
+    const stepPropertyNames = this.getStepPropertyKeys(index);
+    const invalidPropertyNames = stepPropertyNames.filter((propertyName) => !schemaPropertyNames.includes(propertyName));
+    const missingProperties = stepSchema.properties.filter((property) => property.required && !stepPropertyNames.includes(property.name));
+    invalidPropertyNames.forEach((name) => this.formGroup.controls.steps.at(index).removeControl(name));
+    missingProperties.forEach((propertySchema) => {
+      const value = this.getPropertyValue(propertySchema.inputType, propertySchema.defaultValue);
+      const control = this.propertyControlBuilderMap[propertySchema.inputType](value as never);
+      this.formGroup.controls.steps.at(index).addControl(propertySchema.name, control);
+    })
+  }
+
+  getStepOptionalProperties(index: number): PropertyName[] {
+    const stepControl = this.formGroup.controls.steps.at(index);
+    const stepProps = this.typedKeys(stepControl.controls);
+    return  this.getStepSchema(stepControl.controls.type!.value).properties.filter(({name}) => !stepProps.includes(name)).map(({name}) => name);
   }
 
   getStepPropertyKeys(index: number): PropertyName[] {
@@ -139,7 +158,7 @@ export class AuditBuilderService {
     [INPUT_TYPE.STRING]: value => typeof value === 'string',
     [INPUT_TYPE.NUMBER]: value => typeof value === 'number',
     [INPUT_TYPE.BOOLEAN]: value => typeof value === 'boolean',
-    [INPUT_TYPE.OPTIONS]: value => typeof value === 'string', // TODO Should validate its in options array
+    [INPUT_TYPE.OPTIONS]: value => typeof value === 'string', // TODO
     [INPUT_TYPE.STRING_ARRAY]: value => Array.isArray(value) && value.every(item => typeof item === 'string'),
     [INPUT_TYPE.RECORDS]: value => typeof value === 'string', // TODO
   }
