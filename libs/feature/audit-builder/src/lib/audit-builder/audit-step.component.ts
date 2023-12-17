@@ -28,7 +28,7 @@ import { PropertyName } from './audit-builder.types';
         </mat-panel-title>
       </mat-expansion-panel-header>
       <lib-step-action-dialog [actions]='actions' class='toggle_menu'/>
-      <lib-step-property *ngFor='let key of getPropertyKey()' [controlKey]='key' [stepIndex]='stepIndex' />
+      <lib-step-property *ngFor='let key of builder.getStepPropertyKeys(stepIndex)' [controlKey]='key' [stepIndex]='stepIndex' />
     </mat-expansion-panel>
   `,
   styles: [
@@ -48,10 +48,6 @@ import { PropertyName } from './audit-builder.types';
 export class AuditStepComponent {
   @Input({required: true}) stepIndex!: number;
   builder = inject(AuditBuilderService);
-
-  getPropertyKey(): PropertyName[] {
-    return Object.keys(this.builder.formGroup.controls.steps.at(this.stepIndex).controls) as PropertyName[];
-  }
 
   actions: DialogActions = [
     { display: 'Remove Step', output: "remove" },
