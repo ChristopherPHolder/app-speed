@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, Input } from '@angular/core
 import { KeyValuePipe } from '@angular/common';
 import { MatExpansionModule } from '@angular/material/expansion';
 
-import { ToTitleCasePipe } from './toTitleCase.pipe';
+import { ToTitleCasePipe } from '../utils/toTitleCase.pipe';
 import { AuditBuilderService } from './audit-builder.service';
 import { DialogActions, StepActionDialogComponent } from './action-dialog.component';
 import { StepPropertyComponent } from './property.component';
