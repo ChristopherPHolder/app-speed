@@ -4,6 +4,7 @@ import { INPUT_TYPE, PROPERTY_NAME } from './audit-builder.constants';
 export const TYPE: StepProperty = {
   name: PROPERTY_NAME.TYPE,
   inputType: INPUT_TYPE.OPTIONS,
+  required: true,
   options: [
     'waitForElement',
     'waitForExpression',

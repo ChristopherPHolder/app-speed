@@ -132,8 +132,10 @@ export class AuditBuilderService {
     return this.typedKeys(this.formGroup.controls.steps.at(index).controls);
   }
 
-  getPropertySchema(name: PropertyName): StepProperty {
-    return Object.values(STEP_PROPERTY).find((schema) => schema.name === name)!;
+  getStepPropertySchema(index: number, name: PropertyName): StepProperty {
+    const stepType = this.formGroup.controls.steps.at(index).controls.type!.value!
+    const stepPropertiesSchema = this.getStepSchema(stepType).properties
+    return stepPropertiesSchema.find((schema) => schema.name === name)!;
   }
 
   private readonly propertyControlBuilderMap: PropertyControlBuilderMap = {

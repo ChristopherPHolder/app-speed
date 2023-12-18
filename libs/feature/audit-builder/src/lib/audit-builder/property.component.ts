@@ -130,7 +130,7 @@ export class StepPropertyComponent {
   })
 
   schema = computed(() => {
-    return this.builder.getPropertySchema(this._controlKey()!);
+    return this.builder.getStepPropertySchema(this._stepIndex()!, this._controlKey()!);
   })
 
   handleSelectedChange(value: string) {
