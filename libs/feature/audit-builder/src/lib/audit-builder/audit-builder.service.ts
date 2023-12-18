@@ -13,8 +13,8 @@ import {
   StepProperty, StepType,
 } from './audit-builder.types';
 import { EMPTY_STEP, STEP_OPTIONS } from './audit-step.scheme';
+import { INPUT_TYPE, PROPERTY_NAME, STEP_TYPE } from './audit-builder.constants';
 import { STEP_PROPERTY } from './step-properties.schema';
-import { INPUT_TYPE } from './audit-builder.constants';
 
 type StepFormGroup = FormGroup<Partial<Record<PropertyName, FormControl | FormArray>>>;
 
@@ -136,6 +136,26 @@ export class AuditBuilderService {
     const stepType = this.formGroup.controls.steps.at(index).controls.type!.value!
     const stepPropertiesSchema = this.getStepSchema(stepType).properties
     return stepPropertiesSchema.find((schema) => schema.name === name)!;
+  }
+
+  removeStep(index: number): void {
+    this.formGroup.controls.steps.removeAt(index);
+  }
+
+  addStep(index: number): void {
+    const emptyStep = { [PROPERTY_NAME.TYPE]: STEP_TYPE.EMPTY } as never;
+    this.formGroup.controls.steps.insert(index, this.getStepFormGroup(emptyStep, EMPTY_STEP))
+  }
+
+  addStepProperty(index: number, propertyName: PropertyName): void {
+    const propertySchema = this.getStepPropertySchema(index, propertyName);
+    const value = this.getPropertyValue(propertySchema.inputType, propertySchema.defaultValue);
+    const control = this.propertyControlBuilderMap[propertySchema.inputType](value as never);
+    this.formGroup.controls.steps.at(index).addControl(propertySchema.name, control);
+  }
+
+  removeStepProperty(index: number, propertyName: PropertyName): void {
+    this.formGroup.controls.steps.at(index).removeControl(propertyName);
   }
 
   private readonly propertyControlBuilderMap: PropertyControlBuilderMap = {

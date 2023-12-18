@@ -26,16 +26,16 @@ import { MatButtonModule } from '@angular/material/button';
             @if (builder.steps.at(stepIndex).get('type')!.value; as title) {
                 {{ title | toTitleCase }}
             } @else {
-                'Audit Step Required!'
+                Audit Step Required!
             }
         </mat-panel-title>
       </mat-expansion-panel-header>
-      <lib-step-action-dialog [actions]='actions' class='toggle_menu'/>
+      <lib-step-action-dialog [stepIndex]='stepIndex' class='toggle_menu'/>
         @for (key of builder.getStepPropertyKeys(stepIndex); track key) {
             <lib-step-property [controlKey]='key' [stepIndex]='stepIndex' />
         }
         @for (key of builder.getStepOptionalProperties(stepIndex); track key) {
-            <button mat-fab [extended]='true' color="primary">
+            <button mat-fab [extended]='true' color="primary" (click)='builder.addStepProperty(stepIndex, key)'>
                 Add {{ key }}
             </button>
         }
@@ -58,10 +58,4 @@ import { MatButtonModule } from '@angular/material/button';
 export class AuditStepComponent {
   @Input({required: true}) stepIndex!: number;
   builder = inject(AuditBuilderService);
-
-  actions: DialogActions = [
-    { display: 'Remove Step', output: "remove" },
-    { display: 'Add Step Before', output: "add-before" },
-    { display: 'Add Step After', output: "add-after" },
-  ]
 }

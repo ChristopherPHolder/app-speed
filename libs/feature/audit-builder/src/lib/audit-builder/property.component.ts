@@ -35,7 +35,7 @@ import { JsonPipe } from '@angular/common';
                       <input matInput [formControl]='$any(control())'>
                   </mat-form-field>
                   @if (!schema().required) {
-                      <button mat-icon-button aria-label="Delete property from step">
+                      <button mat-icon-button aria-label="Delete property from step" (click)='handleDeleteProperty()'>
                           <mat-icon>delete</mat-icon>
                       </button>
                   }
@@ -48,7 +48,7 @@ import { JsonPipe } from '@angular/common';
                       <input matInput type="number" [formControl]='$any(control())'>
                   </mat-form-field>
                   @if (!schema().required) {
-                      <button mat-icon-button aria-label="Delete property from step">
+                      <button mat-icon-button aria-label="Delete property from step" (click)='handleDeleteProperty()'>
                           <mat-icon>delete</mat-icon>
                       </button>
                   }
@@ -65,7 +65,7 @@ import { JsonPipe } from '@angular/common';
                   </mat-form-field>
 
                   @if (!schema().required) {
-                      <button mat-icon-button aria-label="Delete property from step">
+                      <button mat-icon-button aria-label="Delete property from step" (click)='handleDeleteProperty()'>
                           <mat-icon>delete</mat-icon>
                       </button>
                   }
@@ -80,7 +80,7 @@ import { JsonPipe } from '@angular/common';
                       </mat-select>
                   </mat-form-field>
                   @if (!schema().required) {
-                      <button mat-icon-button aria-label="Delete property from step">
+                      <button mat-icon-button aria-label="Delete property from step" (click)='handleDeleteProperty()'>
                           <mat-icon>delete</mat-icon>
                       </button>
                   }
@@ -90,7 +90,7 @@ import { JsonPipe } from '@angular/common';
               <div>
                   TODO
                   @if (!schema().required) {
-                      <button mat-icon-button aria-label="Delete property from step">
+                      <button mat-icon-button aria-label="Delete property from step" (click)='handleDeleteProperty()'>
                           <mat-icon>delete</mat-icon>
                       </button>
                   }
@@ -103,7 +103,7 @@ import { JsonPipe } from '@angular/common';
               <div>
                   TODO
                   @if (!schema().required) {
-                      <button mat-icon-button aria-label="Delete property from step">
+                      <button mat-icon-button aria-label="Delete property from step" (click)='handleDeleteProperty()'>
                           <mat-icon>delete</mat-icon>
                       </button>
                   }
@@ -137,5 +137,8 @@ export class StepPropertyComponent {
     if (this.schema().name === PROPERTY_NAME.TYPE) {
       this.builder.changeStepType(this._stepIndex()!, value as StepType);
     }
+  }
+  handleDeleteProperty() {
+    this.builder.removeStepProperty(this._stepIndex()!, this.schema()!.name);
   }
 }
