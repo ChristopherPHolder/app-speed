@@ -11,7 +11,7 @@ import {
   Step,
   StepDetails,
   StepProperty, StepType,
-} from './audit-builder.types';
+} from '../schema/audit-builder.types';
 import { EMPTY_STEP, STEP_OPTIONS } from '../schema/audit-step.scheme';
 import { STEP_TYPE } from '../schema/step-type.constants';
 import { INPUT_TYPE, PROPERTY_NAME } from '../schema/step-property.constants';

@@ -8,7 +8,7 @@ import { RxLet } from '@rx-angular/template/let';
 
 import { DEFAULT_AUDIT_DETAILS } from '../schema/audit.constants';
 import { AuditBuilderService } from './audit-builder.service';
-import { AuditDetails } from './audit-builder.types';
+import { AuditDetails } from '../schema/audit-builder.types';
 import { RxIf } from '@rx-angular/template/if';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
