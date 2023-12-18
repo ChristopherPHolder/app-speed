@@ -1,4 +1,4 @@
-import { DEVICE_TYPE, INPUT_TYPE, PROPERTY_NAME, STEP_TYPE } from './audit-builder.constants';
+import { DEVICE_TYPE, INPUT_TYPE, PROPERTY_NAME, STEP_TYPE } from '../schema/audit-builder.constants';
 
 export type PropertyName = typeof PROPERTY_NAME[keyof typeof PROPERTY_NAME];
 

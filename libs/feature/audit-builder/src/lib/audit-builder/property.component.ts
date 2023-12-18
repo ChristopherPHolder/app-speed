@@ -8,7 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { RxFor } from '@rx-angular/template/for';
 import { PropertyName, StepType } from './audit-builder.types';
 import { AuditBuilderService } from './audit-builder.service';
-import { INPUT_TYPE, PROPERTY_NAME } from './audit-builder.constants';
+import { INPUT_TYPE, PROPERTY_NAME } from '../schema/audit-builder.constants';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { JsonPipe } from '@angular/common';

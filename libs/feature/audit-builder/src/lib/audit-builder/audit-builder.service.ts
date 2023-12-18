@@ -12,8 +12,8 @@ import {
   StepDetails,
   StepProperty, StepType,
 } from './audit-builder.types';
-import { EMPTY_STEP, STEP_OPTIONS } from './audit-step.scheme';
-import { INPUT_TYPE, PROPERTY_NAME, STEP_TYPE } from './audit-builder.constants';
+import { EMPTY_STEP, STEP_OPTIONS } from '../schema/audit-step.scheme';
+import { INPUT_TYPE, PROPERTY_NAME, STEP_TYPE } from '../schema/audit-builder.constants';
 
 type StepFormGroup = FormGroup<Partial<Record<PropertyName, FormControl | FormArray>>>;
 

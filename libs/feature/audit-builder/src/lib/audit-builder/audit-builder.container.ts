@@ -6,7 +6,7 @@ import { filter, first, map, Observable, tap } from 'rxjs';
 
 import { RxLet } from '@rx-angular/template/let';
 
-import { DEFAULT_AUDIT_DETAILS } from './audit-builder.constants';
+import { DEFAULT_AUDIT_DETAILS } from '../schema/audit-builder.constants';
 import { AuditBuilderService } from './audit-builder.service';
 import { AuditDetails } from './audit-builder.types';
 import { RxIf } from '@rx-angular/template/if';

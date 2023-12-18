@@ -1,4 +1,4 @@
-import { StepProperty } from './audit-builder.types';
+import { StepProperty } from '../audit-builder/audit-builder.types';
 import { INPUT_TYPE, PROPERTY_NAME } from './audit-builder.constants';
 
 export const TYPE: StepProperty = {

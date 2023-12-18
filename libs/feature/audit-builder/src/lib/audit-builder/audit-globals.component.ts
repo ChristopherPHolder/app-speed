@@ -7,7 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { RxIf } from '@rx-angular/template/if';
 import { RxFor } from '@rx-angular/template/for';
-import { DEVICE_TYPE } from './audit-builder.constants';
+import { DEVICE_TYPE } from '../schema/audit-builder.constants';
 import { ToTitleCasePipe } from './toTitleCase.pipe';
 import { AuditBuilderService } from './audit-builder.service';
 
