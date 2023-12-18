@@ -7,9 +7,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { RxIf } from '@rx-angular/template/if';
 import { RxFor } from '@rx-angular/template/for';
-import { DEVICE_TYPE } from '../schema/audit.constants';
+
 import { ToTitleCasePipe } from '../utils/toTitleCase.pipe';
 import { AuditBuilderService } from './audit-builder.service';
+
+import { DEVICE_TYPE } from '../schema/audit.constants';
 
 @Component({
   selector: 'lib-audit-global',
