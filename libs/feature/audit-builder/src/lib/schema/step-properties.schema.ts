@@ -1,25 +1,13 @@
 import { StepProperty } from '../audit-builder/audit-builder.types';
-import { INPUT_TYPE, PROPERTY_NAME } from './audit-builder.constants';
+import { STEP_TYPE } from './step-type.constants';
+import { PROPERTY_NAME, INPUT_TYPE } from './step-property.constants';
 
+const STEP_OPTIONS = Object.values(STEP_TYPE);
 export const TYPE: StepProperty = {
   name: PROPERTY_NAME.TYPE,
   inputType: INPUT_TYPE.OPTIONS,
   required: true,
-  options: [
-    'waitForElement',
-    'waitForExpression',
-    'change',
-    'click',
-    'close',
-    'doubleClick',
-    'emulateNetworkConditions',
-    'hover',
-    'keyDown',
-    'keyUp',
-    'navigate',
-    'scroll',
-    'setViewport'
-  ] // TODO
+  options: STEP_OPTIONS
 }
 
 export const TIMEOUT: StepProperty = {

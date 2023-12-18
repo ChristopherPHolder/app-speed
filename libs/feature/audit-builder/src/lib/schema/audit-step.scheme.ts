@@ -5,7 +5,7 @@
 
 import { StepDetails, StepProperty } from '../audit-builder/audit-builder.types';
 import { STEP_PROPERTY } from './step-properties.schema';
-import { STEP_TYPE } from './audit-builder.constants';
+import { STEP_TYPE } from './step-type.constants';
 
 const required = (property: StepProperty): StepProperty => ({...property, required: true});
 
