@@ -1,6 +1,6 @@
 import { STEP_TYPE } from '../schema/step-type.constants';
 import { INPUT_TYPE, PROPERTY_NAME } from '../schema/step-property.constants';
-import { DEVICE_TYPE } from '../schema/audit-builder.constants';
+import { DEVICE_TYPE } from '../schema/audit.constants';
 
 export type PropertyName = typeof PROPERTY_NAME[keyof typeof PROPERTY_NAME];
 
