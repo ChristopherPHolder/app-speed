@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
-import { FormArray, ReactiveFormsModule } from '@angular/forms';
+import { FormArray, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -23,8 +23,7 @@ import { StepProperty } from '../schema/audit-builder.types';
       }
       @for (control of control.controls; track control) {
         <mat-form-field>
-          <!-- TODO Fix Type Issue -->
-          <input matInput [formControl]='$any(control)'>
+          <input matInput [formControl]='control'>
           <!-- TODO Add the ability to add and delete inputs -->
         </mat-form-field>
       }
@@ -35,6 +34,6 @@ import { StepProperty } from '../schema/audit-builder.types';
 })
 export class InputStringArrayComponent {
   @Input({required: true}) schema!: StepProperty;
-  @Input({required: true}) control!: FormArray;
+  @Input({required: true}) control!: FormArray<FormControl<string>>;
   @Output() deleteProperty = new EventEmitter<void>();
 }
