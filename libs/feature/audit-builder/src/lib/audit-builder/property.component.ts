@@ -14,6 +14,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { JsonPipe } from '@angular/common';
 import { InputStringArrayComponent } from '../property-input/input-string-array.component';
 import { InputStringComponent } from '../property-input/input-string.component';
+import { InputNumberComponent } from '../property-input/input-number.component';
 
 @Component({
   selector: 'lib-step-property',
@@ -29,6 +30,7 @@ import { InputStringComponent } from '../property-input/input-string.component';
     JsonPipe,
     InputStringArrayComponent,
     InputStringComponent,
+    InputNumberComponent,
   ],
   template: `
       @switch (schema().inputType) {
@@ -40,17 +42,11 @@ import { InputStringComponent } from '../property-input/input-string.component';
             />
           }
           @case (INPUT_TYPE.NUMBER) {
-              <div>
-                  <mat-form-field>
-                      <mat-label>{{ schema().name }}</mat-label>
-                      <input matInput type="number" [formControl]='$any(control())'>
-                  </mat-form-field>
-                  @if (!schema().required) {
-                      <button mat-icon-button aria-label="Delete property from step" (click)='handleDeleteProperty()'>
-                          <mat-icon>delete</mat-icon>
-                      </button>
-                  }
-              </div>
+            <lib-input-number
+              [schema]='schema()'
+              [control]='$any(control())'
+              (click)='handleDeleteProperty()'
+            />
           }
           @case (INPUT_TYPE.BOOLEAN) {
               <div>
