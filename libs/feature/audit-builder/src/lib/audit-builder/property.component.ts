@@ -15,6 +15,7 @@ import { JsonPipe } from '@angular/common';
 import { InputStringArrayComponent } from '../property-input/input-string-array.component';
 import { InputStringComponent } from '../property-input/input-string.component';
 import { InputNumberComponent } from '../property-input/input-number.component';
+import { InputBooleanComponent } from '../property-input/input-boolean.component';
 
 @Component({
   selector: 'lib-step-property',
@@ -31,6 +32,7 @@ import { InputNumberComponent } from '../property-input/input-number.component';
     InputStringArrayComponent,
     InputStringComponent,
     InputNumberComponent,
+    InputBooleanComponent,
   ],
   template: `
       @switch (schema().inputType) {
@@ -49,21 +51,11 @@ import { InputNumberComponent } from '../property-input/input-number.component';
             />
           }
           @case (INPUT_TYPE.BOOLEAN) {
-              <div>
-                  <mat-form-field>
-                      <mat-label>{{ schema().name }}</mat-label>
-                      <mat-select [formControl]='$any(control())'>
-                          <mat-option [value]="false">False</mat-option>
-                          <mat-option [value]="true">True</mat-option>
-                      </mat-select>
-                  </mat-form-field>
-
-                  @if (!schema().required) {
-                      <button mat-icon-button aria-label="Delete property from step" (click)='handleDeleteProperty()'>
-                          <mat-icon>delete</mat-icon>
-                      </button>
-                  }
-              </div>
+            <lib-input-boolean
+              [schema]='schema()'
+              [control]='$any(control())'
+              (click)='handleDeleteProperty()'
+            />
           }
           @case (INPUT_TYPE.OPTIONS) {
               <div>
