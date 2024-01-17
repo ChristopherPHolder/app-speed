@@ -12,6 +12,7 @@ import { INPUT_TYPE, PROPERTY_NAME } from '../schema/step-property.constants';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { JsonPipe } from '@angular/common';
+import { InputStringArrayComponent } from '../property-input/input-string-array.component';
 
 @Component({
   selector: 'lib-step-property',
@@ -25,6 +26,7 @@ import { JsonPipe } from '@angular/common';
     MatIconModule,
     MatButtonModule,
     JsonPipe,
+    InputStringArrayComponent,
   ],
   template: `
       @switch (schema().inputType) {
@@ -87,17 +89,11 @@ import { JsonPipe } from '@angular/common';
               </div>
           }
           @case (INPUT_TYPE.STRING_ARRAY) {
-              <div>
-                  TODO
-                  @if (!schema().required) {
-                      <button mat-icon-button aria-label="Delete property from step" (click)='handleDeleteProperty()'>
-                          <mat-icon>delete</mat-icon>
-                      </button>
-                  }
-                  <p>
-                      {{ schema() | json }}
-                  </p>
-              </div>
+            <lib-input-string-array 
+              [schema]='schema()' 
+              [control]='$any(control())'
+              (deleteProperty)='handleDeleteProperty()'
+            />
           }
           @case (INPUT_TYPE.RECORDS) {
               <div>
