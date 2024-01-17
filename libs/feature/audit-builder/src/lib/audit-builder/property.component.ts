@@ -17,6 +17,7 @@ import { InputStringComponent } from '../property-input/input-string.component';
 import { InputNumberComponent } from '../property-input/input-number.component';
 import { InputBooleanComponent } from '../property-input/input-boolean.component';
 import { InputOptionsComponent } from '../property-input/input-options.component';
+import { InputRecordsComponent } from '../property-input/input-records.component';
 
 @Component({
   selector: 'lib-step-property',
@@ -35,6 +36,7 @@ import { InputOptionsComponent } from '../property-input/input-options.component
     InputNumberComponent,
     InputBooleanComponent,
     InputOptionsComponent,
+    InputRecordsComponent,
   ],
   template: `
       @switch (schema().inputType) {
@@ -75,17 +77,11 @@ import { InputOptionsComponent } from '../property-input/input-options.component
             />
           }
           @case (INPUT_TYPE.RECORDS) {
-              <div>
-                  TODO
-                  @if (!schema().required) {
-                      <button mat-icon-button aria-label="Delete property from step" (click)='handleDeleteProperty()'>
-                          <mat-icon>delete</mat-icon>
-                      </button>
-                  }
-                  <p>
-                      {{ schema() | json }}
-                  </p>
-              </div>
+            <lib-input-records
+              [schema]='schema()'
+              [control]='$any(control())'
+              (deleteProperty)='handleDeleteProperty()'
+            />
           }
       }
   `,
