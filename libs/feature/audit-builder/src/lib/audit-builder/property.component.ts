@@ -16,6 +16,7 @@ import { InputStringArrayComponent } from '../property-input/input-string-array.
 import { InputStringComponent } from '../property-input/input-string.component';
 import { InputNumberComponent } from '../property-input/input-number.component';
 import { InputBooleanComponent } from '../property-input/input-boolean.component';
+import { InputOptionsComponent } from '../property-input/input-options.component';
 
 @Component({
   selector: 'lib-step-property',
@@ -33,6 +34,7 @@ import { InputBooleanComponent } from '../property-input/input-boolean.component
     InputStringComponent,
     InputNumberComponent,
     InputBooleanComponent,
+    InputOptionsComponent,
   ],
   template: `
       @switch (schema().inputType) {
@@ -40,37 +42,30 @@ import { InputBooleanComponent } from '../property-input/input-boolean.component
             <lib-input-string 
               [schema]='schema()' 
               [control]='$any(control())'
-              (click)='handleDeleteProperty()'
+              (deleteProperty)='handleDeleteProperty()'
             />
           }
           @case (INPUT_TYPE.NUMBER) {
             <lib-input-number
               [schema]='schema()'
               [control]='$any(control())'
-              (click)='handleDeleteProperty()'
+              (deleteProperty)='handleDeleteProperty()'
             />
           }
           @case (INPUT_TYPE.BOOLEAN) {
             <lib-input-boolean
               [schema]='schema()'
               [control]='$any(control())'
-              (click)='handleDeleteProperty()'
+              (deleteProperty)='handleDeleteProperty()'
             />
           }
           @case (INPUT_TYPE.OPTIONS) {
-              <div>
-                  <mat-form-field>
-                      <mat-label>{{ schema().name }}</mat-label>
-                      <mat-select [formControl]='$any(control())' (selectionChange)='handleSelectedChange($event.value)'>
-                          <mat-option *rxFor='let option of schema().options' [value]="option">{{option}}</mat-option>
-                      </mat-select>
-                  </mat-form-field>
-                  @if (!schema().required) {
-                      <button mat-icon-button aria-label="Delete property from step" (click)='handleDeleteProperty()'>
-                          <mat-icon>delete</mat-icon>
-                      </button>
-                  }
-              </div>
+            <lib-input-options
+              [schema]='schema()'
+              [control]='$any(control())'
+              (deleteProperty)='handleDeleteProperty()'
+              (selectedChange)='handleSelectedChange($event)'
+            />
           }
           @case (INPUT_TYPE.STRING_ARRAY) {
             <lib-input-string-array 
