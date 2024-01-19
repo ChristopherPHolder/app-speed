@@ -5,7 +5,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { ToTitleCasePipe } from '../utils/toTitleCase.pipe';
 import { AuditBuilderService } from './audit-builder.service';
 import { DialogActions, StepActionDialogComponent } from './action-dialog.component';
-import { StepPropertyComponent } from './property.component';
+import { StepPropertyComponent } from '../property-input/property.component';
 import { MatButtonModule } from '@angular/material/button';
 
 @Component({

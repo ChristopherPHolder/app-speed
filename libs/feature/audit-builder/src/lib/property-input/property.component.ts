@@ -1,13 +1,13 @@
 import { ChangeDetectionStrategy, Component, computed, inject, Input, signal } from '@angular/core';
 
-import { AuditBuilderService } from './audit-builder.service';
+import { AuditBuilderService } from '../audit-builder/audit-builder.service';
 
-import { InputStringArrayComponent } from '../property-input/input-string-array.component';
-import { InputStringComponent } from '../property-input/input-string.component';
-import { InputNumberComponent } from '../property-input/input-number.component';
-import { InputBooleanComponent } from '../property-input/input-boolean.component';
-import { InputOptionsComponent } from '../property-input/input-options.component';
-import { InputRecordsComponent } from '../property-input/input-records.component';
+import { InputStringArrayComponent } from './input-string-array.component';
+import { InputStringComponent } from './input-string.component';
+import { InputNumberComponent } from './input-number.component';
+import { InputBooleanComponent } from './input-boolean.component';
+import { InputOptionsComponent } from './input-options.component';
+import { InputRecordsComponent } from './input-records.component';
 
 import { INPUT_TYPE, PROPERTY_NAME } from '../schema/step-property.constants';
 
