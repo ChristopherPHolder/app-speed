@@ -32,7 +32,7 @@ import { AuditGlobalsComponent } from './audit-globals.component';
       </mat-card>
     </form>
   `,
-  styleUrl: `./audit-builder.styles.scss`,
+  styleUrls: ['./audit-builder.styles.scss'],
   imports: [
     RxLet,
     RxIf,

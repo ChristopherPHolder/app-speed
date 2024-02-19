@@ -7,7 +7,7 @@ import { StepDetails, StepProperty } from './audit-builder.types';
 import { STEP_PROPERTY } from './step-properties.schema';
 import { STEP_TYPE } from './step-type.constants';
 
-const required = (property: StepProperty): StepProperty => ({...property, required: true});
+const requiredFeature = (property: StepProperty): StepProperty => ({...property, required: true});
 
 export const EMPTY_STEP: StepDetails = {
   type: STEP_TYPE.EMPTY,
@@ -28,7 +28,7 @@ const WAIT_FOR_ELEMENT_STEP: StepDetails = {
     STEP_PROPERTY.FRAME,
     STEP_PROPERTY.OPERATOR,
     STEP_PROPERTY.PROPERTIES,
-    required(STEP_PROPERTY.SELECTORS),
+    requiredFeature(STEP_PROPERTY.SELECTORS),
     STEP_PROPERTY.TARGET,
     STEP_PROPERTY.TIMEOUT,
     STEP_PROPERTY.VISIBLE
@@ -42,7 +42,7 @@ const WAIT_FOR_EXPRESSION_STEP: StepDetails = {
   properties: [
     STEP_PROPERTY.TYPE,
     STEP_PROPERTY.ASSERTED_EVENTS,
-    { ...STEP_PROPERTY.EXPRESSION, required: true },
+    requiredFeature(STEP_PROPERTY.EXPRESSION),
     STEP_PROPERTY.FRAME,
     STEP_PROPERTY.TARGET,
     STEP_PROPERTY.TIMEOUT,
@@ -56,8 +56,8 @@ const CHANGE_STEP: StepDetails = {
     STEP_PROPERTY.TYPE,
     STEP_PROPERTY.ASSERTED_EVENTS,
     STEP_PROPERTY.FRAME,
-    required(STEP_PROPERTY.SELECTORS),
-    required(STEP_PROPERTY.VALUE),
+    requiredFeature(STEP_PROPERTY.SELECTORS),
+    requiredFeature(STEP_PROPERTY.VALUE),
   ]
 };
 
@@ -71,9 +71,9 @@ const CLICK_STEP: StepDetails = {
     STEP_PROPERTY.DEVICE_TYPE,
     STEP_PROPERTY.DURATION,
     STEP_PROPERTY.FRAME,
-    required(STEP_PROPERTY.OFFSET_X),
-    required(STEP_PROPERTY.OFFSET_Y),
-    required(STEP_PROPERTY.SELECTORS),
+    requiredFeature(STEP_PROPERTY.OFFSET_X),
+    requiredFeature(STEP_PROPERTY.OFFSET_Y),
+    requiredFeature(STEP_PROPERTY.SELECTORS),
     STEP_PROPERTY.TARGET,
     STEP_PROPERTY.TIMEOUT,
   ]
@@ -103,9 +103,9 @@ const DOUBLE_CLICK_STEP: StepDetails = {
     STEP_PROPERTY.DEVICE_TYPE,
     STEP_PROPERTY.DURATION,
     STEP_PROPERTY.FRAME,
-    required(STEP_PROPERTY.OFFSET_X),
-    required(STEP_PROPERTY.OFFSET_Y),
-    required(STEP_PROPERTY.SELECTORS),
+    requiredFeature(STEP_PROPERTY.OFFSET_X),
+    requiredFeature(STEP_PROPERTY.OFFSET_Y),
+    requiredFeature(STEP_PROPERTY.SELECTORS),
     STEP_PROPERTY.TARGET,
     STEP_PROPERTY.TIMEOUT
   ]
@@ -117,11 +117,11 @@ const EMULATE_NETWORK_CONDITIONS_STEP: StepDetails = {
   properties: [
     STEP_PROPERTY.TYPE,
     STEP_PROPERTY.ASSERTED_EVENTS,
-    required(STEP_PROPERTY.DOWNLOAD),
-    required(STEP_PROPERTY.LATENCY),
+    requiredFeature(STEP_PROPERTY.DOWNLOAD),
+    requiredFeature(STEP_PROPERTY.LATENCY),
     STEP_PROPERTY.TARGET,
     STEP_PROPERTY.TIMEOUT,
-    required(STEP_PROPERTY.UPLOAD)
+    requiredFeature(STEP_PROPERTY.UPLOAD)
   ]
 }
 
@@ -132,7 +132,7 @@ const HOVER_STEP: StepDetails = {
     STEP_PROPERTY.TYPE,
     STEP_PROPERTY.ASSERTED_EVENTS,
     STEP_PROPERTY.FRAME,
-    required(STEP_PROPERTY.SELECTORS),
+    requiredFeature(STEP_PROPERTY.SELECTORS),
     STEP_PROPERTY.TARGET,
     STEP_PROPERTY.TIMEOUT
   ]
@@ -144,7 +144,7 @@ const KEY_DOWN_STEP: StepDetails = {
   properties: [
     STEP_PROPERTY.TYPE,
     STEP_PROPERTY.ASSERTED_EVENTS,
-    required(STEP_PROPERTY.KEY),
+    requiredFeature(STEP_PROPERTY.KEY),
     STEP_PROPERTY.TARGET,
     STEP_PROPERTY.TIMEOUT
   ]
@@ -156,7 +156,7 @@ const KEY_UP_STEP: StepDetails = {
   properties: [
     STEP_PROPERTY.TYPE,
     STEP_PROPERTY.ASSERTED_EVENTS,
-    required(STEP_PROPERTY.KEY),
+    requiredFeature(STEP_PROPERTY.KEY),
     STEP_PROPERTY.TARGET,
     STEP_PROPERTY.TIMEOUT
   ]
@@ -170,7 +170,7 @@ const NAVIGATE_STEP: StepDetails = {
     STEP_PROPERTY.ASSERTED_EVENTS,
     STEP_PROPERTY.TARGET,
     STEP_PROPERTY.TIMEOUT,
-    required(STEP_PROPERTY.URL),
+    requiredFeature(STEP_PROPERTY.URL),
   ]
 }
 
@@ -194,14 +194,14 @@ const SET_VIEWPORT_STEP: StepDetails = {
   properties: [
     STEP_PROPERTY.TYPE,
     STEP_PROPERTY.ASSERTED_EVENTS,
-    required(STEP_PROPERTY.DEVICE_SCALE_FACTOR),
-    required(STEP_PROPERTY.HAS_TOUCH),
-    required(STEP_PROPERTY.HEIGHT),
-    required(STEP_PROPERTY.IS_LANDSCAPE),
-    required(STEP_PROPERTY.IS_MOBILE),
+    requiredFeature(STEP_PROPERTY.DEVICE_SCALE_FACTOR),
+    requiredFeature(STEP_PROPERTY.HAS_TOUCH),
+    requiredFeature(STEP_PROPERTY.HEIGHT),
+    requiredFeature(STEP_PROPERTY.IS_LANDSCAPE),
+    requiredFeature(STEP_PROPERTY.IS_MOBILE),
     STEP_PROPERTY.TARGET,
     STEP_PROPERTY.TIMEOUT,
-    required(STEP_PROPERTY.WIDTH),
+    requiredFeature(STEP_PROPERTY.WIDTH),
   ]
 }
 
