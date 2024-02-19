@@ -9,7 +9,7 @@ import { InputBooleanComponent } from './input-boolean.component';
 import { InputOptionsComponent } from './input-options.component';
 import { InputRecordsComponent } from './input-records.component';
 
-import { INPUT_TYPE, PROPERTY_NAME } from '../schema/step-property.constants';
+import { INPUT_TYPE, PROPERTY_NAME } from '../schema/property.constants';
 
 import { PropertyName, StepType } from '../schema/types';
 

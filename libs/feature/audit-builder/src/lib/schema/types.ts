@@ -1,5 +1,5 @@
-import { STEP_TYPE } from './step-type.constants';
-import { INPUT_TYPE, PROPERTY_NAME } from './step-property.constants';
+import { STEP_TYPE } from './step.constants';
+import { INPUT_TYPE, PROPERTY_NAME } from './property.constants';
 import { DEVICE_TYPE } from './audit.constants';
 
 export type PropertyName = typeof PROPERTY_NAME[keyof typeof PROPERTY_NAME];

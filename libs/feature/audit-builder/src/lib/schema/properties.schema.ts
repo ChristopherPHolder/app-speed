@@ -1,6 +1,6 @@
 import { StepProperty } from './types';
-import { STEP_TYPE } from './step-type.constants';
-import { PROPERTY_NAME, INPUT_TYPE } from './step-property.constants';
+import { STEP_TYPE } from './step.constants';
+import { PROPERTY_NAME, INPUT_TYPE } from './property.constants';
 
 const STEP_OPTIONS = Object.values(STEP_TYPE);
 export const TYPE: StepProperty = {

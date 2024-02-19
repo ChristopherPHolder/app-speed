@@ -4,8 +4,8 @@
 // TODO implement stringArray
 
 import { StepDetails, StepProperty } from './types';
-import { STEP_PROPERTY } from './step-properties.schema';
-import { STEP_TYPE } from './step-type.constants';
+import { STEP_PROPERTY } from './properties.schema';
+import { STEP_TYPE } from './step.constants';
 
 const requiredFeature = (property: StepProperty): StepProperty => ({...property, required: true});
 
