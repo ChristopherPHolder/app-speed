@@ -9,8 +9,7 @@
       "executor": "@nx/angular:ng-packagr-lite",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
-        "project": "libs/features/simple-audit/ng-package.json",
-        "updateBuildableProjectDepsInPackageJson": true
+        "project": "libs/features/simple-audit/ng-package.json"
       },
       "configurations": {
         "production": {
@@ -26,16 +25,12 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "libs/features/simple-audit/jest.config.ts",
-        "passWithNoTests": true
+        "jestConfig": "libs/features/simple-audit/jest.config.ts"
       }
     },
     "lint": {
-      "executor": "@nx/linter:eslint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": ["libs/features/simple-audit/**/*.ts", "libs/features/simple-audit/**/*.html"]
-      }
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
     }
   },
   "tags": []
