@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
-import { StepProperty } from '../schema/audit-builder.types';
+import { StepProperty } from '../schema/types';
 
 @Component({
   selector: 'lib-input-string',

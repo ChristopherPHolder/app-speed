@@ -7,7 +7,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { RxFor } from '@rx-angular/template/for';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
-import { StepProperty } from '../schema/audit-builder.types';
+import { StepProperty } from '../schema/types';
 
 @Component({
   selector: 'lib-input-options',

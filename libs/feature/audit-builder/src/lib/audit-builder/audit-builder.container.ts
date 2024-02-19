@@ -8,7 +8,6 @@ import { RxLet } from '@rx-angular/template/let';
 
 import { DEFAULT_AUDIT_DETAILS } from '../schema/audit.constants';
 import { AuditBuilderService } from './audit-builder.service';
-import { AuditDetails } from '../schema/audit-builder.types';
 import { RxIf } from '@rx-angular/template/if';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -16,6 +15,8 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { AuditStepComponent } from './audit-step.component';
 import { RxFor } from '@rx-angular/template/for';
 import { AuditGlobalsComponent } from './audit-globals.component';
+
+import { AuditDetails } from '../schema/types';
 
 @Component({
   standalone: true,
@@ -26,7 +27,7 @@ import { AuditGlobalsComponent } from './audit-globals.component';
         <mat-card-content>
           <lib-audit-global />
           <mat-accordion [multi]='true'>
-            <lib-audit-step *rxFor='let control of builder.steps.controls; let index = index;' [stepIndex]='index' />
+            <lib-audit-step *rxFor='let control of builder.steps.controls; let idx = index;' [stepIndex]='idx' />
           </mat-accordion>
         </mat-card-content>
       </mat-card>
@@ -36,12 +37,12 @@ import { AuditGlobalsComponent } from './audit-globals.component';
   imports: [
     RxLet,
     RxIf,
+    RxFor,
     ReactiveFormsModule,
     MatCardModule,
     AuditGlobalsComponent,
     MatExpansionModule,
     AuditStepComponent,
-    RxFor,
     AuditGlobalsComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -72,5 +73,5 @@ export class AuditBuilderContainer {
       queryParams: { auditDetails: JSON.stringify(auditDetails) },
       queryParamsHandling: 'merge'
     })
-  };
+  }
 }

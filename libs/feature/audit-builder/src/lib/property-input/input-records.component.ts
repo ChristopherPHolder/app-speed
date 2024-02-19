@@ -4,7 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { FormControl } from '@angular/forms';
 
-import { StepProperty } from '../schema/audit-builder.types';
+import { StepProperty } from '../schema/types';
 
 @Component({
   selector: 'lib-input-records',

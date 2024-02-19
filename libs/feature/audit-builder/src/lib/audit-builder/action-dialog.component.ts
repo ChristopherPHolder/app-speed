@@ -8,6 +8,7 @@ export type DialogAction = {
   display: string;
   output?: string;
 }
+
 export type DialogActions = DialogAction[];
 
 @Component({

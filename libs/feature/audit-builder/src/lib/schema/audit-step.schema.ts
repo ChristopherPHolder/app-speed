@@ -3,7 +3,7 @@
 // TODO Implement boolean control input type.
 // TODO implement stringArray
 
-import { StepDetails, StepProperty } from './audit-builder.types';
+import { StepDetails, StepProperty } from './types';
 import { STEP_PROPERTY } from './step-properties.schema';
 import { STEP_TYPE } from './step-type.constants';
 

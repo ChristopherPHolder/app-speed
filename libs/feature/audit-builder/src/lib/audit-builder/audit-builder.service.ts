@@ -10,8 +10,9 @@ import {
   PropertyName,
   Step,
   StepDetails,
-  StepProperty, StepType,
-} from '../schema/audit-builder.types';
+  StepProperty,
+  StepType,
+} from '../schema/types';
 import { EMPTY_STEP, STEP_OPTIONS } from '../schema/audit-step.schema';
 import { STEP_TYPE } from '../schema/step-type.constants';
 import { INPUT_TYPE, PROPERTY_NAME } from '../schema/step-property.constants';

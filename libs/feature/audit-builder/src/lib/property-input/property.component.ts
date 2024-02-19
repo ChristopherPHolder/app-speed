@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, Input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, Input, signal } from '@angular/core';
 
 import { AuditBuilderService } from '../audit-builder/audit-builder.service';
 
@@ -11,7 +11,7 @@ import { InputRecordsComponent } from './input-records.component';
 
 import { INPUT_TYPE, PROPERTY_NAME } from '../schema/step-property.constants';
 
-import { PropertyName, StepType } from '../schema/audit-builder.types';
+import { PropertyName, StepType } from '../schema/types';
 
 @Component({
   selector: 'lib-step-property',
@@ -75,26 +75,25 @@ import { PropertyName, StepType } from '../schema/audit-builder.types';
 })
 export class StepPropertyComponent {
   protected readonly INPUT_TYPE = INPUT_TYPE;
-  @Input({required: true}) set controlKey(key: PropertyName) { this._controlKey.set(key) };
-  @Input({required: true}) set stepIndex(index: number) { this._stepIndex.set(index) };
+  controlKey = input<PropertyName>();
+  stepIndex = input<number>();
   private builder = inject(AuditBuilderService);
-  _stepIndex = signal<number | undefined>(undefined);
 
-  private _controlKey = signal<PropertyName | undefined>(undefined);
   control = computed(() => {
-    return this.builder.formGroup.controls.steps.at(this._stepIndex()!).get(this._controlKey()!)
+    return this.builder.formGroup.controls.steps.at(this.stepIndex()!).get(this.controlKey()!)
   })
 
   schema = computed(() => {
-    return this.builder.getStepPropertySchema(this._stepIndex()!, this._controlKey()!);
+    return this.builder.getStepPropertySchema(this.stepIndex()!, this.controlKey()!);
   })
 
-  handleSelectedChange(value: string) {
+  handleSelectedChange(value: string): void {
     if (this.schema().name === PROPERTY_NAME.TYPE) {
-      this.builder.changeStepType(this._stepIndex()!, value as StepType);
+      this.builder.changeStepType(this.stepIndex()!, value as StepType);
     }
   }
-  handleDeleteProperty() {
-    this.builder.removeStepProperty(this._stepIndex()!, this.schema()!.name);
+
+  handleDeleteProperty(): void {
+    this.builder.removeStepProperty(this.stepIndex()!, this.schema()!.name);
   }
 }
