@@ -77,7 +77,7 @@ export class AuditBuilderContainer {
   public readonly auditInit$ = this.builder.auditInit$(this.initialAuditDetails$)
 
   submitEffect = (event: AuditDetails) => {
-    alert(`${JSON.stringify(event, null, 2)}`);
+    alert(`Submitted Audit: ${JSON.stringify(event, null, 2)}`);
   };
 
   submitMapper: OperatorFunction<AuditDetails, AuditDetails> = (auditDetails$) => auditDetails$.pipe(
