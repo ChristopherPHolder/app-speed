@@ -80,6 +80,22 @@
       "options": {
         "buildTarget": "audit-manager:build"
       }
+    },
+    "deploy": {
+      "executor": "@app-speed/aws-deploy:s3-upload",
+      "dependsOn": ["build"],
+      "options": {
+        "upload": "dist/apps/audit-manager"
+      },
+      "configurations": {
+        "production": {
+          "bucket": "s3://appspeed.dev"
+        },
+        "development": {
+          "bucket": "s3://dev.appspeed.dev"
+        }
+      },
+      "defaultConfiguration": "development"
     }
   }
 }

@@ -73,22 +73,6 @@
       "options": {
         "jestConfig": "apps/user-flow-manager/jest.config.ts"
       }
-    },
-    "deploy": {
-      "executor": "@app-speed/aws-deploy:s3-upload",
-      "dependsOn": ["build"],
-      "options": {
-        "upload": "dist/apps/user-flow-manager"
-      },
-      "configurations": {
-        "production": {
-          "bucket": "s3://appspeed.dev"
-        },
-        "development": {
-          "bucket": "s3://dev.appspeed.dev"
-        }
-      },
-      "defaultConfiguration": "development"
     }
   },
   "tags": ["frontend"]
