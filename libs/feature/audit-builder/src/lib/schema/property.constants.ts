@@ -8,6 +8,7 @@ export const INPUT_TYPE = {
 } as const;
 
 export const PROPERTY_NAME = {
+  NAME: 'name',
   TYPE: 'type',
   TIMEOUT: 'timeout',
   VALUE: 'value',

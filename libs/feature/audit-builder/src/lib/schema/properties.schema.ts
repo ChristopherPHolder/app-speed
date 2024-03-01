@@ -182,8 +182,14 @@ export const WIDTH: StepProperty = {
   inputType: INPUT_TYPE.NUMBER
 }
 
+export const NAME: StepProperty = {
+  name: PROPERTY_NAME.NAME,
+  inputType: INPUT_TYPE.STRING
+};
+
 export const STEP_PROPERTY = {
   TYPE,
+  NAME,
   TIMEOUT,
   VALUE,
   SELECTORS,

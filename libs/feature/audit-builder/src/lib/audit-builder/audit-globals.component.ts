@@ -63,8 +63,7 @@ import { DEVICE_TYPE } from '../schema/audit.constants';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuditGlobalsComponent {
-  @Output() valueChange = new EventEmitter();
-
-  builder = inject(AuditBuilderService)
   protected readonly DEVICE_TYPES = Object.values(DEVICE_TYPE);
+  @Output() valueChange = new EventEmitter();
+  builder = inject(AuditBuilderService)
 }

@@ -36,16 +36,17 @@ import { StepProperty } from '../schema/types';
           </button>
         }
       </h4>
-      @for (control of control.controls; track control; let idx = $index) {
+      @for (propertyControl of control.controls; track control; let idx = $index) {
         <div style='display: flex;'>
           <mat-icon style='padding-top: 16px;'>subdirectory_arrow_right</mat-icon>
           <mat-form-field>
-            <input matInput [formControl]='control'>
+            <input matInput [formControl]='propertyControl'>
           </mat-form-field>
-          <!-- TODO Add the functionality to delete inputs item -->
-          <button mat-icon-button aria-label='Delete property from step' (click)='deletePropertyItemAt(idx)'>
-            <mat-icon>delete</mat-icon>
-          </button>
+          @if (control.controls.length > 1) {
+            <button mat-icon-button aria-label='Delete property from step' (click)='deletePropertyItemAt(idx)'>
+              <mat-icon>delete</mat-icon>
+            </button>
+          }
         </div>
       }
     </div>
@@ -58,11 +59,11 @@ export class InputStringArrayComponent {
   @Input({required: true}) control!: FormArray<FormControl<string>>;
   @Output() deleteProperty = new EventEmitter<void>();
 
-  addPropertyItem() {
+  addPropertyItem(): void {
     // TODO extract initial value from defaults
     this.control.push(new FormControl<string>('', { validators: [Validators.required], nonNullable: true }))
   }
-  deletePropertyItemAt(index: number) {
+  deletePropertyItemAt(index: number): void {
     this.control.removeAt(index);
   }
 }

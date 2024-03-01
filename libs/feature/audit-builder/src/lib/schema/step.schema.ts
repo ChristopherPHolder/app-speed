@@ -205,6 +205,52 @@ const SET_VIEWPORT_STEP: StepDetails = {
   ]
 }
 
+const START_NAVIGATION: StepDetails = {
+  type: STEP_TYPE.START_NAVIGATION,
+  properties: [
+    STEP_PROPERTY.TYPE,
+    requiredFeature(STEP_PROPERTY.NAME),
+  ]
+}
+
+const END_NAVIGATION: StepDetails = {
+  type: STEP_TYPE.END_NAVIGATION,
+  properties: [
+    STEP_PROPERTY.TYPE
+  ]
+}
+
+const START_TIMESPAN: StepDetails = {
+  type: STEP_TYPE.START_TIMESPAN,
+  properties: [
+    STEP_PROPERTY.TYPE,
+    requiredFeature(STEP_PROPERTY.NAME),
+  ]
+}
+
+const END_TIMESPAN: StepDetails = {
+  type: STEP_TYPE.END_TIMESPAN,
+  properties: [
+    STEP_PROPERTY.TYPE
+  ]
+}
+
+const SNAPSHOT: StepDetails = {
+  type: STEP_TYPE.SNAPSHOT,
+  properties: [
+    STEP_PROPERTY.TYPE,
+    requiredFeature(STEP_PROPERTY.NAME),
+  ]
+}
+
+const AUDIT_STEPS: StepDetails[] = [
+  START_NAVIGATION,
+  END_NAVIGATION,
+  START_TIMESPAN,
+  END_TIMESPAN,
+  SNAPSHOT
+]
+
 const ASSERTION_STEPS: StepDetails[] = [
   WAIT_FOR_ELEMENT_STEP,
   WAIT_FOR_EXPRESSION_STEP
@@ -227,5 +273,6 @@ const USER_STEPS: StepDetails[] = [
 export const STEP_OPTIONS = [
   EMPTY_STEP,
   ASSERTION_STEPS,
-  USER_STEPS
+  USER_STEPS,
+  AUDIT_STEPS
 ].flat()
