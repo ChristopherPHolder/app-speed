@@ -15,37 +15,14 @@ import {
 } from '../schema/types';
 import { EMPTY_STEP, STEP_OPTIONS } from '../schema/step.schema';
 import { STEP_TYPE } from '../schema/step.constants';
-import { INPUT_TYPE, PROPERTY_NAME } from '../schema/property.constants';
+import {
+  INPUT_TYPE_VALIDATOR,
+  PROPERTY_CONTROL_BUILDER,
+  PROPERTY_DEFAULT,
+  PROPERTY_NAME,
+} from '../schema/property.constants';
 
 type StepFormGroup = FormGroup<Partial<Record<PropertyName, FormControl | FormArray>>>;
-
-type FallbackValue<T extends InputType> =
-  T extends typeof INPUT_TYPE.STRING ? string :
-  T extends typeof INPUT_TYPE.NUMBER ? number :
-  T extends typeof INPUT_TYPE.BOOLEAN ? boolean :
-  T extends typeof INPUT_TYPE.OPTIONS ? string :
-  T extends typeof INPUT_TYPE.STRING_ARRAY ? string[] :
-  T extends typeof INPUT_TYPE.RECORDS ? string : // TODO fix with proper type
-  unknown;
-
-type PropertyFallbackValueMap = { [K in InputType]: FallbackValue<K> };
-
-interface ControlBuilderFunctionMap {
-  [INPUT_TYPE.STRING]: (value: string) => FormControl<string>;
-  [INPUT_TYPE.NUMBER]: (value: number) => FormControl<number>;
-  [INPUT_TYPE.BOOLEAN]: (value: boolean) => FormControl<boolean>;
-  [INPUT_TYPE.OPTIONS]: (value: string) => FormControl<string>;
-  [INPUT_TYPE.STRING_ARRAY]: (value: string[]) => FormArray<FormControl<string>>;
-  [INPUT_TYPE.RECORDS]: (value: string) => FormControl<string>; // Adjust for 'records'
-}
-
-type ControlBuilderFunction<T extends InputType> = ControlBuilderFunctionMap[T];
-
-type PropertyControlBuilderMap = { [K in InputType]: ControlBuilderFunction<K> }
-
-type InputValidatorFunction = (value: InputValue | undefined) => boolean;
-
-type PropertyInputValidatorFunctionMap = { [K in InputType]: InputValidatorFunction };
 
 @Injectable({ providedIn: 'root' })
 export class AuditBuilderService {
@@ -89,7 +66,7 @@ export class AuditBuilderService {
   private getStepControls(step: Step, schema: StepDetails): Record<PropertyName, FormControl | FormArray> {
     const stepProperties = this.getStepProperties(step, schema);
     return stepProperties.reduce((controls, {name, inputType, value }) => {
-      return {...controls, [name]: this.propertyControlBuilderMap[inputType](value as never)} // TODO fix typing error!
+      return {...controls, [name]: PROPERTY_CONTROL_BUILDER[inputType](value as never)} // TODO fix typing error!
     }, {}) as Record<PropertyName, FormControl | FormArray>;
   }
 
@@ -101,8 +78,8 @@ export class AuditBuilderService {
   }
 
   private getPropertyValue(inputType: InputType, property?: InputValue, defaultValue?: InputValue): InputValue {
-    const isValid = this.inputTypeValidatorMap[inputType];
-    return isValid(property) ? property! : isValid(defaultValue) ? defaultValue! : this.propertyFallbackValueMap[inputType]!;
+    const isValid = INPUT_TYPE_VALIDATOR[inputType];
+    return isValid(property) ? property! : isValid(defaultValue) ? defaultValue! : PROPERTY_DEFAULT[inputType];
   }
 
   private typedKeys<T extends object>(obj: T): (keyof T)[] {
@@ -118,7 +95,7 @@ export class AuditBuilderService {
     invalidPropertyNames.forEach((name) => this.formGroup.controls.steps.at(index).removeControl(name));
     missingProperties.forEach((propertySchema) => {
       const value = this.getPropertyValue(propertySchema.inputType, propertySchema.defaultValue);
-      const control = this.propertyControlBuilderMap[propertySchema.inputType](value as never);
+      const control = PROPERTY_CONTROL_BUILDER[propertySchema.inputType](value as never);
       this.formGroup.controls.steps.at(index).addControl(propertySchema.name, control);
     })
   }
@@ -151,38 +128,11 @@ export class AuditBuilderService {
   addStepProperty(index: number, propertyName: PropertyName): void {
     const propertySchema = this.getStepPropertySchema(index, propertyName);
     const value = this.getPropertyValue(propertySchema.inputType, propertySchema.defaultValue);
-    const control = this.propertyControlBuilderMap[propertySchema.inputType](value as never);
+    const control = PROPERTY_CONTROL_BUILDER[propertySchema.inputType](value as never);
     this.formGroup.controls.steps.at(index).addControl(propertySchema.name, control);
   }
 
   removeStepProperty(index: number, propertyName: PropertyName): void {
     this.formGroup.controls.steps.at(index).removeControl(propertyName);
-  }
-
-  private readonly propertyControlBuilderMap: PropertyControlBuilderMap = {
-    [INPUT_TYPE.STRING]: value => new FormControl<string>(value, { validators: [Validators.required], nonNullable: true }),
-    [INPUT_TYPE.NUMBER]: value => new FormControl<number>(value, { validators: [Validators.required], nonNullable: true }),
-    [INPUT_TYPE.BOOLEAN]: value => new FormControl<boolean>(value, { validators: [Validators.required], nonNullable: true }),
-    [INPUT_TYPE.OPTIONS]: value => new FormControl<string>(value, { validators: [Validators.required], nonNullable: true }),
-    [INPUT_TYPE.STRING_ARRAY]: value => new FormArray((value).map((i) => new FormControl<string>(i, { validators: [Validators.required], nonNullable: true }))),
-    [INPUT_TYPE.RECORDS]: value => new FormControl<string>(value, { validators: [Validators.required], nonNullable: true }),
-  }
-
-  private readonly propertyFallbackValueMap: PropertyFallbackValueMap = {
-    [INPUT_TYPE.STRING]: '',
-    [INPUT_TYPE.NUMBER]: 0,
-    [INPUT_TYPE.BOOLEAN]: false,
-    [INPUT_TYPE.OPTIONS]: '',
-    [INPUT_TYPE.STRING_ARRAY]: [''],
-    [INPUT_TYPE.RECORDS]: '' // TODO
-  };
-
-  private readonly inputTypeValidatorMap: PropertyInputValidatorFunctionMap = {
-    [INPUT_TYPE.STRING]: value => typeof value === 'string',
-    [INPUT_TYPE.NUMBER]: value => typeof value === 'number',
-    [INPUT_TYPE.BOOLEAN]: value => typeof value === 'boolean',
-    [INPUT_TYPE.OPTIONS]: value => typeof value === 'string', // TODO
-    [INPUT_TYPE.STRING_ARRAY]: value => Array.isArray(value) && value.every(item => typeof item === 'string'),
-    [INPUT_TYPE.RECORDS]: value => typeof value === 'string', // TODO
   }
 }
