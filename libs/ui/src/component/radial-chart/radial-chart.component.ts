@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, Input, ViewEncapsulation } from '@a
 import { RADIAL_CHART_COLOR, RADIAL_CHART_SIZE, RadialChartColor, RadialChartSize } from './radial-chart.types';
 
 @Component({
-  selector: 'app-radial-chart',
+  selector: 'ui-radial-chart',
   standalone: true,
   template: `
       <div class="radial-chart {{getColorScheme()}} {{size}}">

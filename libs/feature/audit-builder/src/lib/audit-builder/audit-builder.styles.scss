@@ -1,0 +1,47 @@
+.grid-container {
+  margin: 20px;
+}
+
+.dashboard-card {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  right: 15px;
+  bottom: 15px;
+}
+
+.more-button {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+}
+
+.dashboard-card-content {
+  text-align: center;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.col {
+  flex: 1;
+  margin-right: 20px;
+}
+
+.col:last-child {
+  margin-right: 0;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+}
+
+.card-content {
+  margin: 20px auto;
+}
+
+.card-secondary {
+  margin: 20px auto;
+}

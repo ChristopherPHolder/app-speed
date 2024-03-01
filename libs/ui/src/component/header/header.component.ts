@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-header',
+  selector: 'ui-header',
   standalone: true,
   template: `
-    <div class='header-navbar'>
+    <div class='header-navbar box--small'>
       <img loading="eager" [src]='logo.src' [alt]='logo.alt'>
     </div>
   `,

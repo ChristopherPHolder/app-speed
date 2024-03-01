@@ -1,0 +1,35 @@
+<div class='box box--gray box--medium' [formGroup]="stepForm">
+  <!--  TODO Convert Form Row into Separate Core -->
+  <div class='form__row box--small'>
+    <span class='box'>  > {{ stepType }} </span>
+    <span (click)='openEditToggle()' class='box' #editStepButton>
+      <ui-kebab-menu />
+    </span>
+    <dialog class='box' #editDialog>
+      <span>Manage Steps</span>
+      <ul class='box--small'>
+        <li class='box--small' (click)='addAuditStep("before")'>Add Step Before</li>
+        <li class='box--small' (click)='addAuditStep("after")'>Add Step After</li>
+        <li class='box--small' (click)='removeStep.emit()'>Remove Step</li>
+      </ul>
+    </dialog>
+  </div>
+  <div class='box box--gray-dark'>
+    <div class='box box--small' *ngFor="let controlName of getKeys(stepForm.controls)">
+      <span>
+        <label> {{controlName}} </label>
+        <input
+          *ngIf='isInputString(stepForm.controls[controlName])'
+          class='form__input form__input--small'
+          [formControlName]="controlName"
+        >
+        <div *ngIf='!isInputString(stepForm.controls[controlName])' [formGroup]='stepForm.controls[controlName].value'>
+          <div class='box box--small' *ngFor="let subControlName of getKeys(stepForm.controls[controlName].value.controls)">
+            <label> > {{subControlName}} </label>
+            <input class='form__input form__input--small' [formControlName]="subControlName">
+          </div>
+        </div>
+      </span>
+    </div>
+  </div>
+</div>

@@ -1,4 +1,4 @@
-import { AppSpeedUserFlow, AppSpeedUserFlowStep } from './types';
+import { AppSpeedUserFlow, AppSpeedUserFlowStep } from 'shared';
 import { parse as puppeteerReplayParse, StepType } from '@puppeteer/replay';
 import { isMeasureType } from './utils';
 

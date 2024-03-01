@@ -1,23 +1,22 @@
 import { describe, expect, it } from 'vitest';
 import { UserFlowAudit } from './user-flow-replay';
 import { writeFileSync } from 'fs';
-import { AppSpeedUserFlow, LighthouseStepType, PuppeteerReplayStepType } from './types';
 
 describe('userFlowReplay', () => {
   it('should work', async () => {
 
-    const replayScript: AppSpeedUserFlow = {
+    const replayScript= {
       title: 'Example Title',
       steps: [
         {
-          type: LighthouseStepType.StartNavigation,
+          type: 'startNavigation',
           stepOptions: { name: 'Initial Navigation' }
         },
         {
-          type:  PuppeteerReplayStepType.Navigate,
+          type:  'navigate',
           url: 'https://google.com',
         },
-        { type: LighthouseStepType.EndNavigation }
+        { type: 'endNavigation' }
       ]
     }
 

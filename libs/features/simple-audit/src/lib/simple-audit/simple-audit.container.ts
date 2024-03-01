@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ResultsDisplayComponent, UserFlowFormComponent } from 'ui';
+import { AuditBuilderComponent, ResultsDisplayComponent } from 'ui';
 import { RxState } from '@rx-angular/state';
 import { SimpleAuditAdapter } from './simple-audit.adapter';
 import { AuditStatusType } from 'shared';
@@ -22,18 +22,15 @@ type UiActions = {
 @Component({
   selector: 'app-simple-audit',
   standalone: true,
-  imports: [CommonModule, UserFlowFormComponent, ResultsDisplayComponent, RxIf],
+  imports: [CommonModule, ResultsDisplayComponent, RxIf, AuditBuilderComponent],
   template: `
-    <div class='audit-heading-container'>
-      <h1 class='audit-section-title'>User Flow Audit</h1>
-      <h2>Beyond First Impressions: Measure your apps performance on user interactions</h2>
+    <div class='audit-heading-container box--medium'>
+      <h1 class='box--medium'>User Flow Audit</h1>
+      <div class='box--small'>Beyond First Impressions: Measure your apps performance on user interactions</div>
     </div>
+    <app-audit-builder (auditSubmit)='checkSubmit($event)' [disabled]="state.select('isOnline')"/>
 
-    <div class='audit-form-box'>
-      <app-user-flow-form [disabled]="state.select('isOnline')" (auditSubmit)='ui.submit($event)'/>
-    </div>
-
-    <app-results-display
+    <ui-results-display
       *rxIf='resultsBoxVisible$'
       [htmlReportUrl]="state.select('htmlReportUrl')"
       [progress]="state.select('progress')"
@@ -45,6 +42,10 @@ type UiActions = {
   providers: [RxState, RxActionFactory],
 })
 export class SimpleAuditContainer {
+
+  checkSubmit(event: any) {
+    console.log('Submited', event);
+  }
 
   ui = this.actions.create();
   resultsBoxVisible$ = this.state.select(map(({ progress }) => progress !== 'idle'));

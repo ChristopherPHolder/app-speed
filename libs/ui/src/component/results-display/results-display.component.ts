@@ -15,7 +15,7 @@ type ComponentState = {
   htmlReportUrl?: SafeResourceUrl;
 }
 @Component({
-  selector: 'app-results-display',
+  selector: 'ui-results-display',
   standalone: true,
   imports: [
     CommonModule,
@@ -27,19 +27,19 @@ type ComponentState = {
   ],
   template: `
     <div class='audit-results-box'>
-      <app-progress-toaster
+      <ui-progress-toaster
         *rxIf='toasterTextVisible$'
         [progress]="state.select('progress')"
-      ></app-progress-toaster>
+      ></ui-progress-toaster>
       <iframe
         *rxIf="state.select('htmlReportUrl')"
         [bypassSrc]="state.select('htmlReportUrl') | push"
         class='html-report-iframe'
         title='User-Flow Results'
       ></iframe>
-      <app-loading-spinner
+      <ui-loading-spinner
         *rxIf='loadingSpinnerVisible$'
-      ></app-loading-spinner>
+      ></ui-loading-spinner>
     </div>
   `,
   styleUrls: ['./results-display.component.scss'],

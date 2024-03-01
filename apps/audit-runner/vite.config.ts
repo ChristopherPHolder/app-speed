@@ -22,6 +22,7 @@ export default defineConfig({
   // },
 
   test: {
+    reporters: ['default'],
     threads: false,
     globals: true,
     cache: {

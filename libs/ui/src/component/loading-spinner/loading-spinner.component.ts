@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
 
 @Component({
-  selector: 'app-loading-spinner',
+  selector: 'ui-loading-spinner',
   standalone: true,
   template: `
     <div class="lds-roller">

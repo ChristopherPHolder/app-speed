@@ -4,7 +4,7 @@ import { parse } from './parse';
 import { Browser, launch, Page } from 'puppeteer';
 import { startFlow, UserFlow as LHUserFlow } from 'lighthouse';
 import { ResultReports } from 'shared';
-import { AppSpeedUserFlow } from './types';
+import { AppSpeedUserFlow } from 'shared';
 
 export type UserFlowRunnerContext = {
   browser: Browser;

@@ -1,5 +1,5 @@
 import { CustomStep, Step, StepType } from '@puppeteer/replay';
-import { MeasureModes, AppSpeedUserFlowStep } from './types';
+import { MeasureModes, AppSpeedUserFlowStep } from 'shared';
 
 export function isMeasureType(str: string) {
     switch (str as MeasureModes) {
