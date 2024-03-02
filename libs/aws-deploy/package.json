@@ -2,7 +2,7 @@
   "name": "@app-speed/aws-deploy",
   "version": "0.0.1",
   "dependencies": {
-    "@nx/devkit": "16.10.0"
+    "@nx/devkit": "18.0.4"
   },
   "type": "commonjs",
   "main": "./src/index.js",

@@ -89,5 +89,5 @@ export class AuditBuilderComponent extends RxEffects {
     return new FormGroup({
       type: new FormControl<string>(step.type, Validators.required)
     })
-  };
+  }
 }
