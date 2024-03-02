@@ -1,6 +1,10 @@
 import { Route } from '@angular/router';
-import { auditBuilderRoutes } from '@app-speed/feature/audit-builder';
 
 export const appRoutes: Route[] = [
-  ...auditBuilderRoutes
+  {
+    path: 'audit-builder',
+    loadComponent: () => import('@app-speed/feature/audit-builder').then(c => c.AuditBuilderContainer),
+  },
+  { path: '',   redirectTo: 'audit-builder', pathMatch: 'full' },
+  { path: '**',   redirectTo: 'audit-builder' },
 ];
