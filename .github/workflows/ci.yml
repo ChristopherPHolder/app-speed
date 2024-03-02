@@ -1,7 +1,7 @@
 name: UFO CI
 
 env:
-  NODE_VERSION: 18
+  NODE_VERSION: 20
   is-main-branch: ${{ github.ref == 'refs/heads/main' }}
   is-pull-request: ${{ github.event_name == 'pull_request' }}
 
