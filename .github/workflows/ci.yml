@@ -1,7 +1,6 @@
 name: UFO CI
 
 env:
-  NODE_VERSION: 20
   is-main-branch: ${{ github.ref == 'refs/heads/main' }}
   is-pull-request: ${{ github.event_name == 'pull_request' }}
 
@@ -24,10 +23,10 @@ jobs:
           fetch-depth: 0
       # Derive appropriate SHAs for base and head for `nx affected` commands
       - uses: nrwl/nx-set-shas@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
+          node-version: 20
+          cache: 'npm'
 
       # Aggressive NPM dependency caching
       # https://dev.to/drakulavich/aggressive-dependency-caching-in-github-actions-3c64
@@ -57,10 +56,10 @@ jobs:
           fetch-depth: 0
       # Derive appropriate SHAs for base and head for `nx affected` commands
       - uses: nrwl/nx-set-shas@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
+          node-version: 20
+          cache: 'npm'
 
       - name: Cache NPM Dependencies
         uses: actions/cache@v3
@@ -86,10 +85,10 @@ jobs:
           fetch-depth: 0
       # Derive appropriate SHAs for base and head for `nx affected` commands
       - uses: nrwl/nx-set-shas@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
+          cache: 'npm'
 
       - name: Cache NPM Dependencies
         uses: actions/cache@v3
@@ -115,10 +114,10 @@ jobs:
           fetch-depth: 0
       # Derive appropriate SHAs for base and head for `nx affected` commands
       - uses: nrwl/nx-set-shas@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
+          node-version: 20
+          cache: 'npm'
 
       - name: Cache NPM Dependencies
         uses: actions/cache@v3
@@ -142,10 +141,10 @@ jobs:
         with:
           fetch-depth: 0
       - uses: nrwl/nx-set-shas@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
+          node-version: 20
+          cache: 'npm'
 
       - name: Cache NPM Dependencies
         uses: actions/cache@v3
@@ -171,10 +170,10 @@ jobs:
           fetch-depth: 0
       # Derive appropriate SHAs for base and head for `nx affected` commands
       - uses: nrwl/nx-set-shas@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
+          node-version: 20
+          cache: 'npm'
 
       - name: Cache NPM Dependencies
         uses: actions/cache@v3
@@ -211,10 +210,10 @@ jobs:
         with:
           fetch-depth: 0
       - uses: nrwl/nx-set-shas@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
+          node-version: 20
+          cache: 'npm'
 
       - name: Cache NPM Dependencies
         uses: actions/cache@v3
