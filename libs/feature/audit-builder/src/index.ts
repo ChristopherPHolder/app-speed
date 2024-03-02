@@ -1,1 +1,1 @@
-export { auditBuilderRoutes } from './lib/audit-builder.routes';
+export {AuditBuilderContainer} from './lib/audit-builder/audit-builder.container';

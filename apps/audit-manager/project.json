@@ -4,7 +4,7 @@
   "projectType": "application",
   "prefix": "app",
   "sourceRoot": "apps/audit-manager/src",
-  "tags": [],
+  "tags": ["frontend"],
   "targets": {
     "build": {
       "executor": "@angular-devkit/build-angular:browser",
