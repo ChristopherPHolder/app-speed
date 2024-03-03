@@ -10,8 +10,10 @@ import { ViewerStepDetailComponent } from './viewer-step-details.component';
 @Component({
   selector: 'lib-viewer-container',
   template: `
-      <lib-audit-summary [auditSummary]='auditSummary' />
-      <lib-viewer-step-detail [stepDetails]='steps[0]'/>
+<!--      <lib-audit-summary [auditSummary]='auditSummary' />-->
+    @for (step of steps; track step.name) {
+      <lib-viewer-step-detail [stepDetails]='step'/>
+    }
   `,
   standalone: true,
   imports: [

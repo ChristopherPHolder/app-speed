@@ -31,48 +31,46 @@ export type MetricSummary = {
 @Component({
   selector: 'lib-viewer-step-metric-summary',
   template: `
-    <section style='margin: 20px'>
-      <div style='display: flex; justify-content: space-between; margin: 8px;'>
-        <div>
-          METRICS
-        </div>
-        <div (click)='toddleDescriptionVisibility()'>
-          Expand view
-        </div>
+    <div style='display: flex; justify-content: space-between; margin: 8px;'>
+      <div>
+        METRICS
       </div>
-      @for (metric of metricSummary(); track metric.name) {
-        <mat-divider />
-        <div style='margin: 12px'>
-          <div style='display: flex;'>
-            <div style='margin: 8px;'>
-              @switch (metric.colorCode) {
-                @case ('green') {
-                  <mat-icon style="color:green;">circle</mat-icon>
-                }
-                @case ('orange') {
-                  <mat-icon style="color:orange;">square</mat-icon>
-                }
-                @case ('red') {
-                  <mat-icon style="color:red;">warning</mat-icon>
-                }
+      <div (click)='toddleDescriptionVisibility()'>
+        Expand view
+      </div>
+    </div>
+    @for (metric of metricSummary(); track metric.name) {
+      <mat-divider />
+      <div style='margin: 12px'>
+        <div style='display: flex;'>
+          <div style='margin: 8px;'>
+            @switch (metric.colorCode) {
+              @case ('green') {
+                <mat-icon style="color:green;">circle</mat-icon>
               }
+              @case ('orange') {
+                <mat-icon style="color:orange;">square</mat-icon>
+              }
+              @case ('red') {
+                <mat-icon style="color:red;">warning</mat-icon>
+              }
+            }
+          </div>
+          <div>
+            <div style='font-size: medium;'>{{ metric.name }}</div>
+            <div style='font-size: large; font-weight: 500; margin: 5px 0;' [style.color]='metric.colorCode'>
+              {{ metric.value }}
             </div>
-            <div>
-              <div style='font-size: medium;'>{{ metric.name }}</div>
-              <div style='font-size: large; font-weight: 500; margin: 5px 0;' [style.color]='metric.colorCode'>
-                {{ metric.value }}
+            @if (displayDescription()) {
+              <div>
+                {{ metric.description }} 
+                <a [href]='metric.reference?.link'>{{ metric.reference?.text }}</a>
               </div>
-              @if (displayDescription()) {
-                <div>
-                  {{ metric.description }} 
-                  <a [href]='metric.reference?.link'>{{ metric.reference?.text }}</a>
-                </div>
-              }
-            </div>
+            }
           </div>
         </div>
-      }
-    </section>
+      </div>
+    }
   `,
   standalone: true,
   imports: [
