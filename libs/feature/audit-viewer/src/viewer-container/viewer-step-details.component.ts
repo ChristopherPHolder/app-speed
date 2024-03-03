@@ -45,9 +45,7 @@ export class ViewerStepDetailComponent {
   }
 
   private extractReference(description: string): Reference {
-    console.log(description)
     const value = description.split(/\[(.*?)\]\((.*?)\)/);
-    console.log(value);
     return { text: value[1] + '.', link: value[0] };
   }
 
