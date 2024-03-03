@@ -1,17 +1,23 @@
-import { Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { JsonPipe, NgOptimizedImage } from '@angular/common';
 import { Result } from 'lighthouse';
 import {
-  MatCell, MatCellDef,
+  MatCell,
+  MatCellDef,
   MatColumnDef,
   MatHeaderCell,
-  MatHeaderCellDef, MatHeaderRow, MatHeaderRowDef,
-  MatRecycleRows, MatRow, MatRowDef,
+  MatHeaderCellDef,
+  MatHeaderRow,
+  MatHeaderRowDef,
+  MatRecycleRows,
+  MatRow,
+  MatRowDef,
   MatTable,
 } from '@angular/material/table';
 import { MatIcon } from '@angular/material/icon';
 import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
 import { RadialChartComponent } from 'ui';
+import { ViewerScoreComponent } from './viewer-score.component';
 
 export type StepSummary = {
   thumbnail: { data: string, width: number, height: number }
@@ -30,14 +36,14 @@ export type AuditSummary = {
       <mat-card-header>
         <mat-card-title>Audit Summery</mat-card-title>
       </mat-card-header>
-      <mat-card-content>
+      <mat-card-content style='overflow: auto;'>
         <table mat-table recycleRows [dataSource]='auditSummary().stepSummaries'>
 
           <ng-container matColumnDef='thumbnail'>
             <th mat-header-cell *matHeaderCellDef></th>
             <td mat-cell *matCellDef='let element' style='border: none;'>
-              <div class='center-row-content'>
-                <img [src]='element.thumbnail.data' height='100'>
+              <div class='center-row-content' style='padding: 5px 0'>
+                <img [src]='element.thumbnail.data' height='80'>
               </div>
             </td>
           </ng-container>
@@ -63,61 +69,19 @@ export type AuditSummary = {
 
           <ng-container matColumnDef='name'>
             <th mat-header-cell *matHeaderCellDef>Name</th>
-            <td mat-cell *matCellDef='let element'> {{ element.name }}</td>
+            <td mat-cell *matCellDef='let element'>{{ element.name }}</td>
           </ng-container>
 
-          <ng-container matColumnDef='performance'>
-            <th mat-header-cell *matHeaderCellDef class='center-header'>Performance</th>
-            <td mat-cell *matCellDef='let element'>
-              
-              @if (element.categories["performance"]["score"]; as score) {
-                <ui-radial-chart [score]='score * 100' />
-              } @else {
+          @for (category of categories; track category.id) {
+            <ng-container [matColumnDef]='category.key'>
+              <th mat-header-cell *matHeaderCellDef class='center-header'>{{category.title}}</th>
+              <td mat-cell *matCellDef='let element'>
                 <div class='center-row-content'>
-                  <mat-icon>horizontal_rule</mat-icon>
+                  <lib-viewer-score [category]='element.categories[category.id]'/>
                 </div>
-              }
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef='accessibility'>
-            <th mat-header-cell *matHeaderCellDef class='center-header'>Accessibility</th>
-            <td mat-cell *matCellDef='let element'>
-              @if (element.categories["accessibility"]?.["score"]; as score) {
-                <ui-radial-chart [score]='score * 100' />
-              } @else {
-                <div class='center-row-content'>
-                  <mat-icon>horizontal_rule</mat-icon>
-                </div>
-              }
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef='bestPractices'>
-            <th mat-header-cell *matHeaderCellDef class='center-header'>Best Practices</th>
-            <td mat-cell *matCellDef='let element'>
-              @if (element.categories["best-practices"]?.["score"]; as score) {
-                <ui-radial-chart [score]='score * 100' />
-              } @else {
-                <div class='center-row-content'>
-                  <mat-icon>horizontal_rule</mat-icon>
-                </div>
-              }
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef='seo'>
-            <th mat-header-cell *matHeaderCellDef class='center-header'>SEO</th>
-            <td mat-cell *matCellDef='let element'>
-              @if (element.categories["seo"]?.["score"]; as score) {
-                <ui-radial-chart [score]='score * 100' />
-              } @else {
-                <div class='center-row-content'>
-                  <mat-icon>horizontal_rule</mat-icon>
-                </div>
-              }
-            </td>
-          </ng-container>
+              </td>
+            </ng-container>
+          }
 
           <tr mat-header-row *matHeaderRowDef='displayedColumns'></tr>
           <tr mat-row *matRowDef='let row; columns: displayedColumns;'></tr>
@@ -128,8 +92,6 @@ export type AuditSummary = {
   `,
   standalone: true,
   imports: [
-    JsonPipe,
-    NgOptimizedImage,
     MatTable,
     MatRecycleRows,
     MatColumnDef,
@@ -147,6 +109,7 @@ export type AuditSummary = {
     MatCardHeader,
     MatCardTitle,
     RadialChartComponent,
+    ViewerScoreComponent,
   ],
   styles: [`
       .center-row-content {
@@ -154,21 +117,28 @@ export type AuditSummary = {
           display: flex;
           justify-content: center;
       }
-
       .center-header {
           text-align: center;
       }
-  `]
+      .mat-mdc-row .mat-mdc-cell {
+          cursor: pointer;
+      }
+      .mat-mdc-row:hover .mat-mdc-cell {
+          background-color: var(--mdc-switch-selected-track-color);
+      }
+  `],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuditSummaryComponent {
   auditSummary = input.required<AuditSummary>();
-  displayedColumns = [
-    'thumbnail',
-    'gatherMode',
-    'name',
-    'performance',
-    'accessibility',
-    'bestPractices',
-    'seo'
+
+  readonly displayedColumns = [
+    'thumbnail', 'gatherMode', 'name', 'performance', 'accessibility', 'bestPractices', 'seo'
+  ];
+  readonly categories = [
+    { title: 'Performance', id: 'performance', key: 'performance' },
+    { title: 'Accessibility', id: 'accessibility', key: 'accessibility' },
+    { title: 'Best Practices', id: 'best-practices', key: 'bestPractices' },
+    { title: 'SEO', id: 'seo', key: 'seo' },
   ];
 }
