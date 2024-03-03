@@ -16,86 +16,79 @@ import {
   MatExpansionPanelTitle,
 } from '@angular/material/expansion';
 import { MatIcon } from '@angular/material/icon';
+import { ViewerFileStripComponent } from './viewer-file-strip.component';
 
 @Component({
   selector: 'lib-viewer-step-detail',
   template: `
-    <section>
-      <mat-card style='margin: 8px;'>
-        <mat-card-content>
-          <lib-viewer-step-metric-summary [metricSummary]='categoryMetricSummary()[0]["performance"]' />
-        </mat-card-content>
-      </mat-card>
-    </section>
-    <section>
-      <mat-card style='margin: 8px;'>
-        <mat-card-header>
-          <mat-card-title>
-            Film Strip
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div class='film-strip'>
-            @for (item of filmStrip(); track item) {
-              <img [src]='item.data' height='100px' alt='' style='padding: 0 10px;'>
-            }
-          </div>
-        </mat-card-content>
-      </mat-card>
-    </section>
-    <section>
-      <mat-card style='margin: 8px;'>
-        <mat-card-header>
-          <mat-card-title>DIAGNOSTICS</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <mat-accordion>
-            @for (item of alertItems(); track item.id) {
-              <mat-expansion-panel>
-                <mat-expansion-panel-header>
-                  <mat-panel-title>
-                    <mat-icon style='color:red; margin-right: 10px;'>warning</mat-icon>
-                    {{ item.title }}
-                    @if (item.displayValue) {
-                      <span style='color: red; margin-left: 5px;'> - {{ item.displayValue }}</span>
-                    }
-                  </mat-panel-title>
-                </mat-expansion-panel-header>
-                <p>{{ item.description }}</p>
-              </mat-expansion-panel>
-            }
-            @for (item of warnItems(); track item.id) {
-              <mat-expansion-panel>
-                <mat-expansion-panel-header>
-                  <mat-panel-title>
-                    <mat-icon style="color:orange; margin-right: 10px;">square</mat-icon>
-                    {{ item.title }}
-                    @if (item.displayValue) {
-                      <span style='color: red; margin-left: 5px;'> - {{ item.displayValue }}</span>
-                    }
-                  </mat-panel-title>
-                </mat-expansion-panel-header>
-                <p>{{ item.description }}</p>
-              </mat-expansion-panel>
-            }
-            @for (item of informItems(); track item.id) {
-              <mat-expansion-panel>
-                <mat-expansion-panel-header>
-                  <mat-panel-title>
-                    <mat-icon style="color:gray; margin-right: 10px;">circle</mat-icon>
-                    {{ item.title }}
-                    @if (item.displayValue) {
-                      <span style='color: red; margin-left: 5px;'> - {{ item.displayValue }}</span>
-                    }
-                  </mat-panel-title>
-                </mat-expansion-panel-header>
-                <p>{{ item.description }}</p>
-              </mat-expansion-panel>
-            }
-          </mat-accordion>
-        </mat-card-content>
-      </mat-card>
-    </section>
+    <mat-card style='margin: 8px;'>
+      <mat-card-content>
+        <lib-viewer-step-metric-summary [metricSummary]='categoryMetricSummary()[0]["performance"]' />
+      </mat-card-content>
+    </mat-card>
+    
+    <mat-card style='margin: 8px;'>
+      <mat-card-header>
+        <mat-card-title>
+          Film Strip
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <lib-viewer-file-strip [filmStrip]='filmStrip()' />
+      </mat-card-content>
+    </mat-card>
+    
+    <mat-card style='margin: 8px;'>
+      <mat-card-header>
+        <mat-card-title>DIAGNOSTICS</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-accordion>
+          @for (item of alertItems(); track item.id) {
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <mat-icon style='color:red; margin-right: 10px;'>warning</mat-icon>
+                  {{ item.title }}
+                  @if (item.displayValue) {
+                    <span style='color: red; margin-left: 5px;'> - {{ item.displayValue }}</span>
+                  }
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <p>{{ item.description }}</p>
+            </mat-expansion-panel>
+          }
+          @for (item of warnItems(); track item.id) {
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <mat-icon style="color:orange; margin-right: 10px;">square</mat-icon>
+                  {{ item.title }}
+                  @if (item.displayValue) {
+                    <span style='color: red; margin-left: 5px;'> - {{ item.displayValue }}</span>
+                  }
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <p>{{ item.description }}</p>
+            </mat-expansion-panel>
+          }
+          @for (item of informItems(); track item.id) {
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <mat-icon style="color:gray; margin-right: 10px;">circle</mat-icon>
+                  {{ item.title }}
+                  @if (item.displayValue) {
+                    <span style='color: red; margin-left: 5px;'> - {{ item.displayValue }}</span>
+                  }
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <p>{{ item.description }}</p>
+            </mat-expansion-panel>
+          }
+        </mat-accordion>
+      </mat-card-content>
+    </mat-card>
   `,
   standalone: true,
   imports: [
@@ -110,26 +103,13 @@ import { MatIcon } from '@angular/material/icon';
     MatExpansionPanelHeader,
     MatExpansionPanelTitle,
     MatIcon,
-  ],
-  styles: [`
-    .film-strip {
-        display: flex;
-        overflow: auto;
-    }
-    .film-strip {
-        -ms-overflow-style: none;  /* Internet Explorer 10+ */
-        scrollbar-width: none;  /* Firefox */
-    }
-    .film-strip::-webkit-scrollbar {
-        display: none;  /* Safari and Chrome */
-    }
-  `]
+    ViewerFileStripComponent,
+  ]
 })
 export class ViewerStepDetailComponent {
   stepDetails = input.required<FlowResult.Step>();
   categories = computed(() => this.stepDetails().lhr.categories);
   categoryMetricSummary = computed<Record<string, MetricSummary[]>[]>(() => {
-    console.log(this.stepDetails().lhr);
     return this.categoriesMetricSummary(this.stepDetails().lhr.categories);
   });
   filmStrip = computed(() => {
