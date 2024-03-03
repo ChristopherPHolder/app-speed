@@ -17,6 +17,7 @@ import {
 } from '@angular/material/expansion';
 import { MatIcon } from '@angular/material/icon';
 import { ViewerFileStripComponent } from './viewer-file-strip.component';
+import { ViewerDiagnosticComponent } from './viewer-diagnostic.component';
 
 @Component({
   selector: 'lib-viewer-step-detail',
@@ -43,50 +44,7 @@ import { ViewerFileStripComponent } from './viewer-file-strip.component';
         <mat-card-title>DIAGNOSTICS</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <mat-accordion>
-          @for (item of alertItems(); track item.id) {
-            <mat-expansion-panel>
-              <mat-expansion-panel-header>
-                <mat-panel-title>
-                  <mat-icon style='color:red; margin-right: 10px;'>warning</mat-icon>
-                  {{ item.title }}
-                  @if (item.displayValue) {
-                    <span style='color: red; margin-left: 5px;'> - {{ item.displayValue }}</span>
-                  }
-                </mat-panel-title>
-              </mat-expansion-panel-header>
-              <p>{{ item.description }}</p>
-            </mat-expansion-panel>
-          }
-          @for (item of warnItems(); track item.id) {
-            <mat-expansion-panel>
-              <mat-expansion-panel-header>
-                <mat-panel-title>
-                  <mat-icon style="color:orange; margin-right: 10px;">square</mat-icon>
-                  {{ item.title }}
-                  @if (item.displayValue) {
-                    <span style='color: red; margin-left: 5px;'> - {{ item.displayValue }}</span>
-                  }
-                </mat-panel-title>
-              </mat-expansion-panel-header>
-              <p>{{ item.description }}</p>
-            </mat-expansion-panel>
-          }
-          @for (item of informItems(); track item.id) {
-            <mat-expansion-panel>
-              <mat-expansion-panel-header>
-                <mat-panel-title>
-                  <mat-icon style="color:gray; margin-right: 10px;">circle</mat-icon>
-                  {{ item.title }}
-                  @if (item.displayValue) {
-                    <span style='color: red; margin-left: 5px;'> - {{ item.displayValue }}</span>
-                  }
-                </mat-panel-title>
-              </mat-expansion-panel-header>
-              <p>{{ item.description }}</p>
-            </mat-expansion-panel>
-          }
-        </mat-accordion>
+        <lib-viewer-diagnostic [diagnosticItems]='diagnosticItems()'/>
       </mat-card-content>
     </mat-card>
   `,
@@ -98,13 +56,10 @@ import { ViewerFileStripComponent } from './viewer-file-strip.component';
     MatCardContent,
     MatCardHeader,
     MatCardTitle,
-    MatAccordion,
-    MatExpansionPanel,
-    MatExpansionPanelHeader,
-    MatExpansionPanelTitle,
     MatIcon,
     ViewerFileStripComponent,
-  ]
+    ViewerDiagnosticComponent,
+  ],
 })
 export class ViewerStepDetailComponent {
   stepDetails = input.required<FlowResult.Step>();
@@ -150,6 +105,14 @@ export class ViewerStepDetailComponent {
       .filter((v) => !!v.metricSavings)
       .filter((v) => this.affectsMetric(Object.keys(v.metricSavings!)))
   });
+
+  diagnosticItems = computed(() => {
+    return {
+      alert: this.alertItems(),
+      warn: this.warnItems(),
+      info: this.informItems()
+    }
+  })
 
   private affectsMetric(metricSavings: string[]): boolean {
     return !!metricSavings.filter((i) => this.categoryAcronyms().includes(i)).length;
