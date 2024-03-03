@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { JsonPipe, NgOptimizedImage } from '@angular/common';
-import { Result } from 'lighthouse';
+import type { Result } from 'lighthouse';
 import {
   MatCell,
   MatCellDef,
