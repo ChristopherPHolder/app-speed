@@ -8,12 +8,4 @@ const meta: Meta = {
 export default meta;
 type Story = StoryObj<ShellComponent>;
 
-export const Default: Story = {
-  args: {
-    navItems: [
-      'Nav 1',
-      'Nav 2',
-      'Nav 3'
-    ]
-  }
-}
+export const Default: Story = {}
