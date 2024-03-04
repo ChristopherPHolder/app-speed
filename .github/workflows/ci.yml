@@ -73,6 +73,7 @@ jobs:
       - name: Lint Affected
         run: npx nx affected --target=lint --parallel=3
 
+# Commented out because its hanging
 #  test:
 #    name: Test Affected
 #    needs: setup
