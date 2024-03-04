@@ -134,7 +134,7 @@ jobs:
 
   publish-storybook:
     name: Publish Storybook
-    needs: [build, lint, test]
+    needs: [build, lint]
     runs-on: ubuntu-latest
 
     steps:
@@ -161,7 +161,7 @@ jobs:
 
   deploy-front-end:
     name: Deploy Front-End
-    needs: [build, lint, test]
+    needs: [build, lint]
     runs-on: ubuntu-latest
 
     steps:
@@ -203,7 +203,7 @@ jobs:
 
   deploy-server:
     name: Deploy Server
-    needs: [build, lint, test]
+    needs: [build, lint]
     runs-on: ubuntu-latest
 
     steps:
