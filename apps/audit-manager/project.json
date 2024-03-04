@@ -7,7 +7,7 @@
   "tags": ["frontend"],
   "targets": {
     "build": {
-      "executor": "@angular-devkit/build-angular:browser",
+      "executor": "@nx/angular:browser-esbuild",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/apps/audit-manager",
@@ -16,8 +16,7 @@
         "polyfills": ["zone.js"],
         "tsConfig": "apps/audit-manager/tsconfig.app.json",
         "assets": ["apps/audit-manager/src/favicon.ico", "apps/audit-manager/src/assets"],
-        "styles": ["@angular/material/prebuilt-themes/indigo-pink.css", "apps/audit-manager/src/styles.scss"],
-        "scripts": []
+        "styles": ["@angular/material/prebuilt-themes/indigo-pink.css", "apps/audit-manager/src/styles.scss"]
       },
       "configurations": {
         "production": {
