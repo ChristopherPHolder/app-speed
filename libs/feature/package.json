@@ -10,7 +10,10 @@
     "@angular/core": "17.2.1",
     "@angular/forms": "17.2.1",
     "@rx-angular/template": "17.0.0",
-    "aws-sdk": "^2.1218.0"
+    "aws-sdk": "^2.1218.0",
+    "lighthouse": "^11.2.0",
+    "ui": "0.0.1",
+    "@angular/cdk": "17.2.0"
   },
   "sideEffects": false
 }

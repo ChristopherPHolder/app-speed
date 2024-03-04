@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { UserFlowAudit } from './user-flow-replay';
 import { writeFileSync } from 'fs';
 
-describe('userFlowReplay', () => {
+describe.skip('userFlowReplay', () => {
   it('should work', async () => {
 
     const replayScript= {

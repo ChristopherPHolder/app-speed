@@ -23,7 +23,6 @@ export default defineConfig({
 
   test: {
     reporters: ['default'],
-    threads: false,
     globals: true,
     cache: {
       dir: '../../node_modules/.vitest',
