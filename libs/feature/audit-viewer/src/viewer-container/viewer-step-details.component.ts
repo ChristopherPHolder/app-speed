@@ -9,26 +9,22 @@ import {
   ViewerStepMetricSummaryComponent,
 } from './viewer-step-metric-summary.component';
 import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
-import {
-  MatAccordion,
-  MatExpansionPanel,
-  MatExpansionPanelHeader,
-  MatExpansionPanelTitle,
-} from '@angular/material/expansion';
 import { MatIcon } from '@angular/material/icon';
 import { ViewerFileStripComponent } from './viewer-file-strip.component';
 import { ViewerDiagnosticComponent } from './viewer-diagnostic.component';
+import { DiagnosticItem } from './viewer-diagnostic-panel.component';
+import { DIAGNOSTIC_ITEM_STATUS } from './viewer-diagnostic-status-badge.component';
 
 @Component({
   selector: 'lib-viewer-step-detail',
   template: `
-    <mat-card style='margin: 8px;'>
+    <mat-card>
       <mat-card-content>
         <lib-viewer-step-metric-summary [metricSummary]='categoryMetricSummary()[0]["performance"]' />
       </mat-card-content>
     </mat-card>
     
-    <mat-card style='margin: 8px;'>
+    <mat-card>
       <mat-card-header>
         <mat-card-title>
           Film Strip
@@ -39,12 +35,12 @@ import { ViewerDiagnosticComponent } from './viewer-diagnostic.component';
       </mat-card-content>
     </mat-card>
     
-    <mat-card style='margin: 8px;'>
+    <mat-card>
       <mat-card-header>
         <mat-card-title>DIAGNOSTICS</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <lib-viewer-diagnostic [diagnosticItems]='diagnosticItems()'/>
+        <lib-viewer-diagnostic [items]='diagnosticItems()'/>
       </mat-card-content>
     </mat-card>
   `,
@@ -107,11 +103,36 @@ export class ViewerStepDetailComponent {
   });
 
   diagnosticItems = computed(() => {
-    return {
-      alert: this.alertItems(),
-      warn: this.warnItems(),
-      info: this.informItems()
-    }
+    const items: DiagnosticItem[] = [];
+    this.alertItems().forEach((item) => {
+      items.push({
+        id: item.id,
+        status: DIAGNOSTIC_ITEM_STATUS.ALERT,
+        title: item.title,
+        description: item.description,
+        displayValue: item.displayValue,
+      });
+    });
+    this.warnItems().forEach((item) => {
+      items.push({
+        id: item.id,
+        status: DIAGNOSTIC_ITEM_STATUS.WARN,
+        title: item.title,
+        description: item.description,
+        displayValue: item.displayValue,
+      });
+    });
+    this.informItems().forEach((item) => {
+      items.push({
+        id: item.id,
+        status: DIAGNOSTIC_ITEM_STATUS.INFO,
+        title: item.title,
+        description: item.description,
+        displayValue: item.displayValue,
+      });
+    });
+
+    return items;
   })
 
   private affectsMetric(metricSavings: string[]): boolean {
