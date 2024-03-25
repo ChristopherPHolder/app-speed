@@ -1,22 +1,16 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { RouterOutlet } from '@angular/router';
 import { ShellComponent } from 'ui/shell';
 
 @Component({
   standalone: true,
-  imports: [ShellComponent, RouterModule],
+  imports: [ShellComponent, RouterOutlet],
   selector: 'app-root',
-  template: `<ui-shell [navItems]='navItems'><router-outlet/></ui-shell>`,
-  styles: [''],
+  template: `
+    <ui-shell>
+      <router-outlet/>
+    </ui-shell>`,
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppComponent {
-  title = 'audit-manager';
-
-  public readonly navItems = [
-    'Link 1',
-    'Link 2',
-    'Link 3'
-  ]
-}
+export class AppComponent {}

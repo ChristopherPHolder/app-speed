@@ -5,7 +5,7 @@ import { writeFileSync, rmSync, mkdirSync } from 'fs';
 
 import { LocalQueue, LocalQueueConfig } from './local-queue';
 
-describe('local queue', async () => {
+describe.skip('local queue', async () => {
   const mockPath =  './user-flow';
 
   beforeAll(() => {

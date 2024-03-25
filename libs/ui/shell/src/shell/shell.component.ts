@@ -1,23 +1,10 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  inject,
-  Input,
-  Output,
-  ViewEncapsulation,
-} from '@angular/core';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatButtonModule } from '@angular/material/button';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatListModule } from '@angular/material/list';
-import { MatIconModule } from '@angular/material/icon';
-import { Observable } from 'rxjs';
-import { map, shareReplay } from 'rxjs/operators';
-import { RxIf } from '@rx-angular/template/if';
-import { RxPush } from '@rx-angular/template/push';
-import { RxFor } from '@rx-angular/template/for';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
+import { MatToolbar } from '@angular/material/toolbar';
+import { MatIconButton } from '@angular/material/button';
+import { MatSidenav, MatSidenavContainer, MatSidenavContent } from '@angular/material/sidenav';
+import { MatListItem, MatNavList } from '@angular/material/list';
+import { MatIcon } from '@angular/material/icon';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'ui-shell',
@@ -27,25 +14,20 @@ import { RxFor } from '@rx-angular/template/for';
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    RxIf,
-    RxFor,
-    RxPush,
-    MatToolbarModule,
-    MatButtonModule,
-    MatSidenavModule,
-    MatListModule,
-    MatIconModule,
+    MatSidenavContainer,
+    MatSidenav,
+    MatSidenavContent,
+    MatToolbar,
+    MatNavList,
+    MatIcon,
+    MatIconButton,
+    MatListItem,
+    RouterLink,
   ],
 })
 export class ShellComponent {
-  @Input() navItems?: string[];
-  @Output() navClick = new EventEmitter<string>();
-
-  private breakpointObserver = inject(BreakpointObserver);
-
-  isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
-    .pipe(
-      map(result => result.matches),
-      shareReplay()
-    );
+  readonly sideNavItems = [
+    { name: 'Audit Builder', route: 'audit-builder' },
+    { name: 'Audit Viewer', route: 'audit-viewer' },
+  ];
 }
