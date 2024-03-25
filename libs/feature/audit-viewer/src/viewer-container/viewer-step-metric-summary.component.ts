@@ -31,46 +31,46 @@ export type MetricSummary = {
 @Component({
   selector: 'lib-viewer-step-metric-summary',
   template: `
-    <div style='display: flex; justify-content: space-between; margin: 8px;'>
-      <div>
-        METRICS
-      </div>
-      <div (click)='toddleDescriptionVisibility()'>
-        Expand view
-      </div>
+    <div class='metrics-menu'>
+      <span>METRICS</span>
+      <div (click)='toddleDescriptionVisibility()'>Expand view</div>
     </div>
-    @for (metric of metricSummary(); track metric.name) {
-      <mat-divider />
-      <div style='margin: 12px'>
-        <div style='display: flex;'>
-          <div style='margin: 8px;'>
-            @switch (metric.colorCode) {
-              @case ('green') {
-                <mat-icon style="color:green;">circle</mat-icon>
-              }
-              @case ('orange') {
-                <mat-icon style="color:orange;">square</mat-icon>
-              }
-              @case ('red') {
-                <mat-icon style="color:red;">warning</mat-icon>
-              }
-            }
-          </div>
-          <div>
-            <div style='font-size: medium;'>{{ metric.name }}</div>
-            <div style='font-size: large; font-weight: 500; margin: 5px 0;' [style.color]='metric.colorCode'>
-              {{ metric.value }}
+    <div class='metrics-wrapper'>
+      @for (metric of metricSummary(); track metric.name) {
+        <div class='metric-wrapper'>
+          <mat-divider />
+          <div style='margin: 12px'>
+            <div class='metric-container'>
+              <div class='metric-item' style='margin: 8px;'>
+                <!--  @TODO move to separate component -->
+                @switch (metric.colorCode) {
+                  @case ('green') {
+                    <mat-icon style="color:green;">circle</mat-icon>
+                  }
+                  @case ('orange') {
+                    <mat-icon style="color:orange;">square</mat-icon>
+                  }
+                  @case ('red') {
+                    <mat-icon style="color:red;">warning</mat-icon>
+                  }
+                }
+              </div>
+              <div class='metric-item' style='font-size: medium;'>{{ metric.name }}</div>
+              <div class='metric-item' style='font-size: large; font-weight: 500;' [style.color]='metric.colorCode'>
+                {{ metric.value }}
+              </div>
+    
             </div>
             @if (displayDescription()) {
-              <div>
-                {{ metric.description }} 
+              <div style='margin: 8px;'>
+                {{ metric.description }}
                 <a [href]='metric.reference?.link'>{{ metric.reference?.text }}</a>
               </div>
             }
           </div>
         </div>
-      </div>
-    }
+      }
+    </div>
   `,
   standalone: true,
   imports: [
@@ -81,6 +81,39 @@ export type MetricSummary = {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
+    :host {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        max-width: 900px;
+        margin: auto;
+    }
+    .metrics-menu {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 32px;
+        width: 100%;
+    }
+    .metrics-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+    .metric-wrapper {
+        min-width: 300px;
+        max-width: 500px;
+        width: 100%;
+        margin: 0 16px;
+    }
+    .metric-container {
+        display: flex;
+        width: 100%;
+        align-items: center;
+    }
+    .metric-item:last-of-type {
+        margin-left: auto;
+    }
   `]
 })
 export class ViewerStepMetricSummaryComponent {
