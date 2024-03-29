@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { MatTable } from '@angular/material/table';
 import type { FlowResult, Result } from 'lighthouse';
 import {
@@ -56,6 +56,15 @@ import { DIAGNOSTIC_ITEM_STATUS } from './viewer-diagnostic-status-badge.compone
     ViewerFileStripComponent,
     ViewerDiagnosticComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  styles: `
+      :host {
+          display: block;
+          max-width: 960px;
+          margin: auto;
+          --mdc-elevated-card-container-shape: 0;
+      }
+  `
 })
 export class ViewerStepDetailComponent {
   stepDetails = input.required<FlowResult.Step>();

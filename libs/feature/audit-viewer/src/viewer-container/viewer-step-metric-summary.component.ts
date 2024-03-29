@@ -1,7 +1,5 @@
-import { ChangeDetectionStrategy, Component, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
 import { JsonPipe } from '@angular/common';
-import { MatTable } from '@angular/material/table';
-import { MatDivider } from '@angular/material/divider';
 import { MatIcon } from '@angular/material/icon';
 
 export const COLOR_CODE = {
@@ -31,95 +29,76 @@ export type MetricSummary = {
 @Component({
   selector: 'lib-viewer-step-metric-summary',
   template: `
-    <div class='metrics-menu'>
+    <div class='header'>
       <span>METRICS</span>
-      <div (click)='toddleDescriptionVisibility()'>Expand view</div>
+      <div (click)='toddleDescriptionVisibility()'>{{toggleBtnText()}} view</div>
     </div>
-    <div class='metrics-wrapper'>
+    <div class='content'>
       @for (metric of metricSummary(); track metric.name) {
-        <div class='metric-wrapper'>
-          <mat-divider />
-          <div style='margin: 12px'>
-            <div class='metric-container'>
-              <div class='metric-item' style='margin: 8px;'>
-                <!--  @TODO move to separate component -->
-                @switch (metric.colorCode) {
-                  @case ('green') {
-                    <mat-icon style="color:green;">circle</mat-icon>
-                  }
-                  @case ('orange') {
-                    <mat-icon style="color:orange;">square</mat-icon>
-                  }
-                  @case ('red') {
-                    <mat-icon style="color:red;">warning</mat-icon>
-                  }
-                }
-              </div>
-              <div class='metric-item' style='font-size: medium;'>{{ metric.name }}</div>
-              <div class='metric-item' style='font-size: large; font-weight: 500;' [style.color]='metric.colorCode'>
-                {{ metric.value }}
-              </div>
-    
-            </div>
-            @if (displayDescription()) {
-              <div style='margin: 8px;'>
-                {{ metric.description }}
-                <a [href]='metric.reference?.link'>{{ metric.reference?.text }}</a>
-              </div>
+        <div class='item'>
+          <div class='item-header'>
+            <!--  @TODO move to separate component -->
+            @switch (metric.colorCode) {
+              @case ('green') {
+                <mat-icon style='color:green;'>circle</mat-icon>
+              }
+              @case ('orange') {
+                <mat-icon style='color:orange;'>square</mat-icon>
+              }
+              @case ('red') {
+                <mat-icon style='color:red;'>warning</mat-icon>
+              }
             }
+            <div style='font-size: medium;'>{{ metric.name }}</div>
+            <div style='font-size: large; font-weight: 500;' [style.color]='metric.colorCode'>{{ metric.value }}</div>
           </div>
+          @if (descriptionVisible()) {
+            <div style='margin: 16px 0;'>
+              {{ metric.description }}
+              <a [href]='metric.reference?.link'>{{ metric.reference?.text }}</a>
+            </div>
+          }
         </div>
       }
     </div>
   `,
   standalone: true,
-  imports: [
-    JsonPipe,
-    MatTable,
-    MatDivider,
-    MatIcon,
-  ],
+  imports: [JsonPipe, MatIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
-    :host {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        max-width: 900px;
-        margin: auto;
-    }
-    .metrics-menu {
-        display: flex;
-        justify-content: space-between;
-        padding: 8px 32px;
-        width: 100%;
-    }
-    .metrics-wrapper {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-    }
-    .metric-wrapper {
-        min-width: 300px;
-        max-width: 500px;
-        width: 100%;
-        margin: 0 16px;
-    }
-    .metric-container {
-        display: flex;
-        width: 100%;
-        align-items: center;
-    }
-    .metric-item:last-of-type {
-        margin-left: auto;
-    }
+      .header {
+          display: flex;
+          justify-content: space-between;
+          margin: 8px 0;
+      }
+
+      .content {
+          display: grid;
+          grid-template-columns: 1fr;
+          @media (min-width: 768px) {
+              grid-template-columns: 1fr 1fr;
+              gap: 0 32px;
+          }
+      }
+
+      .item {
+          border-top: 1px solid #ccc;
+          margin: 0 0 16px 0;
+          padding: 8px;
+      }
+      
+      .item-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+      }
   `]
 })
 export class ViewerStepMetricSummaryComponent {
   metricSummary = input.required<MetricSummary[]>();
-  readonly displayDescription = signal(false);
+  readonly descriptionVisible = signal(false);
+  readonly toggleBtnText = computed(() => this.descriptionVisible() ?  'Collapse' : 'Expand' );
   toddleDescriptionVisibility(): void {
-    this.displayDescription.update((value) => !value);
+    this.descriptionVisible.update((value) => !value);
   }
 }
