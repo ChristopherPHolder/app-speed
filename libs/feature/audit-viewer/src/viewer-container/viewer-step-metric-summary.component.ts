@@ -40,17 +40,17 @@ export type MetricSummary = {
             <!--  @TODO move to separate component -->
             @switch (metric.colorCode) {
               @case ('green') {
-                <mat-icon style='color:green;'>circle</mat-icon>
+                <mat-icon class='header-icon green'>circle</mat-icon>
               }
               @case ('orange') {
-                <mat-icon style='color:orange;'>square</mat-icon>
+                <mat-icon class='header-icon orange'>square</mat-icon>
               }
               @case ('red') {
-                <mat-icon style='color:red;'>warning</mat-icon>
+                <mat-icon class='header-icon red'>warning</mat-icon>
               }
             }
-            <div style='font-size: medium;'>{{ metric.name }}</div>
-            <div style='font-size: large; font-weight: 500;' [style.color]='metric.colorCode'>{{ metric.value }}</div>
+            <div class='header-name'>{{ metric.name }}</div>
+            <div class='header-value' [style.color]='metric.colorCode'>{{ metric.value }}</div>
           </div>
           @if (descriptionVisible()) {
             <div style='margin: 16px 0;'>
@@ -90,7 +90,29 @@ export type MetricSummary = {
       .item-header {
           display: flex;
           justify-content: space-between;
-          align-items: center;
+          align-items: self-end;
+      }
+      
+      .header-icon {
+          padding: 0 10px 0 0;
+          &.green {
+              color: green;
+          }
+          &.red {
+              color: red;
+          }
+          &.orange {
+              color: orange;
+          }
+      }
+      .header-name {
+          font-size: medium;
+          font-weight: 500;
+      }
+      .header-value {
+          font-size: large;
+          font-weight: 500;
+          margin-left: auto;
       }
   `]
 })
