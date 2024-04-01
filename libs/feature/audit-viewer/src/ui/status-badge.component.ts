@@ -9,6 +9,7 @@ import { StatusOptions } from './status.types';
   standalone: true,
   imports: [MatIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  styles: [`:host { display: inherit }`]
 })
 export class StatusBadgeComponent {
   status = input.required<{ icon: string; color: string; }, StatusOptions>({

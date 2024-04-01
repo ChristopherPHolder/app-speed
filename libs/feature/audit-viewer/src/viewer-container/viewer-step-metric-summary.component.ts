@@ -37,10 +37,7 @@ export type MetricSummary = {
             <div class='header-value' [style.color]='STATUS_COLOR[metric.status]'>{{ metric.value }}</div>
           </div>
           @if (descriptionVisible()) {
-            <div style='margin: 16px 0;'>
-              {{ metric.description }}
-              <a [href]='metric.reference?.link'>{{ metric.reference?.text }}</a>
-            </div>
+            <div style='margin: 16px 0;'>{{ metric.description }}<a [href]='metric.reference?.link'>{{ metric.reference?.text }}</a></div>
           }
         </div>
       }
