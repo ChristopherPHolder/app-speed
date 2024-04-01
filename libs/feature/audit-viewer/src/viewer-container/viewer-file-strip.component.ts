@@ -1,24 +1,35 @@
 import { Component, input } from '@angular/core';
+import { NgScrollbarModule } from 'ngx-scrollbar';
+import { NgFor } from '@angular/common';
 
 @Component({
   selector: 'lib-viewer-file-strip',
   template: `
-    @for (item of filmStrip(); track item) {
-      <img class='film-strip-frame' [src]='item.data' height='100px' alt=''>
-    }
+    <ng-scrollbar>
+      <div class="film-strip-container">
+        @for (item of filmStrip(); track item) {
+          <img class='film-strip-frame' [src]='item.data' height='100px' alt=''>
+        }
+      </div>
+    </ng-scrollbar>
   `,
+  imports: [NgScrollbarModule, NgFor],
   standalone: true,
   styles: [`
-      :host {
+      ng-scrollbar {
+          --scrollbar-track-color: rgb(0 0 0 / 5%);
+          /* TODO - extract token correctly */
+          --scrollbar-thumb-color: var(--mat-slider-ripple-color);
+          --scrollbar-thickness: 12;
+          --scrollbar-offset: 6;
+          --scrollbar-border-radius: 8px;
+          border-radius: 3px;
+      }
+      
+      .film-strip-container {
           display: flex;
           overflow: auto;
-          -ms-overflow-style: none; /* Internet Explorer 10+ */
-          scrollbar-width: none; /* Firefox */
-
-          ::-webkit-scrollbar {
-              display: none; /* Safari and Chrome */
-          }
-          padding: 4px;
+          padding: 8px 4px;
       }
 
       .film-strip-frame {
@@ -29,7 +40,6 @@ import { Component, input } from '@angular/core';
 
           &:not(:first-child):not(:last-child) {
               margin: 0 8px;
-              /*padding: 16px;*/
           }
 
           &:hover {
