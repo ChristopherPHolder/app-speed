@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { MatTable } from '@angular/material/table';
-import type { FlowResult, Result } from 'lighthouse';
+import { FlowResult, Result } from 'lighthouse';
 import {
   COLOR_CODE,
   ColorCode,
@@ -13,7 +13,7 @@ import { MatIcon } from '@angular/material/icon';
 import { ViewerFileStripComponent } from './viewer-file-strip.component';
 import { ViewerDiagnosticComponent } from './viewer-diagnostic.component';
 import { DiagnosticItem } from './viewer-diagnostic-panel.component';
-import { DIAGNOSTIC_ITEM_STATUS } from './viewer-diagnostic-status-badge.component';
+import { DIAGNOSTIC_ITEM_STATUS } from '../viewer-ui/viewer-status-badge.component';
 
 @Component({
   selector: 'lib-viewer-step-detail',
