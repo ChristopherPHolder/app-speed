@@ -2,8 +2,6 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { MatTable } from '@angular/material/table';
 import { FlowResult, Result } from 'lighthouse';
 import {
-  COLOR_CODE,
-  ColorCode,
   MetricSummary,
   Reference,
   ViewerStepMetricSummaryComponent,
@@ -13,7 +11,8 @@ import { MatIcon } from '@angular/material/icon';
 import { ViewerFileStripComponent } from './viewer-file-strip.component';
 import { ViewerDiagnosticComponent } from './viewer-diagnostic.component';
 import { DiagnosticItem } from './viewer-diagnostic-panel.component';
-import { DIAGNOSTIC_ITEM_STATUS } from '../viewer-ui/viewer-status-badge.component';
+import { StatusOptions } from '../ui/status.types';
+import { STATUS_OPTIONS } from '../ui/status.constants';
 
 @Component({
   selector: 'viewer-step-detail',
@@ -116,7 +115,7 @@ export class ViewerStepDetailComponent {
     this.alertItems().forEach((item) => {
       items.push({
         id: item.id,
-        status: DIAGNOSTIC_ITEM_STATUS.ALERT,
+        status: STATUS_OPTIONS.ALERT,
         title: item.title,
         description: item.description,
         displayValue: item.displayValue,
@@ -125,7 +124,7 @@ export class ViewerStepDetailComponent {
     this.warnItems().forEach((item) => {
       items.push({
         id: item.id,
-        status: DIAGNOSTIC_ITEM_STATUS.WARN,
+        status: STATUS_OPTIONS.WARN,
         title: item.title,
         description: item.description,
         displayValue: item.displayValue,
@@ -134,7 +133,7 @@ export class ViewerStepDetailComponent {
     this.informItems().forEach((item) => {
       items.push({
         id: item.id,
-        status: DIAGNOSTIC_ITEM_STATUS.INFO,
+        status: STATUS_OPTIONS.INFO,
         title: item.title,
         description: item.description,
         displayValue: item.displayValue,
@@ -159,7 +158,7 @@ export class ViewerStepDetailComponent {
       value: v.displayValue,
       description: this.removeUrlRef(v.description),
       reference: this.extractReference(v.description),
-      colorCode: this.computeColorCode(v.score, v.numericValue, v.scoringOptions)
+      status: this.metricStatus(v.score, v.numericValue, v.scoringOptions)
     }));
   }
 
@@ -176,21 +175,21 @@ export class ViewerStepDetailComponent {
     return auditRefs.filter(ref => ref?.group === 'metrics').map((ref) => ref.id);
   }
 
-  private computeColorCode(score: number | null, numericValue: number | undefined, scoringOptions: {p10: number, median: number} | undefined): ColorCode {
+  private metricStatus(score: number | null, numericValue: number | undefined, scoringOptions: {p10: number, median: number} | undefined): StatusOptions {
     if (score !== null) {
-      return score > 0.89 ? COLOR_CODE.GREEN : score > 0.49 ? COLOR_CODE.ORANGE : COLOR_CODE.RED;
+      return score > 0.89 ? STATUS_OPTIONS.PASS : score > 0.49 ? STATUS_OPTIONS.WARN : STATUS_OPTIONS.ALERT;
     }
 
     if (scoringOptions === undefined || numericValue === undefined) {
-      return null;
+      return STATUS_OPTIONS.INFO;
     }
 
     if (numericValue <= scoringOptions.p10) {
-      return COLOR_CODE.GREEN;
+      return STATUS_OPTIONS.PASS;
     }
     if (numericValue <= scoringOptions.median) {
-      return COLOR_CODE.ORANGE;
+      return STATUS_OPTIONS.WARN;
     }
-    return COLOR_CODE.RED;
+    return STATUS_OPTIONS.ALERT;
   }
 }

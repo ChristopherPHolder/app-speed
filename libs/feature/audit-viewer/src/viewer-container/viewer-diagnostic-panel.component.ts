@@ -5,14 +5,15 @@ import {
   MatExpansionPanelHeader,
   MatExpansionPanelTitle,
 } from '@angular/material/expansion';
-import { DiagnosticItemStatus, ViewerStatusBadgeComponent } from '../viewer-ui/viewer-status-badge.component';
+import { StatusBadgeComponent } from '../ui/status-badge.component';
+import { StatusOptions } from '../ui/status.types';
 
 export type DiagnosticItem = {
   id: string;
   title: string;
   displayValue?: string;
   description: string;
-  status: DiagnosticItemStatus;
+  status: StatusOptions;
 };
 
 @Component({
@@ -52,7 +53,7 @@ export type DiagnosticItem = {
     MatExpansionPanelDescription,
     MatExpansionPanelHeader,
     MatExpansionPanelTitle,
-    ViewerStatusBadgeComponent,
+    StatusBadgeComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
