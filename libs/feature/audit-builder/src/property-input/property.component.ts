@@ -27,28 +27,28 @@ import { PropertyName, StepType } from '../schema/types';
   template: `
     @switch (schema().inputType) {
       @case (INPUT_TYPE.STRING) {
-        <lib-input-string 
+        <builder-input-string 
           [schema]='schema()' 
           [control]='$any(control())'
           (deleteProperty)='handleDeleteProperty()'
         />
       }
       @case (INPUT_TYPE.NUMBER) {
-        <lib-input-number
+        <builder-input-number
           [schema]='schema()'
           [control]='$any(control())'
           (deleteProperty)='handleDeleteProperty()'
         />
       }
       @case (INPUT_TYPE.BOOLEAN) {
-        <lib-input-boolean
+        <builder-input-boolean
           [schema]='schema()'
           [control]='$any(control())'
           (deleteProperty)='handleDeleteProperty()'
         />
       }
       @case (INPUT_TYPE.OPTIONS) {
-        <lib-input-options
+        <builder-input-options
           [schema]='schema()'
           [control]='$any(control())'
           (deleteProperty)='handleDeleteProperty()'
@@ -56,14 +56,14 @@ import { PropertyName, StepType } from '../schema/types';
         />
       }
       @case (INPUT_TYPE.STRING_ARRAY) {
-        <lib-input-string-array 
+        <builder-input-string-array 
           [schema]='schema()' 
           [control]='$any(control())'
           (deleteProperty)='handleDeleteProperty()'
         />
       }
       @case (INPUT_TYPE.RECORDS) {
-        <lib-input-records
+        <builder-input-records
           [schema]='schema()'
           [control]='$any(control())'
           (deleteProperty)='handleDeleteProperty()'

@@ -12,7 +12,7 @@ export type DialogAction = {
 export type DialogActions = DialogAction[];
 
 @Component({
-  selector: 'lib-step-action-dialog',
+  selector: 'builder-step-action-dialog',
   standalone: true,
   imports: [MatButtonModule, MatIconModule, MatMenuModule],
   template: `

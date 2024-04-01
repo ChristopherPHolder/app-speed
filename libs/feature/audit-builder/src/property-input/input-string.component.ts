@@ -8,7 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { StepProperty } from '../schema/types';
 
 @Component({
-  selector: 'lib-input-string',
+  selector: 'builder-input-string',
   standalone: true,
   imports: [MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule, ReactiveFormsModule],
   template: `

@@ -5,7 +5,7 @@ export const DIAGNOSTIC_ITEM_STATUS = { ALERT: 'alert', WARN: 'warn', INFO: 'inf
 export type DiagnosticItemStatus = typeof DIAGNOSTIC_ITEM_STATUS[keyof typeof DIAGNOSTIC_ITEM_STATUS];
 
 @Component({
-  selector: 'lib-viewer-status-badge',
+  selector: 'viewer-status-badge',
   template: `<mat-icon [style.color]='status().color'>{{status().icon}}</mat-icon>`,
   standalone: true,
   imports: [MatIcon],

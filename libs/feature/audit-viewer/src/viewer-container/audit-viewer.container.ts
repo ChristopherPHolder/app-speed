@@ -8,11 +8,11 @@ import { ViewerStepStepperComponent } from './viewer-step-stepper.component';
 import { ViewerStepDetailComponent } from './viewer-step-details.component';
 
 @Component({
-  selector: 'lib-viewer-container',
+  selector: 'viewer-viewer-container',
   template: `
-<!--      <lib-audit-summary [auditSummary]='auditSummary' />-->
+<!--      <viewer-audit-summary [auditSummary]='auditSummary' />-->
     @for (step of steps; track step.name) {
-      <lib-viewer-step-detail [stepDetails]='step'/>
+      <viewer-step-detail [stepDetails]='step'/>
     }
   `,
   standalone: true,

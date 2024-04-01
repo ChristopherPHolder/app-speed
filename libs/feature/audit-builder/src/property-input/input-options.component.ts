@@ -10,7 +10,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { StepProperty } from '../schema/types';
 
 @Component({
-  selector: 'lib-input-options',
+  selector: 'builder-input-options',
   standalone: true,
   imports: [
     RxFor,

@@ -16,12 +16,12 @@ export type DiagnosticItem = {
 };
 
 @Component({
-  selector: 'lib-viewer-diagnostic-panel',
+  selector: 'viewer-diagnostic-panel',
   template: `
     <mat-expansion-panel>
       <mat-expansion-panel-header>
         <mat-panel-title>
-          <lib-viewer-status-badge class='status-badge' [status]='item().status' />
+          <viewer-status-badge class='status-badge' [status]='item().status' />
           <span>
             {{ item().title }}
             @if (item().displayValue) {

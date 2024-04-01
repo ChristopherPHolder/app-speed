@@ -16,11 +16,11 @@ import { DiagnosticItem } from './viewer-diagnostic-panel.component';
 import { DIAGNOSTIC_ITEM_STATUS } from '../viewer-ui/viewer-status-badge.component';
 
 @Component({
-  selector: 'lib-viewer-step-detail',
+  selector: 'viewer-step-detail',
   template: `
     <mat-card>
       <mat-card-content>
-        <lib-viewer-step-metric-summary [metricSummary]='categoryMetricSummary()[0]["performance"]' />
+        <viewer-step-metric-summary [metricSummary]='categoryMetricSummary()[0]["performance"]' />
       </mat-card-content>
     </mat-card>
     
@@ -31,7 +31,7 @@ import { DIAGNOSTIC_ITEM_STATUS } from '../viewer-ui/viewer-status-badge.compone
         </mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <lib-viewer-file-strip [filmStrip]='filmStrip()' />
+        <viewer-file-strip [filmStrip]='filmStrip()' />
       </mat-card-content>
     </mat-card>
     
@@ -40,7 +40,7 @@ import { DIAGNOSTIC_ITEM_STATUS } from '../viewer-ui/viewer-status-badge.compone
         <mat-card-title>DIAGNOSTICS</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <lib-viewer-diagnostic [items]='diagnosticItems()'/>
+        <viewer-diagnostic [items]='diagnosticItems()'/>
       </mat-card-content>
     </mat-card>
   `,

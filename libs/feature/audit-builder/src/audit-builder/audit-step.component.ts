@@ -9,7 +9,7 @@ import { StepPropertyComponent } from '../property-input/property.component';
 import { MatButtonModule } from '@angular/material/button';
 
 @Component({
-  selector: 'lib-audit-step',
+  selector: 'builder-audit-step',
   standalone: true,
   imports: [
     MatExpansionModule,
@@ -30,7 +30,7 @@ import { MatButtonModule } from '@angular/material/button';
             }
         </mat-panel-title>
       </mat-expansion-panel-header>
-      <lib-step-action-dialog [stepIndex]='stepIndex' class='toggle_menu'/>
+      <builder-step-action-dialog [stepIndex]='stepIndex' class='toggle_menu'/>
         @for (key of builder.getStepPropertyKeys(stepIndex); track key) {
             <lib-step-property [controlKey]='key' [stepIndex]='stepIndex' />
         }

@@ -29,7 +29,7 @@ export type AuditSummary = {
 };
 
 @Component({
-  selector: 'lib-audit-summary',
+  selector: 'viewer-audit-summary',
   template: `
     <mat-card style='margin: 20px'>
       <mat-card-header>
@@ -76,7 +76,7 @@ export type AuditSummary = {
               <th mat-header-cell *matHeaderCellDef class='center-header'>{{category.title}}</th>
               <td mat-cell *matCellDef='let element'>
                 <div class='center-row-content'>
-                  <lib-viewer-score [category]='element.categories[category.id]'/>
+                  <viewer-score [category]='element.categories[category.id]'/>
                 </div>
               </td>
             </ng-container>

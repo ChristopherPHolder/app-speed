@@ -3,7 +3,7 @@ import { NgScrollbarModule } from 'ngx-scrollbar';
 import { NgFor } from '@angular/common';
 
 @Component({
-  selector: 'lib-viewer-file-strip',
+  selector: 'viewer-file-strip',
   template: `
     <ng-scrollbar>
       <div class="film-strip-container">

@@ -27,7 +27,7 @@ export type MetricSummary = {
 }
 
 @Component({
-  selector: 'lib-viewer-step-metric-summary',
+  selector: 'viewer-step-metric-summary',
   template: `
     <div class='header'>
       <span>METRICS</span>

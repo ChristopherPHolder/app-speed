@@ -9,7 +9,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { StepProperty } from '../schema/types';
 
 @Component({
-  selector: 'lib-input-boolean',
+  selector: 'builder-input-boolean',
   standalone: true,
   imports: [
     MatButtonModule,

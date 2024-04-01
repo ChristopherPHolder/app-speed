@@ -3,7 +3,7 @@ import { CdkStepper, CdkStepperModule } from '@angular/cdk/stepper';
 import { NgTemplateOutlet } from '@angular/common';
 
 @Component({
-  selector: 'lib-viewer-custom-stepper',
+  selector: 'viewer-custom-stepper',
   template: `
     <section>
       <header>

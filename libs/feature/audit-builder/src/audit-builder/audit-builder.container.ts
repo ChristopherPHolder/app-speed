@@ -21,7 +21,7 @@ import { AuditDetails } from '../schema/types';
 
 @Component({
   standalone: true,
-  selector: 'lib-builder-container',
+  selector: 'builder-container',
   template: `
     <form 
       *rxIf='auditInit$' 
@@ -32,9 +32,9 @@ import { AuditDetails } from '../schema/types';
     >
       <mat-card>
         <mat-card-content>
-          <lib-audit-global />
+          <builder-audit-global />
           <mat-accordion [multi]='true'>
-            <lib-audit-step *rxFor='let control of builder.steps.controls; let idx = index;' [stepIndex]='idx' />
+            <builder-audit-step *rxFor='let control of builder.steps.controls; let idx = index;' [stepIndex]='idx' />
           </mat-accordion>
         </mat-card-content>
       </mat-card>
