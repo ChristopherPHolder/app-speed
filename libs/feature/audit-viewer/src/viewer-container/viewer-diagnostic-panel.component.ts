@@ -7,6 +7,7 @@ import {
 } from '@angular/material/expansion';
 import { StatusBadgeComponent } from '../ui/status-badge.component';
 import { StatusOptions } from '../ui/status.types';
+import { Reference } from '../utils/url-parser';
 
 export type DiagnosticItem = {
   id: string;
@@ -14,6 +15,7 @@ export type DiagnosticItem = {
   displayValue?: string;
   description: string;
   status: StatusOptions;
+  reference: Reference;
 };
 
 @Component({
@@ -31,7 +33,7 @@ export type DiagnosticItem = {
           </span>
         </mat-panel-title>
       </mat-expansion-panel-header>
-      <p>{{ item().description }}</p>
+      <p>{{ item().description }}<a [href]='item().reference?.link'>{{ item().reference?.text }}</a></p>
     </mat-expansion-panel>
   `,
   styles: `

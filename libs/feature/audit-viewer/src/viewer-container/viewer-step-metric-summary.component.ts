@@ -4,21 +4,14 @@ import { MatIcon } from '@angular/material/icon';
 import { StatusBadgeComponent } from '../ui/status-badge.component';
 import { StatusOptions } from '../ui/status.types';
 import { STATUS_COLOR } from '../ui/status.constants';
-
-export type Reference = {
-  link: string;
-  text: string;
-} | null;
+import { Reference } from '../utils/url-parser';
 
 export type MetricSummary = {
   name: string;
   value: string | undefined;
   description: string;
   status: StatusOptions;
-  reference: {
-    link: string;
-    text: string;
-  } | null
+  reference: Reference;
 }
 
 @Component({

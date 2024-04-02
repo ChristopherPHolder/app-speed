@@ -1,11 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { MatTable } from '@angular/material/table';
 import { FlowResult, Result } from 'lighthouse';
-import {
-  MetricSummary,
-  Reference,
-  ViewerStepMetricSummaryComponent,
-} from './viewer-step-metric-summary.component';
+import { MetricSummary, ViewerStepMetricSummaryComponent } from './viewer-step-metric-summary.component';
 import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import { ViewerFileStripComponent } from './viewer-file-strip.component';
@@ -13,6 +9,7 @@ import { ViewerDiagnosticComponent } from './viewer-diagnostic.component';
 import { DiagnosticItem } from './viewer-diagnostic-panel.component';
 import { StatusOptions } from '../ui/status.types';
 import { STATUS_OPTIONS } from '../ui/status.constants';
+import { extractTrailingMdUrl, removeTrailingMdUrl } from '../utils/url-parser';
 
 @Component({
   selector: 'viewer-step-detail',
@@ -117,8 +114,9 @@ export class ViewerStepDetailComponent {
         id: item.id,
         status: STATUS_OPTIONS.ALERT,
         title: item.title,
-        description: item.description,
         displayValue: item.displayValue,
+        description: removeTrailingMdUrl(item.description),
+        reference: extractTrailingMdUrl(item.description)
       });
     });
     this.warnItems().forEach((item) => {
@@ -126,8 +124,9 @@ export class ViewerStepDetailComponent {
         id: item.id,
         status: STATUS_OPTIONS.WARN,
         title: item.title,
-        description: item.description,
         displayValue: item.displayValue,
+        description: removeTrailingMdUrl(item.description),
+        reference: extractTrailingMdUrl(item.description)
       });
     });
     this.informItems().forEach((item) => {
@@ -135,8 +134,9 @@ export class ViewerStepDetailComponent {
         id: item.id,
         status: STATUS_OPTIONS.INFO,
         title: item.title,
-        description: item.description,
         displayValue: item.displayValue,
+        description: removeTrailingMdUrl(item.description),
+        reference: extractTrailingMdUrl(item.description)
       });
     });
 
@@ -156,19 +156,10 @@ export class ViewerStepDetailComponent {
     return ids.map((id: string) => audits[id]).map((v) => ({
       name: v.title,
       value: v.displayValue,
-      description: this.removeUrlRef(v.description),
-      reference: this.extractReference(v.description),
+      description: removeTrailingMdUrl(v.description),
+      reference: extractTrailingMdUrl(v.description),
       status: this.metricStatus(v.score, v.numericValue, v.scoringOptions)
     }));
-  }
-
-  private extractReference(description: string): Reference {
-    const value = description.split(/\[(.*?)\]\((.*?)\)/);
-    return { text: value[1] + '.', link: value[0] };
-  }
-
-  private removeUrlRef(description: string): string {
-    return description.split('[')[0]
   }
 
   private metricAudits(auditRefs: Result.Category['auditRefs']): string[] {

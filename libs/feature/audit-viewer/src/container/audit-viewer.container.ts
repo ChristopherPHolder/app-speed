@@ -10,7 +10,7 @@ import { ViewerStepDetailComponent } from '../viewer-container/viewer-step-detai
 @Component({
   selector: 'viewer-viewer-container',
   template: `
-<!--      <viewer-audit-summary [auditSummary]='auditSummary' />-->
+    <viewer-audit-summary [auditSummary]='auditSummary' />
     @for (step of steps; track step.name) {
       <viewer-step-detail [stepDetails]='step'/>
     }
