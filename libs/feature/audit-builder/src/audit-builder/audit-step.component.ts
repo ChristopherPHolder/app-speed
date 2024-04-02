@@ -32,7 +32,7 @@ import { MatButtonModule } from '@angular/material/button';
       </mat-expansion-panel-header>
       <builder-step-action-dialog [stepIndex]='stepIndex' class='toggle_menu'/>
         @for (key of builder.getStepPropertyKeys(stepIndex); track key) {
-            <lib-step-property [controlKey]='key' [stepIndex]='stepIndex' />
+            <builder-step-property [controlKey]='key' [stepIndex]='stepIndex' />
         }
         @for (key of builder.getStepOptionalProperties(stepIndex); track key) {
             <button mat-fab [extended]='true' color="primary" (click)='builder.addStepProperty(stepIndex, key)'>

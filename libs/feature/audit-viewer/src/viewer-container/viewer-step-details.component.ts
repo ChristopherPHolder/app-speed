@@ -94,7 +94,7 @@ export class ViewerStepDetailComponent {
   failedAudits = computed(() => this.diagnostics().failed);
   alertItems = computed(() => {
     return this.failedAudits().filter((v) => {
-      return v.guidanceLevel === 1 && Object.keys(v.metricSavings!).filter((i) => this.categoryAcronyms().includes(i)).length;
+      return v.guidanceLevel === 1 && Object.keys(v.metricSavings || {}).filter((i) => this.categoryAcronyms().includes(i)).length;
     });
   });
   warnItems = computed(() => {
@@ -104,7 +104,7 @@ export class ViewerStepDetailComponent {
   informItems = computed(() => {
     return this.diagnostics().passed
       .filter((v) => !!v.metricSavings)
-      .filter((v) => this.affectsMetric(Object.keys(v.metricSavings!)))
+      .filter((v) => this.affectsMetric(Object.keys(v.metricSavings || {})))
   });
 
   diagnosticItems = computed(() => {

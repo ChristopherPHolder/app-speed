@@ -42,7 +42,5 @@ export class AuditViewerContainer {
       categories: step.lhr.categories,
     };
   });
-  readonly auditSummary: AuditSummary = {
-    stepSummaries: this.stepSummaries,
-  }
+  readonly auditSummary: AuditSummary = { stepSummaries: this.stepSummaries };
 }
