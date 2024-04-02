@@ -1,18 +1,18 @@
 import { Component } from '@angular/core';
 import { JsonPipe } from '@angular/common';
 import type { FlowResult } from 'lighthouse';
-import { example as RESULTS_MOCK } from './mocks/flow-result.mock';
-import { AuditSummary, AuditSummaryComponent, StepSummary } from './audit-summary.component';
+import { example as RESULTS_MOCK } from '../viewer-container/mocks/flow-result.mock';
+import { AuditSummary, AuditSummaryComponent, StepSummary } from '../viewer-container/audit-summary.component';
 import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
-import { ViewerStepStepperComponent } from './viewer-step-stepper.component';
-import { ViewerStepDetailComponent } from './viewer-step-details.component';
+import { ViewerStepStepperComponent } from '../viewer-container/viewer-step-stepper.component';
+import { ViewerStepDetailComponent } from '../viewer-container/viewer-step-details.component';
 
 @Component({
-  selector: 'lib-viewer-container',
+  selector: 'viewer-viewer-container',
   template: `
-<!--      <lib-audit-summary [auditSummary]='auditSummary' />-->
+    <viewer-audit-summary [auditSummary]='auditSummary' />
     @for (step of steps; track step.name) {
-      <lib-viewer-step-detail [stepDetails]='step'/>
+      <viewer-step-detail [stepDetails]='step'/>
     }
   `,
   standalone: true,
@@ -42,7 +42,5 @@ export class AuditViewerContainer {
       categories: step.lhr.categories,
     };
   });
-  readonly auditSummary: AuditSummary = {
-    stepSummaries: this.stepSummaries,
-  }
+  readonly auditSummary: AuditSummary = { stepSummaries: this.stepSummaries };
 }

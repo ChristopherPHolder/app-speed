@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, Input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 
 import { AuditBuilderService } from '../audit-builder/audit-builder.service';
 
@@ -14,7 +14,7 @@ import { INPUT_TYPE, PROPERTY_NAME } from '../schema/property.constants';
 import { PropertyName, StepType } from '../schema/types';
 
 @Component({
-  selector: 'lib-step-property',
+  selector: 'builder-step-property',
   standalone: true,
   imports: [
     InputStringComponent,
@@ -27,28 +27,28 @@ import { PropertyName, StepType } from '../schema/types';
   template: `
     @switch (schema().inputType) {
       @case (INPUT_TYPE.STRING) {
-        <lib-input-string 
+        <builder-input-string 
           [schema]='schema()' 
           [control]='$any(control())'
           (deleteProperty)='handleDeleteProperty()'
         />
       }
       @case (INPUT_TYPE.NUMBER) {
-        <lib-input-number
+        <builder-input-number
           [schema]='schema()'
           [control]='$any(control())'
           (deleteProperty)='handleDeleteProperty()'
         />
       }
       @case (INPUT_TYPE.BOOLEAN) {
-        <lib-input-boolean
+        <builder-input-boolean
           [schema]='schema()'
           [control]='$any(control())'
           (deleteProperty)='handleDeleteProperty()'
         />
       }
       @case (INPUT_TYPE.OPTIONS) {
-        <lib-input-options
+        <builder-input-options
           [schema]='schema()'
           [control]='$any(control())'
           (deleteProperty)='handleDeleteProperty()'
@@ -56,14 +56,14 @@ import { PropertyName, StepType } from '../schema/types';
         />
       }
       @case (INPUT_TYPE.STRING_ARRAY) {
-        <lib-input-string-array 
+        <builder-input-string-array 
           [schema]='schema()' 
           [control]='$any(control())'
           (deleteProperty)='handleDeleteProperty()'
         />
       }
       @case (INPUT_TYPE.RECORDS) {
-        <lib-input-records
+        <builder-input-records
           [schema]='schema()'
           [control]='$any(control())'
           (deleteProperty)='handleDeleteProperty()'
@@ -75,25 +75,25 @@ import { PropertyName, StepType } from '../schema/types';
 })
 export class StepPropertyComponent {
   protected readonly INPUT_TYPE = INPUT_TYPE;
-  controlKey = input<PropertyName>();
-  stepIndex = input<number>();
+  controlKey = input.required<PropertyName>();
+  stepIndex = input.required<number>();
   private builder = inject(AuditBuilderService);
 
   control = computed(() => {
-    return this.builder.formGroup.controls.steps.at(this.stepIndex()!).get(this.controlKey()!)
+    return this.builder.formGroup.controls.steps.at(this.stepIndex()).get(this.controlKey())
   })
 
   schema = computed(() => {
-    return this.builder.getStepPropertySchema(this.stepIndex()!, this.controlKey()!);
+    return this.builder.getStepPropertySchema(this.stepIndex(), this.controlKey());
   })
 
   handleSelectedChange(value: string): void {
     if (this.schema().name === PROPERTY_NAME.TYPE) {
-      this.builder.changeStepType(this.stepIndex()!, value as StepType);
+      this.builder.changeStepType(this.stepIndex(), value as StepType);
     }
   }
 
   handleDeleteProperty(): void {
-    this.builder.removeStepProperty(this.stepIndex()!, this.schema()!.name);
+    this.builder.removeStepProperty(this.stepIndex(), this.schema().name);
   }
 }

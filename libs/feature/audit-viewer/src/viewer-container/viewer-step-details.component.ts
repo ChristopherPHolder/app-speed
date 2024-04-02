@@ -1,26 +1,22 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { MatTable } from '@angular/material/table';
-import type { FlowResult, Result } from 'lighthouse';
-import {
-  COLOR_CODE,
-  ColorCode,
-  MetricSummary,
-  Reference,
-  ViewerStepMetricSummaryComponent,
-} from './viewer-step-metric-summary.component';
+import { FlowResult, Result } from 'lighthouse';
+import { MetricSummary, ViewerStepMetricSummaryComponent } from './viewer-step-metric-summary.component';
 import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import { ViewerFileStripComponent } from './viewer-file-strip.component';
 import { ViewerDiagnosticComponent } from './viewer-diagnostic.component';
 import { DiagnosticItem } from './viewer-diagnostic-panel.component';
-import { DIAGNOSTIC_ITEM_STATUS } from './viewer-diagnostic-status-badge.component';
+import { StatusOptions } from '../ui/status.types';
+import { STATUS_OPTIONS } from '../ui/status.constants';
+import { extractTrailingMdUrl, removeTrailingMdUrl } from '../utils/url-parser';
 
 @Component({
-  selector: 'lib-viewer-step-detail',
+  selector: 'viewer-step-detail',
   template: `
     <mat-card>
       <mat-card-content>
-        <lib-viewer-step-metric-summary [metricSummary]='categoryMetricSummary()[0]["performance"]' />
+        <viewer-step-metric-summary [metricSummary]='categoryMetricSummary()[0]["performance"]' />
       </mat-card-content>
     </mat-card>
     
@@ -31,7 +27,7 @@ import { DIAGNOSTIC_ITEM_STATUS } from './viewer-diagnostic-status-badge.compone
         </mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <lib-viewer-file-strip [filmStrip]='filmStrip()' />
+        <viewer-file-strip [filmStrip]='filmStrip()' />
       </mat-card-content>
     </mat-card>
     
@@ -40,7 +36,7 @@ import { DIAGNOSTIC_ITEM_STATUS } from './viewer-diagnostic-status-badge.compone
         <mat-card-title>DIAGNOSTICS</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <lib-viewer-diagnostic [items]='diagnosticItems()'/>
+        <viewer-diagnostic [items]='diagnosticItems()'/>
       </mat-card-content>
     </mat-card>
   `,
@@ -98,7 +94,7 @@ export class ViewerStepDetailComponent {
   failedAudits = computed(() => this.diagnostics().failed);
   alertItems = computed(() => {
     return this.failedAudits().filter((v) => {
-      return v.guidanceLevel === 1 && Object.keys(v.metricSavings!).filter((i) => this.categoryAcronyms().includes(i)).length;
+      return v.guidanceLevel === 1 && Object.keys(v.metricSavings || {}).filter((i) => this.categoryAcronyms().includes(i)).length;
     });
   });
   warnItems = computed(() => {
@@ -108,7 +104,7 @@ export class ViewerStepDetailComponent {
   informItems = computed(() => {
     return this.diagnostics().passed
       .filter((v) => !!v.metricSavings)
-      .filter((v) => this.affectsMetric(Object.keys(v.metricSavings!)))
+      .filter((v) => this.affectsMetric(Object.keys(v.metricSavings || {})))
   });
 
   diagnosticItems = computed(() => {
@@ -116,28 +112,31 @@ export class ViewerStepDetailComponent {
     this.alertItems().forEach((item) => {
       items.push({
         id: item.id,
-        status: DIAGNOSTIC_ITEM_STATUS.ALERT,
+        status: STATUS_OPTIONS.ALERT,
         title: item.title,
-        description: item.description,
         displayValue: item.displayValue,
+        description: removeTrailingMdUrl(item.description),
+        reference: extractTrailingMdUrl(item.description)
       });
     });
     this.warnItems().forEach((item) => {
       items.push({
         id: item.id,
-        status: DIAGNOSTIC_ITEM_STATUS.WARN,
+        status: STATUS_OPTIONS.WARN,
         title: item.title,
-        description: item.description,
         displayValue: item.displayValue,
+        description: removeTrailingMdUrl(item.description),
+        reference: extractTrailingMdUrl(item.description)
       });
     });
     this.informItems().forEach((item) => {
       items.push({
         id: item.id,
-        status: DIAGNOSTIC_ITEM_STATUS.INFO,
+        status: STATUS_OPTIONS.INFO,
         title: item.title,
-        description: item.description,
         displayValue: item.displayValue,
+        description: removeTrailingMdUrl(item.description),
+        reference: extractTrailingMdUrl(item.description)
       });
     });
 
@@ -157,40 +156,31 @@ export class ViewerStepDetailComponent {
     return ids.map((id: string) => audits[id]).map((v) => ({
       name: v.title,
       value: v.displayValue,
-      description: this.removeUrlRef(v.description),
-      reference: this.extractReference(v.description),
-      colorCode: this.computeColorCode(v.score, v.numericValue, v.scoringOptions)
+      description: removeTrailingMdUrl(v.description),
+      reference: extractTrailingMdUrl(v.description),
+      status: this.metricStatus(v.score, v.numericValue, v.scoringOptions)
     }));
-  }
-
-  private extractReference(description: string): Reference {
-    const value = description.split(/\[(.*?)\]\((.*?)\)/);
-    return { text: value[1] + '.', link: value[0] };
-  }
-
-  private removeUrlRef(description: string): string {
-    return description.split('[')[0]
   }
 
   private metricAudits(auditRefs: Result.Category['auditRefs']): string[] {
     return auditRefs.filter(ref => ref?.group === 'metrics').map((ref) => ref.id);
   }
 
-  private computeColorCode(score: number | null, numericValue: number | undefined, scoringOptions: {p10: number, median: number} | undefined): ColorCode {
+  private metricStatus(score: number | null, numericValue: number | undefined, scoringOptions: {p10: number, median: number} | undefined): StatusOptions {
     if (score !== null) {
-      return score > 0.89 ? COLOR_CODE.GREEN : score > 0.49 ? COLOR_CODE.ORANGE : COLOR_CODE.RED;
+      return score > 0.89 ? STATUS_OPTIONS.PASS : score > 0.49 ? STATUS_OPTIONS.WARN : STATUS_OPTIONS.ALERT;
     }
 
     if (scoringOptions === undefined || numericValue === undefined) {
-      return null;
+      return STATUS_OPTIONS.INFO;
     }
 
     if (numericValue <= scoringOptions.p10) {
-      return COLOR_CODE.GREEN;
+      return STATUS_OPTIONS.PASS;
     }
     if (numericValue <= scoringOptions.median) {
-      return COLOR_CODE.ORANGE;
+      return STATUS_OPTIONS.WARN;
     }
-    return COLOR_CODE.RED;
+    return STATUS_OPTIONS.ALERT;
   }
 }

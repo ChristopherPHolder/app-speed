@@ -8,7 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { StepProperty } from '../schema/types';
 
 @Component({
-  selector: 'lib-input-number',
+  selector: 'builder-input-number',
   standalone: true,
   imports: [
     MatButtonModule,

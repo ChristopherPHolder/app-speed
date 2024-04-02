@@ -37,7 +37,7 @@ export class AuditBuilderService {
   auditInit$(initialAuditDetails$: Observable<AuditDetails>): Observable<boolean> {
     return initialAuditDetails$.pipe(
       tap((details) => {
-        this.formGroup.controls.title.setValue(details?.title);
+        this.formGroup.controls.title.setValue(details.title);
         this.formGroup.controls.device.setValue(details.device);
         this.formGroup.controls.timeout.setValue(details.timeout);
         details.steps.forEach((step, index) => this.initStep(step, index));
@@ -79,7 +79,13 @@ export class AuditBuilderService {
 
   private getPropertyValue(inputType: InputType, property?: InputValue, defaultValue?: InputValue): InputValue {
     const isValid = INPUT_TYPE_VALIDATOR[inputType];
-    return isValid(property) ? property! : isValid(defaultValue) ? defaultValue! : PROPERTY_DEFAULT[inputType];
+    if (isValid(property)) {
+      return property;
+    }
+    if (isValid(defaultValue)) {
+      return defaultValue;
+    }
+    return PROPERTY_DEFAULT[inputType];
   }
 
   private typedKeys<T extends object>(obj: T): (keyof T)[] {
@@ -112,8 +118,7 @@ export class AuditBuilderService {
 
   getStepPropertySchema(index: number, name: PropertyName): StepProperty {
     const stepType = this.formGroup.controls.steps.at(index).controls.type!.value!
-    const stepPropertiesSchema = this.getStepSchema(stepType).properties
-    return stepPropertiesSchema.find((schema) => schema.name === name)!;
+    return  this.getStepSchema(stepType).properties.find((schema) => schema.name === name)!;
   }
 
   removeStep(index: number): void {

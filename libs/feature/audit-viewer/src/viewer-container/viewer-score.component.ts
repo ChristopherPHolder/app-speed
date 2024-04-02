@@ -4,7 +4,7 @@ import { RadialChartComponent } from 'ui';
 import { Result } from 'lighthouse';
 
 @Component({
-  selector: 'lib-viewer-score',
+  selector: 'viewer-score',
   template: `
     @if (category()?.["score"]; as score) {
       <ui-radial-chart style='position: relative;' [score]='score * 100' />

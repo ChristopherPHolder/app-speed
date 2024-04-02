@@ -5,40 +5,48 @@ import {
   MatExpansionPanelHeader,
   MatExpansionPanelTitle,
 } from '@angular/material/expansion';
-import { MatIcon } from '@angular/material/icon';
-import { DiagnosticItemStatus, ViewerDiagnosticStatusBadgeComponent } from './viewer-diagnostic-status-badge.component';
+import { StatusBadgeComponent } from '../ui/status-badge.component';
+import { StatusOptions } from '../ui/status.types';
+import { Reference } from '../utils/url-parser';
 
 export type DiagnosticItem = {
   id: string;
   title: string;
   displayValue?: string;
   description: string;
-  status: DiagnosticItemStatus;
+  status: StatusOptions;
+  reference: Reference;
 };
 
 @Component({
-  selector: 'lib-viewer-diagnostic-panel',
+  selector: 'viewer-diagnostic-panel',
   template: `
     <mat-expansion-panel>
-      <mat-expansion-panel-header >
+      <mat-expansion-panel-header>
         <mat-panel-title>
-          <lib-viewer-diagnostic-status-badge class='status-badge' [status]='item().status' />
+          <viewer-status-badge class='status-badge' [status]='item().status' />
           <span>
             {{ item().title }}
-            <!-- @TODO fis display for mobile -->
             @if (item().displayValue) {
-              <span style='color: red;'> - {{ item().displayValue }}</span>
+              <span style='color: red;'>{{ item().displayValue }}</span>
             }
           </span>
         </mat-panel-title>
       </mat-expansion-panel-header>
-      <p>{{ item().description }}</p>
+      <p>{{ item().description }}<a [href]='item().reference?.link'>{{ item().reference?.text }}</a></p>
     </mat-expansion-panel>
   `,
   styles: `
     .status-badge {
-        margin-right: 10px;
+        margin-right: 8px;
         overflow: visible;
+    }
+    mat-expansion-panel-header {
+        padding: 0 24px 0 16px;
+        @media (max-width: 768px) {
+          --mat-expansion-header-collapsed-state-height: 64px;
+          --mat-expansion-header-expanded-state-height: 80px;
+        }
     }
   `,
   standalone: true,
@@ -47,8 +55,7 @@ export type DiagnosticItem = {
     MatExpansionPanelDescription,
     MatExpansionPanelHeader,
     MatExpansionPanelTitle,
-    ViewerDiagnosticStatusBadgeComponent,
-    MatIcon,
+    StatusBadgeComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })

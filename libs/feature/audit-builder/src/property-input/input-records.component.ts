@@ -7,7 +7,7 @@ import { FormControl } from '@angular/forms';
 import { StepProperty } from '../schema/types';
 
 @Component({
-  selector: 'lib-input-records',
+  selector: 'builder-input-records',
   standalone: true,
   imports: [
     JsonPipe,

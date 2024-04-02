@@ -14,7 +14,7 @@ import { AuditBuilderService } from './audit-builder.service';
 import { DEVICE_TYPE } from '../schema/audit.constants';
 
 @Component({
-  selector: 'lib-audit-global',
+  selector: 'builder-audit-global',
   standalone: true,
   imports: [
     RxIf,

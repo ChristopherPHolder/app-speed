@@ -1,33 +1,21 @@
 import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
 import { JsonPipe } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
-
-export const COLOR_CODE = {
-  RED: 'red',
-  ORANGE: 'orange',
-  GREEN: 'green',
-} as const;
-
-export type ColorCode = (typeof COLOR_CODE)[keyof typeof COLOR_CODE] | null;
-
-export type Reference = {
-  link: string;
-  text: string;
-} | null;
+import { StatusBadgeComponent } from '../ui/status-badge.component';
+import { StatusOptions } from '../ui/status.types';
+import { STATUS_COLOR } from '../ui/status.constants';
+import { Reference } from '../utils/url-parser';
 
 export type MetricSummary = {
   name: string;
   value: string | undefined;
   description: string;
-  colorCode: ColorCode;
-  reference: {
-    link: string;
-    text: string;
-  } | null
+  status: StatusOptions;
+  reference: Reference;
 }
 
 @Component({
-  selector: 'lib-viewer-step-metric-summary',
+  selector: 'viewer-step-metric-summary',
   template: `
     <div class='header'>
       <span>METRICS</span>
@@ -37,33 +25,19 @@ export type MetricSummary = {
       @for (metric of metricSummary(); track metric.name) {
         <div class='item'>
           <div class='item-header'>
-            <!--  @TODO move to separate component -->
-            @switch (metric.colorCode) {
-              @case ('green') {
-                <mat-icon class='header-icon green'>circle</mat-icon>
-              }
-              @case ('orange') {
-                <mat-icon class='header-icon orange'>square</mat-icon>
-              }
-              @case ('red') {
-                <mat-icon class='header-icon red'>warning</mat-icon>
-              }
-            }
+            <viewer-status-badge class='header-icon' [status]='metric.status' />
             <div class='header-name'>{{ metric.name }}</div>
-            <div class='header-value' [style.color]='metric.colorCode'>{{ metric.value }}</div>
+            <div class='header-value' [style.color]='STATUS_COLOR[metric.status]'>{{ metric.value }}</div>
           </div>
           @if (descriptionVisible()) {
-            <div style='margin: 16px 0;'>
-              {{ metric.description }}
-              <a [href]='metric.reference?.link'>{{ metric.reference?.text }}</a>
-            </div>
+            <div style='margin: 16px 0;'>{{ metric.description }}<a [href]='metric.reference?.link'>{{ metric.reference?.text }}</a></div>
           }
         </div>
       }
     </div>
   `,
   standalone: true,
-  imports: [JsonPipe, MatIcon],
+  imports: [JsonPipe, MatIcon, StatusBadgeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
       .header {
@@ -83,28 +57,19 @@ export type MetricSummary = {
 
       .item {
           border-top: 1px solid #ccc;
-          margin: 0 0 16px 0;
-          padding: 8px;
+          padding: 16px 8px;
       }
       
       .item-header {
           display: flex;
           justify-content: space-between;
-          align-items: self-end;
+          align-items: center;
       }
       
       .header-icon {
           padding: 0 10px 0 0;
-          &.green {
-              color: green;
-          }
-          &.red {
-              color: red;
-          }
-          &.orange {
-              color: orange;
-          }
       }
+      
       .header-name {
           font-size: medium;
           font-weight: 500;
@@ -123,4 +88,5 @@ export class ViewerStepMetricSummaryComponent {
   toddleDescriptionVisibility(): void {
     this.descriptionVisible.update((value) => !value);
   }
+  protected STATUS_COLOR = STATUS_COLOR;
 }

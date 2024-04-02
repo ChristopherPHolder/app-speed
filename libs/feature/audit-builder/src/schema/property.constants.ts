@@ -1,5 +1,4 @@
 import { FormArray, FormControl, Validators } from '@angular/forms';
-import { variableType } from 'aws-sdk/clients/frauddetector';
 
 export const INPUT_TYPE = {
   STRING: 'string',
