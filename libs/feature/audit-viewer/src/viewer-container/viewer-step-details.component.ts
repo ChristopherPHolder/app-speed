@@ -91,8 +91,8 @@ export class ViewerStepDetailComponent {
     return { failed: failedAudits, passed: passedAudits };
   });
 
-  failedAudits = computed(() => this.diagnostics().failed);
-  alertItems = computed(() => {
+  private readonly failedAudits = computed(() => this.diagnostics().failed);
+  private readonly alertItems = computed(() => {
     return this.failedAudits().filter((v) => {
       return v.guidanceLevel === 1 && Object.keys(v.metricSavings || {}).filter((i) => this.categoryAcronyms().includes(i)).length;
     });
@@ -116,6 +116,7 @@ export class ViewerStepDetailComponent {
         title: item.title,
         displayValue: item.displayValue,
         description: removeTrailingMdUrl(item.description),
+        details: item.details,
         reference: extractTrailingMdUrl(item.description)
       });
     });
@@ -126,6 +127,7 @@ export class ViewerStepDetailComponent {
         title: item.title,
         displayValue: item.displayValue,
         description: removeTrailingMdUrl(item.description),
+        details: item.details,
         reference: extractTrailingMdUrl(item.description)
       });
     });
@@ -136,10 +138,11 @@ export class ViewerStepDetailComponent {
         title: item.title,
         displayValue: item.displayValue,
         description: removeTrailingMdUrl(item.description),
+        details: item.details,
         reference: extractTrailingMdUrl(item.description)
       });
     });
-
+    console.log(items);
     return items;
   })
 

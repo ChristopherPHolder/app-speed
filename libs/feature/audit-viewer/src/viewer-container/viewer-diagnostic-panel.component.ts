@@ -8,12 +8,15 @@ import {
 import { StatusBadgeComponent } from '../ui/status-badge.component';
 import { StatusOptions } from '../ui/status.types';
 import { Reference } from '../utils/url-parser';
+import Details from 'lighthouse/types/lhr/audit-details';
+import { DetailsComponent } from '../ui/details.component';
 
 export type DiagnosticItem = {
   id: string;
   title: string;
   displayValue?: string;
   description: string;
+  details?: Details;
   status: StatusOptions;
   reference: Reference;
 };
@@ -34,6 +37,9 @@ export type DiagnosticItem = {
         </mat-panel-title>
       </mat-expansion-panel-header>
       <p>{{ item().description }}<a [href]='item().reference?.link'>{{ item().reference?.text }}</a></p>
+      @if (item().details; as details) {
+        <viewer-details [details]='details' />
+      }
     </mat-expansion-panel>
   `,
   styles: `
@@ -56,6 +62,7 @@ export type DiagnosticItem = {
     MatExpansionPanelHeader,
     MatExpansionPanelTitle,
     StatusBadgeComponent,
+    DetailsComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
