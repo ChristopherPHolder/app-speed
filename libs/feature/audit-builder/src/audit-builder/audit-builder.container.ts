@@ -21,7 +21,6 @@ import { AuditDetails } from '../schema/types';
 
 @Component({
   standalone: true,
-  selector: 'builder-container',
   template: `
     <form 
       *rxIf='auditInit$' 
