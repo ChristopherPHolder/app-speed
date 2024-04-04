@@ -4,14 +4,13 @@ import { MatIcon } from '@angular/material/icon';
 import { StatusBadgeComponent } from '../ui/status-badge.component';
 import { StatusOptions } from '../ui/status.types';
 import { STATUS_COLOR } from '../ui/status.constants';
-import { Reference } from '../utils/url-parser';
+import { MdToAnkerPipe } from '../utils/md-to-anker.pipe';
 
 export type MetricSummary = {
   name: string;
   value: string | undefined;
   description: string;
   status: StatusOptions;
-  reference: Reference;
 }
 
 @Component({
@@ -30,14 +29,14 @@ export type MetricSummary = {
             <div class='header-value' [style.color]='STATUS_COLOR[metric.status]'>{{ metric.value }}</div>
           </div>
           @if (descriptionVisible()) {
-            <div style='margin: 16px 0;'>{{ metric.description }}<a [href]='metric.reference?.link'>{{ metric.reference?.text }}</a></div>
+            <div style='margin: 16px 0;' [innerHTML]='metric.description | mdToAnker'></div>
           }
         </div>
       }
     </div>
   `,
   standalone: true,
-  imports: [JsonPipe, MatIcon, StatusBadgeComponent],
+  imports: [JsonPipe, MatIcon, StatusBadgeComponent, MdToAnkerPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
       .header {

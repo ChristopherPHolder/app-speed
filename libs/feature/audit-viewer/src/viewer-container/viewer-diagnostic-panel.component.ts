@@ -7,9 +7,9 @@ import {
 } from '@angular/material/expansion';
 import { StatusBadgeComponent } from '../ui/status-badge.component';
 import { StatusOptions } from '../ui/status.types';
-import { Reference } from '../utils/url-parser';
 import Details from 'lighthouse/types/lhr/audit-details';
 import { DetailsComponent } from '../ui/details.component';
+import { MdToAnkerPipe } from '../utils/md-to-anker.pipe';
 
 export type DiagnosticItem = {
   id: string;
@@ -18,7 +18,6 @@ export type DiagnosticItem = {
   description: string;
   details?: Details;
   status: StatusOptions;
-  reference: Reference;
 };
 
 @Component({
@@ -36,7 +35,7 @@ export type DiagnosticItem = {
           </span>
         </mat-panel-title>
       </mat-expansion-panel-header>
-      <p>{{ item().description }}<a [href]='item().reference?.link'>{{ item().reference?.text }}</a></p>
+      <p [innerHTML]='item().description | mdToAnker'></p>
       @if (item().details; as details) {
         <viewer-details [details]='details' />
       }
@@ -54,9 +53,11 @@ export type DiagnosticItem = {
           --mat-expansion-header-expanded-state-height: 80px;
         }
     }
+    
   `,
   standalone: true,
   imports: [
+    MdToAnkerPipe,
     MatExpansionPanel,
     MatExpansionPanelDescription,
     MatExpansionPanelHeader,

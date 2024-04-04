@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { MatTable } from '@angular/material/table';
 import { FlowResult, Result } from 'lighthouse';
+import { Result as AuditResult } from 'lighthouse/types/lhr/audit-result';
 import { MetricSummary, ViewerStepMetricSummaryComponent } from './viewer-step-metric-summary.component';
 import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
@@ -9,7 +10,6 @@ import { ViewerDiagnosticComponent } from './viewer-diagnostic.component';
 import { DiagnosticItem } from './viewer-diagnostic-panel.component';
 import { StatusOptions } from '../ui/status.types';
 import { STATUS_OPTIONS } from '../ui/status.constants';
-import { extractTrailingMdUrl, removeTrailingMdUrl } from '../utils/url-parser';
 
 @Component({
   selector: 'viewer-step-detail',
@@ -92,11 +92,10 @@ export class ViewerStepDetailComponent {
   });
 
   private readonly failedAudits = computed(() => this.diagnostics().failed);
-  private readonly alertItems = computed(() => {
-    return this.failedAudits().filter((v) => {
+  private readonly alertItems = computed(() => this.failedAudits().filter((v) => {
       return v.guidanceLevel === 1 && Object.keys(v.metricSavings || {}).filter((i) => this.categoryAcronyms().includes(i)).length;
-    });
-  });
+    })
+  );
   warnItems = computed(() => {
     const alertIds = this.alertItems().map((v) => v.id);
     return this.failedAudits().filter((v) => !alertIds.includes(v.id));
@@ -107,43 +106,17 @@ export class ViewerStepDetailComponent {
       .filter((v) => this.affectsMetric(Object.keys(v.metricSavings || {})))
   });
 
-  diagnosticItems = computed(() => {
-    const items: DiagnosticItem[] = [];
-    this.alertItems().forEach((item) => {
-      items.push({
-        id: item.id,
-        status: STATUS_OPTIONS.ALERT,
-        title: item.title,
-        displayValue: item.displayValue,
-        description: removeTrailingMdUrl(item.description),
-        details: item.details,
-        reference: extractTrailingMdUrl(item.description)
-      });
-    });
-    this.warnItems().forEach((item) => {
-      items.push({
-        id: item.id,
-        status: STATUS_OPTIONS.WARN,
-        title: item.title,
-        displayValue: item.displayValue,
-        description: removeTrailingMdUrl(item.description),
-        details: item.details,
-        reference: extractTrailingMdUrl(item.description)
-      });
-    });
-    this.informItems().forEach((item) => {
-      items.push({
-        id: item.id,
-        status: STATUS_OPTIONS.INFO,
-        title: item.title,
-        displayValue: item.displayValue,
-        description: removeTrailingMdUrl(item.description),
-        details: item.details,
-        reference: extractTrailingMdUrl(item.description)
-      });
-    });
-    console.log(items);
-    return items;
+  private diagnosticItemsMapper = (status: StatusOptions) => (results: AuditResult) => {
+    const { id, title, displayValue, description, details } = results;
+    return { id, status, title, displayValue, description, details };
+  }
+
+  diagnosticItems = computed<DiagnosticItem[]>(() => {
+    return [
+      this.alertItems().map(this.diagnosticItemsMapper(STATUS_OPTIONS.ALERT)),
+      this.warnItems().map(this.diagnosticItemsMapper(STATUS_OPTIONS.WARN)),
+      this.informItems().map(this.diagnosticItemsMapper(STATUS_OPTIONS.INFO)),
+    ].flat()
   })
 
   private affectsMetric(metricSavings: string[]): boolean {
@@ -159,8 +132,7 @@ export class ViewerStepDetailComponent {
     return ids.map((id: string) => audits[id]).map((v) => ({
       name: v.title,
       value: v.displayValue,
-      description: removeTrailingMdUrl(v.description),
-      reference: extractTrailingMdUrl(v.description),
+      description: v.description,
       status: this.metricStatus(v.score, v.numericValue, v.scoringOptions)
     }));
   }

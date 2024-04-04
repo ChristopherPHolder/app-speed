@@ -73,7 +73,7 @@ import { ScrollContainerComponent } from './scroll-container.component';
                 text-align: end;
             }
         }
-        tr:nth-child(even) {
+        tr:nth-child(odd) {
             background-color: #eee;
         }
     }
