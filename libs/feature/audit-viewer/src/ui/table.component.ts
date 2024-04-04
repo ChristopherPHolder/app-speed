@@ -13,14 +13,14 @@ import {
   MatTable,
 } from '@angular/material/table';
 import { JsonPipe, NgFor } from '@angular/common';
+import { ScrollContainerComponent } from '@ui/scroller-container';
 import { RoundPipe } from '../utils/round.pipe';
 import { KibibytesPipe } from '../utils/kibibytes.pipe';
-import { ScrollContainerComponent } from './scroll-container.component';
 
 @Component({
   selector: 'viewer-table',
   template: `
-    <viewer-scroll-container>
+    <ui-scroll-container>
       <table mat-table [dataSource]='dataSource()'>
         <tr mat-header-row *matHeaderRowDef='displayedColumns()'></tr>
         <tr mat-row *matRowDef='let row; columns: displayedColumns();'></tr>
@@ -45,7 +45,7 @@ import { ScrollContainerComponent } from './scroll-container.component';
           </td>
         </ng-container>
       </table>
-    </viewer-scroll-container>
+    </ui-scroll-container>
   `,
   styles: `
     table {

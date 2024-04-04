@@ -15,9 +15,9 @@ import {
 } from '@angular/material/table';
 import { MatIcon } from '@angular/material/icon';
 import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
+import { ScrollContainerComponent } from '@ui/scroller-container';
 import { RadialChartComponent } from 'ui';
 import { ViewerScoreComponent } from './viewer-score.component';
-import { ScrollContainerComponent } from '../ui/scroll-container.component';
 
 export type StepSummary = {
   thumbnail: { data: string, width: number, height: number }
@@ -36,7 +36,7 @@ export type AuditSummary = {
       <mat-card-header>
         <mat-card-title>Audit Summery</mat-card-title>
       </mat-card-header>
-      <viewer-scroll-container>
+      <ui-scroll-container>
         <mat-card-content style='overflow: auto;'>
           <table mat-table recycleRows [dataSource]='auditSummary().stepSummaries'>
 
@@ -44,7 +44,7 @@ export type AuditSummary = {
               <th mat-header-cell *matHeaderCellDef></th>
               <td mat-cell *matCellDef='let element' style='border: none;'>
                 <div class='center-row-content' style='padding: 5px 0'>
-                  <img [src]='element.thumbnail.data' height='80'>
+                  <img [src]='element.thumbnail.data' height='80' alt=''>
                 </div>
               </td>
             </ng-container>
@@ -88,7 +88,7 @@ export type AuditSummary = {
             <tr mat-row *matRowDef='let row; columns: displayedColumns;'></tr>
           </table>
         </mat-card-content>
-      </viewer-scroll-container>
+      </ui-scroll-container>
     </mat-card>
 
   `,

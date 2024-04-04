@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { NgScrollbarModule } from 'ngx-scrollbar';
 
 @Component({
-  selector: 'viewer-scroll-container',
+  selector: 'ui-scroll-container',
   template: `<ng-scrollbar><ng-content/></ng-scrollbar>`,
   styles: `
       ng-scrollbar {

@@ -1,16 +1,16 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { ScrollContainerComponent } from '../ui/scroll-container.component';
+import { ScrollContainerComponent } from '@ui/scroller-container';
 
 @Component({
   selector: 'viewer-file-strip',
   template: `
-    <viewer-scroll-container>
+    <ui-scroll-container>
       <div class="film-strip-container">
         @for (item of filmStrip(); track item) {
           <img class='film-strip-frame' [src]='item.data' height='100px' alt=''>
         }
       </div>
-    </viewer-scroll-container>
+    </ui-scroll-container>
   `,
   styles: `
     .film-strip-container {

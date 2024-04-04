@@ -28,6 +28,7 @@
       "shared": ["libs/shared/src/index.ts"],
       "ui": ["libs/ui/src/index.ts"],
       "ui/audit-builder": ["libs/ui/audit-builder/src/index.ts"],
+      "@ui/scroller-container": ["libs/ui/scroll-container/public-api.ts"],
       "ui/shell": ["libs/ui/shell/src/index.ts"]
     }
   }
