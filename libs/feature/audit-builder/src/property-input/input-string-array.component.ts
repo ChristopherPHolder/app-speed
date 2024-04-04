@@ -1,16 +1,16 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormArray, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { MatFormField } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
 
 import { StepProperty } from '../schema/types';
 
 @Component({
   selector: 'builder-input-string-array',
   standalone: true,
-  imports: [MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule, MatIconButton, MatIcon, MatFormField, MatInput],
   template: `
     <!-- TODO Improve Styling For Input Section -->
     <!-- One potential solution is to simple add a -> icon next to the items -->

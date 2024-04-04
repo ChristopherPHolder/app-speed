@@ -5,11 +5,11 @@ import {
   MatExpansionPanelHeader,
   MatExpansionPanelTitle,
 } from '@angular/material/expansion';
+import Details from 'lighthouse/types/lhr/audit-details';
+import { MdToAnkerPipe } from '../utils/md-to-anker.pipe';
 import { StatusBadgeComponent } from '../ui/status-badge.component';
 import { StatusOptions } from '../ui/status.types';
-import Details from 'lighthouse/types/lhr/audit-details';
 import { DetailsComponent } from '../ui/details.component';
-import { MdToAnkerPipe } from '../utils/md-to-anker.pipe';
 
 export type DiagnosticItem = {
   id: string;
@@ -57,11 +57,11 @@ export type DiagnosticItem = {
   `,
   standalone: true,
   imports: [
-    MdToAnkerPipe,
     MatExpansionPanel,
     MatExpansionPanelDescription,
     MatExpansionPanelHeader,
     MatExpansionPanelTitle,
+    MdToAnkerPipe,
     StatusBadgeComponent,
     DetailsComponent,
   ],

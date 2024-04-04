@@ -6,10 +6,10 @@ import { StatusOptions } from './status.types';
 @Component({
   selector: 'viewer-status-badge',
   template: `<mat-icon [style.color]='status().color'>{{status().icon}}</mat-icon>`,
+  styles: `:host { display: inherit }`,
   standalone: true,
   imports: [MatIcon],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  styles: [`:host { display: inherit }`]
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class StatusBadgeComponent {
   status = input.required<{ icon: string; color: string; }, StatusOptions>({

@@ -53,14 +53,6 @@ import { STATUS_OPTIONS } from '../ui/status.constants';
     ViewerDiagnosticComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  styles: `
-      :host {
-          display: block;
-          max-width: 960px;
-          margin: auto;
-          --mdc-elevated-card-container-shape: 0;
-      }
-  `
 })
 export class ViewerStepDetailComponent {
   stepDetails = input.required<FlowResult.Step>();

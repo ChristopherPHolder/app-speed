@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
-import { JsonPipe } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 import { StatusBadgeComponent } from '../ui/status-badge.component';
 import { StatusOptions } from '../ui/status.types';
@@ -35,10 +34,7 @@ export type MetricSummary = {
       }
     </div>
   `,
-  standalone: true,
-  imports: [JsonPipe, MatIcon, StatusBadgeComponent, MdToAnkerPipe],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  styles: [`
+  styles: `
       .header {
           display: flex;
           justify-content: space-between;
@@ -78,7 +74,10 @@ export type MetricSummary = {
           font-weight: 500;
           margin-left: auto;
       }
-  `]
+  `,
+  standalone: true,
+  imports: [MatIcon, StatusBadgeComponent, MdToAnkerPipe],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ViewerStepMetricSummaryComponent {
   metricSummary = input.required<MetricSummary[]>();

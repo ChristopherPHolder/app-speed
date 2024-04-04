@@ -1,20 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject, Input } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
+import { MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { AuditBuilderService } from './audit-builder.service';
-
-export type DialogAction = {
-  display: string;
-  output?: string;
-}
-
-export type DialogActions = DialogAction[];
 
 @Component({
   selector: 'builder-step-action-dialog',
-  standalone: true,
-  imports: [MatButtonModule, MatIconModule, MatMenuModule],
   template: `
       <button class='toggle_menu' mat-icon-button [matMenuTriggerFor]="menu" aria-label="Toggle menu">
           <mat-icon>more_vert</mat-icon>
@@ -25,6 +16,8 @@ export type DialogActions = DialogAction[];
           <button mat-menu-item (click)='builder.addStep(stepIndex + 1)'>Add Step After</button>
       </mat-menu>
   `,
+  standalone: true,
+  imports: [MatIconButton, MatMenuTrigger, MatIcon, MatMenu, MatMenuItem],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StepActionDialogComponent {

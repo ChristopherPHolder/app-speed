@@ -1,10 +1,7 @@
-import { Component } from '@angular/core';
-import { JsonPipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import type { FlowResult } from 'lighthouse';
 import { example as RESULTS_MOCK } from '../viewer-container/mocks/flow-result.mock';
 import { AuditSummary, AuditSummaryComponent, StepSummary } from '../viewer-container/audit-summary.component';
-import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
-import { ViewerStepStepperComponent } from '../viewer-container/viewer-step-stepper.component';
 import { ViewerStepDetailComponent } from '../viewer-container/viewer-step-details.component';
 
 @Component({
@@ -14,17 +11,17 @@ import { ViewerStepDetailComponent } from '../viewer-container/viewer-step-detai
       <viewer-step-detail [stepDetails]='step'/>
     }
   `,
+  styles: `
+      :host {
+          display: block;
+          max-width: 960px;
+          margin: auto;
+          --mdc-elevated-card-container-shape: 0;
+      }
+  `,
   standalone: true,
-  imports: [
-    JsonPipe,
-    AuditSummaryComponent,
-    MatCard,
-    MatCardContent,
-    MatCardTitle,
-    MatCardHeader,
-    ViewerStepStepperComponent,
-    ViewerStepDetailComponent,
-  ],
+  imports: [AuditSummaryComponent, ViewerStepDetailComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix
 export class AuditViewerContainer {

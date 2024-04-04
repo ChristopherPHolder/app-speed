@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
+import { MatIconButton } from '@angular/material/button';
+import { MatFormField, MatLabel } from '@angular/material/form-field';
+import { MatIcon } from '@angular/material/icon';
+import { MatInput } from '@angular/material/input';
 
 import { StepProperty } from '../schema/types';
 
@@ -11,11 +11,12 @@ import { StepProperty } from '../schema/types';
   selector: 'builder-input-number',
   standalone: true,
   imports: [
-    MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
     ReactiveFormsModule,
+    MatFormField,
+    MatInput,
+    MatIconButton,
+    MatIcon,
+    MatLabel
   ],
   template: `
     <div>

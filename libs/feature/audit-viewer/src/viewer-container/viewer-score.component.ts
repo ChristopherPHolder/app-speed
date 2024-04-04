@@ -13,10 +13,7 @@ import { Result } from 'lighthouse';
     }
   `,
   standalone: true,
-  imports: [
-    MatIcon,
-    RadialChartComponent,
-  ],
+  imports: [MatIcon, RadialChartComponent],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ViewerScoreComponent {

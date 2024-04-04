@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import Details from 'lighthouse/types/lhr/audit-details';
 import { TableComponent } from './table.component';
 
@@ -36,6 +36,7 @@ import { TableComponent } from './table.component';
   `,
   standalone: true,
   imports: [TableComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DetailsComponent {
   details = input.required<Details | Details.Table | Details.List>();

@@ -1,12 +1,10 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { NgScrollbarModule } from 'ngx-scrollbar';
 
 @Component({
   selector: 'viewer-scroll-container',
   template: `<ng-scrollbar><ng-content/></ng-scrollbar>`,
-  standalone: true,
-  imports: [NgScrollbarModule],
-  styles: [`
+  styles: `
       ng-scrollbar {
           --scrollbar-track-color: rgb(0 0 0 / 5%);
           /* TODO - extract token correctly */
@@ -16,6 +14,9 @@ import { NgScrollbarModule } from 'ngx-scrollbar';
           --scrollbar-border-radius: 8px;
           border-radius: 3px;
       }
-  `],
+  `,
+  standalone: true,
+  imports: [NgScrollbarModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScrollContainerComponent {}

@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { MatAccordion } from '@angular/material/expansion';
 import { DiagnosticItem, ViewerDiagnosticPanelComponent } from './viewer-diagnostic-panel.component';
 
@@ -12,10 +12,8 @@ import { DiagnosticItem, ViewerDiagnosticPanelComponent } from './viewer-diagnos
     </mat-accordion>
   `,
   standalone: true,
-  imports: [
-    MatAccordion,
-    ViewerDiagnosticPanelComponent,
-  ],
+  imports: [MatAccordion, ViewerDiagnosticPanelComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ViewerDiagnosticComponent {
   items = input.required<DiagnosticItem[]>();

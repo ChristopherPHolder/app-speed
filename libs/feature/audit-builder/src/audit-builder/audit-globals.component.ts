@@ -1,16 +1,16 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, inject, Output } from '@angular/core';
-import { MatInputModule } from '@angular/material/input';
+import { MatError, MatFormField, MatInput } from '@angular/material/input';
 import { ReactiveFormsModule } from '@angular/forms';
-import { MatSelectModule } from '@angular/material/select';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
+
+import { MatLabel } from '@angular/material/form-field';
+import { MatOption, MatSelect } from '@angular/material/select';
+import { MatCardActions } from '@angular/material/card';
+import { MatButton } from '@angular/material/button';
 import { RxIf } from '@rx-angular/template/if';
 import { RxFor } from '@rx-angular/template/for';
 
-import { ToTitleCasePipe } from '../utils/toTitleCase.pipe';
 import { AuditBuilderService } from './audit-builder.service';
-
+import { ToTitleCasePipe } from '../utils/toTitleCase.pipe';
 import { DEVICE_TYPE } from '../schema/audit.constants';
 
 @Component({
@@ -20,12 +20,15 @@ import { DEVICE_TYPE } from '../schema/audit.constants';
     RxIf,
     RxFor,
     ReactiveFormsModule,
-    MatInputModule,
-    MatSelectModule,
-    MatCardModule,
-    MatButtonModule,
-    MatFormFieldModule,
     ToTitleCasePipe,
+    MatFormField,
+    MatInput,
+    MatCardActions,
+    MatButton,
+    MatSelect,
+    MatOption,
+    MatError,
+    MatLabel
   ],
   template: `
     <div class='row'>
@@ -59,7 +62,7 @@ import { DEVICE_TYPE } from '../schema/audit.constants';
       </mat-form-field>
     </div>
   `,
-  styleUrls: ['./audit-globals.component.scss'],
+  styleUrl: './audit-globals.styles.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuditGlobalsComponent {

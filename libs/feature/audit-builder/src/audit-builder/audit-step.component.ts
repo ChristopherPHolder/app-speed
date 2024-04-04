@@ -1,23 +1,25 @@
 import { ChangeDetectionStrategy, Component, inject, Input } from '@angular/core';
 import { KeyValuePipe } from '@angular/common';
-import { MatExpansionModule } from '@angular/material/expansion';
+import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
 
 import { ToTitleCasePipe } from '../utils/toTitleCase.pipe';
 import { AuditBuilderService } from './audit-builder.service';
 import { StepActionDialogComponent } from './action-dialog.component';
 import { StepPropertyComponent } from '../property-input/property.component';
-import { MatButtonModule } from '@angular/material/button';
+import { MatFabButton } from '@angular/material/button';
 
 @Component({
   selector: 'builder-audit-step',
   standalone: true,
   imports: [
-    MatExpansionModule,
     ToTitleCasePipe,
     StepActionDialogComponent,
     StepPropertyComponent,
     KeyValuePipe,
-    MatButtonModule,
+    MatExpansionPanel,
+    MatExpansionPanelHeader,
+    MatExpansionPanelTitle,
+    MatFabButton,
   ],
   template: `
     <mat-expansion-panel [expanded]='true'>
@@ -41,8 +43,8 @@ import { MatButtonModule } from '@angular/material/button';
         }
     </mat-expansion-panel>
   `,
-  styles: [
-    `.toggle_menu {
+  styles: `
+      .toggle_menu {
         position: absolute;
         top: 48px;
         @media only screen and (min-width: 600px) {
@@ -51,8 +53,8 @@ import { MatButtonModule } from '@angular/material/button';
         @media only screen and (max-width: 599px) {
             right: 4px;
         }
-    }`
-  ],
+    }
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuditStepComponent {

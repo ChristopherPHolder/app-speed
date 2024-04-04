@@ -1,19 +1,13 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { JsonPipe } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule, MatIconButton } from '@angular/material/button';
+import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { FormControl } from '@angular/forms';
 
 import { StepProperty } from '../schema/types';
 
 @Component({
   selector: 'builder-input-records',
-  standalone: true,
-  imports: [
-    JsonPipe,
-    MatButtonModule,
-    MatIconModule,
-  ],
   template: `
     <div>
       TODO
@@ -25,6 +19,8 @@ import { StepProperty } from '../schema/types';
       <p>{{ schema | json }}</p>
     </div>
   `,
+  standalone: true,
+  imports: [MatIconButton, MatIcon, JsonPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InputRecordsComponent {

@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import Details from 'lighthouse/types/lhr/audit-details';
 import {
   MatCell,
@@ -47,6 +47,19 @@ import { ScrollContainerComponent } from './scroll-container.component';
       </table>
     </viewer-scroll-container>
   `,
+  styles: `
+    table {
+        border: 1px solid var(--mat-table-row-item-outline-color);
+        tr {
+            td:not(:first-child), th:not(:first-child) {
+                text-align: end;
+            }
+        }
+        tr:nth-child(odd) {
+            background-color: #eee;
+        }
+    }
+  `,
   standalone: true,
   imports: [
     MatTable,
@@ -65,19 +78,7 @@ import { ScrollContainerComponent } from './scroll-container.component';
     KibibytesPipe,
     ScrollContainerComponent,
   ],
-  styles: [`
-    table {
-        border: 1px solid var(--mat-table-row-item-outline-color);
-        tr {
-            td:not(:first-child), th:not(:first-child) {
-                text-align: end;
-            }
-        }
-        tr:nth-child(odd) {
-            background-color: #eee;
-        }
-    }
-  `]
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TableComponent {
   tableDetails = input.required<Details.Table>();

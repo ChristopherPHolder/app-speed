@@ -1,24 +1,15 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatOptionModule } from '@angular/material/core';
-import { MatSelectModule } from '@angular/material/select';
+import { MatIconButton } from '@angular/material/button';
+import { MatFormField, MatLabel } from '@angular/material/form-field';
+import { MatIcon } from '@angular/material/icon';
+import { MatOption } from '@angular/material/core';
+import { MatSelect } from '@angular/material/select';
 
 import { StepProperty } from '../schema/types';
 
 @Component({
   selector: 'builder-input-boolean',
-  standalone: true,
-  imports: [
-    MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatOptionModule,
-    MatSelectModule,
-    ReactiveFormsModule,
-  ],
   template: `
     <div>
       <mat-form-field>
@@ -35,6 +26,16 @@ import { StepProperty } from '../schema/types';
       }
     </div>
   `,
+  imports: [
+    ReactiveFormsModule,
+    MatFormField,
+    MatLabel,
+    MatSelect,
+    MatOption,
+    MatIcon,
+    MatIconButton,
+  ],
+  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InputBooleanComponent {

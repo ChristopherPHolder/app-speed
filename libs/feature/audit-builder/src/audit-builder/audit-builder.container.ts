@@ -1,34 +1,27 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ReactiveFormsModule } from '@angular/forms';
+
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { filter, first, map, Observable, OperatorFunction, tap, withLatestFrom } from 'rxjs';
-
 import { RxLet } from '@rx-angular/template/let';
-
-import { DEFAULT_AUDIT_DETAILS } from '../schema/audit.constants';
-import { AuditBuilderService } from './audit-builder.service';
 import { rxActions } from '@rx-angular/state/actions';
 import { RxIf } from '@rx-angular/template/if';
 import { RxFor } from '@rx-angular/template/for';
-import { ReactiveFormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatExpansionModule } from '@angular/material/expansion';
+import { MatCard, MatCardContent } from '@angular/material/card';
+import { MatAccordion } from '@angular/material/expansion';
+
 import { AuditStepComponent } from './audit-step.component';
+import { AuditBuilderService } from './audit-builder.service';
 import { AuditGlobalsComponent } from './audit-globals.component';
 
+import { DEFAULT_AUDIT_DETAILS } from '../schema/audit.constants';
 import { AuditDetails } from '../schema/types';
 
 @Component({
-  standalone: true,
   template: `
-    <form 
-      *rxIf='auditInit$' 
-      novalidate 
-      class='grid-container'
-      [formGroup]='builder.formGroup'
-      (ngSubmit)='actions.submit($event)'
-    >
+    <form *rxIf='auditInit$' novalidate class='grid-container' [formGroup]='builder.formGroup' (ngSubmit)='actions.submit($event)'>
       <mat-card>
         <mat-card-content>
           <builder-audit-global />
@@ -39,18 +32,9 @@ import { AuditDetails } from '../schema/types';
       </mat-card>
     </form>
   `,
-  styleUrls: ['./audit-builder.styles.scss'],
-  imports: [
-    RxLet,
-    RxIf,
-    RxFor,
-    ReactiveFormsModule,
-    MatCardModule,
-    AuditGlobalsComponent,
-    MatExpansionModule,
-    AuditStepComponent,
-    AuditGlobalsComponent,
-  ],
+  styleUrl: './audit-builder.styles.scss',
+  standalone: true,
+  imports: [RxLet, RxIf, RxFor, ReactiveFormsModule, AuditGlobalsComponent, AuditStepComponent, AuditGlobalsComponent, MatCard, MatCardContent, MatAccordion],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix

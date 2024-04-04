@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatOptionModule } from '@angular/material/core';
-import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule, MatIconButton } from '@angular/material/button';
+import { MatFormField, MatFormFieldModule, MatLabel } from '@angular/material/form-field';
+import { MatIcon, MatIconModule } from '@angular/material/icon';
+import { MatOption, MatOptionModule } from '@angular/material/core';
+import { MatSelect, MatSelectModule } from '@angular/material/select';
 import { RxFor } from '@rx-angular/template/for';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
@@ -14,12 +14,13 @@ import { StepProperty } from '../schema/types';
   standalone: true,
   imports: [
     RxFor,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatOptionModule,
-    MatSelectModule,
     ReactiveFormsModule,
+    MatLabel,
+    MatFormField,
+    MatSelect,
+    MatOption,
+    MatIcon,
+    MatIconButton,
   ],
   template: `
     <div>
