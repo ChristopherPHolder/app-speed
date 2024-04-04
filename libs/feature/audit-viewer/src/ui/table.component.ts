@@ -15,34 +15,37 @@ import {
 import { JsonPipe, NgFor } from '@angular/common';
 import { RoundPipe } from '../utils/round.pipe';
 import { KibibytesPipe } from '../utils/kibibytes.pipe';
+import { ScrollContainerComponent } from './scroll-container.component';
 
 @Component({
   selector: 'viewer-table',
   template: `
-    <table mat-table [dataSource]='dataSource()'>
-      <tr mat-header-row *matHeaderRowDef='displayedColumns()'></tr>
-      <tr mat-row *matRowDef='let row; columns: displayedColumns();'></tr>
+    <viewer-scroll-container>
+      <table mat-table [dataSource]='dataSource()'>
+        <tr mat-header-row *matHeaderRowDef='displayedColumns()'></tr>
+        <tr mat-row *matRowDef='let row; columns: displayedColumns();'></tr>
 
-      <ng-container *ngFor='let heading of headings()' [matColumnDef]='$any(heading.key)'>
-        <th mat-header-cell *matHeaderCellDef>{{ heading.label }}</th>
-        <td mat-cell *matCellDef='let item'>
-          @switch (heading.valueType) {
-            @case ('ms') {
-              {{ item[$any(heading.key)] | round }} ms
+        <ng-container *ngFor='let heading of headings()' [matColumnDef]='$any(heading.key)'>
+          <th mat-header-cell *matHeaderCellDef>{{ heading.label }}</th>
+          <td mat-cell *matCellDef='let item'>
+            @switch (heading.valueType) {
+              @case ('ms') {
+                {{ item[$any(heading.key)] | round }} ms
+              }
+              @case ('bytes') {
+                {{ item[$any(heading.key)] | kibibytes }} KiB
+              }
+              @case ('node') {
+                -> TODO type node || {{ item.node.nodeLabel }} {{ item.node.snippet }}
+              }
+              @default {
+                {{ item[$any(heading.key)] }}
+              }
             }
-            @case ('bytes') {
-              {{ item[$any(heading.key)] | kibibytes }} KiB
-            }
-            @case ('node') {
-              -> TODO type node || {{ item.node.nodeLabel }} {{ item.node.snippet }}
-            }
-            @default {
-              {{ item[$any(heading.key)] }}
-            }
-          }
-        </td>
-      </ng-container>
-    </table>
+          </td>
+        </ng-container>
+      </table>
+    </viewer-scroll-container>
   `,
   standalone: true,
   imports: [
@@ -60,12 +63,9 @@ import { KibibytesPipe } from '../utils/kibibytes.pipe';
     MatCellDef,
     RoundPipe,
     KibibytesPipe,
+    ScrollContainerComponent,
   ],
   styles: [`
-      :host {
-          display: block;
-          overflow: scroll;
-      }
     table {
         border: 1px solid var(--mat-table-row-item-outline-color);
         tr {
