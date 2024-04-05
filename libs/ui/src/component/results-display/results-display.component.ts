@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SafeResourceUrl } from '@angular/platform-browser';
-import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
+import { LoadingSpinnerComponent } from '../../../loading-spinner/src/loading-spinner.component';
 import { map, Observable } from 'rxjs';
 import { AuditStatusType, BypassSrcDirective} from 'shared';
 import { RxState } from '@rx-angular/state';

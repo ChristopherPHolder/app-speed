@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import Details from 'lighthouse/types/lhr/audit-details';
+import type Details from 'lighthouse/types/lhr/audit-details';
 import {
   MatCell,
   MatCellDef,
@@ -13,7 +13,7 @@ import {
   MatTable,
 } from '@angular/material/table';
 import { JsonPipe, NgFor } from '@angular/common';
-import { ScrollContainerComponent } from '@ui/scroller-container';
+import { ScrollContainerComponent } from '@app-speed/ui/scroll-container';
 import { RoundPipe } from '../utils/round.pipe';
 import { KibibytesPipe } from '../utils/kibibytes.pipe';
 

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { ScrollContainerComponent } from '@ui/scroller-container';
+import { ScrollContainerComponent } from '@app-speed/ui/scroll-container';
 
 @Component({
   selector: 'viewer-file-strip',

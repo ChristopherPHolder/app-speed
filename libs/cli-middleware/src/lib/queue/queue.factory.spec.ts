@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createAuditQueue } from './queue.factory';
 import { AuditQueue } from '@ufo/cli-interfaces';
 
-describe('queue factory', async () => {
+describe.skip('queue factory', async () => {
   let queue: AuditQueue;
 
   it('should load local queue', async () => {

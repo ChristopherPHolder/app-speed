@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
-import { RadialChartComponent } from 'ui';
+import { RadialChartComponent } from '@app-speed/ui/radial-chart';
 import { Result } from 'lighthouse';
 
 @Component({

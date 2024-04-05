@@ -15,8 +15,8 @@ import {
 } from '@angular/material/table';
 import { MatIcon } from '@angular/material/icon';
 import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
-import { ScrollContainerComponent } from '@ui/scroller-container';
-import { RadialChartComponent } from 'ui';
+import { ScrollContainerComponent } from '@app-speed/ui/scroll-container';
+import { RadialChartComponent } from '@app-speed/ui/radial-chart';
 import { ViewerScoreComponent } from './viewer-score.component';
 
 export type StepSummary = {
