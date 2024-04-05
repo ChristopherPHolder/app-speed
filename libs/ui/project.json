@@ -55,7 +55,7 @@
         "outputDir": "dist/storybook/ui",
         "tsConfig": "libs/ui/tsconfig.storybook.json",
         "configDir": "libs/ui/.storybook",
-        "browserTarget": "ui:build-storybook",
+        "browserTarget": "ui-lib:build-storybook",
         "compodoc": false
       },
       "configurations": {
