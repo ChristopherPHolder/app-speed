@@ -2,14 +2,14 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { MatTable } from '@angular/material/table';
 import { FlowResult, Result } from 'lighthouse';
 import { Result as AuditResult } from 'lighthouse/types/lhr/audit-result';
-import { MetricSummary, ViewerStepMetricSummaryComponent } from './viewer-step-metric-summary.component';
 import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
+
+import { StatusOptions, STATUS } from '@app-speed/ui/status-badge';
+import { MetricSummary, ViewerStepMetricSummaryComponent } from './viewer-step-metric-summary.component';
 import { ViewerFileStripComponent } from './viewer-file-strip.component';
 import { ViewerDiagnosticComponent } from './viewer-diagnostic.component';
 import { DiagnosticItem } from './viewer-diagnostic-panel.component';
-import { StatusOptions } from '../ui/status.types';
-import { STATUS_OPTIONS } from '../ui/status.constants';
 
 @Component({
   selector: 'viewer-step-detail',
@@ -105,9 +105,9 @@ export class ViewerStepDetailComponent {
 
   diagnosticItems = computed<DiagnosticItem[]>(() => {
     return [
-      this.alertItems().map(this.diagnosticItemsMapper(STATUS_OPTIONS.ALERT)),
-      this.warnItems().map(this.diagnosticItemsMapper(STATUS_OPTIONS.WARN)),
-      this.informItems().map(this.diagnosticItemsMapper(STATUS_OPTIONS.INFO)),
+      this.alertItems().map(this.diagnosticItemsMapper(STATUS.ALERT)),
+      this.warnItems().map(this.diagnosticItemsMapper(STATUS.WARN)),
+      this.informItems().map(this.diagnosticItemsMapper(STATUS.INFO)),
     ].flat()
   })
 
@@ -135,19 +135,19 @@ export class ViewerStepDetailComponent {
 
   private metricStatus(score: number | null, numericValue: number | undefined, scoringOptions: {p10: number, median: number} | undefined): StatusOptions {
     if (score !== null) {
-      return score > 0.89 ? STATUS_OPTIONS.PASS : score > 0.49 ? STATUS_OPTIONS.WARN : STATUS_OPTIONS.ALERT;
+      return score > 0.89 ? STATUS.PASS : score > 0.49 ? STATUS.WARN : STATUS.ALERT;
     }
 
     if (scoringOptions === undefined || numericValue === undefined) {
-      return STATUS_OPTIONS.INFO;
+      return STATUS.INFO;
     }
 
     if (numericValue <= scoringOptions.p10) {
-      return STATUS_OPTIONS.PASS;
+      return STATUS.PASS;
     }
     if (numericValue <= scoringOptions.median) {
-      return STATUS_OPTIONS.WARN;
+      return STATUS.WARN;
     }
-    return STATUS_OPTIONS.ALERT;
+    return STATUS.ALERT;
   }
 }

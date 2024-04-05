@@ -1,8 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
-import { StatusBadgeComponent } from '../ui/status-badge.component';
-import { StatusOptions } from '../ui/status.types';
-import { STATUS_COLOR } from '../ui/status.constants';
+import { StatusBadgeComponent, StatusOptions, STATUS_COLOR } from '@app-speed/ui/status-badge';
 import { MdToAnkerPipe } from '../utils/md-to-anker.pipe';
 
 export type MetricSummary = {
@@ -23,7 +21,7 @@ export type MetricSummary = {
       @for (metric of metricSummary(); track metric.name) {
         <div class='item'>
           <div class='item-header'>
-            <viewer-status-badge class='header-icon' [status]='metric.status' />
+            <ui-status-badge class='header-icon' [status]='metric.status' />
             <div class='header-name'>{{ metric.name }}</div>
             <div class='header-value' [style.color]='STATUS_COLOR[metric.status]'>{{ metric.value }}</div>
           </div>

@@ -19,6 +19,7 @@
       "@app-speed/ui/radial-chart": ["libs/ui/radial-chart/public-api.ts"],
       "@app-speed/ui/scroll-container": ["libs/ui/scroll-container/public-api.ts"],
       "@app-speed/ui/shell": ["libs/ui/shell/public-api.ts"],
+      "@app-speed/ui/status-badge": ["libs/ui/status-badge/public-api.ts"],
       "@ufo/audit-queue/*": ["libs/audit-queue/src/lib/*"],
       "@ufo/audit-store/*": ["libs/audit-store/src/lib/*"],
       "@ufo/cli-interfaces": ["libs/cli-interfaces/src/index.ts"],

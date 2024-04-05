@@ -5,10 +5,9 @@ import {
   MatExpansionPanelHeader,
   MatExpansionPanelTitle,
 } from '@angular/material/expansion';
+import { StatusBadgeComponent, StatusOptions } from '@app-speed/ui/status-badge';
 import Details from 'lighthouse/types/lhr/audit-details';
 import { MdToAnkerPipe } from '../utils/md-to-anker.pipe';
-import { StatusBadgeComponent } from '../ui/status-badge.component';
-import { StatusOptions } from '../ui/status.types';
 import { DetailsComponent } from '../ui/details.component';
 
 export type DiagnosticItem = {
@@ -26,7 +25,7 @@ export type DiagnosticItem = {
     <mat-expansion-panel>
       <mat-expansion-panel-header>
         <mat-panel-title>
-          <viewer-status-badge class='status-badge' [status]='item().status' />
+          <ui-status-badge class='status-badge' [status]='item().status' />
           <span>
             {{ item().title }}
             @if (item().displayValue) {
