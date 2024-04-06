@@ -1,8 +1,9 @@
 {
   "name": "audit-runner",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/audit-runner/src",
+  "sourceRoot": "package/runner-app/src",
   "projectType": "application",
+  "tags": ["backend"],
   "targets": {
     "build": {
       "executor": "@nx/esbuild:esbuild",
@@ -10,12 +11,12 @@
       "defaultConfiguration": "production",
       "options": {
         "platform": "node",
-        "outputPath": "dist/apps/audit-runner",
+        "outputPath": "dist/{projectRoot}",
         "format": ["esm"],
         "bundle": true,
-        "main": "apps/audit-runner/src/main.ts",
-        "tsConfig": "apps/audit-runner/tsconfig.app.json",
-        "assets": ["apps/audit-runner/src/assets"],
+        "main": "{projectRoot}/src/main.ts",
+        "tsConfig": "{projectRoot}/tsconfig.app.json",
+        "assets": ["{projectRoot}/src/assets"],
         "generatePackageJson": true,
         "esbuildOptions": {
           "sourcemap": true,
@@ -72,7 +73,7 @@
       "executor": "@app-speed/aws-deploy:s3-upload",
       "dependsOn": ["build"],
       "options": {
-        "upload": "dist/apps/audit-runner",
+        "upload": "dist/{projectRoot}",
         "bucket": "s3://ufo-runner-dev"
       }
     },
@@ -83,6 +84,5 @@
         "command": "node ./scripts/deploy-runner.js"
       }
     }
-  },
-  "tags": ["backend"]
+  }
 }

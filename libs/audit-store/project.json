@@ -3,6 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/audit-store/src",
   "projectType": "library",
+  "tags": ["server"],
   "targets": {
     "build": {
       "executor": "@nx/esbuild:esbuild",
@@ -31,6 +32,5 @@
         "reportsDirectory": "../../coverage/libs/audit-store"
       }
     }
-  },
-  "tags": ["server"]
+  }
 }

@@ -1,14 +1,16 @@
 {
-  "name": "audit-manager-e2e",
+  "name": "portal-e2e",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/audit-manager-e2e/src",
+  "sourceRoot": "packages/portal-e2e/src",
   "projectType": "application",
+  "tags": [],
+  "implicitDependencies": ["portal-app"],
   "targets": {
     "e2e": {
       "executor": "@nx/cypress:cypress",
       "options": {
-        "cypressConfig": "apps/audit-manager-e2e/cypress.config.ts",
-        "devServerTarget": "audit-manager:serve:development",
+        "cypressConfig": "{projectRoot}/cypress.config.ts",
+        "devServerTarget": "portal-app:serve:development",
         "testingType": "e2e"
       },
       "configurations": {
@@ -24,7 +26,5 @@
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"]
     }
-  },
-  "tags": [],
-  "implicitDependencies": ["audit-manager"]
+  }
 }

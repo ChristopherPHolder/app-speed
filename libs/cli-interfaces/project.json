@@ -3,6 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "/src",
   "projectType": "library",
+  "tags": ["server"],
   "targets": {
     "build": {
       "executor": "@nx/esbuild:esbuild",
@@ -23,6 +24,5 @@
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"]
     }
-  },
-  "tags": ["server"]
+  }
 }

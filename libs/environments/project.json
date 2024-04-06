@@ -4,6 +4,7 @@
   "projectType": "library",
   "sourceRoot": "libs/environments/src",
   "prefix": "app",
+  "tags": [],
   "targets": {
     "build": {
       "executor": "@nx/angular:ng-packagr-lite",
@@ -25,6 +26,5 @@
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"]
     }
-  },
-  "tags": []
+  }
 }

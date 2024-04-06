@@ -3,6 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/cli-middleware/src",
   "projectType": "library",
+  "tags": [],
   "targets": {
     "build": {
       "executor": "@nx/esbuild:esbuild",
@@ -31,6 +32,5 @@
         "reportsDirectory": "../../coverage/libs/cli-middleware"
       }
     }
-  },
-  "tags": []
+  }
 }

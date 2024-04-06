@@ -3,6 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/audit-queue/src",
   "projectType": "library",
+  "tags": [],
   "targets": {
     "build": {
       "executor": "@nx/esbuild:esbuild",
@@ -31,6 +32,5 @@
         "reportsDirectory": "../../coverage/libs/audit-queue"
       }
     }
-  },
-  "tags": []
+  }
 }

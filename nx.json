@@ -1,8 +1,13 @@
 {
   "targetDefaults": {
     "build": {
-      "dependsOn": ["^build"],
-      "inputs": ["default", "^default"],
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "default",
+        "^default"
+      ],
       "cache": true
     },
     "build-storybook": {
@@ -12,15 +17,25 @@
       "cache": true
     },
     "@nx/eslint:lint": {
-      "inputs": ["default", "{workspaceRoot}/.eslintrc.json"],
+      "inputs": [
+        "default",
+        "{workspaceRoot}/.eslintrc.json"
+      ],
       "cache": true
     },
     "@nx/vite:test": {
       "cache": true,
-      "inputs": ["default", "^default"]
+      "inputs": [
+        "default",
+        "^default"
+      ]
     },
     "@nx/jest:jest": {
-      "inputs": ["default", "^default", "{workspaceRoot}/jest.preset.js"],
+      "inputs": [
+        "default",
+        "^default",
+        "{workspaceRoot}/jest.preset.js"
+      ],
       "cache": true,
       "options": {
         "passWithNoTests": true
@@ -34,7 +49,6 @@
     }
   },
   "defaultBase": "main",
-  "defaultProject": "user-flow-manager",
   "generators": {
     "@nx/angular:application": {
       "style": "scss",
@@ -49,5 +63,15 @@
     "@nx/angular:component": {
       "style": "scss"
     }
+  },
+  "namedInputs": {
+    "default": [
+      "{projectRoot}/**/*",
+      "sharedGlobals"
+    ],
+    "sharedGlobals": [],
+    "production": [
+      "default"
+    ]
   }
 }

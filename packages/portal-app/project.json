@@ -1,22 +1,22 @@
 {
-  "name": "audit-manager",
+  "name": "portal-app",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "prefix": "app",
-  "sourceRoot": "apps/audit-manager/src",
+  "sourceRoot": "packages/portal-app/src",
   "tags": ["frontend"],
   "targets": {
     "build": {
       "executor": "@nx/angular:browser-esbuild",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/apps/audit-manager",
-        "index": "apps/audit-manager/src/index.html",
-        "main": "apps/audit-manager/src/main.ts",
+        "outputPath": "dist/{projectRoot}",
+        "index": "{projectRoot}/src/index.html",
+        "main": "{projectRoot}/src/main.ts",
         "polyfills": ["zone.js"],
-        "tsConfig": "apps/audit-manager/tsconfig.app.json",
-        "assets": ["apps/audit-manager/src/favicon.ico", "apps/audit-manager/src/assets"],
-        "styles": ["@angular/material/prebuilt-themes/indigo-pink.css", "apps/audit-manager/src/styles.scss"]
+        "tsConfig": "{projectRoot}/tsconfig.app.json",
+        "assets": ["{projectRoot}/src/favicon.ico", "{projectRoot}/src/assets"],
+        "styles": ["@angular/material/prebuilt-themes/indigo-pink.css", "{projectRoot}/src/styles.scss"]
       },
       "configurations": {
         "production": {
@@ -49,10 +49,10 @@
       "executor": "@angular-devkit/build-angular:dev-server",
       "configurations": {
         "production": {
-          "buildTarget": "audit-manager:build:production"
+          "buildTarget": "portal-app:build:production"
         },
         "development": {
-          "buildTarget": "audit-manager:build:development"
+          "buildTarget": "portal-app:build:development"
         }
       },
       "defaultConfiguration": "development"
@@ -60,7 +60,7 @@
     "extract-i18n": {
       "executor": "@angular-devkit/build-angular:extract-i18n",
       "options": {
-        "buildTarget": "audit-manager:build"
+        "buildTarget": "portal-app:build"
       }
     },
     "lint": {
@@ -71,20 +71,20 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "apps/audit-manager/jest.config.ts"
+        "jestConfig": "{workspaceRoot}/{projectRoot}/jest.config.ts"
       }
     },
     "serve-static": {
       "executor": "@nx/web:file-server",
       "options": {
-        "buildTarget": "audit-manager:build"
+        "buildTarget": "portal-app:build"
       }
     },
     "deploy": {
       "executor": "@app-speed/aws-deploy:s3-upload",
       "dependsOn": ["build"],
       "options": {
-        "upload": "dist/apps/audit-manager"
+        "upload": "dist/{projectRoot}/audit-manager"
       },
       "configurations": {
         "production": {

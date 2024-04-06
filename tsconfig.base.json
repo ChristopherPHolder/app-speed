@@ -15,11 +15,11 @@
       "@app-speed/aws-deploy": ["libs/aws-deploy/src/index.ts"],
       "@app-speed/feature/audit-builder": ["libs/feature/audit-builder/src/index.ts"],
       "@app-speed/feature/audit-viewer": ["libs/feature/audit-viewer/src/index.ts"],
-      "@app-speed/ui/loading-spinner": ["libs/ui/loading-spinner/public-api.ts"],
-      "@app-speed/ui/radial-chart": ["libs/ui/radial-chart/public-api.ts"],
-      "@app-speed/ui/scroll-container": ["libs/ui/scroll-container/public-api.ts"],
-      "@app-speed/ui/shell": ["libs/ui/shell/public-api.ts"],
-      "@app-speed/ui/status-badge": ["libs/ui/status-badge/public-api.ts"],
+      "@app-speed/ui/loading-spinner": ["packages/ui/loading-spinner/public-api.ts"],
+      "@app-speed/ui/radial-chart": ["packages/ui/radial-chart/public-api.ts"],
+      "@app-speed/ui/scroll-container": ["packages/ui/scroll-container/public-api.ts"],
+      "@app-speed/ui/shell": ["packages/ui/shell/public-api.ts"],
+      "@app-speed/ui/status-badge": ["packages/ui/status-badge/public-api.ts"],
       "@ufo/audit-queue/*": ["libs/audit-queue/src/lib/*"],
       "@ufo/audit-store/*": ["libs/audit-store/src/lib/*"],
       "@ufo/cli-interfaces": ["libs/cli-interfaces/src/index.ts"],
@@ -28,7 +28,6 @@
       "data-access": ["libs/data-access/src/index.ts"],
       "environments": ["libs/environments/src/index.ts"],
       "shared": ["libs/shared/src/index.ts"],
-      "ui": ["libs/ui/src/index.ts"]
     }
   }
 }
