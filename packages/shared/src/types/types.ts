@@ -1,7 +1,7 @@
-
 export type Reports = {
 	htmlReportUrl?: string;
 }
+
 export type ResultReports = {
 	jsonReport: string
 	htmlReport: string
