@@ -1,0 +1,36 @@
+{
+  "name": "@app-speed/audit-store",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/audit-store/src",
+  "projectType": "library",
+  "tags": ["server"],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/audit-store",
+        "main": "packages/audit-store/src/index.ts",
+        "tsConfig": "packages/audit-store/tsconfig.lib.json",
+        "assets": ["packages/audit-store/*.md"],
+        "generatePackageJson": true
+      }
+    },
+    "publish": {
+      "command": "node tools/scripts/publish.mjs audit-store {args.ver} {args.tag}",
+      "dependsOn": ["build"]
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{workspaceRoot}/coverage/packages/audit-store"],
+      "options": {
+        "passWithNoTests": true,
+        "reportsDirectory": "../../coverage/packages/audit-store"
+      }
+    }
+  }
+}
