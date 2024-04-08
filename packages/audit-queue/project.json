@@ -1,7 +1,7 @@
 {
-  "name": "audit-queue",
+  "name": "@app-speed/audit-queue",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/audit-queue/src",
+  "sourceRoot": "packages/audit-queue/src",
   "projectType": "library",
   "tags": [],
   "targets": {
@@ -9,10 +9,10 @@
       "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/libs/audit-queue",
-        "main": "libs/audit-queue/src/index.ts",
-        "tsConfig": "libs/audit-queue/tsconfig.lib.json",
-        "assets": ["libs/audit-queue/*.md"],
+        "outputPath": "dist/packages/audit-queue",
+        "main": "packages/audit-queue/src/index.ts",
+        "tsConfig": "packages/audit-queue/tsconfig.lib.json",
+        "assets": ["packages/audit-queue/*.md"],
         "generatePackageJson": true
       }
     },
@@ -26,10 +26,10 @@
     },
     "test": {
       "executor": "@nx/vite:test",
-      "outputs": ["{workspaceRoot}/coverage/libs/audit-queue"],
+      "outputs": ["{workspaceRoot}/coverage/packages/audit-queue"],
       "options": {
         "passWithNoTests": true,
-        "reportsDirectory": "../../coverage/libs/audit-queue"
+        "reportsDirectory": "../../coverage/packages/audit-queue"
       }
     }
   }

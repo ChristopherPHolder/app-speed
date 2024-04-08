@@ -12,6 +12,7 @@
     "experimentalDecorators": true,
     "baseUrl": ".",
     "paths": {
+      "@app-speed/audit-queue/*": ["packages/audit-queue/src/lib/*"],
       "@app-speed/aws-deploy": ["libs/aws-deploy/src/index.ts"],
       "@app-speed/data-access": ["packages/data-access/src/index.ts"],
       "@app-speed/feature/audit-builder": ["packages/feature/audit-builder/src/index.ts"],
@@ -21,7 +22,6 @@
       "@app-speed/ui/scroll-container": ["packages/ui/scroll-container/public-api.ts"],
       "@app-speed/ui/shell": ["packages/ui/shell/public-api.ts"],
       "@app-speed/ui/status-badge": ["packages/ui/status-badge/public-api.ts"],
-      "@ufo/audit-queue/*": ["libs/audit-queue/src/lib/*"],
       "@ufo/audit-store/*": ["libs/audit-store/src/lib/*"],
       "@ufo/cli-interfaces": ["libs/cli-interfaces/src/index.ts"],
       "@ufo/cli-middleware": ["libs/cli-middleware/src/index.ts"],
