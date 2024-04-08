@@ -27,7 +27,7 @@
       "@app-speed/ui/scroll-container": ["packages/ui/scroll-container/public-api.ts"],
       "@app-speed/ui/shell": ["packages/ui/shell/public-api.ts"],
       "@app-speed/ui/status-badge": ["packages/ui/status-badge/public-api.ts"],
-      "@app-speed/user-flow-replay": ["packages/user-flow-replay/src/index.ts"]
+      "@app-speed/user-flow-replay": ["packages/user-flow-replay/public-api.ts"]
     }
   }
 }
