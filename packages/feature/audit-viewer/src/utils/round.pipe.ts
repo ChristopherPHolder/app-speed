@@ -5,7 +5,7 @@ import { Pipe, PipeTransform } from '@angular/core';
   standalone: true,
 })
 export class RoundPipe implements PipeTransform {
-  transform(value: number): number {
-    return Math.round(value)
+  transform(value: number): string {
+    return Math.round(value) + ' ms';
   }
 }

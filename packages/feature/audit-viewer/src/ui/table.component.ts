@@ -30,7 +30,7 @@ import { KibibytesPipe } from '../utils/kibibytes.pipe';
           <td mat-cell *matCellDef='let item'>
             @switch (heading.valueType) {
               @case ('ms') {
-                {{ item[$any(heading.key)] | round }} ms
+                {{ item[$any(heading.key)] | round }}
               }
               @case ('bytes') {
                 {{ item[$any(heading.key)] | kibibytes }} KiB

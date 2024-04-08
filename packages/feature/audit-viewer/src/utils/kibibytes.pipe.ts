@@ -5,7 +5,7 @@ import { Pipe, PipeTransform } from '@angular/core';
   standalone: true,
 })
 export class KibibytesPipe implements PipeTransform {
-  transform(bytes: number): number {
-    return Math.round(bytes / 1024);
+  transform(bytes: number): string {
+    return Math.round(bytes / 1024) + ' KiB';
   }
 }

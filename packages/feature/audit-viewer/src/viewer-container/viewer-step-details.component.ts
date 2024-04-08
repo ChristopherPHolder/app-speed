@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { MatTable } from '@angular/material/table';
-import { FlowResult, Result } from 'lighthouse';
+import { FlowResult } from 'lighthouse';
 import { Result as AuditResult } from 'lighthouse/types/lhr/audit-result';
 import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
@@ -10,6 +10,7 @@ import { MetricSummary, ViewerStepMetricSummaryComponent } from './viewer-step-m
 import { ViewerFileStripComponent } from './viewer-file-strip.component';
 import { ViewerDiagnosticComponent } from './viewer-diagnostic.component';
 import { DiagnosticItem } from './viewer-diagnostic-panel.component';
+import { metricAudits, metricResults, } from './view-step-details.adaptor';
 
 @Component({
   selector: 'viewer-step-detail',
@@ -116,38 +117,7 @@ export class ViewerStepDetailComponent {
   }
   private categoriesMetricSummary(categories: FlowResult.Step['lhr']['categories']): Record<string, MetricSummary[]>[] {
     return Object.entries(categories).map(([key, value]) => ({
-        [key]: this.metricResults(this.metricAudits(value.auditRefs), this.stepDetails().lhr.audits)
+        [key]: metricResults(metricAudits(value.auditRefs), this.stepDetails().lhr.audits)
     }));
-  }
-
-  private metricResults(ids: string[], audits: FlowResult.Step['lhr']['audits']): MetricSummary[] {
-    return ids.map((id: string) => audits[id]).map((v) => ({
-      name: v.title,
-      value: v.displayValue,
-      description: v.description,
-      status: this.metricStatus(v.score, v.numericValue, v.scoringOptions)
-    }));
-  }
-
-  private metricAudits(auditRefs: Result.Category['auditRefs']): string[] {
-    return auditRefs.filter(ref => ref?.group === 'metrics').map((ref) => ref.id);
-  }
-
-  private metricStatus(score: number | null, numericValue: number | undefined, scoringOptions: {p10: number, median: number} | undefined): StatusOptions {
-    if (score !== null) {
-      return score > 0.89 ? STATUS.PASS : score > 0.49 ? STATUS.WARN : STATUS.ALERT;
-    }
-
-    if (scoringOptions === undefined || numericValue === undefined) {
-      return STATUS.INFO;
-    }
-
-    if (numericValue <= scoringOptions.p10) {
-      return STATUS.PASS;
-    }
-    if (numericValue <= scoringOptions.median) {
-      return STATUS.WARN;
-    }
-    return STATUS.ALERT;
   }
 }

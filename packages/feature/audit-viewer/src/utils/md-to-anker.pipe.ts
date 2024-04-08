@@ -1,17 +1,16 @@
 import { inject, Pipe, PipeTransform } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
+const mdAnkerRegex = /(\[([^\]]+)])\(([^)]+)\)/g;
+const mdAnkerReplacer = '<a target="_blank" href="$3">$2</a>'
+
 @Pipe({
   name: 'mdToAnker',
   standalone: true,
-  pure: false
 })
 export class MdToAnkerPipe implements PipeTransform {
-  private readonly sanitizer = inject(DomSanitizer);
+  private readonly bypassSecurityTrustHtml = inject(DomSanitizer).bypassSecurityTrustHtml;
   transform(value: string): SafeHtml {
-    return this.sanitizer.bypassSecurityTrustHtml(value.replaceAll(
-      /(\[([^\]]+)])\(([^)]+)\)/g,
-      '<a target="_blank" href="$3">$2</a>'
-    ));
+    return this.bypassSecurityTrustHtml(value.replaceAll(mdAnkerRegex, mdAnkerReplacer));
   }
 }
