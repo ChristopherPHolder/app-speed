@@ -8,8 +8,7 @@ import { ResultModel } from './result.model';
   providedIn: 'root'
 })
 export class ResultResource {
-  constructor(private http: HttpClient) {
-  }
+  constructor(private http: HttpClient) {}
 
   private readonly baseUrl = environment.s3ResultsBucket.url;
 
