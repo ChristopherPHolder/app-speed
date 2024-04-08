@@ -1,4 +1,4 @@
-import { environment } from 'environments';
+import { environment } from '@app-speed/environments';
 import { ErrorHandler, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, catchError, distinctUntilChanged, map, Observable, of, switchMap, timer } from 'rxjs';

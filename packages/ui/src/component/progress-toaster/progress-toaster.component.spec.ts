@@ -1,7 +1,7 @@
 import {ComponentFixture, TestBed, waitForAsync} from '@angular/core/testing';
 import {ProgressToasterComponent} from './progress-toaster.component';
 import {of} from 'rxjs';
-import {AUDIT_STATUS} from 'shared';
+import {AUDIT_STATUS} from '@app-speed/shared';
 
 describe('ProgressToasterComponent', () => {
   let component: ProgressToasterComponent;

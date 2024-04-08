@@ -1,6 +1,6 @@
 import { ArgumentsCamelCase, CommandBuilder, CommandModule } from 'yargs';
-import { createAuditQueue, createAuditStore, UserFlowExecutor } from '@ufo/cli-middleware';
-import { AuditExecutor, AuditQueue, AuditStore } from '@ufo/cli-interfaces';
+import { createAuditQueue, createAuditStore, UserFlowExecutor } from '@app-speed/cli-middleware';
+import { AuditExecutor, AuditQueue, AuditStore } from '@app-speed/cli-interfaces';
 import { GlobalOptions, queue, QueueOption, store, StoreOption } from '../args';
 
 type UserFlowCommandOptions = GlobalOptions & QueueOption & StoreOption;

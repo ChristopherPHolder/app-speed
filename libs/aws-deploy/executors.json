@@ -1,9 +1,0 @@
-{
-  "executors": {
-    "s3-upload": {
-      "implementation": "./src/executors/s3-upload/executor",
-      "schema": "./src/executors/s3-upload/schema.json",
-      "description": "Executor to upload files to an s3 bucket"
-    }
-  }
-}

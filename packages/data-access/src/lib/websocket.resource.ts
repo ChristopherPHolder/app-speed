@@ -1,9 +1,9 @@
+import { AUDIT_REQUEST, AUDIT_STATUS, AuditRunParams, UfWsRecieveActions, UfWsSendActions } from '@app-speed/shared';
 import { Injectable } from '@angular/core';
-import { Ws } from './ws';
-import { AUDIT_REQUEST, AUDIT_STATUS, AuditRunParams, UfWsRecieveActions, UfWsSendActions } from 'shared';
+import { environment } from '@app-speed/environments';
 import { filter, map, Observable } from 'rxjs';
 import { ResultModel } from './result.model';
-import { environment } from 'environments';
+import { Ws } from './ws';
 
 @Injectable({
   providedIn: 'root',

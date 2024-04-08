@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import type { AppSpeedUserFlowStep } from 'shared';
+import type { AppSpeedUserFlowStep } from '@app-speed/shared';
 import { KebabMenuComponent } from '../../component/icons/kebab-menu.component';
 
 @Component({

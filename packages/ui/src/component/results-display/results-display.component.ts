@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { SafeResourceUrl } from '@angular/platform-browser';
 import { LoadingSpinnerComponent } from '@app-speed/ui/loading-spinner';
 import { map, Observable } from 'rxjs';
-import { AuditStatusType, BypassSrcDirective} from 'shared';
+import { AuditStatusType, BypassSrcDirective} from '@app-speed/shared';
 import { RxState } from '@rx-angular/state';
 import { RxIf } from '@rx-angular/template/if';
 import { RxPush } from '@rx-angular/template/push';

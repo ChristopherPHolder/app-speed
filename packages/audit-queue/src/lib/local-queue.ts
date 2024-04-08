@@ -2,8 +2,8 @@ import { join } from 'path';
 import { cwd } from 'process';
 import { readdirSync, readFileSync } from 'fs'
 
-import { AuditQueue } from '@ufo/cli-interfaces';
-import { AuditRunParams } from 'shared';
+import { AuditQueue } from '@app-speed/cli-interfaces';
+import { AuditRunParams } from '@app-speed/shared';
 
 export type LocalQueueConfig = {
   path: string
