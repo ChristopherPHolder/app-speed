@@ -84,7 +84,7 @@
       "executor": "@app-speed/aws-deploy:s3-upload",
       "dependsOn": ["build"],
       "options": {
-        "upload": "dist/{projectRoot}/audit-manager"
+        "upload": "dist/{projectRoot}"
       },
       "configurations": {
         "production": {
