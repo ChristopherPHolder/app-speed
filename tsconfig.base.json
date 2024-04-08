@@ -14,8 +14,8 @@
     "paths": {
       "@app-speed/aws-deploy": ["libs/aws-deploy/src/index.ts"],
       "@app-speed/data-access": ["packages/data-access/src/index.ts"],
-      "@app-speed/feature/audit-builder": ["libs/feature/audit-builder/src/index.ts"],
-      "@app-speed/feature/audit-viewer": ["libs/feature/audit-viewer/src/index.ts"],
+      "@app-speed/feature/audit-builder": ["packages/feature/audit-builder/src/index.ts"],
+      "@app-speed/feature/audit-viewer": ["packages/feature/audit-viewer/src/index.ts"],
       "@app-speed/ui/loading-spinner": ["packages/ui/loading-spinner/public-api.ts"],
       "@app-speed/ui/radial-chart": ["packages/ui/radial-chart/public-api.ts"],
       "@app-speed/ui/scroll-container": ["packages/ui/scroll-container/public-api.ts"],
