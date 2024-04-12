@@ -33,7 +33,7 @@ import { KibibytesPipe } from '../utils/kibibytes.pipe';
                 {{ item[$any(heading.key)] | round }}
               }
               @case ('bytes') {
-                {{ item[$any(heading.key)] | kibibytes }} KiB
+                {{ item[$any(heading.key)] | kibibytes }}
               }
               @case ('node') {
                 -> TODO type node || {{ item.node.nodeLabel }} {{ item.node.snippet }}

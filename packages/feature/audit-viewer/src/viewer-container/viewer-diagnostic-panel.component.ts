@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, input } from '@angular/core';
 import {
   MatExpansionPanel,
   MatExpansionPanelDescription,
@@ -9,6 +9,7 @@ import { StatusBadgeComponent, StatusOptions } from '@app-speed/ui/status-badge'
 import Details from 'lighthouse/types/lhr/audit-details';
 import { MdToAnkerPipe } from '../utils/md-to-anker.pipe';
 import { DetailsComponent } from '../ui/details.component';
+import { MatChip } from '@angular/material/chips';
 
 export type DiagnosticItem = {
   id: string;
@@ -17,6 +18,7 @@ export type DiagnosticItem = {
   description: string;
   details?: Details;
   status: StatusOptions;
+  affectedMetrics?: string[]
 };
 
 @Component({
@@ -34,7 +36,15 @@ export type DiagnosticItem = {
           </span>
         </mat-panel-title>
       </mat-expansion-panel-header>
-      <p [innerHTML]='item().description | mdToAnker'></p>
+      <p>
+        <span [innerHTML]='item().description | mdToAnker'></span>
+        @if (item().affectedMetrics; as metrics) {
+          @for (metric of metrics; track metric) {
+            <mat-chip [disableRipple]='true' >{{metric}}</mat-chip>
+          }
+        }
+      </p>
+
       @if (item().details; as details) {
         <viewer-details [details]='details' />
       }
@@ -63,9 +73,18 @@ export type DiagnosticItem = {
     MdToAnkerPipe,
     StatusBadgeComponent,
     DetailsComponent,
+    MatChip,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ViewerDiagnosticPanelComponent {
+export class ViewerDiagnosticPanelComponent implements AfterViewInit {
   item = input.required<DiagnosticItem>();
+
+  ngAfterViewInit() {
+    console.log('item', { item: this.item() });
+  }
+
+  // @TODO
+  // Some data needs modified to produce the correct details.
+  // For example the reduce javascript exectution time will group by domain and add a tag next to it if its a 1st party
 }

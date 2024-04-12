@@ -94,14 +94,12 @@ export class ViewerStepDetailComponent {
     return this.failedAudits().filter((v) => !alertIds.includes(v.id));
   });
   informItems = computed(() => {
-    return this.diagnostics().passed
-      .filter((v) => !!v.metricSavings)
-      .filter((v) => this.affectsMetric(Object.keys(v.metricSavings || {})))
+    return this.diagnostics().passed.filter(({metricSavings}) => !!metricSavings && this.affectsMetric(Object.keys(metricSavings || {})))
   });
 
   private diagnosticItemsMapper = (status: StatusOptions) => (results: AuditResult) => {
-    const { id, title, displayValue, description, details } = results;
-    return { id, status, title, displayValue, description, details };
+    const { id, title, displayValue, description, details, metricSavings } = results;
+    return { id, status, title, displayValue, description, details, affectedMetrics: Object.keys(metricSavings || {}) };
   }
 
   diagnosticItems = computed<DiagnosticItem[]>(() => {
