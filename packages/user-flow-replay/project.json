@@ -1,0 +1,32 @@
+{
+  "name": "@app-speed/user-flow-replay",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/user-flow-replay/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/user-flow-replay",
+        "main": "packages/user-flow-replay/public-api.ts",
+        "tsConfig": "packages/user-flow-replay/tsconfig.lib.json",
+        "assets": ["packages/user-flow-replay/*.md"],
+        "generatePackageJson": true
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{workspaceRoot}/coverage/packages/user-flow-replay"],
+      "options": {
+        "passWithNoTests": true,
+        "reportsDirectory": "../../coverage/packages/user-flow-replay"
+      }
+    }
+  }
+}

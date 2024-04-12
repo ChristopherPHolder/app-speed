@@ -239,3 +239,33 @@ jobs:
       - name: Deploy Prod Server
         if: ${{ env.is-main-branch == 'true' }}
         run: npx nx affected --target=deploy  --exclude='*,!tag:backend' --configuration=production
+
+#  release:
+#    name: Release Affected
+#    needs: [build, lint]
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - uses: actions/checkout@v4
+#        with:
+#          # We need to fetch all branches and commits so that Nx affected has a base to compare against.
+#          fetch-depth: 0
+#      # Derive appropriate SHAs for base and head for `nx affected` commands
+#      - uses: nrwl/nx-set-shas@v3
+#      - uses: actions/setup-node@v4
+#        with:
+#          node-version: 20
+#          cache: 'npm'
+#
+#      - name: Cache NPM Dependencies
+#        uses: actions/cache@v4
+#        with:
+#          path: |
+#            node_modules
+#            ~/.cache
+#            dist
+#          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+#
+#      - name: Release Affected
+##        if: ${{ env.is-main-branch == 'true' }}
+#        run: npx nx affected -t nx-release-publish --parallel=3

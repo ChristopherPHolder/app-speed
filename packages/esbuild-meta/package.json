@@ -1,0 +1,13 @@
+{
+  "name": "@app-speed/esbuild-meta",
+  "version": "0.0.1",
+  "bin": "main.js",
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "esbuild": "0.19.2",
+    "yargs": "^17.7.2"
+  }
+}

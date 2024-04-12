@@ -1,0 +1,57 @@
+{
+  "name": "esbuild-meta",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/esbuild-meta/src",
+  "projectType": "library",
+  "release": {
+    "version": {
+      "generatorOptions": {
+        "packageRoot": "dist/{projectRoot}",
+        "currentVersionResolver": "git-tag"
+      }
+    }
+  },
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/esbuild-meta",
+        "main": "packages/esbuild-meta/src/main.ts",
+        "tsConfig": "packages/esbuild-meta/tsconfig.lib.json",
+        "assets": ["packages/esbuild-meta/*.md"],
+        "generatePackageJson": true,
+        "format": ["esm"],
+        "minify": true,
+        "platform": "node",
+        "bundle": true,
+        "thirdParty": true
+      }
+    },
+    "nx-release-publish": {
+      "options": {
+        "packageRoot": "dist/{projectRoot}"
+      }
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "../../coverage/packages/esbuild-meta"
+      }
+    },
+    "version": {
+      "executor": "@jscutlery/semver:version",
+      "options": {
+        "preset": "angular"
+      }
+    },
+    "release": {
+      "executor": "nx-release:build-update-publish",
+      "options": {
+        "libName": "esbuild-meta"
+      }
+    }
+  }
+}
