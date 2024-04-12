@@ -1,4 +1,4 @@
-name: UFO CI
+name: CI
 
 env:
   is-main-branch: ${{ github.ref == 'refs/heads/main' }}
