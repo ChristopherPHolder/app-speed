@@ -1,0 +1,88 @@
+{
+  "name": "audit-runner",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/audit-runner/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "platform": "node",
+        "outputPath": "dist/apps/audit-runner",
+        "format": ["esm"],
+        "bundle": true,
+        "main": "apps/audit-runner/src/main.ts",
+        "tsConfig": "apps/audit-runner/tsconfig.app.json",
+        "assets": ["apps/audit-runner/src/assets"],
+        "generatePackageJson": true,
+        "esbuildOptions": {
+          "sourcemap": true,
+          "outExtension": {
+            ".js": ".js"
+          }
+        }
+      },
+      "configurations": {
+        "development": {},
+        "production": {
+          "esbuildOptions": {
+            "sourcemap": false,
+            "outExtension": {
+              ".js": ".js"
+            }
+          }
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "audit-runner:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "audit-runner:build:development"
+        },
+        "production": {
+          "buildTarget": "audit-runner:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    },
+    "s3-upload": {
+      "executor": "@app-speed/aws-deploy:s3-upload",
+      "dependsOn": ["build"],
+      "options": {
+        "upload": "dist/apps/audit-runner",
+        "bucket": "s3://ufo-runner-dev"
+      }
+    },
+    "deploy": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["s3-upload"],
+      "options": {
+        "command": "node ./scripts/deploy-runner.js"
+      }
+    }
+  },
+  "tags": ["backend"]
+}

@@ -22,9 +22,7 @@ import {
   waitUntilInstanceRunning,
 } from '@aws-sdk/client-ec2';
 
-// @TODO migrate into NX
-// eslint-disable-next-line @nx/enforce-module-boundaries
-import { AuditRunParams } from '../../packages/shared/public-api';
+import { AuditRunParams} from '../../libs/shared/src/lib/types';
 
 import {
   CONNECTED,
@@ -38,10 +36,7 @@ import {
   REGION,
   SUCCESS,
 } from './constants';
-
-// @TODO Move into nx
-// eslint-disable-next-line @nx/enforce-module-boundaries
-import { UfWsRecieveActions, UfWsSendActions } from '../../packages/shared/public-api';
+import { UfWsRecieveActions, UfWsSendActions } from '../../libs/shared/src/lib/ws-types';
 
 function generateResponse(
   responseCode: APIGatewayProxyResult['statusCode'],
