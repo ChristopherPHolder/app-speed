@@ -40,6 +40,12 @@
       "options": {
         "reportsDirectory": "../../coverage/packages/esbuild-meta"
       }
+    },
+    "version": {
+      "executor": "@jscutlery/semver:version",
+      "options": {
+        "preset": "angular"
+      }
     }
   }
 }
