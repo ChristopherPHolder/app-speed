@@ -1,6 +1,5 @@
 {
   "name": "@app-speed/esbuild-meta",
-  "version": "1.0.0",
   "bin": "./main.js",
   "type": "module",
   "license": "MIT",
