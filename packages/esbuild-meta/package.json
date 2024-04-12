@@ -1,12 +1,13 @@
 {
   "name": "@app-speed/esbuild-meta",
   "version": "0.0.1",
-  "bin": "main.js",
+  "bin": "./main.js",
   "type": "module",
+  "license": "MIT",
   "publishConfig": {
     "access": "public"
   },
-  "dependencies": {
+  "devDependencies": {
     "esbuild": "0.19.2",
     "yargs": "^17.7.2"
   }
