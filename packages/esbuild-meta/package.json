@@ -1,5 +1,6 @@
 {
-  "name": "esbuild-meta",
+  "name": "@app-speed/esbuild-meta",
+  "bin": "./main.js",
   "type": "module",
   "license": "MIT",
   "publishConfig": {
