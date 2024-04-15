@@ -31,7 +31,7 @@ jobs:
 #      - name: Test
 #        run: npx nx run-many -t test --configuration=ci
       - name: Release
-        run: nx version
+        run: npx nx version esbuild-meta
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
