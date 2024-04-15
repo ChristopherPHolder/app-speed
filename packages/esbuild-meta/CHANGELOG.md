@@ -2,6 +2,15 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+# [1.2.0](https://github.com/ChristopherPHolder/app-speed/compare/esbuild-meta-1.1.0...esbuild-meta-1.2.0) (2024-04-15)
+
+
+### Features
+
+* **esbuild-meta:** default filter dynamic to false ([56a9256](https://github.com/ChristopherPHolder/app-speed/commit/56a9256f5ea93af8d9e72f7c7847cb487d82c622))
+
+
+
 # [1.1.0](https://github.com/ChristopherPHolder/app-speed/compare/esbuild-meta-1.0.9...esbuild-meta-1.1.0) (2024-04-15)
 
 
