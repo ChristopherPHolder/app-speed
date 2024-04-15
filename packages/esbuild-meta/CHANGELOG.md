@@ -2,6 +2,15 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [1.0.7](https://github.com/ChristopherPHolder/app-speed/compare/esbuild-meta-1.0.6...esbuild-meta-1.0.7) (2024-04-15)
+
+
+### Bug Fixes
+
+* **esbuild-meta:** fix versioning ([dcb3bbd](https://github.com/ChristopherPHolder/app-speed/commit/dcb3bbd095a925365ee3831be09a3eb1d0bbbc4d))
+
+
+
 ## [1.0.6](https://github.com/ChristopherPHolder/app-speed/compare/esbuild-meta-1.0.5...esbuild-meta-1.0.6) (2024-04-15)
 
 
