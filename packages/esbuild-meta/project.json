@@ -46,7 +46,7 @@
       "dependsOn": [{ "target": "build" }],
       "options": {
         "preset": "angular",
-        "postTargets": ["cli:npm", "cli:github"],
+        "postTargets": ["esbuild-meta:npm", "esbuild-meta:github"],
         "commitMessageFormat": "release(${projectName}): ${version}",
         "noVerify": true,
         "push": true
