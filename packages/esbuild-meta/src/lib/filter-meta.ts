@@ -32,8 +32,8 @@ const excludeDynamicImports = {
   alias: 'eDI',
   type: 'boolean',
   description: 'Should the dynamic imports be filtered out of the output chunk imports',
-  default: true,
-} as const satisfies Options
+  default: false,
+} as const satisfies Options;
 
 const filterMetaOptions = { distPath, appDist, outPath, excludeDynamicImports };
 
