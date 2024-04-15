@@ -2,6 +2,15 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [1.0.9](https://github.com/ChristopherPHolder/app-speed/compare/esbuild-meta-1.0.8...esbuild-meta-1.0.9) (2024-04-15)
+
+
+### Bug Fixes
+
+* **esbuild-meta:** make filter default command ([7713c7a](https://github.com/ChristopherPHolder/app-speed/commit/7713c7a2081862562a9673aadc10977193973dfa))
+
+
+
 ## [1.0.8](https://github.com/ChristopherPHolder/app-speed/compare/esbuild-meta-1.0.7...esbuild-meta-1.0.8) (2024-04-15)
 
 
