@@ -1,5 +1,11 @@
 import { CommandModule, CommandBuilder, Options, InferredOptionTypes, Argv } from 'yargs';
-import { extractEntryFromManifest, filterMetaFromEntryPoints, getJson, makeJson } from './utils.js';
+import {
+  extractEntryFromManifest,
+  filterMetaFromEntryPoints,
+  getJson,
+  makeJson,
+  removeDynamicImports,
+} from './utils.js';
 
 const distPath = {
   alias: 'd',
@@ -22,7 +28,14 @@ const outPath = {
   default: 'initial-stats.json'
 } as const satisfies Options;
 
-const filterMetaOptions = { distPath, appDist, outPath };
+const excludeDynamicImports = {
+  alias: 'eDI',
+  type: 'boolean',
+  description: 'Should the dynamic imports be filtered out of the output chunk imports',
+  default: true,
+} as const satisfies Options
+
+const filterMetaOptions = { distPath, appDist, outPath, excludeDynamicImports };
 
 type FilterMetaOptions = InferredOptionTypes<typeof filterMetaOptions>;
 type FilterMetaCommandModule = CommandModule<unknown, FilterMetaOptions>;
@@ -36,6 +49,9 @@ const filterMetaHandler: FilterMetaCommandModule['handler'] = (argv: FilterMetaO
   const entryPoints = extractEntryFromManifest(manifest);
   const meta = getJson([argv.distPath, argv.appDist, 'stats.json']);
   filterMetaFromEntryPoints(meta, entryPoints);
+  if (argv.excludeDynamicImports) {
+    removeDynamicImports(meta);
+  }
   makeJson(argv.outPath, meta);
   console.log('Filter Meta File was successfully created as ' + argv.outPath);
 }

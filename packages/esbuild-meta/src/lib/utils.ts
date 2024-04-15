@@ -16,6 +16,18 @@ export function extractEntryFromManifest(manifest: any) {
   return [main, polyfills];
 }
 
+export function removeDynamicImports(meta: Metafile): void {
+  const chunksPaths = Object.keys(meta.outputs);
+  for (const chunkPath of chunksPaths) {
+    const imports = meta.outputs[chunkPath].imports;
+    for (const importIndex in imports) {
+      if (imports[importIndex].kind === "dynamic-import") {
+        delete meta.outputs[chunkPath].imports[importIndex];
+      }
+    }
+  }
+}
+
 export function filterMetaFromEntryPoints(meta: Metafile, entryPoints: string[]) {
   const extractedChunks = new Set<string>();
   const alreadyExtractedChildren = (chunk: string) => extractedChunks.has(chunk);
