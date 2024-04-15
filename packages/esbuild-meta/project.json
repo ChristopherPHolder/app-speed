@@ -62,7 +62,7 @@
       "executor": "ngx-deploy-npm:deploy",
       "options": {
         "access": "public",
-        "distFolderPath": "dist/packages/my-package"
+        "distFolderPath": "dist/{projectRoot}"
       }
     },
     "release": {
