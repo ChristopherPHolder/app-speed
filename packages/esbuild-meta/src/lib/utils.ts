@@ -32,8 +32,8 @@ export function filterMetaFromEntryPoints(meta: Metafile, entryPoints: string[])
   const extractedChunks = new Set<string>();
   const alreadyExtractedChildren = (chunk: string) => extractedChunks.has(chunk);
   const addToExtractedChunks = (chunk: string) => extractedChunks.add(chunk) && extractedChunks.add(`${chunk}.map`);
-  const childImportedChunks = (chunk: string) => meta['outputs'][chunk]['imports'].filter(({kind}) => kind === "import-statement").map(({path}) => path);
-  function extractImport(chunks: any) {
+  const childImportedChunks = (chunk: string) => meta['outputs'][chunk]['imports'].filter(({kind}) => kind === "import-statement" || "dynamic-import").map(({path}) => path);
+  function extractImport(chunks: string[]) {
     for (const chunk of chunks) {
       if (alreadyExtractedChildren(chunk)) continue;
       addToExtractedChunks(chunk);
