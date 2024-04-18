@@ -10,12 +10,6 @@ export function makeJson(path: string, file: any) {
   writeFileSync(join(...[path]), JSON.stringify(file, null, 4), {encoding: 'utf-8'});
 }
 
-export function extractEntryFromManifest(manifest: any) {
-  const polyfills = manifest["polyfills.js"].replace('/ClientDist/', '');
-  const main = manifest["main.js"].replace('/ClientDist/', '');
-  return [main, polyfills];
-}
-
 export function removeDynamicImports(meta: Metafile): void {
   const chunksPaths = Object.keys(meta.outputs);
   for (const chunkPath of chunksPaths) {
@@ -26,6 +20,12 @@ export function removeDynamicImports(meta: Metafile): void {
       }
     }
   }
+}
+
+const matchesPattern = (fileName: string, patterns: string[]) => patterns.some(substring => fileName.includes(substring));
+
+export function extractEntryPoints(meta: Metafile, patterns: string[]): string[] {
+  return Object.keys(meta.outputs).filter(fileName => matchesPattern(fileName, patterns));
 }
 
 export function filterMetaFromEntryPoints(meta: Metafile, entryPoints: string[]) {

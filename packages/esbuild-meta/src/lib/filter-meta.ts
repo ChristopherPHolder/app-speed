@@ -1,10 +1,10 @@
 import { CommandModule, CommandBuilder, Options, InferredOptionTypes, Argv } from 'yargs';
 import {
-  extractEntryFromManifest,
+  extractEntryPoints,
   filterMetaFromEntryPoints,
+  removeDynamicImports,
   getJson,
   makeJson,
-  removeDynamicImports,
 } from './utils.js';
 
 const distPath = {
@@ -12,13 +12,6 @@ const distPath = {
   type: 'string',
   default: 'dist',
   description: 'The path to the dist folder'
-} as const satisfies Options;
-
-const appDist = {
-  alias: 'ad',
-  type: 'string',
-  default: '',
-  description: 'The path to the dist folder of the build excluding base dist',
 } as const satisfies Options;
 
 const outPath = {
@@ -35,7 +28,15 @@ const excludeDynamicImports = {
   default: false,
 } as const satisfies Options;
 
-const filterMetaOptions = { distPath, appDist, outPath, excludeDynamicImports };
+const entryPoints = {
+  alias: 'e',
+  type: 'array',
+  default: ['main-', 'polyfills-'],
+  coerce: (i) => i.map((value: never) => String(value)),
+  description: 'Entry points that should be considered for the bundle',
+} as const satisfies Options;
+
+const filterMetaOptions = { distPath, outPath, excludeDynamicImports, entryPoints };
 
 type FilterMetaOptions = InferredOptionTypes<typeof filterMetaOptions>;
 type FilterMetaCommandModule = CommandModule<unknown, FilterMetaOptions>;
@@ -45,9 +46,8 @@ const filterMetaBuilder: CommandBuilder<unknown, FilterMetaOptions> = (argv: Arg
 }
 
 const filterMetaHandler: FilterMetaCommandModule['handler'] = (argv: FilterMetaOptions) => {
-  const manifest = getJson([argv.distPath, argv.appDist, 'manifest.json']);
-  const entryPoints = extractEntryFromManifest(manifest);
-  const meta = getJson([argv.distPath, argv.appDist, 'stats.json']);
+  const meta = getJson([argv.distPath]);
+  const entryPoints = extractEntryPoints(meta, argv.entryPoints);
   filterMetaFromEntryPoints(meta, entryPoints);
   if (argv.excludeDynamicImports) {
     removeDynamicImports(meta);
