@@ -2,6 +2,15 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+# [1.3.0](https://github.com/ChristopherPHolder/app-speed/compare/esbuild-meta-1.2.0...esbuild-meta-1.3.0) (2024-04-18)
+
+
+### Features
+
+* **esbuild-meta:** specify entry and dist ([a6a7698](https://github.com/ChristopherPHolder/app-speed/commit/a6a769844f208cea363aeb98d6f4bedcd97701cc))
+
+
+
 # [1.2.0](https://github.com/ChristopherPHolder/app-speed/compare/esbuild-meta-1.1.0...esbuild-meta-1.2.0) (2024-04-15)
 
 
