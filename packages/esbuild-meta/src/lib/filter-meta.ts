@@ -1,4 +1,5 @@
 import { CommandModule, CommandBuilder, Options, InferredOptionTypes, Argv } from 'yargs';
+import { Metafile } from 'esbuild';
 import {
   extractEntryPoints,
   filterMetaFromEntryPoints,
@@ -46,7 +47,7 @@ const filterMetaBuilder: CommandBuilder<unknown, FilterMetaOptions> = (argv: Arg
 }
 
 const filterMetaHandler: FilterMetaCommandModule['handler'] = (argv: FilterMetaOptions) => {
-  const meta = getJson([argv.distPath]);
+  const meta = getJson<Metafile>([argv.distPath]);
   const entryPoints = extractEntryPoints(meta, argv.entryPoints);
   filterMetaFromEntryPoints(meta, entryPoints);
   if (argv.excludeDynamicImports) {
