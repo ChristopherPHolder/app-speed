@@ -2,6 +2,17 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [1.3.1](https://github.com/ChristopherPHolder/app-speed/compare/esbuild-meta-1.3.0...esbuild-meta-1.3.1) (2024-05-05)
+
+
+### Bug Fixes
+
+* **esbuild-meta:** add missing type ([0e7f76b](https://github.com/ChristopherPHolder/app-speed/commit/0e7f76bdd6f8e980d2f74f023fbc04833ec26685))
+* **esbuild-meta:** add missing type ([973e10e](https://github.com/ChristopherPHolder/app-speed/commit/973e10ed0765a194df316d6c374125431437aa34))
+* **esbuild-meta:** filter only import-statements ([da64edf](https://github.com/ChristopherPHolder/app-speed/commit/da64edf7fb8fb1eb7bd804e32ff5f9e7c617abb7))
+
+
+
 # [1.3.0](https://github.com/ChristopherPHolder/app-speed/compare/esbuild-meta-1.2.0...esbuild-meta-1.3.0) (2024-04-18)
 
 
