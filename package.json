@@ -1,5 +1,5 @@
 {
-  "name": "app-speed",
+  "name": "@app-speed/source",
   "main": "apps/user-flow-runner/src/app/runner.ts",
   "scripts": {
     "start": "nx serve user-flow-manager",
