@@ -24,8 +24,7 @@
         "format": ["esm"],
         "minify": true,
         "platform": "node",
-        "bundle": true,
-        "thirdParty": true
+        "bundle": true
       }
     },
     "nx-release-publish": {
