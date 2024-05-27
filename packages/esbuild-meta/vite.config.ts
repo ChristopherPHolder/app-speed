@@ -4,7 +4,7 @@ import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 
 export default defineConfig({
   root: __dirname,
-  cacheDir: '../../node_modules/.vite/packages/esbuild-meta',
+  cacheDir: '../../node_modules/.vite/packages/esbuild-meta/unit',
 
   plugins: [nxViteTsPaths()],
 

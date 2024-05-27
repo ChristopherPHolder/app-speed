@@ -39,6 +39,12 @@
         "reportsDirectory": "../../coverage/packages/esbuild-meta"
       }
     },
+    "e2e": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}-e2e"],
+      "options": { "config": "packages/esbuild-meta/vitest.config.e2e.ts" },
+      "dependsOn": ["^build"]
+    },
     "version": {
       "executor": "@jscutlery/semver:version",
       "options": {

@@ -3,11 +3,9 @@ import { defineConfig } from 'vite';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 
 export default defineConfig({
-  cacheDir: '../../node_modules/.vite/esbuild-meta-e2e',
+  cacheDir: '../../node_modules/.vite/esbuild-meta/e2e',
 
-  plugins: [
-    nxViteTsPaths()
-  ],
+  plugins: [nxViteTsPaths()],
 
   test: {
     watch: false,
@@ -15,7 +13,7 @@ export default defineConfig({
     globals: true,
     cache: { dir: '../../node_modules/.vitest' },
     environment: 'node',
-    include: ['tests/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    include: ['e2e/**/*.test.e2e.ts'],
     globalSetup: '../../global-setup.e2e.ts'
   },
 });
