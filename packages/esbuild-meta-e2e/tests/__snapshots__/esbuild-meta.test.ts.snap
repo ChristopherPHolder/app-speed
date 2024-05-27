@@ -1,0 +1,13 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`esbuild-meta > should show help 1`] = `
+"esbuild-meta [command]
+
+Commands:
+  esbuild-meta filter  Filters the meta file to only include chunks required by specified entry points  [aliases: f]
+
+Options:
+      --version  Show version number  [boolean]
+  -h, --help     Show help  [boolean]
+"
+`;
