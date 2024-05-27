@@ -12,6 +12,7 @@
     "experimentalDecorators": true,
     "baseUrl": ".",
     "paths": {
+      "@app-speed/angular-rollup": ["packages/angular-rollup/src/index.ts"],
       "@app-speed/audit-queue/*": ["packages/audit-queue/src/lib/*"],
       "@app-speed/audit-store/*": ["packages/audit-store/src/lib/*"],
       "@app-speed/aws-deploy": ["packages/aws-deploy/src/index.ts"],
