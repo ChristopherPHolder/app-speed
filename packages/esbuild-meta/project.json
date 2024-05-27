@@ -21,7 +21,6 @@
         "main": "packages/esbuild-meta/src/main.ts",
         "tsConfig": "packages/esbuild-meta/tsconfig.lib.json",
         "assets": ["packages/esbuild-meta/*.md"],
-        "generatePackageJson": true,
         "format": ["esm"],
         "minify": true,
         "platform": "node",
