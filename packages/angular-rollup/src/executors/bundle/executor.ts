@@ -19,7 +19,7 @@ const entryChunk = (entryPoint: string, statsJson: Metafile): string => {
   return chunkName;
 }
 
-function getJson<T = any>(path: string) {
+function getJson<T = unknown>(path: string) {
   return JSON.parse(readFileSync(join(path), {encoding: 'utf-8'})) as T;
 }
 
@@ -33,7 +33,7 @@ export default async function runExecutor(options: BundleExecutorSchema) {
 
   const dir = join('tmp', options.outputPath);
 
-  const manualChunks: ManualChunksOption = (id, meta) => {
+  const manualChunks: ManualChunksOption = (id) => {
     if (id.includes(mainChunk) || id.includes(polyfillsChunk)) return;
     if (id.includes("chunk")) return "extra";
     return 'vendor';
