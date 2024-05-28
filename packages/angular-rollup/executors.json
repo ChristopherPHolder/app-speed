@@ -1,0 +1,10 @@
+{
+  "executors": {
+    "bundle": {
+      "implementation": "./src/executors/bundle/executor",
+      "schema": "./src/executors/bundle/schema.json",
+      "description": "Angular Post Processing Rollup Bundler",
+      "hasher": "./src/executors/bundle/hasher"
+    }
+  }
+}
