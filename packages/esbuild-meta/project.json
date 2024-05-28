@@ -43,7 +43,7 @@
       "executor": "@nx/vite:test",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}-e2e"],
       "options": { "config": "packages/esbuild-meta/vitest.config.e2e.ts" },
-      "dependsOn": ["^build"]
+      "dependsOn": ["build"]
     },
     "version": {
       "executor": "@jscutlery/semver:version",
