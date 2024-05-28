@@ -12,7 +12,7 @@ export default async () => {
   // storage folder for the local registry
   const storage = './tmp/local-registry/storage';
 
-  global.stopLocalRegistry = await startLocalRegistry({
+  (global as any).stopLocalRegistry = await startLocalRegistry({
     localRegistryTarget,
     storage,
     verbose: false,
