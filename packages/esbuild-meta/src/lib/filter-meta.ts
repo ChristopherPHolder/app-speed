@@ -62,5 +62,5 @@ export const filterMetaCommand: FilterMetaCommandModule = {
   describe: 'Filters the meta file to only include chunks required by specified entry points',
   aliases: 'f',
   builder: filterMetaBuilder,
-  handler: filterMetaHandler
+  handler: filterMetaHandler,
 }

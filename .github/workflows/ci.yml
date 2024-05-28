@@ -132,6 +132,34 @@ jobs:
       - name: Build Affected
         run: npx nx affected -t build build-storybook --parallel=3
 
+  e2e:
+    name: End-To-End Affected
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # We need to fetch all branches and commits so that Nx affected has a base to compare against.
+          fetch-depth: 0
+      # Derive appropriate SHAs for base and head for `nx affected` commands
+      - uses: nrwl/nx-set-shas@v3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Cache NPM Dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.cache
+            dist
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
+      - name: Build Affected
+        run: npx nx affected -t e2e --parallel=3 --exclude audit-runner-e2e, portal-e2e
 #  publish-storybook:
 #    name: Publish Storybook
 #    needs: [build, lint]
@@ -161,7 +189,7 @@ jobs:
 
   deploy-front-end:
     name: Deploy Front-End
-    needs: [build, lint]
+    needs: [e2e]
     runs-on: ubuntu-latest
 
     steps:
@@ -203,7 +231,7 @@ jobs:
 
   deploy-server:
     name: Deploy Server
-    needs: [build, lint]
+    needs: [e2e]
     runs-on: ubuntu-latest
 
     steps:
