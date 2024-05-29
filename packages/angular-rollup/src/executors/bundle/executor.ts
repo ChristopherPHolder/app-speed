@@ -1,10 +1,11 @@
-import { readFileSync, rmSync, readdirSync, renameSync } from 'node:fs';
+import { readFileSync, rmSync, readdirSync, renameSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { Metafile } from 'esbuild';
 import { ManualChunksOption, OutputOptions, PreRenderedChunk, rollup } from 'rollup';
 
 import { BundleExecutorSchema } from './schema';
+import { replaceChunkPreLoaders } from './html-transformer';
 
 const POLYFILLS_ENTRY_POINT = 'angular:polyfills:angular:polyfills';
 const statsJsonPath = (outputPath: string) => join(outputPath,'stats.json');
@@ -53,6 +54,10 @@ export default async function runExecutor(options: BundleExecutorSchema) {
   for (const output of Object.keys(statsJson.outputs)) {
     if (!output.endsWith('.css')) rmSync(join(options.outputPath, output));
   }
+
+  const html = readFileSync(join(options.outputPath, 'index.html'), { encoding: 'utf-8' });
+  const modifiedHTML = replaceChunkPreLoaders(html, []); // @TODO
+  writeFileSync(join(options.outputPath, 'index.html'), modifiedHTML, { encoding: 'utf-8' });
 
   for (const output of readdirSync(dir)) {
     renameSync(join(dir, output), join(options.outputPath, output));
