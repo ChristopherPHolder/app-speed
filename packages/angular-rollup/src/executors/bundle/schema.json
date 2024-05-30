@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "version": 2,
+  "title": "Bundle executor",
+  "description": "Post processor for Angular's esbuild builder to reduce chunks",
+  "type": "object",
+  "properties": {
+    "main": {
+      "type": "string",
+      "description": "The path to the entry file, relative to project.",
+      "alias": "entryFile",
+      "x-completion-type": "file",
+      "x-completion-glob": "**/*@(.js|.ts)",
+      "x-priority": "important"
+    }
+  },
+  "required": []
+}
