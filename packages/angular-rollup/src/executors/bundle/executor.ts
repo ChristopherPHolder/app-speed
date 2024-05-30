@@ -63,7 +63,7 @@ export default async function runExecutor(options: BundleExecutorSchema) {
   }
 
   const html = readFileSync(join(options.outputPath, 'index.html'), { encoding: 'utf-8' });
-  const modifiedHTML = replaceChunkPreLoaders(html, []); // @TODO
+  const modifiedHTML = replaceChunkPreLoaders(html, Object.keys(balancedOutputLookup)); // @TODO
   writeFileSync(join(options.outputPath, 'index.html'), modifiedHTML, { encoding: 'utf-8' });
 
   for (const output of readdirSync(dir)) {
