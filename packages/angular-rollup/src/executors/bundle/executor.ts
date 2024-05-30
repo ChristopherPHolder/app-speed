@@ -6,6 +6,7 @@ import { ManualChunksOption, OutputOptions, PreRenderedChunk, rollup } from 'rol
 
 import { BundleExecutorSchema } from './schema';
 import { replaceChunkPreLoaders } from './html-transformer';
+import { balanceMetaOutputs } from './rollup-stats';
 
 const POLYFILLS_ENTRY_POINT = 'angular:polyfills:angular:polyfills';
 const statsJsonPath = (outputPath: string) => join(outputPath,'stats.json');
@@ -33,15 +34,21 @@ export default async function runExecutor(options: BundleExecutorSchema) {
   const input = [entryChunkPath(options.outputPath, mainChunk), entryChunkPath(options.outputPath, polyfillsChunk)];
 
   const dir = join('tmp', options.outputPath);
+  const balancedOutputLookup = balanceMetaOutputs(options.maxChunks, mainChunk, statsJson.outputs);
 
   const manualChunks: ManualChunksOption = (id) => {
-    if (id.includes(mainChunk) || id.includes(polyfillsChunk)) return;
-    if (id.includes("chunk")) return "extra";
-    return 'vendor';
+    const chunkName = id.split('\\').at(-1)!;
+    const balancedChunk = balancedOutputLookup[chunkName];
+    if (balancedChunk) {
+      return balancedChunk;
+    }
   };
 
   const chunkFileNames = (chunkInfo: PreRenderedChunk): string => {
-    return `${chunkInfo.type}-${chunkInfo.name}.js`;
+    if (!chunkInfo.name.includes('chunk')) {
+      return `${chunkInfo.type}-r-${chunkInfo.name}.js`;
+    }
+    return `${chunkInfo.name}.js`;
   }
   const output: OutputOptions = {
     manualChunks,

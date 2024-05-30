@@ -37,10 +37,10 @@ describe('replaceChunkPreLoaders', () => {
   });
 
   // @TODO
-  // it('should replace module preloader link tags', () => {
-  //   const NEW_CHUNKS = ['chunks-new.js', 'vendor-X.js'];
-  //   const result = replaceChunkPreLoaders(mockHTML, OLD_CHUNKS, NEW_CHUNKS);
-  //   OLD_CHUNKS.forEach((chunk) => expect(result).not.toContain(chunk));
-  //   NEW_CHUNKS.forEach((chunk) => expect(result).toContain(chunk));
-  // });
+  it.skip('should replace module preloader link tags', () => {
+    const NEW_CHUNKS = ['chunks-new.js', 'vendor-X.js'];
+    const result = replaceChunkPreLoaders(mockHTML, OLD_CHUNKS, NEW_CHUNKS);
+    OLD_CHUNKS.forEach((chunk) => expect(result).not.toContain(chunk));
+    NEW_CHUNKS.forEach((chunk) => expect(result).toContain(chunk));
+  });
 })
