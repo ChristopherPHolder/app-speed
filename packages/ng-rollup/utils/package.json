@@ -1,7 +1,16 @@
 {
   "name": "@app-speed/ng-rollup/utils",
   "version": "0.0.1",
+  "description": "Utility library for using rollup as a post processor for an angular app",
+  "main": "./index.cjs",
+  "module": "index.js",
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.js"
+    }
+  },
   "dependencies": {},
-  "type": "commonjs",
-  "main": "./index.cjs"
+  "keywords": ["post-processor", "angular", "rollup", "esbuild"],
+  "author": "Christopher Holder"
 }

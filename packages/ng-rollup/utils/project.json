@@ -21,8 +21,7 @@
         "main": "packages/ng-rollup/utils/src/index.ts",
         "tsConfig": "packages/ng-rollup/utils/tsconfig.lib.json",
         "assets": ["packages/ng-rollup/utils/*.md"],
-        "generatePackageJson": true,
-        "format": ["cjs"]
+        "format": ["cjs", "esm"]
       }
     },
     "nx-release-publish": {

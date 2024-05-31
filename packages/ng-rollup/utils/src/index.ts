@@ -1,1 +1,1 @@
-export * from './lib/ng-rollup-utils';
+export { balanceMetaOutputs } from './lib/balance-chunks';
