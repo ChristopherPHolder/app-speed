@@ -1,5 +1,5 @@
 {
-  "extends": ["../../.eslintrc.json", "plugin:storybook/recommended"],
+  "extends": ["plugin:storybook/recommended", "../../.eslintrc.base.json"],
   "ignorePatterns": ["!**/*"],
   "overrides": [
     {
