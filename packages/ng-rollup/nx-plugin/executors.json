@@ -1,0 +1,10 @@
+{
+  "executors": {
+    "optimize-bundle": {
+      "implementation": "./src/executors/optimize-bundle/executor",
+      "schema": "./src/executors/optimize-bundle/schema.json",
+      "description": "optimize-bundle executor",
+      "hasher": "./src/executors/optimize-bundle/hasher"
+    }
+  }
+}
