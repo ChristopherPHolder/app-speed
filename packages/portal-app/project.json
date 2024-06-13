@@ -57,16 +57,18 @@
       "defaultConfiguration": "production"
     },
     "serve": {
-      "executor": "@angular-devkit/build-angular:dev-server",
+      "executor": "@nx/angular:dev-server",
       "configurations": {
         "production": {
+          "forceEsbuild": true,
           "buildTarget": "portal-app:build:production"
         },
         "development": {
-          "buildTarget": "portal-app:build:development"
+          "forceEsbuild": true,
+          "buildTarget": "portal-app:build:production"
         }
       },
-      "defaultConfiguration": "development"
+      "defaultConfiguration": "production"
     },
     "extract-i18n": {
       "executor": "@angular-devkit/build-angular:extract-i18n",
