@@ -1,3 +1,16 @@
+## 1.4.1 (2024-06-17)
+
+
+### 🩹 Fixes
+
+- **esbuild-meta:** fix arg dist description ([8cbcaa6](https://github.com/ChristopherPHolder/app-speed/commit/8cbcaa6))
+
+
+### ❤️  Thank You
+
+- Christopher Holder @ChristopherPHolder
+- ChristopherPHolder
+
 ## 1.4.0 (2024-06-17)
 
 
