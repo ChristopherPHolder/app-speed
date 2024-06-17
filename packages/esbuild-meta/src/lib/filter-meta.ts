@@ -12,7 +12,7 @@ const distPath = {
   alias: 'd',
   type: 'string',
   default: 'dist',
-  description: 'The path to the dist folder'
+  description: 'The path to the stats.json file'
 } as const satisfies Options;
 
 const outPath = {
