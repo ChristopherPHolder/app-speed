@@ -64,8 +64,20 @@
     ]
   },
   "release": {
+    "projects": ["esbuild-meta"],
+    "projectsRelationship": "independent",
     "version": {
+      "conventionalCommits": true,
       "preVersionCommand": "npx nx run-many -t build"
+    },
+    "changelog": {
+      "projectChangelogs": {
+        "createRelease": "github"
+      }
+    },
+    "releaseTagPattern": "release/{projectName}/{version}",
+    "git": {
+      "commitMessage": "ci({projectName}): publish v{version}"
     }
   },
   "plugins": [
