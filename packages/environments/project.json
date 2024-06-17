@@ -10,7 +10,8 @@
       "executor": "@nx/angular:ng-packagr-lite",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
-        "project": "packages/environments/ng-package.json"
+        "project": "packages/environments/ng-package.json",
+        "tsConfig": "packages/environments/tsconfig.lib.json"
       },
       "configurations": {
         "production": {

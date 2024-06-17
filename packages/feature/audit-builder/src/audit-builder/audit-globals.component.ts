@@ -35,7 +35,7 @@ import { DEVICE_TYPE } from '../schema/audit.constants';
       <mat-form-field class="full-width">
         <mat-label>Audit Title</mat-label>
         <input matInput placeholder="Audit Title" [formControl]='builder.formGroup.controls.title'>
-        <mat-error *rxIf="builder.formGroup.controls.title.hasError">Title <strong>required</strong></mat-error>
+        <mat-error *rxIf="!!builder.formGroup.controls.title.hasError">Title <strong>required</strong></mat-error>
       </mat-form-field>
       <mat-card-actions class='cta'>
         <button class='cta__submit' mat-raised-button color="primary" type="submit">Analyze</button>
@@ -58,7 +58,7 @@ import { DEVICE_TYPE } from '../schema/audit.constants';
           placeholder="Timeout in ms"
           [formControl]='builder.formGroup.controls.timeout'
         >
-        <mat-error *rxIf="builder.formGroup.controls.timeout.hasError">Invalid Value</mat-error>
+        <mat-error *rxIf="!!builder.formGroup.controls.timeout.hasError">Invalid Value</mat-error>
       </mat-form-field>
     </div>
   `,

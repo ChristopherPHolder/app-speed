@@ -1,151 +1,66 @@
-# Changelog
+## 1.4.0 (2024-06-17)
 
-This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
-# [1.3.0](https://github.com/ChristopherPHolder/app-speed/compare/esbuild-meta-1.2.0...esbuild-meta-1.3.0) (2024-04-18)
+### 🚀 Features
 
+- **esbuild-meta:** versions ([a40ab91](https://github.com/ChristopherPHolder/app-speed/commit/a40ab91))
 
-### Features
+- **esbuild-meta:** versions boost ([1861f92](https://github.com/ChristopherPHolder/app-speed/commit/1861f92))
 
-* **esbuild-meta:** specify entry and dist ([a6a7698](https://github.com/ChristopherPHolder/app-speed/commit/a6a769844f208cea363aeb98d6f4bedcd97701cc))
+- **esbuild-meta:** filter out dynamic imports from output chunks ([bc6cf16](https://github.com/ChristopherPHolder/app-speed/commit/bc6cf16))
 
+- **esbuild-meta:** default filter dynamic to false ([56a9256](https://github.com/ChristopherPHolder/app-speed/commit/56a9256))
 
+- **esbuild-meta:** specify entry and dist ([a6a7698](https://github.com/ChristopherPHolder/app-speed/commit/a6a7698))
 
-# [1.2.0](https://github.com/ChristopherPHolder/app-speed/compare/esbuild-meta-1.1.0...esbuild-meta-1.2.0) (2024-04-15)
 
+### 🩹 Fixes
 
-### Features
+- fix structure about lib ([b2521ad](https://github.com/ChristopherPHolder/app-speed/commit/b2521ad))
 
-* **esbuild-meta:** default filter dynamic to false ([56a9256](https://github.com/ChristopherPHolder/app-speed/commit/56a9256f5ea93af8d9e72f7c7847cb487d82c622))
+- add esbuild meta ([0d77fd8](https://github.com/ChristopherPHolder/app-speed/commit/0d77fd8))
 
+- **esbuild-meta:** add esbuild meta ([5aca4b3](https://github.com/ChristopherPHolder/app-speed/commit/5aca4b3))
 
+- **esbuild-meta:** release config ([fa0412a](https://github.com/ChristopherPHolder/app-speed/commit/fa0412a))
 
-# [1.1.0](https://github.com/ChristopherPHolder/app-speed/compare/esbuild-meta-1.0.9...esbuild-meta-1.1.0) (2024-04-15)
+- **esbuild-meta:** fix lin issues ([f4feec0](https://github.com/ChristopherPHolder/app-speed/commit/f4feec0))
 
+- **esbuild-meta:** fix bin ([5e8431e](https://github.com/ChristopherPHolder/app-speed/commit/5e8431e))
 
-### Features
+- **esbuild-meta:** fix version ([8b20fbd](https://github.com/ChristopherPHolder/app-speed/commit/8b20fbd))
 
-* **esbuild-meta:** filter out dynamic imports from output chunks ([bc6cf16](https://github.com/ChristopherPHolder/app-speed/commit/bc6cf1663631ab54c1e666164c8ed697895dc21d))
+- **esbuild-meta:** versions boost ([422bb46](https://github.com/ChristopherPHolder/app-speed/commit/422bb46))
 
+- **esbuild-meta:** fix packages ([a181e6f](https://github.com/ChristopherPHolder/app-speed/commit/a181e6f))
 
+- **esbuild-meta:** fix versioning ([f292a04](https://github.com/ChristopherPHolder/app-speed/commit/f292a04))
 
-## [1.0.9](https://github.com/ChristopherPHolder/app-speed/compare/esbuild-meta-1.0.8...esbuild-meta-1.0.9) (2024-04-15)
+- **esbuild-meta:** fix versioning ([8963a1f](https://github.com/ChristopherPHolder/app-speed/commit/8963a1f))
 
+- **esbuild-meta:** fix versioning ([7969e24](https://github.com/ChristopherPHolder/app-speed/commit/7969e24))
 
-### Bug Fixes
+- **esbuild-meta:** fix versioning ([30b35b1](https://github.com/ChristopherPHolder/app-speed/commit/30b35b1))
 
-* **esbuild-meta:** make filter default command ([7713c7a](https://github.com/ChristopherPHolder/app-speed/commit/7713c7a2081862562a9673aadc10977193973dfa))
+- **esbuild-meta:** fix versioning ([2cfd809](https://github.com/ChristopherPHolder/app-speed/commit/2cfd809))
 
+- **esbuild-meta:** fix versioning ([cc07dad](https://github.com/ChristopherPHolder/app-speed/commit/cc07dad))
 
+- **esbuild-meta:** fix versioning ([48efa8b](https://github.com/ChristopherPHolder/app-speed/commit/48efa8b))
 
-## [1.0.8](https://github.com/ChristopherPHolder/app-speed/compare/esbuild-meta-1.0.7...esbuild-meta-1.0.8) (2024-04-15)
+- **esbuild-meta:** fix versioning ([96f8b2e](https://github.com/ChristopherPHolder/app-speed/commit/96f8b2e))
 
+- **esbuild-meta:** fix versioning ([dcb3bbd](https://github.com/ChristopherPHolder/app-speed/commit/dcb3bbd))
 
-### Bug Fixes
+- **esbuild-meta:** fix versioning ([dcb8bd6](https://github.com/ChristopherPHolder/app-speed/commit/dcb8bd6))
 
-* **esbuild-meta:** fix versioning ([dcb8bd6](https://github.com/ChristopherPHolder/app-speed/commit/dcb8bd69d1bbc7d27bbf8414508e0347bbffa3ea))
+- **esbuild-meta:** make filter default command ([7713c7a](https://github.com/ChristopherPHolder/app-speed/commit/7713c7a))
 
+- **esbuild-meta:** add missing type ([973e10e](https://github.com/ChristopherPHolder/app-speed/commit/973e10e))
 
+- **esbuild-meta:** add missing type ([0e7f76b](https://github.com/ChristopherPHolder/app-speed/commit/0e7f76b))
 
-## [1.0.7](https://github.com/ChristopherPHolder/app-speed/compare/esbuild-meta-1.0.6...esbuild-meta-1.0.7) (2024-04-15)
 
+### ❤️  Thank You
 
-### Bug Fixes
-
-* **esbuild-meta:** fix versioning ([dcb3bbd](https://github.com/ChristopherPHolder/app-speed/commit/dcb3bbd095a925365ee3831be09a3eb1d0bbbc4d))
-
-
-
-## [1.0.6](https://github.com/ChristopherPHolder/app-speed/compare/esbuild-meta-1.0.5...esbuild-meta-1.0.6) (2024-04-15)
-
-
-### Bug Fixes
-
-* **esbuild-meta:** fix versioning ([96f8b2e](https://github.com/ChristopherPHolder/app-speed/commit/96f8b2e263d7ee3597e1dc183ea2e502afbd58f4))
-
-
-
-## [1.0.5](https://github.com/ChristopherPHolder/app-speed/compare/esbuild-meta-1.0.4...esbuild-meta-1.0.5) (2024-04-15)
-
-
-### Bug Fixes
-
-* **esbuild-meta:** fix versioning ([48efa8b](https://github.com/ChristopherPHolder/app-speed/commit/48efa8bce9d64fd4d71b821ec0fa808c7d0ad32a))
-
-
-
-## [1.0.4](https://github.com/ChristopherPHolder/app-speed/compare/esbuild-meta-1.0.3...esbuild-meta-1.0.4) (2024-04-15)
-
-
-### Bug Fixes
-
-* **esbuild-meta:** fix versioning ([cc07dad](https://github.com/ChristopherPHolder/app-speed/commit/cc07dadc0f418f141983608b9b8f6b4d40ed5951))
-
-
-
-## [1.0.3](https://github.com/ChristopherPHolder/app-speed/compare/esbuild-meta-1.0.2...esbuild-meta-1.0.3) (2024-04-15)
-
-
-### Bug Fixes
-
-* **esbuild-meta:** fix versioning ([2cfd809](https://github.com/ChristopherPHolder/app-speed/commit/2cfd809709bb595b8fc118e0530497d7e25ae6c3))
-
-
-
-## [1.0.2](https://github.com/ChristopherPHolder/app-speed/compare/esbuild-meta-1.0.1...esbuild-meta-1.0.2) (2024-04-15)
-
-
-### Bug Fixes
-
-* **esbuild-meta:** fix versioning ([30b35b1](https://github.com/ChristopherPHolder/app-speed/commit/30b35b11e55df6a87db3be0a8d526ead284fcd16))
-
-
-
-## [1.0.1](https://github.com/ChristopherPHolder/app-speed/compare/esbuild-meta-1.0.0...esbuild-meta-1.0.1) (2024-04-15)
-
-
-### Bug Fixes
-
-* **esbuild-meta:** fix versioning ([7969e24](https://github.com/ChristopherPHolder/app-speed/commit/7969e245c84f3797969fb034630d235b0b6ded40))
-* **esbuild-meta:** fix versioning ([8963a1f](https://github.com/ChristopherPHolder/app-speed/commit/8963a1fb3dc25c4f5c4e3c64b82e91eb6b9e3ce6))
-
-
-
-# 0.1.0 (2024-04-15)
-
-
-### Bug Fixes
-
-* add esbuild meta ([0d77fd8](https://github.com/ChristopherPHolder/app-speed/commit/0d77fd84fec7abe84f15f3847526d220396d0ada))
-* **esbuild-meta:** add esbuild meta ([5aca4b3](https://github.com/ChristopherPHolder/app-speed/commit/5aca4b35979800e7f9dfefc40e4f63ebf25a74e1))
-* **esbuild-meta:** fix bin ([5e8431e](https://github.com/ChristopherPHolder/app-speed/commit/5e8431e14a8808da47e18803f48e393dad3e7150))
-* **esbuild-meta:** fix lin issues ([f4feec0](https://github.com/ChristopherPHolder/app-speed/commit/f4feec0b213c2abe642e28be2f95c549c1cc626c))
-* **esbuild-meta:** fix packages ([a181e6f](https://github.com/ChristopherPHolder/app-speed/commit/a181e6f94cc3e8341e8b81669dfe30060e7eb845))
-* **esbuild-meta:** fix version ([8b20fbd](https://github.com/ChristopherPHolder/app-speed/commit/8b20fbde17553ebf79e3289f2e7f4b7735debab1))
-* **esbuild-meta:** release config ([fa0412a](https://github.com/ChristopherPHolder/app-speed/commit/fa0412a5549c908850f6e3c2388c6b27a2cf9c6e))
-* **esbuild-meta:** versions boost ([422bb46](https://github.com/ChristopherPHolder/app-speed/commit/422bb46fbcede4c245d8d81da70ff39f59188f1a))
-* fix structure about lib ([b2521ad](https://github.com/ChristopherPHolder/app-speed/commit/b2521add2513454bd605e710bb9479c4bb390036))
-
-
-### Features
-
-* **esbuild-meta:** versions ([a40ab91](https://github.com/ChristopherPHolder/app-speed/commit/a40ab918330033a1e39997f521d8d76b4ff64b5e))
-* **esbuild-meta:** versions boost ([1861f92](https://github.com/ChristopherPHolder/app-speed/commit/1861f92c5512a468de2271f767084c01a660b6ac))
-
-
-
-## 0.0.1 (2024-04-12)
-
-### Bug Fixes
-
-* add esbuild meta ([0d77fd8](https://github.com/ChristopherPHolder/app-speed/commit/0d77fd84fec7abe84f15f3847526d220396d0ada))
-* **esbuild-meta:** add esbuild meta ([5aca4b3](https://github.com/ChristopherPHolder/app-speed/commit/5aca4b35979800e7f9dfefc40e4f63ebf25a74e1))
-* fix structure about lib ([b2521ad](https://github.com/ChristopherPHolder/app-speed/commit/b2521add2513454bd605e710bb9479c4bb390036))
-
-## 0.0.1 (2024-04-12)
-
-
-### Bug Fixes
-
-* add esbuild meta ([0d77fd8](https://github.com/ChristopherPHolder/app-speed/commit/0d77fd84fec7abe84f15f3847526d220396d0ada))
-* fix structure about lib ([b2521ad](https://github.com/ChristopherPHolder/app-speed/commit/b2521add2513454bd605e710bb9479c4bb390036))
+- ChristopherPHolder
