@@ -54,7 +54,7 @@ const filterMetaHandler: FilterMetaCommandModule['handler'] = (argv: FilterMetaO
     removeDynamicImports(meta);
   }
   makeJson(argv.outPath, meta);
-  console.log('Filter Meta File was successfully created as ' + argv.outPath);
+  console.log('Filtered Meta File was successfully created as ' + argv.outPath);
 }
 
 export const filterMetaCommand: FilterMetaCommandModule = {
