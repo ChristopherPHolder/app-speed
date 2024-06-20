@@ -1,3 +1,3 @@
 # @app-speed/esbuild-meta
 
-Esbuild Meta is a cli took to help you analyse the meta output of esbuild
+Esbuild Meta is a CLI tool to help you analyse the meta output of esbuild
