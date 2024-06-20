@@ -59,7 +59,7 @@ const filterMetaHandler: FilterMetaCommandModule['handler'] = (argv: FilterMetaO
 
 export const filterMetaCommand: FilterMetaCommandModule = {
   command: 'filter',
-  describe: 'Filters the meta file to only include chunks required by specified entry points.',
+  describe: 'Filters the meta file to only include chunks required by specified entry points',
   aliases: 'f',
   builder: filterMetaBuilder,
   handler: filterMetaHandler
