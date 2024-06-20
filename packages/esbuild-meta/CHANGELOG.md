@@ -1,3 +1,15 @@
+## 1.4.2 (2024-06-20)
+
+
+### 🩹 Fixes
+
+- **esbuild-meta:** fix release ([dc27a6e](https://github.com/ChristopherPHolder/app-speed/commit/dc27a6e))
+
+
+### ❤️  Thank You
+
+- ChristopherPHolder
+
 ## 1.4.1 (2024-06-17)
 
 
