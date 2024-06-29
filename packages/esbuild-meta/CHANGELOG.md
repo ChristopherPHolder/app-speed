@@ -1,3 +1,15 @@
+## 1.4.9 (2024-06-29)
+
+
+### 🩹 Fixes
+
+- **esbuild-meta:** fix release config ([fea0167](https://github.com/ChristopherPHolder/app-speed/commit/fea0167))
+
+
+### ❤️  Thank You
+
+- ChristopherPHolder
+
 ## 1.4.8 (2024-06-29)
 
 
