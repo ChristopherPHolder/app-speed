@@ -73,7 +73,6 @@
     "projects": ["esbuild-meta"],
     "projectsRelationship": "independent",
     "version": {
-      "conventionalCommits": true,
       "preVersionCommand": "npx nx run-many -t build",
       "generatorOptions": {
         "packageRoot": "dist/packages/{projectName}",
