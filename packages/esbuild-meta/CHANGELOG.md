@@ -1,3 +1,15 @@
+## 1.4.11 (2024-06-29)
+
+
+### 🩹 Fixes
+
+- **esbuild-meta:** fix release config ([5866f06](https://github.com/ChristopherPHolder/app-speed/commit/5866f06))
+
+
+### ❤️  Thank You
+
+- ChristopherPHolder
+
 ## 1.4.10 (2024-06-29)
 
 
