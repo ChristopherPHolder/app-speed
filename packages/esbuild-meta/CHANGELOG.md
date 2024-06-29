@@ -1,3 +1,15 @@
+## 1.4.7 (2024-06-29)
+
+
+### 🩹 Fixes
+
+- **esbuild-meta:** bin syntax ([619a0f4](https://github.com/ChristopherPHolder/app-speed/commit/619a0f4))
+
+
+### ❤️  Thank You
+
+- ChristopherPHolder
+
 ## 1.4.6 (2024-06-20)
 
 
