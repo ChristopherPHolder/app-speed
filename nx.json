@@ -75,7 +75,10 @@
     "version": {
       "conventionalCommits": true,
       "preVersionCommand": "npx nx run-many -t build",
-      "packageRoot": "dist/packages/{projectName}"
+      "generatorOptions": {
+        "packageRoot": "dist/packages/{projectName}",
+        "currentVersionResolver": "git-tag"
+      }
     },
     "changelog": {
       "projectChangelogs": {
