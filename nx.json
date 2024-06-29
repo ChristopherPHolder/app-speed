@@ -74,7 +74,8 @@
     "projectsRelationship": "independent",
     "version": {
       "conventionalCommits": true,
-      "preVersionCommand": "npx nx run-many -t build"
+      "preVersionCommand": "npx nx run-many -t build",
+      "packageRoot": "dist/packages/{projectName}"
     },
     "changelog": {
       "projectChangelogs": {
