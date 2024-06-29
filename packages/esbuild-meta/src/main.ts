@@ -7,4 +7,4 @@ import { filterMetaCommand } from './lib/filter-meta.js';
 
 yargs(hideBin(argv)).command('$0', 'Default Command is filter', filterMetaCommand).parse();
 
-console.log('Esbuild Meta Completed Successfully!');
+console.log('Esbuild Meta Completed Successfully');
