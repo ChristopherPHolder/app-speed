@@ -73,8 +73,13 @@
     "projects": ["esbuild-meta"],
     "projectsRelationship": "independent",
     "version": {
-      "conventionalCommits": true,
-      "preVersionCommand": "npx nx run-many -t build"
+      "preVersionCommand": "npx nx run-many -t build",
+      "generatorOptions": {
+        "specifierSource": "conventional-commits",
+        "currentVersionResolver": "git-tag",
+        "fallbackCurrentVersionResolver": "disk",
+        "packageRoot": "dist/packages/{projectName}"
+      }
     },
     "changelog": {
       "projectChangelogs": {
@@ -83,6 +88,8 @@
     },
     "releaseTagPattern": "release/{projectName}/{version}",
     "git": {
+      "commit": true,
+      "tag": true,
       "commitMessage": "ci({projectName}): publish v{version}"
     }
   },
