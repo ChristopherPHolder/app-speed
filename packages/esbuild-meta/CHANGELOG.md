@@ -1,3 +1,15 @@
+## 1.4.13 (2024-07-01)
+
+
+### 🩹 Fixes
+
+- **esbuild-meta:** fix release config ([571beea](https://github.com/ChristopherPHolder/app-speed/commit/571beea))
+
+
+### ❤️  Thank You
+
+- ChristopherPHolder
+
 ### ❤️  Thank You
 
 - ChristopherPHolder
