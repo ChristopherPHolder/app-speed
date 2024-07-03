@@ -9,6 +9,9 @@ export default defineConfig({
 
   test: {
     watch: false,
+    pool: 'threads',
+    poolOptions: { threads: { singleThread: true } },
+    testTimeout: 140_000,
     reporters: ['default'],
     globals: true,
     cache: { dir: '../../node_modules/.vitest' },

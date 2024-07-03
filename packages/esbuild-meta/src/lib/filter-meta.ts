@@ -8,11 +8,13 @@ import {
   makeJson,
 } from './utils.js';
 
-const distPath = {
-  alias: 'd',
+export const DEMAND_STATS_PATH = 'The path to a stats.json file is required';
+
+const statsPath = {
+  alias: 's',
   type: 'string',
-  default: 'dist',
-  description: 'The path to the stats.json file'
+  description: 'The path to the stats.json file',
+  demandOption: DEMAND_STATS_PATH,
 } as const satisfies Options;
 
 const outPath = {
@@ -37,7 +39,7 @@ const entryPoints = {
   description: 'Entry points that should be considered for the bundle',
 } as const satisfies Options;
 
-const filterMetaOptions = { distPath, outPath, excludeDynamicImports, entryPoints };
+const filterMetaOptions = { statsPath, outPath, excludeDynamicImports, entryPoints };
 
 type FilterMetaOptions = InferredOptionTypes<typeof filterMetaOptions>;
 type FilterMetaCommandModule = CommandModule<unknown, FilterMetaOptions>;
@@ -47,7 +49,7 @@ const filterMetaBuilder: CommandBuilder<unknown, FilterMetaOptions> = (argv: Arg
 }
 
 const filterMetaHandler: FilterMetaCommandModule['handler'] = (argv: FilterMetaOptions) => {
-  const meta = getJson<Metafile>([argv.distPath]);
+  const meta = getJson<Metafile>(argv.statsPath);
   const entryPoints = extractEntryPoints(meta, argv.entryPoints);
   filterMetaFromEntryPoints(meta, entryPoints);
   if (argv.excludeDynamicImports) {

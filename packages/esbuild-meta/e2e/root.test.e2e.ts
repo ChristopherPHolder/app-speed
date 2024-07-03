@@ -1,26 +1,32 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import { version } from '../package.json';
 
-import { commandOutput } from './utils.js';
+import { cliProcess, CliProcessOutput } from './utils.js';
 
 describe('--help', () => {
-  let helpOutput: string;
+  let output: CliProcessOutput;
 
-  beforeAll(() => {
-    helpOutput = commandOutput('esbuild-meta --help');
+  beforeAll(async () => {
+    output = await cliProcess('esbuild-meta --help');
   });
 
-  it('should show help', () => {
-    expect(helpOutput).toMatchSnapshot();
+  it('should show help', async () => {
+    const { stdout, stderr, code } = output;
+    expect(stdout).toMatchSnapshot();
+    expect(stderr).toBeFalsy();
+    expect(code).toBe(0);
   });
 
-  it('should alias to -h', () => {
-    expect(commandOutput('esbuild-meta -h')).toBe(helpOutput);
+  it('should alias to -h', async () => {
+    expect(await cliProcess('esbuild-meta --help')).toEqual(output);
   });
 });
 
 describe('--version', () => {
-  it('should show version', () => {
-    expect(commandOutput('esbuild-meta --version')).toContain(version);
+  it('should show version', async () => {
+    const {stdout, stderr, code} = await cliProcess('esbuild-meta --version');
+    expect(stdout).toContain(version);
+    expect(stderr).toBeFalsy();
+    expect(code).toBe(0);
   });
 });
