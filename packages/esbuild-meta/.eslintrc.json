@@ -22,7 +22,8 @@
           "error",
           {
             "ignoredFiles": [
-              "{projectRoot}/e2e/*.{js,ts,mjs,mts}",
+              "{projectRoot}/e2e/**/*",
+              "{projectRoot}/vitest.config.e2e.{js,ts,mjs,mts}",
               "{projectRoot}/vite.config.{js,ts,mjs,mts}"
             ]
           }
