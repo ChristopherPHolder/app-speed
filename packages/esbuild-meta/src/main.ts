@@ -4,7 +4,16 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { argv } from 'node:process';
 import { filterMetaCommand } from './lib/filter-meta.js';
+import { version } from '../package.json';
 
-yargs(hideBin(argv)).command('$0', 'Default Command is filter', filterMetaCommand).parse();
+yargs(hideBin(argv))
+  .scriptName('esbuild-meta')
+  .version(version).alias('v', 'version')
+  .showHelpOnFail(true)
+  .command(filterMetaCommand)
+  .help()
+  .alias('h', 'help')
+  .wrap(null)
+  .parse();
 
 console.log('Esbuild Meta completed successfully');

@@ -1,9 +1,17 @@
 import { readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, normalize } from 'node:path';
 import { Metafile } from 'esbuild';
 
-export function getJson<T = any>(path: string[]) {
-  return JSON.parse(readFileSync(join(...path), {encoding: 'utf-8'})) as T;
+export const INVALID_FILE_PATH_ERROR_MSG = (path: string) => `No file found at ${path}`;
+
+export function getJson<T = any>(path: string) {
+  const normalizedPath = normalize(path);
+  try {
+    return JSON.parse(readFileSync(normalizedPath, {encoding: 'utf-8'})) as T;
+  }
+  catch (e) {
+    throw new Error(INVALID_FILE_PATH_ERROR_MSG(normalizedPath));
+  }
 }
 
 export function makeJson(path: string, file: any) {

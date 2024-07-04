@@ -1,9 +1,9 @@
 {
   "name": "esbuild-meta",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "root": "packages/esbuild-meta",
   "sourceRoot": "packages/esbuild-meta/src",
-  "projectType": "library",
-  "tags": [],
+  "projectType": "app",
   "targets": {
     "build": {
       "executor": "@nx/esbuild:esbuild",
@@ -17,9 +17,12 @@
         "format": ["esm"],
         "minify": true,
         "platform": "node",
-        "bundle": true,
-        "thirdParty": true
+        "bundle": true
       }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
     },
     "test": {
       "executor": "@nx/vite:test",
@@ -27,6 +30,12 @@
       "options": {
         "reportsDirectory": "../../coverage/packages/esbuild-meta"
       }
+    },
+    "e2e": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}-e2e"],
+      "options": { "config": "packages/esbuild-meta/vitest.config.e2e.ts" },
+      "dependsOn": ["build"]
     }
   }
 }
