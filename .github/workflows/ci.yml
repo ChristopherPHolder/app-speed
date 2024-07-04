@@ -73,35 +73,34 @@ jobs:
       - name: Lint Affected
         run: npx nx affected --target=lint --parallel=3
 
-# Commented out because its hanging
-#  test:
-#    name: Test Affected
-#    needs: setup
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#      - uses: actions/checkout@v4
-#        with:
-#          # We need to fetch all branches and commits so that Nx affected has a base to compare against.
-#          fetch-depth: 0
-#      # Derive appropriate SHAs for base and head for `nx affected` commands
-#      - uses: nrwl/nx-set-shas@v3
-#      - uses: actions/setup-node@v4
-#        with:
-#          node-version: ${{ env.NODE_VERSION }}
-#          cache: 'npm'
-#
-#      - name: Cache NPM Dependencies
-#        uses: actions/cache@v4
-#        with:
-#          path: |
-#            node_modules
-#            ~/.cache
-#            dist
-#          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
-#
-#      - name: Test Affected
-#        run: npx nx affected --target=test --parallel=3
+  test:
+    name: Test Affected
+    needs: setup
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # We need to fetch all branches and commits so that Nx affected has a base to compare against.
+          fetch-depth: 0
+      # Derive appropriate SHAs for base and head for `nx affected` commands
+      - uses: nrwl/nx-set-shas@v3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Cache NPM Dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.cache
+            dist
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
+      - name: Test Affected
+        run: npx nx affected --target=test --parallel=3
 
   build:
     name: Build Affected
