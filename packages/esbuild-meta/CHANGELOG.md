@@ -1,3 +1,23 @@
+## 1.4.14 (2024-07-04)
+
+
+### 🩹 Fixes
+
+- **esbuild-meta:** handle missing stats path ([ea51338](https://github.com/ChristopherPHolder/app-speed/commit/ea51338))
+
+- **esbuild-meta:** fix dependency check ([2df834a](https://github.com/ChristopherPHolder/app-speed/commit/2df834a))
+
+- **esbuild-meta:** fix dependency check ([b1a0a7d](https://github.com/ChristopherPHolder/app-speed/commit/b1a0a7d))
+
+- **esbuild-meta:** fix dependency check ([d717845](https://github.com/ChristopherPHolder/app-speed/commit/d717845))
+
+- **esbuild-meta:** fix no unit test pass ([7718211](https://github.com/ChristopherPHolder/app-speed/commit/7718211))
+
+
+### ❤️  Thank You
+
+- ChristopherPHolder
+
 ## 1.4.13 (2024-07-01)
 
 
