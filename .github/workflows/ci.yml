@@ -187,7 +187,7 @@ jobs:
 
   deploy-front-end:
     name: Deploy Front-End
-    needs: [e2e, build, lint]
+    needs: [test, build, lint, e2e]
     runs-on: ubuntu-latest
 
     steps:
@@ -229,7 +229,7 @@ jobs:
 
   deploy-server:
     name: Deploy Server
-    needs: [e2e, build, lint]
+    needs: [test, build, lint, e2e]
     runs-on: ubuntu-latest
 
     steps:
