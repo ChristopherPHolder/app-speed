@@ -1,6 +1,7 @@
 {
   "name": "esbuild-meta",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "root": "packages/esbuild-meta",
   "sourceRoot": "packages/esbuild-meta/src",
   "projectType": "app",
   "targets": {
@@ -18,6 +19,10 @@
         "platform": "node",
         "bundle": true
       }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
     },
     "test": {
       "executor": "@nx/vite:test",
