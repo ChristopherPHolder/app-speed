@@ -31,7 +31,6 @@ export class WebsocketResource {
 
   runAudit(payload: AuditRunParams) {
     console.log('Sending request Audit Request:', payload);
-    this.ws.send({ type: AUDIT_REQUEST.SCHEDULE_AUDIT, payload });
+    // this.ws.send({ type: AUDIT_REQUEST.SCHEDULE_AUDIT, payload });
   }
-
 }
