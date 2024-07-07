@@ -19,11 +19,21 @@ import { StepProperty } from '../schema/types';
       <h4>
         {{ schema.name }}
         <!-- TODO Add the functionality to add inputs -->
-        <button mat-icon-button aria-label="Add property to step" (click)="addPropertyItem()">
+        <button
+          mat-icon-button
+          [disabled]="control.disabled"
+          aria-label="Add property to step"
+          (click)="addPropertyItem()"
+        >
           <mat-icon>library_add</mat-icon>
         </button>
         @if (!schema.required) {
-          <button mat-icon-button aria-label="Delete property from step" (click)="deleteProperty.emit()">
+          <button
+            mat-icon-button
+            [disabled]="control.disabled"
+            aria-label="Delete property from step"
+            (click)="deleteProperty.emit()"
+          >
             <mat-icon>delete</mat-icon>
           </button>
         }
@@ -35,7 +45,12 @@ import { StepProperty } from '../schema/types';
             <input matInput [formControl]="propertyControl" />
           </mat-form-field>
           @if (control.controls.length > 1) {
-            <button mat-icon-button aria-label="Delete property from step" (click)="deletePropertyItemAt(idx)">
+            <button
+              mat-icon-button
+              [disabled]="control.disabled"
+              aria-label="Delete property from step"
+              (click)="deletePropertyItemAt(idx)"
+            >
               <mat-icon>delete</mat-icon>
             </button>
           }

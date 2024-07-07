@@ -18,7 +18,12 @@ import { StepProperty } from '../schema/types';
         <input matInput type="number" [formControl]="control" />
       </mat-form-field>
       @if (!schema.required) {
-        <button mat-icon-button aria-label="Delete property from step" (click)="deleteProperty.emit()">
+        <button
+          mat-icon-button
+          [disabled]="control.disabled"
+          aria-label="Delete property from step"
+          (click)="deleteProperty.emit()"
+        >
           <mat-icon>delete</mat-icon>
         </button>
       }

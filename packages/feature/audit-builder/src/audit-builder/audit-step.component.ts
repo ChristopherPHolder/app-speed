@@ -37,7 +37,13 @@ import { MatFabButton } from '@angular/material/button';
         <builder-step-property [controlKey]="key" [stepIndex]="stepIndex" />
       }
       @for (key of builder.getStepOptionalProperties(stepIndex); track key) {
-        <button mat-fab [extended]="true" color="primary" (click)="builder.addStepProperty(stepIndex, key)">
+        <button
+          mat-fab
+          [extended]="true"
+          [disabled]="builder.formGroup.disabled"
+          color="primary"
+          (click)="builder.addStepProperty(stepIndex, key)"
+        >
           Add {{ key }}
         </button>
       }
