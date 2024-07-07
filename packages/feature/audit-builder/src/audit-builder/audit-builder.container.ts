@@ -83,7 +83,6 @@ export class AuditBuilderContainer {
     auditDetails$.pipe(
       withLatestFrom(this.builder.formGroup.statusChanges, this.builder.formGroup.valueChanges),
       filter(([, formState]) => formState === 'VALID'),
-      tap(() => this.builder.formGroup.markAllAsTouched()),
       map(([, , formValue]) => formValue as AuditDetails),
     );
 
