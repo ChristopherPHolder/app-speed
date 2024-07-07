@@ -1,0 +1,36 @@
+{
+  "name": "is-online",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/is-online/src",
+  "projectType": "library",
+  "tags": ["lambda"],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/is-online",
+        "main": "packages/is-online/src/index.ts",
+        "tsConfig": "packages/is-online/tsconfig.lib.json",
+        "generatePackageJson": true,
+        "bundle": true,
+        "minify": true
+      }
+    },
+    "deploy": {
+      "executor": "@app-speed/aws-deploy:lambda-deploy",
+      "options": {
+        "dist": "dist/packages/is-online",
+        "functionName": "is-online"
+      },
+      "dependsOn": ["build"]
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "../../coverage/packages/is-online"
+      }
+    }
+  }
+}
