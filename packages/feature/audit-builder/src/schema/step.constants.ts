@@ -10,7 +10,7 @@ export const AUDIT_STEP_TYPE = {
 // Assertion Step Types are those related to puppeteer assertion steps!
 export const ASSERTION_STEP_TYPE = {
   WAIT_FOR_ELEMENT: 'waitForElement',
-  WAIT_FOR_EXPRESSION: 'waitForExpression'
+  WAIT_FOR_EXPRESSION: 'waitForExpression',
 } as const;
 
 // User Step Types are those related to puppeteer user steps!
@@ -25,7 +25,7 @@ export const USER_STEP_TYPE = {
   KEY_UP: 'keyUp',
   NAVIGATE: 'navigate',
   SCROLL: 'scroll',
-  SET_VIEWPORT: 'setViewport'
+  SET_VIEWPORT: 'setViewport',
 } as const;
 
 export const STEP_TYPE = {

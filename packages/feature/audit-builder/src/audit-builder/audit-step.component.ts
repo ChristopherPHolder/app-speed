@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, Input } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { KeyValuePipe } from '@angular/common';
 import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
 
@@ -55,7 +55,6 @@ import { MatFabButton } from '@angular/material/button';
       }
     }
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuditStepComponent {
   @Input({ required: true }) stepIndex!: number;
