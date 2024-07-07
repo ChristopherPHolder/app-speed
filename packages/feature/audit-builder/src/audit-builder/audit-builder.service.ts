@@ -154,8 +154,4 @@ export class AuditBuilderService {
   removeStepProperty(index: number, propertyName: PropertyName): void {
     this.formGroup.controls.steps.at(index).removeControl(propertyName);
   }
-
-  disable() {
-    this.formGroup.disable();
-  }
 }

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, viewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 
@@ -58,6 +58,7 @@ import { rxEffects } from '@rx-angular/state/effects';
 export class AuditBuilderContainer {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  accordion = viewChild.required(MatAccordion);
 
   actions = rxActions<{ submit: AuditDetails }>();
 
@@ -90,6 +91,7 @@ export class AuditBuilderContainer {
 
   submitEffect = (event: AuditDetails) => {
     this.builder.formGroup.disable();
+    this.accordion().closeAll();
     alert(`Submitted Audit: ${JSON.stringify(event, null, 2)}`);
   };
 
