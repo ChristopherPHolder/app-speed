@@ -38,7 +38,16 @@ import { DEVICE_TYPE } from '../schema/audit.constants';
         <input matInput placeholder="Audit Title" [formControl]="builder.formGroup.controls.title" />
         <mat-error *rxIf="!!builder.formGroup.controls.title.hasError">Title <strong>required</strong></mat-error>
       </mat-form-field>
-      <button class="submit-btn" mat-fab [extended]="true" color="primary" type="submit">Analyze</button>
+      <button
+        class="submit-btn"
+        mat-fab
+        [disabled]="builder.formGroup.disabled"
+        [extended]="true"
+        color="primary"
+        type="submit"
+      >
+        Analyze
+      </button>
     </div>
     <div class="row">
       <mat-form-field class="full-width col">

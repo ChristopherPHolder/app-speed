@@ -7,7 +7,13 @@ import { AuditBuilderService } from './audit-builder.service';
 @Component({
   selector: 'builder-step-action-dialog',
   template: `
-    <button class="toggle_menu" mat-icon-button [matMenuTriggerFor]="menu" aria-label="Toggle menu">
+    <button
+      class="toggle_menu"
+      mat-icon-button
+      [disabled]="builder.formGroup.disabled"
+      [matMenuTriggerFor]="menu"
+      aria-label="Toggle menu"
+    >
       <mat-icon>more_vert</mat-icon>
     </button>
     <mat-menu #menu="matMenu" xPosition="before">

@@ -4,7 +4,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { filter, first, map, Observable, OperatorFunction, tap, withLatestFrom } from 'rxjs';
+import { filter, first, map, Observable, tap, withLatestFrom } from 'rxjs';
 import { RxLet } from '@rx-angular/template/let';
 import { rxActions } from '@rx-angular/state/actions';
 import { RxIf } from '@rx-angular/template/if';
@@ -62,7 +62,16 @@ export class AuditBuilderContainer {
   actions = rxActions<{ submit: AuditDetails }>();
 
   constructor() {
-    this.actions.onSubmit(this.submitMapper, this.submitEffect);
+    this.actions.onSubmit(
+      (submit$) =>
+        submit$.pipe(
+          withLatestFrom(this.builder.formGroup.statusChanges, this.builder.formGroup.valueChanges),
+          filter(([, formState]) => formState === 'VALID'),
+          map(([, , formValue]) => formValue as AuditDetails),
+        ),
+      this.submitEffect,
+    );
+
     rxEffects(({ register }) => {
       register(this.builder.formGroup.valueChanges, (auditDetails) => this.updateAuditDetails(auditDetails));
     });
@@ -80,15 +89,9 @@ export class AuditBuilderContainer {
   public readonly auditInit$ = this.builder.auditInit$(this.initialAuditDetails$);
 
   submitEffect = (event: AuditDetails) => {
+    this.builder.formGroup.disable();
     alert(`Submitted Audit: ${JSON.stringify(event, null, 2)}`);
   };
-
-  submitMapper: OperatorFunction<AuditDetails, AuditDetails> = (auditDetails$) =>
-    auditDetails$.pipe(
-      withLatestFrom(this.builder.formGroup.statusChanges, this.builder.formGroup.valueChanges),
-      filter(([, formState]) => formState === 'VALID'),
-      map(([, , formValue]) => formValue as AuditDetails),
-    );
 
   updateAuditDetails(auditDetails: object): void {
     this.router.navigate([], {
