@@ -18,6 +18,7 @@ import { AuditGlobalsComponent } from './audit-globals.component';
 
 import { DEFAULT_AUDIT_DETAILS } from '../schema/audit.constants';
 import { AuditDetails } from '../schema/types';
+import { rxEffects } from '@rx-angular/state/effects';
 
 @Component({
   template: `
@@ -58,10 +59,13 @@ export class AuditBuilderContainer {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
-  actions = rxActions<{ submit: AuditDetails; change: AuditDetails }>();
+  actions = rxActions<{ submit: AuditDetails }>();
 
   constructor() {
     this.actions.onSubmit(this.submitMapper, this.submitEffect);
+    rxEffects(({ register }) => {
+      register(this.builder.formGroup.valueChanges, (auditDetails) => this.updateAuditDetails(auditDetails));
+    });
   }
 
   public readonly initialAuditDetails$: Observable<AuditDetails> = this.route.queryParams.pipe(
