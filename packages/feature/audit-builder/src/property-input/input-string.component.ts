@@ -3,19 +3,36 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
+import { MatError, MatInput } from '@angular/material/input';
 
 import { StepProperty } from '../schema/types';
+import { RxIf } from '@rx-angular/template/if';
+import { JsonPipe } from '@angular/common';
+import { ToTitleCasePipe } from '../utils/toTitleCase.pipe';
 
 @Component({
   selector: 'builder-input-string',
   standalone: true,
-  imports: [ReactiveFormsModule, MatLabel, MatInput, MatFormField, MatIcon, MatIconButton],
+  imports: [
+    ReactiveFormsModule,
+    MatError,
+    MatLabel,
+    MatInput,
+    MatFormField,
+    MatIcon,
+    MatIconButton,
+    RxIf,
+    JsonPipe,
+    ToTitleCasePipe,
+  ],
   template: `
     <div>
       <mat-form-field>
         <mat-label>{{ schema.name }}</mat-label>
         <input matInput [formControl]="control" />
+        <mat-error *rxIf="control.hasError('required')">
+          {{ schema.name | toTitleCase }} is <strong>required</strong>
+        </mat-error>
       </mat-form-field>
       @if (!schema.required) {
         <button mat-icon-button aria-label="Delete property from step" (click)="deleteProperty.emit()">

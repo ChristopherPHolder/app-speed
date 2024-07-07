@@ -5,7 +5,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MatLabel } from '@angular/material/form-field';
 import { MatOption, MatSelect } from '@angular/material/select';
 import { MatCardActions } from '@angular/material/card';
-import { MatButton } from '@angular/material/button';
+import { MatButton, MatFabButton } from '@angular/material/button';
 import { RxIf } from '@rx-angular/template/if';
 import { RxFor } from '@rx-angular/template/for';
 
@@ -29,6 +29,7 @@ import { DEVICE_TYPE } from '../schema/audit.constants';
     MatOption,
     MatError,
     MatLabel,
+    MatFabButton,
   ],
   template: `
     <div class="row">
@@ -37,9 +38,7 @@ import { DEVICE_TYPE } from '../schema/audit.constants';
         <input matInput placeholder="Audit Title" [formControl]="builder.formGroup.controls.title" />
         <mat-error *rxIf="!!builder.formGroup.controls.title.hasError">Title <strong>required</strong></mat-error>
       </mat-form-field>
-      <mat-card-actions class="cta">
-        <button class="cta__submit" mat-raised-button color="primary" type="submit">Analyze</button>
-      </mat-card-actions>
+      <button class="submit-btn" mat-fab [extended]="true" color="primary" type="submit">Analyze</button>
     </div>
     <div class="row">
       <mat-form-field class="full-width col">
@@ -48,7 +47,7 @@ import { DEVICE_TYPE } from '../schema/audit.constants';
           <mat-option *rxFor="let device of DEVICE_TYPES" [value]="device">{{ device | toTitleCase }}</mat-option>
         </mat-select>
       </mat-form-field>
-      <mat-form-field class="full-width col end__col">
+      <mat-form-field class="full-width col">
         <mat-label>Timeout</mat-label>
         <input
           matInput
