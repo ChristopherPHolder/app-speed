@@ -1,0 +1,26 @@
+{
+  "name": "userflow-conductor-svc",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/userflow-conductor-svc/src",
+  "projectType": "application",
+  "tags": ["lambda"],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/userflow-conductor-svc",
+        "main": "packages/userflow-conductor-svc/src/index.ts",
+        "tsConfig": "packages/userflow-conductor-svc/tsconfig.lib.json",
+        "generatePackageJson": true
+      }
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "../../coverage/packages/userflow-conductor-svc"
+      }
+    }
+  }
+}

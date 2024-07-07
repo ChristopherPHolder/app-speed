@@ -29,7 +29,7 @@
       "@app-speed/ui/shell": ["packages/ui/shell/public-api.ts"],
       "@app-speed/ui/status-badge": ["packages/ui/status-badge/public-api.ts"],
       "@app-speed/user-flow-replay": ["packages/user-flow-replay/public-api.ts"],
-      "is-online": ["packages/is-online/src/index.ts"]
+      "userflow-conductor-svc": ["packages/userflow-conductor-svc/src/index.ts"]
     }
   }
 }
