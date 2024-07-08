@@ -1,1 +1,1 @@
-export * from './lib/socket-io-ser';
+export { handler } from './lib/handler';

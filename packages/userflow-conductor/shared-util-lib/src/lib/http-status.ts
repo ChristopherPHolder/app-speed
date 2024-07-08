@@ -33,3 +33,8 @@ export const enum RESPONSE_SERVER_ERROR {
   NOT_EXTENDED = 510,
   NETWORK_AUTHENTICATION_REQUIRED = 511,
 }
+
+// @TODO this should be a globally shared type helper!
+type ValueOf<T> = T[keyof T];
+
+export type ResponseStatus = ValueOf<typeof RESPONSE_SUCCESSFUL & typeof RESPONSE_SERVER_ERROR>;

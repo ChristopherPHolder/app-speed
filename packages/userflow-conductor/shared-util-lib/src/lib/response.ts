@@ -1,21 +1,18 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyResult } from 'aws-lambda';
+import { ResponseStatus } from './http-status';
 
-export function formatedResponse(
-  statusCode: APIGatewayProxyResult['statusCode'],
-  body: APIGatewayProxyResult['body'],
-  eventHeaders?: APIGatewayProxyEvent['headers'],
-): APIGatewayProxyResult {
-  const origenDomain = eventHeaders?.['Origen'] || '*';
+type ResponseFormater = (statusCode: ResponseStatus, body: string, origen?: string) => APIGatewayProxyResult;
 
-  if (origenDomain === '*') {
-    console.error('Unable to extract origin header domain');
+export const formatedResponse: ResponseFormater = (statusCode, body, origen) => {
+  if (!origen) {
+    console.error('Unable to extract origin domain, used * instead');
   }
 
   const headers: APIGatewayProxyResult['headers'] = {
-    'Access-Control-Allow-Origin': origenDomain || '*',
+    'Access-Control-Allow-Origin': origen || '*',
     'Access-Control-Allow-Headers': 'x-requested-with',
     'Access-Control-Allow-Credentials': true,
   };
 
   return { statusCode, headers, body };
-}
+};
