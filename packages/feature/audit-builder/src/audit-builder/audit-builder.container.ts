@@ -48,7 +48,7 @@ import { WebsocketResource } from '@app-speed/data-access';
       </mat-card>
     </form>
 
-    <div class="grid-container" *rxIf="runner.progress$; let progress">
+    <div class="grid-container" *rxIf="true; let progress">
       <mat-card class="loading-card">
         <mat-card-header>
           <mat-card-title> Running Analysis </mat-card-title>
@@ -121,7 +121,7 @@ export class AuditBuilderContainer {
     this.builder.formGroup.disable();
     this.accordion().closeAll();
     this.router.navigate([], { relativeTo: this.route });
-    this.runner.runAudit(event as any);
+    this.runner.runAudit(event);
     alert(`Submitted Audit: ${JSON.stringify(event, null, 2)}`);
   };
 

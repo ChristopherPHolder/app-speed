@@ -1,1 +1,1 @@
-export * from './lib/lambda';
+export { handler } from './lib/lambda';

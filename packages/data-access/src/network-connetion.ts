@@ -6,7 +6,7 @@ import { RxEffects } from '@rx-angular/state/effects';
 
 export const NETWORK_INFORMATION_TYPE = { UNKNOWN: 'unknown', NONE: 'none', WIFI: 'wifi' } as const;
 type _ = keyof typeof NETWORK_INFORMATION_TYPE;
-export type NetworkInformationType = typeof NETWORK_INFORMATION_TYPE[_];
+export type NetworkInformationType = (typeof NETWORK_INFORMATION_TYPE)[_];
 
 @Injectable({
   providedIn: 'root',
@@ -17,19 +17,16 @@ export class NetworkConnection extends RxEffects {
 
   constructor(
     private http: HttpClient,
-    e: ErrorHandler
+    e: ErrorHandler,
   ) {
     super(e);
-    this.register(
-      timer(0, 5000).pipe(switchMap(() => this.isOnline())),
-      type => this.state.next(type),
-    );
+    this.register(timer(0, 5000).pipe(switchMap(() => this.isOnline())), (type) => this.state.next(type));
   }
 
   isOnline() {
     return this.http.get<number>(environment.isOnlineApi).pipe(
-      map(_ => NETWORK_INFORMATION_TYPE.WIFI),
-      catchError(e => of(NETWORK_INFORMATION_TYPE.NONE))
+      map((_) => NETWORK_INFORMATION_TYPE.WIFI),
+      catchError((e) => of(NETWORK_INFORMATION_TYPE.NONE)),
     );
   }
 }

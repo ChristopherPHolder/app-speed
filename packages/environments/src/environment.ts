@@ -7,6 +7,6 @@ export const environment = {
     url: 'https://deepblue-userflow-records.s3.eu-central-1.amazonaws.com/',
     name: 'deepblue-userflow-records',
   },
-  ufoSocketUrl: 'wss://5ag9xf0aab.execute-api.us-east-1.amazonaws.com/ufo',
-  isOnlineApi: 'https://whlewijavz6474ojywn5gzqcqu0mflhk.lambda-url.us-east-1.on.aws/',
+  ufoSocketUrl: 'wss://vq6maapfzc.execute-api.us-east-1.amazonaws.com/prod/',
+  isOnlineApi: 'https://ib3ncok6l1.execute-api.us-east-1.amazonaws.com/Prod/is-online',
 };

@@ -1,11 +1,11 @@
 {
-  "extends": ["../../.eslintrc.json"],
+  "extends": ["../../../.eslintrc.json"],
   "ignorePatterns": ["!**/*"],
   "overrides": [
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
       "parserOptions": {
-        "project": ["packages/is-online/tsconfig.*?.json"]
+        "project": ["packages/userflow-conductor/is-online-ser/tsconfig.*?.json"]
       },
       "rules": {}
     },

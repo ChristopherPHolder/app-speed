@@ -1,36 +1,35 @@
-import { AUDIT_REQUEST, AUDIT_STATUS, AuditRunParams, UfWsRecieveActions, UfWsSendActions } from '@app-speed/shared';
+import { AUDIT_REQUEST, AuditRunParams } from '@app-speed/shared';
 import { Injectable } from '@angular/core';
+import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { environment } from '@app-speed/environments';
-import { filter, map, Observable } from 'rxjs';
-import { ResultModel } from './result.model';
-import { Ws } from './ws';
+import { Observable, Subject, switchAll } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class WebsocketResource {
-  private _initialized = false;
-  readonly progress$ = this.ws.messages$.pipe(map(({ type }) => type));
-  readonly reports$: Observable<ResultModel> = this.ws.messages$.pipe(
-    filter(({ type }) => type === AUDIT_STATUS.DONE),
-    // @TODO check why types are not correctly inferred, consider type guards
-    map(({ payload }) => payload as ResultModel),
-  );
+  #socket: WebSocket;
 
-  constructor(private readonly ws: Ws<UfWsRecieveActions, UfWsSendActions>) {
-    // @TODO init on runAudit to save bandwidth
-    this.init();
+  constructor() {
+    const socket = new WebSocket(environment.ufoSocketUrl);
+
+    socket.onopen = (e) => {
+      console.log('Websocket opened', e);
+    };
+    socket.onmessage = (e) => {
+      console.log('Websocket message', e);
+    };
+    socket.onclose = (e) => {
+      console.log('Websocket closed', e);
+    };
+    socket.onerror = (e) => {
+      console.log('Websocket error', e);
+    };
+    this.#socket = socket;
   }
 
-  init() {
-    if (!this._initialized) {
-      this._initialized = true;
-      this.ws.init(environment.ufoSocketUrl);
-    }
-  }
-
-  runAudit(payload: AuditRunParams) {
+  runAudit(payload: object) {
     console.log('Sending request Audit Request:', payload);
-    // this.ws.send({ type: AUDIT_REQUEST.SCHEDULE_AUDIT, payload });
+    this.#socket.send(JSON.stringify({ action: AUDIT_REQUEST.SCHEDULE_AUDIT, content: payload }));
   }
 }

@@ -4,7 +4,7 @@ import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 
 export default defineConfig({
   root: __dirname,
-  cacheDir: '../../node_modules/.vite/packages/is-online',
+  cacheDir: '../../../node_modules/.vite/packages/userflow-conductor/is-online-ser',
 
   plugins: [nxViteTsPaths()],
 
@@ -16,10 +16,10 @@ export default defineConfig({
   test: {
     watch: false,
     globals: true,
-    cache: { dir: '../../node_modules/.vitest/packages/is-online' },
+    cache: { dir: '../../../node_modules/.vitest/packages/userflow-conductor/is-online-ser' },
     environment: 'node',
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     reporters: ['default'],
-    coverage: { reportsDirectory: '../../coverage/packages/is-online', provider: 'v8' },
+    coverage: { reportsDirectory: '../../../coverage/packages/userflow-conductor/is-online-ser', provider: 'v8' },
   },
 });

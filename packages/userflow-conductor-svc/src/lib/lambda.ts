@@ -92,7 +92,16 @@ async function scheduleAudits(event: APIGatewayProxyWebsocketEventV2): Promise<A
 export const handler = async (
   event: APIGatewayProxyEventV2WithRequestContext<APIGatewayEventWebsocketRequestContextV2>,
 ): Promise<APIGatewayProxyResult> => {
+  console.log('-->', event);
   try {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+
+    if (event?.['action']) {
+      console.log('--??', event);
+      return await scheduleAudits(event);
+    }
+    console.log('--??');
     if (event.requestContext.eventType === 'MESSAGE') {
       if (event.requestContext.routeKey === 'scheduleAudits') {
         return await scheduleAudits(event);
@@ -105,6 +114,7 @@ export const handler = async (
         ? disconnectWebsocket(event)
         : generateResponse(500, 'Unknown error');
   } catch (error) {
+    console.log('Error', error);
     return generateResponse(500, error as string);
   }
 };

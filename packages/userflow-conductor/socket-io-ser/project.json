@@ -1,0 +1,28 @@
+{
+  "name": "socket-io-ser",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/userflow-conductor/socket-io-ser/src",
+  "projectType": "library",
+  "tags": ["lambda"],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/userflow-conductor/socket-io-ser",
+        "main": "packages/userflow-conductor/socket-io-ser/src/index.ts",
+        "tsConfig": "packages/userflow-conductor/socket-io-ser/tsconfig.lib.json",
+        "assets": ["packages/userflow-conductor/socket-io-ser/*.md"],
+        "generatePackageJson": true,
+        "format": ["cjs"]
+      }
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "../../../coverage/packages/userflow-conductor/socket-io-ser"
+      }
+    }
+  }
+}
