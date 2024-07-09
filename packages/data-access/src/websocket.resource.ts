@@ -13,7 +13,15 @@ export class WebsocketResource {
   constructor() {
     const socket = new WebSocket(environment.ufoSocketUrl);
 
+    console.log(socket.protocol);
     socket.onopen = (e) => {
+      socket.send(
+        JSON.stringify({
+          body: {
+            action: 'is-online',
+          },
+        }),
+      );
       console.log('Websocket opened', e);
     };
     socket.onmessage = (e) => {

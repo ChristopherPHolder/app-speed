@@ -1,7 +1,9 @@
 import { resolve } from 'node:path';
+import { env } from 'node:process';
 import { PassThrough } from 'node:stream';
 import { PromiseExecutor } from '@nx/devkit';
 import { LambdaClient, UpdateFunctionCodeCommand } from '@aws-sdk/client-lambda';
+import 'dotenv';
 
 import { LambdaDeployExecutorSchema } from './schema';
 import archiver = require('archiver');
@@ -27,6 +29,10 @@ const zip = (sourceDir: string): Promise<Uint8Array> => {
 const runExecutor: PromiseExecutor<LambdaDeployExecutorSchema> = async ({ dist, functionName }) => {
   const client = new LambdaClient({
     region: 'us-east-1',
+    credentials: {
+      accessKeyId: env._AWS_ACCESS_KEY_ID!,
+      secretAccessKey: env._AWS_SECRET_ACCESS_KEY!,
+    },
   });
 
   const file = await zip(resolve(dist));

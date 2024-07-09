@@ -26,7 +26,7 @@
       "executor": "@app-speed/aws-deploy:lambda-deploy",
       "options": {
         "dist": "dist/packages/userflow-conductor/is-online-ser",
-        "functionName": "is-online"
+        "functionName": "AppSpeed_IsOnline"
       },
       "dependsOn": ["build"]
     },

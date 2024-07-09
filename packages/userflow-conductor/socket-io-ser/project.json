@@ -26,7 +26,7 @@
       "executor": "@app-speed/aws-deploy:lambda-deploy",
       "options": {
         "dist": "dist/packages/userflow-conductor/socket-io-ser",
-        "functionName": "{@TODO}"
+        "functionName": "AppSpeed_Socket-IO"
       },
       "dependsOn": ["build"]
     },
