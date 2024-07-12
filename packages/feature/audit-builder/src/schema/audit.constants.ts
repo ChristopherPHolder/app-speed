@@ -1,7 +1,7 @@
 export const DEVICE_TYPE = {
   MOBILE: 'mobile',
   TABLET: 'tablet',
-  DESKTOP: 'desktop'
+  DESKTOP: 'desktop',
 } as const;
 
 export const DEFAULT_AUDIT_DETAILS = {
@@ -10,8 +10,7 @@ export const DEFAULT_AUDIT_DETAILS = {
   timeout: 30000,
   steps: [
     { type: 'startNavigation', stepOptions: { name: 'Initial Navigation' } },
-    { type:  'navigate', url: 'https://google.com' },
+    { type: 'navigate', url: '' },
     { type: 'endNavigation' },
-  ]
+  ],
 } as const;
-

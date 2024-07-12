@@ -1,0 +1,28 @@
+{
+  "name": "shared-util-lib",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/userflow-conductor/shared-util-lib/src",
+  "projectType": "library",
+  "tags": ["type:util", "scope:userflow-conductor"],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/userflow-conductor/shared-util-lib",
+        "main": "packages/userflow-conductor/shared-util-lib/src/index.ts",
+        "tsConfig": "packages/userflow-conductor/shared-util-lib/tsconfig.lib.json",
+        "assets": ["packages/userflow-conductor/shared-util-lib/*.md"],
+        "generatePackageJson": true,
+        "format": ["cjs"]
+      }
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "../../../coverage/packages/userflow-conductor/shared-util-lib"
+      }
+    }
+  }
+}

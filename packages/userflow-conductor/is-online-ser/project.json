@@ -1,0 +1,41 @@
+{
+  "name": "is-online-ser",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/userflow-conductor/is-online-ser/src",
+  "projectType": "application",
+  "tags": ["lambda"],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/userflow-conductor/is-online-ser",
+        "main": "packages/userflow-conductor/is-online-ser/src/index.ts",
+        "tsConfig": "packages/userflow-conductor/is-online-ser/tsconfig.lib.json",
+        "declaration": false,
+        "bundle": true,
+        "minify": true,
+        "esbuildOptions": {
+          "outExtension": {
+            ".js": ".mjs"
+          }
+        }
+      }
+    },
+    "deploy": {
+      "executor": "@app-speed/aws-deploy:lambda-deploy",
+      "options": {
+        "dist": "dist/packages/userflow-conductor/is-online-ser",
+        "functionName": "AppSpeed_IsOnline"
+      },
+      "dependsOn": ["build"]
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "../../../coverage/packages/userflow-conductor/is-online-ser"
+      }
+    }
+  }
+}

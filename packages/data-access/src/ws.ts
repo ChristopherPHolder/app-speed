@@ -14,9 +14,12 @@ export class Ws<I, O = I> extends RxEffects {
 
   constructor(
     private readonly networkConnection: NetworkConnection,
-    e: ErrorHandler
+    e: ErrorHandler,
   ) {
     super(e);
+    this._ws.subscribe((value) => {
+      console.log(value);
+    });
   }
 
   init(cfg: string | WebSocketSubjectConfig<I | O>) {
@@ -27,23 +30,23 @@ export class Ws<I, O = I> extends RxEffects {
       throw new Error('WS already initialized');
     }
 
-    if(typeof cfg === 'string') {
+    if (typeof cfg === 'string') {
       cfg = {
-        url: cfg
-      }
+        url: cfg,
+      };
     }
 
-    this.register(
-      this.networkConnection.connectionType$,
-      connection => {
-        if (connection === NETWORK_INFORMATION_TYPE.WIFI) {
-          this.webSocket = webSocket<I | O>(cfg);
-          this._ws.next(this.webSocket);
-        } else {
-          this.webSocket && this.webSocket.complete();
-        }
-      }
-    );
+    this.register(this.networkConnection.connectionType$, (connection) => {
+      console.log(connection === NETWORK_INFORMATION_TYPE.WIFI);
+      this.webSocket = webSocket<I | O>(cfg);
+      this._ws.next(this.webSocket);
+      // if (connection === NETWORK_INFORMATION_TYPE.WIFI) {
+      //   this.webSocket = webSocket<I | O>(cfg);
+      //   this._ws.next(this.webSocket);
+      // } else {
+      //   this.webSocket && this.webSocket.complete();
+      // }
+    });
   }
 
   close() {

@@ -6,7 +6,7 @@ export const INPUT_TYPE = {
   BOOLEAN: 'boolean',
   OPTIONS: 'options',
   STRING_ARRAY: 'stringArray',
-  RECORDS: 'records'
+  RECORDS: 'records',
 } as const;
 
 export const PROPERTY_NAME = {
@@ -50,7 +50,7 @@ export const PROPERTY_DEFAULT = {
   [INPUT_TYPE.BOOLEAN]: false,
   [INPUT_TYPE.OPTIONS]: '',
   [INPUT_TYPE.STRING_ARRAY]: [''] satisfies string[], // TODO improve typing
-  [INPUT_TYPE.RECORDS]: '' // TODO
+  [INPUT_TYPE.RECORDS]: '', // TODO
 } as const;
 
 export const INPUT_TYPE_VALIDATOR = {
@@ -58,15 +58,24 @@ export const INPUT_TYPE_VALIDATOR = {
   [INPUT_TYPE.NUMBER]: (value: unknown): value is number => typeof value === 'number',
   [INPUT_TYPE.BOOLEAN]: (value: unknown): value is boolean => typeof value === 'boolean',
   [INPUT_TYPE.OPTIONS]: (value: unknown): value is string => typeof value === 'string', // TODO
-  [INPUT_TYPE.STRING_ARRAY]: (value: unknown): value is string[] => Array.isArray(value) && value.every(item => typeof item === 'string'),
+  [INPUT_TYPE.STRING_ARRAY]: (value: unknown): value is string[] =>
+    Array.isArray(value) && value.every((item) => typeof item === 'string'),
   [INPUT_TYPE.RECORDS]: (value: unknown): value is string => typeof value === 'string', // TODO
 } as const;
 
 export const PROPERTY_CONTROL_BUILDER = {
-  [INPUT_TYPE.STRING]: (value: string) => new FormControl<string>(value, { validators: [Validators.required], nonNullable: true }),
-  [INPUT_TYPE.NUMBER]: (value: number) => new FormControl<number>(value, { validators: [Validators.required], nonNullable: true }),
-  [INPUT_TYPE.BOOLEAN]: (value: boolean) => new FormControl<boolean>(value, { validators: [Validators.required], nonNullable: true }),
-  [INPUT_TYPE.OPTIONS]: (value: string) => new FormControl<string>(value, { validators: [Validators.required], nonNullable: true }),
-  [INPUT_TYPE.STRING_ARRAY]: (value: string[]) => new FormArray((value).map((i) => new FormControl<string>(i, { validators: [Validators.required], nonNullable: true }))),
-  [INPUT_TYPE.RECORDS]: (value: string) => new FormControl<string>(value, { validators: [Validators.required], nonNullable: true }),
+  [INPUT_TYPE.STRING]: (value: string) =>
+    new FormControl<string>(value, { validators: [Validators.required], nonNullable: true }),
+  [INPUT_TYPE.NUMBER]: (value: number) =>
+    new FormControl<number>(value, { validators: [Validators.required], nonNullable: true }),
+  [INPUT_TYPE.BOOLEAN]: (value: boolean) =>
+    new FormControl<boolean>(value, { validators: [Validators.required], nonNullable: true }),
+  [INPUT_TYPE.OPTIONS]: (value: string) =>
+    new FormControl<string>(value, { validators: [Validators.required], nonNullable: true }),
+  [INPUT_TYPE.STRING_ARRAY]: (value: string[]) =>
+    new FormArray(
+      value.map((i) => new FormControl<string>(i, { validators: [Validators.required], nonNullable: true })),
+    ),
+  [INPUT_TYPE.RECORDS]: (value: string) =>
+    new FormControl<string>(value, { validators: [Validators.required], nonNullable: true }),
 } as const;

@@ -4,6 +4,12 @@
       "implementation": "./src/executors/s3-upload/executor",
       "schema": "./src/executors/s3-upload/schema.json",
       "description": "Executor to upload files to an s3 bucket"
+    },
+    "lambda-deploy": {
+      "implementation": "./src/executors/lambda-deploy/executor",
+      "schema": "./src/executors/lambda-deploy/schema.json",
+      "description": "Deploy Lambda Function",
+      "hasher": "./src/executors/lambda-deploy/hasher"
     }
   }
 }
