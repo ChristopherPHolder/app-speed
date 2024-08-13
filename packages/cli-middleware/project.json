@@ -1,5 +1,5 @@
 {
-  "name": "@app-speed/cli-middleware",
+  "name": "cli-middleware",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/cli-middleware/src",
   "projectType": "library",
@@ -25,11 +25,16 @@
       "outputs": ["{options.outputFile}"]
     },
     "test": {
-      "executor": "@nx/vite:test",
-      "outputs": ["{workspaceRoot}/coverage/packages/cli-middleware"],
+      "inputs": [
+        "default",
+        "^default",
+        {
+          "externalDependencies": ["vitest"]
+        }
+      ],
       "options": {
         "passWithNoTests": true,
-        "reportsDirectory": "../../coverage/packages/cli-middleware"
+        "coverage.reportsDirectory": "../../coverage/packages/cli-middleware"
       }
     }
   }

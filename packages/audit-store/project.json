@@ -1,5 +1,5 @@
 {
-  "name": "@app-speed/audit-store",
+  "name": "audit-store",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/audit-store/src",
   "projectType": "library",
@@ -25,11 +25,16 @@
       "outputs": ["{options.outputFile}"]
     },
     "test": {
-      "executor": "@nx/vite:test",
-      "outputs": ["{workspaceRoot}/coverage/packages/audit-store"],
+      "inputs": [
+        "default",
+        "^default",
+        {
+          "externalDependencies": ["vitest"]
+        }
+      ],
       "options": {
         "passWithNoTests": true,
-        "reportsDirectory": "../../coverage/packages/audit-store"
+        "coverage.reportsDirectory": "../../coverage/packages/audit-store"
       }
     }
   }

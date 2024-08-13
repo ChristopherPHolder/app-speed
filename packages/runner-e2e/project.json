@@ -5,8 +5,14 @@
   "implicitDependencies": ["audit-runner"],
   "targets": {
     "e2e": {
-      "executor": "@nx/vite:test",
-      "outputs": ["{workspaceRoot}/coverage/{e2eProjectRoot}"],
+      "inputs": [
+        "default",
+        "^default",
+        {
+          "externalDependencies": ["vitest"]
+        }
+      ],
+      "outputs": ["{workspaceRoot}/coverage/{e2eProjectRoot}", "{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
         "passWithNoTests": true
       }

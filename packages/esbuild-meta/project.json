@@ -1,7 +1,6 @@
 {
   "name": "esbuild-meta",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "root": "packages/esbuild-meta",
   "sourceRoot": "packages/esbuild-meta/src",
   "projectType": "app",
   "targets": {
@@ -25,16 +24,33 @@
       "outputs": ["{options.outputFile}"]
     },
     "test": {
-      "executor": "@nx/vite:test",
-      "outputs": ["{options.reportsDirectory}"],
+      "inputs": [
+        "default",
+        "^default",
+        {
+          "externalDependencies": ["vitest"]
+        }
+      ],
+      "outputs": [
+        "{projectRoot}/{options.coverage.reportsDirectory}",
+        "{workspaceRoot}\\coverage\\packages\\esbuild-meta"
+      ],
       "options": {
-        "reportsDirectory": "../../coverage/packages/esbuild-meta"
+        "coverage.reportsDirectory": "../../coverage/packages/esbuild-meta"
       }
     },
     "e2e": {
-      "executor": "@nx/vite:test",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}-e2e"],
-      "options": { "config": "packages/esbuild-meta/vitest.config.e2e.ts" },
+      "inputs": [
+        "default",
+        "^default",
+        {
+          "externalDependencies": ["vitest"]
+        }
+      ],
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}-e2e", "{workspaceRoot}\\coverage\\packages\\esbuild-meta"],
+      "options": {
+        "config": "packages/esbuild-meta/vitest.config.e2e.ts"
+      },
       "dependsOn": ["build"]
     }
   }
