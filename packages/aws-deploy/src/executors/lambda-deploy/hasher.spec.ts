@@ -16,6 +16,7 @@ describe('lambdaDeplyHasher', () => {
         },
         overrides: {},
         outputs: [],
+        parallelism: true,
       },
       {
         hasher: mockHasher,

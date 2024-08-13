@@ -1,9 +1,9 @@
 import { ExecutorContext } from '@nx/devkit';
 
-import { LambdaDeplyExecutorSchema } from './schema';
+import { LambdaDeployExecutorSchema } from './schema';
 import executor from './executor';
 
-const options: LambdaDeplyExecutorSchema = {};
+const options: LambdaDeployExecutorSchema = {} as LambdaDeployExecutorSchema;
 const context: ExecutorContext = {
   root: '',
   cwd: process.cwd(),
