@@ -29,8 +29,9 @@
       "@app-speed/ui/shell": ["packages/ui/shell/public-api.ts"],
       "@app-speed/ui/status-badge": ["packages/ui/status-badge/public-api.ts"],
       "@app-speed/user-flow-replay": ["packages/user-flow-replay/public-api.ts"],
-      "@app-speed/userflow-conductor/socket-io-ser": ["packages/userflow-conductor/socket-io-ser/src/index.ts"],
       "@app-speed/userflow-conductor/shared-util-lib": ["packages/userflow-conductor/shared-util-lib/src/index.ts"],
+      "@app-speed/userflow-conductor/socket-io-ser": ["packages/userflow-conductor/socket-io-ser/src/index.ts"],
+      "schedule-audit": ["packages/userflow-conductor/schedule-audit/src/index.ts"]
     }
   }
 }
