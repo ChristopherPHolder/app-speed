@@ -47,9 +47,9 @@
           "externalDependencies": ["vitest"]
         }
       ],
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}-e2e", "{workspaceRoot}\\coverage\\packages\\esbuild-meta"],
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}-e2e"],
       "options": {
-        "config": "packages/esbuild-meta/vitest.config.e2e.ts"
+        "config": "vitest.config.e2e.ts"
       },
       "dependsOn": ["build"]
     }
