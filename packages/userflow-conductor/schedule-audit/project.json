@@ -29,13 +29,6 @@
         "functionName": "AppSpeed_Userflow_Conductor"
       },
       "dependsOn": ["build"]
-    },
-    "test": {
-      "executor": "@nx/vite:test",
-      "outputs": ["{options.reportsDirectory}"],
-      "options": {
-        "reportsDirectory": "../../../coverage/packages/userflow-conductor/schedule-audit"
-      }
     }
   }
 }
