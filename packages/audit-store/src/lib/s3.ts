@@ -14,13 +14,12 @@ export class S3Store implements AuditStore {
     this.client = new S3Client(this.defaultConfig);
   }
 
-  public async store(auditResults: ResultReports, location?: string): Promise<string> {
-    const urlLocation = location || this.bucketUrl;
-    return await this.uploadResultsToBucket(auditResults, urlLocation);
+  public async store(auditResults: ResultReports): Promise<string> {
+    return await this.uploadResultsToBucket(auditResults);
   }
 
-  async uploadResultsToBucket(auditResults: ResultReports, location: string): Promise<string> {
-    const recordKey = this.getRecordKey(location);
+  async uploadResultsToBucket(auditResults: ResultReports): Promise<string> {
+    const recordKey = this.getRecordKey();
     await this.uploadRecord(recordKey, auditResults.htmlReport, 'html');
     await this.uploadRecord(recordKey, auditResults.jsonReport, 'json');
     return `${this.bucketUrl}${recordKey}`;
@@ -33,17 +32,16 @@ export class S3Store implements AuditStore {
       Key: recordKey + '.uf.' + type,
       Body: recordBody,
       CacheControl: cacheControl,
-      ContentType: 'text/html',
+      ContentType: type === 'html' ? 'text/html' : 'application/json',
     };
     const command = new PutObjectCommand(params);
     await this.client.send(command);
   }
 
-  getRecordKey(urlString: string): string {
-    const url = new URL(urlString);
+  getRecordKey(): string {
     const timestamp = new Date().toISOString().slice(0, 16).replace(':', '_');
     const hash = this.generateSimpleHash(20);
-    return `${timestamp}${url.hostname}${hash}`;
+    return `${timestamp}${hash}`;
   }
 
   generateSimpleHash(length: number): string {
