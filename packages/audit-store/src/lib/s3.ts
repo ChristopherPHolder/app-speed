@@ -21,16 +21,16 @@ export class S3Store implements AuditStore {
 
   async uploadResultsToBucket(auditResults: ResultReports, location: string): Promise<string> {
     const recordKey = this.getRecordKey(location);
-    await this.uploadRecord(recordKey + '.uf.html', auditResults.htmlReport);
-    await this.uploadRecord(recordKey + '.uf.html', auditResults.jsonReport);
+    await this.uploadRecord(recordKey, auditResults.htmlReport, 'html');
+    await this.uploadRecord(recordKey, auditResults.jsonReport, 'json');
     return `${this.bucketUrl}${recordKey}`;
   }
 
-  async uploadRecord(recordKey: string, recordBody: string): Promise<void> {
+  async uploadRecord(recordKey: string, recordBody: string, type: 'json' | 'html'): Promise<void> {
     const cacheControl = 'public, max-age=0, must-revalidate';
     const params = {
       Bucket: this.bucketName,
-      Key: recordKey,
+      Key: recordKey + '.uf.' + type,
       Body: recordBody,
       CacheControl: cacheControl,
       ContentType: 'text/html',
