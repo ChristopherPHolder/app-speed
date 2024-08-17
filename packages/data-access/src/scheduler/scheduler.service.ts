@@ -1,37 +1,46 @@
-import { inject, Injectable } from '@angular/core';
-import { WebSocketService } from './web-socket.service';
-import { environment } from '@app-speed/environments';
+import { Injectable } from '@angular/core';
+import { webSocket } from 'rxjs/webSocket';
+import { filter, map } from 'rxjs';
 
-type SchedulerRequest = any;
-type SchedulerResponse = any;
+// TODO should consume the type from the service!
+type StageChangeResponse = {
+  type: 'stage-change';
+  stage: string;
+  message?: string;
+};
+
+function isStageChangeResponse(message: unknown): message is StageChangeResponse {
+  return (
+    typeof message === 'object' &&
+    message !== null &&
+    'type' in message &&
+    'stage' in message &&
+    message.type === 'stage-change'
+  );
+}
 
 @Injectable({ providedIn: 'root' })
 export class SchedulerService {
-  #initialized = false;
+  webSocket = webSocket('wss://3b6gqoq7s8.execute-api.us-east-1.amazonaws.com/prod/');
 
-  readonly #webSocket = inject(WebSocketService<SchedulerRequest, SchedulerResponse>);
+  stage = this.webSocket.pipe(filter(isStageChangeResponse));
+  processing = this.stage.pipe(
+    map(({ stage, message }) => {
+      if (stage === 'complete') return false;
+      return { stage, message };
+    }),
+  );
 
   constructor() {
-    this.init();
+    this.webSocket.subscribe((event) => {
+      console.log('webSocket event', event);
+    });
   }
 
-  init() {
-    if (!this.#initialized) {
-      this.#initialized = true;
-      this.#webSocket.open(environment.ufoSocketUrl);
-    }
-  }
-
-  scheduleAudit(auditDetails: any): void {
-    if (!this.#webSocket) {
-      throw new Error('WS not initialized');
-    }
-    this.#webSocket.messages$.subscribe(console.log);
-    const message = {
-      action: 'schedule_audit',
-      auditDetails,
-    };
-    console.log('Message', message);
-    this.#webSocket.send(message);
+  submitAudit(auditDetails: any) {
+    this.webSocket.next({
+      action: 'schedule-audit',
+      audit: JSON.stringify(auditDetails),
+    });
   }
 }

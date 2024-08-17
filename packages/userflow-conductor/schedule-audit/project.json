@@ -1,17 +1,17 @@
 {
-  "name": "socket-io-ser",
+  "name": "schedule-audit",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/userflow-conductor/socket-io-ser/src",
-  "projectType": "application",
+  "sourceRoot": "packages/userflow-conductor/schedule-audit/src",
+  "projectType": "library",
   "tags": ["lambda"],
   "targets": {
     "build": {
       "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/packages/userflow-conductor/socket-io-ser",
-        "main": "packages/userflow-conductor/socket-io-ser/src/index.ts",
-        "tsConfig": "packages/userflow-conductor/socket-io-ser/tsconfig.lib.json",
+        "outputPath": "dist/packages/userflow-conductor/schedule-audit",
+        "main": "packages/userflow-conductor/schedule-audit/src/index.ts",
+        "tsConfig": "packages/userflow-conductor/schedule-audit/tsconfig.lib.json",
         "declaration": false,
         "bundle": true,
         "minify": false,
@@ -25,8 +25,8 @@
     "deploy": {
       "executor": "@app-speed/aws-deploy:lambda-deploy",
       "options": {
-        "dist": "dist/packages/userflow-conductor/socket-io-ser",
-        "functionName": "AppSpeed_Socket-IO"
+        "dist": "dist/packages/userflow-conductor-svc",
+        "functionName": "AppSpeed_Userflow_Conductor"
       },
       "dependsOn": ["build"]
     },
@@ -34,7 +34,7 @@
       "executor": "@nx/vite:test",
       "outputs": ["{options.reportsDirectory}"],
       "options": {
-        "reportsDirectory": "../../../coverage/packages/userflow-conductor/socket-io-ser"
+        "reportsDirectory": "../../../coverage/packages/userflow-conductor/schedule-audit"
       }
     }
   }

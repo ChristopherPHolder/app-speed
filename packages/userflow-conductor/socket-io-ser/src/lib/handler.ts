@@ -13,7 +13,6 @@ const enum EVENT_TYPE {
 }
 
 export const handler: Handler<APIGatewayProxyWebsocketEventV2, APIGatewayProxyResult> = async (event, context) => {
-  console.log('-- > ', event, context);
   try {
     const { eventType, domainName } = event.requestContext;
     const { functionName } = context;

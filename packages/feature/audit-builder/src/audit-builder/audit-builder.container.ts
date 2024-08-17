@@ -31,6 +31,18 @@ import { SchedulerService } from '@app-speed/data-access';
 
 @Component({
   template: `
+    <div class="grid-container" *rxIf="runner.processing; let progress">
+      <mat-card class="loading-card">
+        <mat-card-header>
+          <mat-card-title> Running Analysis </mat-card-title>
+          <mat-card-subtitle> progress </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content [style.padding-top]="'16px'">
+          <mat-spinner [diameter]="64" />
+        </mat-card-content>
+      </mat-card>
+    </div>
+
     <form
       *rxIf="auditInit$"
       novalidate
@@ -47,18 +59,6 @@ import { SchedulerService } from '@app-speed/data-access';
         </mat-card-content>
       </mat-card>
     </form>
-
-    <div class="grid-container" *rxIf="true; let progress">
-      <mat-card class="loading-card">
-        <mat-card-header>
-          <mat-card-title> Running Analysis </mat-card-title>
-          <mat-card-subtitle> progress </mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content [style.padding-top]="'16px'">
-          <mat-spinner [diameter]="64" />
-        </mat-card-content>
-      </mat-card>
-    </div>
   `,
   styleUrl: './audit-builder.styles.scss',
   standalone: true,
@@ -121,8 +121,8 @@ export class AuditBuilderContainer {
     this.builder.formGroup.disable();
     this.accordion().closeAll();
     this.router.navigate([], { relativeTo: this.route });
-    this.runner.scheduleAudit(event);
-    // alert(`Submitted Audit: ${JSON.stringify(event, null, 2)}`);
+    this.runner.submitAudit(event);
+    // alert(`Submitted Audit: ${JSON.stringify(event)}`);
   };
 
   updateAuditDetails(auditDetails: object): void {
