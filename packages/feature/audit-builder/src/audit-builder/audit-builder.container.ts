@@ -27,7 +27,7 @@ import { DEFAULT_AUDIT_DETAILS } from '../schema/audit.constants';
 import { AuditDetails } from '../schema/types';
 import { rxEffects } from '@rx-angular/state/effects';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
-import { WebsocketResource } from '@app-speed/data-access';
+import { SchedulerService } from '@app-speed/data-access';
 
 @Component({
   template: `
@@ -86,7 +86,7 @@ export class AuditBuilderContainer {
   private readonly router = inject(Router);
   accordion = viewChild.required(MatAccordion);
 
-  readonly runner = inject(WebsocketResource);
+  readonly runner = inject(SchedulerService);
 
   actions = rxActions<{ submit: AuditDetails }>();
 
@@ -121,8 +121,8 @@ export class AuditBuilderContainer {
     this.builder.formGroup.disable();
     this.accordion().closeAll();
     this.router.navigate([], { relativeTo: this.route });
-    this.runner.runAudit(event);
-    alert(`Submitted Audit: ${JSON.stringify(event, null, 2)}`);
+    this.runner.scheduleAudit(event);
+    // alert(`Submitted Audit: ${JSON.stringify(event, null, 2)}`);
   };
 
   updateAuditDetails(auditDetails: object): void {

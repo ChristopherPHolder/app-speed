@@ -17,9 +17,6 @@ export class Ws<I, O = I> extends RxEffects {
     e: ErrorHandler,
   ) {
     super(e);
-    this._ws.subscribe((value) => {
-      console.log(value);
-    });
   }
 
   init(cfg: string | WebSocketSubjectConfig<I | O>) {
@@ -37,15 +34,12 @@ export class Ws<I, O = I> extends RxEffects {
     }
 
     this.register(this.networkConnection.connectionType$, (connection) => {
-      console.log(connection === NETWORK_INFORMATION_TYPE.WIFI);
-      this.webSocket = webSocket<I | O>(cfg);
-      this._ws.next(this.webSocket);
-      // if (connection === NETWORK_INFORMATION_TYPE.WIFI) {
-      //   this.webSocket = webSocket<I | O>(cfg);
-      //   this._ws.next(this.webSocket);
-      // } else {
-      //   this.webSocket && this.webSocket.complete();
-      // }
+      if (connection === NETWORK_INFORMATION_TYPE.WIFI) {
+        this.webSocket = webSocket<I | O>(cfg);
+        this._ws.next(this.webSocket);
+      } else {
+        this.webSocket && this.webSocket.complete();
+      }
     });
   }
 
