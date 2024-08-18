@@ -22,7 +22,7 @@ export class S3Store implements AuditStore {
     const recordKey = this.getRecordKey();
     await this.uploadRecord(recordKey, auditResults.htmlReport, 'html');
     await this.uploadRecord(recordKey, auditResults.jsonReport, 'json');
-    return `${this.bucketUrl}${recordKey}`;
+    return recordKey;
   }
 
   async uploadRecord(recordKey: string, recordBody: string, type: 'json' | 'html'): Promise<void> {
