@@ -30,19 +30,8 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { SchedulerService } from '@app-speed/data-access';
 
 @Component({
+  selector: 'builder-form',
   template: `
-    <div class="grid-container" *rxIf="runner.processing; let progress">
-      <mat-card class="loading-card">
-        <mat-card-header>
-          <mat-card-title> Running Analysis </mat-card-title>
-          <mat-card-subtitle> progress </mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content [style.padding-top]="'16px'">
-          <mat-spinner [diameter]="64" />
-        </mat-card-content>
-      </mat-card>
-    </div>
-
     <form
       *rxIf="auditInit$"
       novalidate
@@ -86,7 +75,7 @@ export class AuditBuilderContainer {
   private readonly router = inject(Router);
   accordion = viewChild.required(MatAccordion);
 
-  readonly runner = inject(SchedulerService);
+  readonly schedulerService = inject(SchedulerService);
 
   actions = rxActions<{ submit: AuditDetails }>();
 
@@ -121,8 +110,7 @@ export class AuditBuilderContainer {
     this.builder.formGroup.disable();
     this.accordion().closeAll();
     this.router.navigate([], { relativeTo: this.route });
-    this.runner.submitAudit(event);
-    // alert(`Submitted Audit: ${JSON.stringify(event)}`);
+    this.schedulerService.submitAudit(event);
   };
 
   updateAuditDetails(auditDetails: object): void {
