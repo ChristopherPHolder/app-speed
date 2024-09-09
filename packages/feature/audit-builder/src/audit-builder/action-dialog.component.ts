@@ -8,18 +8,19 @@ import { AuditBuilderService } from './audit-builder.service';
   selector: 'builder-step-action-dialog',
   template: `
     <button
-      class="toggle_menu"
+      type="button"
       mat-icon-button
-      [disabled]="builder.formGroup.disabled"
-      [matMenuTriggerFor]="menu"
+      class="toggle_menu"
       aria-label="Toggle menu"
+      [matMenuTriggerFor]="menu"
+      [disabled]="builder.formGroup.disabled"
     >
       <mat-icon>more_vert</mat-icon>
     </button>
     <mat-menu #menu="matMenu" xPosition="before">
-      <button mat-menu-item (click)="builder.removeStep(stepIndex)">Remove Step</button>
-      <button mat-menu-item (click)="builder.addStep(stepIndex)">Add Step Before</button>
-      <button mat-menu-item (click)="builder.addStep(stepIndex + 1)">Add Step After</button>
+      <button type="button" mat-menu-item (click)="builder.removeStep(stepIndex)">Remove Step</button>
+      <button type="button" mat-menu-item (click)="builder.addStep(stepIndex)">Add Step Before</button>
+      <button type="button" mat-menu-item (click)="builder.addStep(stepIndex + 1)">Add Step After</button>
     </mat-menu>
   `,
   standalone: true,

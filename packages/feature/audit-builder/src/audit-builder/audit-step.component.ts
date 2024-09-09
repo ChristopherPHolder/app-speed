@@ -42,6 +42,7 @@ import { MatFabButton } from '@angular/material/button';
           [extended]="true"
           [disabled]="builder.formGroup.disabled"
           color="primary"
+          type="button"
           (click)="builder.addStepProperty(stepIndex, key)"
         >
           Add {{ key }}
