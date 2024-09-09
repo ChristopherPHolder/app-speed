@@ -3,7 +3,16 @@ import { Route } from '@angular/router';
 export const appRoutes: Route[] = [
   {
     path: 'user-flow',
-    loadComponent: () => import('@app-speed/feature/user-flow').then((c) => c.UserFlowComponent),
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('@app-speed/feature/user-flow').then((c) => c.UserFlowComponent),
+      },
+      {
+        path: 'viewer',
+        loadComponent: () => import('@app-speed/feature/viewer'),
+      },
+    ],
   },
   {
     path: 'audit-builder',
