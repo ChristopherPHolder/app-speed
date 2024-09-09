@@ -94,7 +94,7 @@ export class ViewerComponent {
   );
 
   public readonly lookupForm = new FormGroup({
-    key: new FormControl<string>(''),
+    key: new FormControl<string>('2024-08-18T05_160t0WjP64yCyRK0xVadug'),
   });
 
   onSubmit() {

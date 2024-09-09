@@ -18,7 +18,7 @@ export type DiagnosticItem = {
   description: string;
   details?: Details;
   status: StatusOptions;
-  affectedMetrics?: string[]
+  affectedMetrics?: string[];
 };
 
 @Component({
@@ -27,42 +27,41 @@ export type DiagnosticItem = {
     <mat-expansion-panel>
       <mat-expansion-panel-header>
         <mat-panel-title>
-          <ui-status-badge class='status-badge' [status]='item().status' />
+          <ui-status-badge class="status-badge" [status]="item().status" />
           <span>
             {{ item().title }}
             @if (item().displayValue) {
-              <span style='color: red;'>{{ item().displayValue }}</span>
+              <span style="color: red;">{{ item().displayValue }}</span>
             }
           </span>
         </mat-panel-title>
       </mat-expansion-panel-header>
       <p>
-        <span [innerHTML]='item().description | mdToAnker'></span>
+        <span [innerHTML]="item().description | mdToAnker"></span>
         @if (item().affectedMetrics; as metrics) {
           @for (metric of metrics; track metric) {
-            <mat-chip [disableRipple]='true' >{{metric}}</mat-chip>
+            <mat-chip [disableRipple]="true">{{ metric }}</mat-chip>
           }
         }
       </p>
 
       @if (item().details; as details) {
-        <viewer-details [details]='details' />
+        <viewer-details [details]="details" />
       }
     </mat-expansion-panel>
   `,
   styles: `
     .status-badge {
-        margin-right: 8px;
-        overflow: visible;
+      margin-right: 8px;
+      overflow: visible;
     }
     mat-expansion-panel-header {
-        padding: 0 24px 0 16px;
-        @media (max-width: 768px) {
-          --mat-expansion-header-collapsed-state-height: 64px;
-          --mat-expansion-header-expanded-state-height: 80px;
-        }
+      padding: 0 24px 0 16px;
+      @media (max-width: 768px) {
+        --mat-expansion-header-collapsed-state-height: 64px;
+        --mat-expansion-header-expanded-state-height: 80px;
+      }
     }
-    
   `,
   standalone: true,
   imports: [
@@ -75,7 +74,7 @@ export type DiagnosticItem = {
     DetailsComponent,
     MatChip,
   ],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ViewerDiagnosticPanelComponent implements AfterViewInit {
   item = input.required<DiagnosticItem>();

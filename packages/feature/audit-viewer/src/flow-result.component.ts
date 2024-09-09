@@ -21,9 +21,6 @@ export class FlowResultComponent {
   steps = computed<FlowResult['steps']>(() => this.flowResult().steps);
 
   readonly #stepSummaries = computed(() => {
-    const x = this.flowResult().steps.map((value) => {
-      Object.entries(value.lhr.audits).map(([key, value]) => ({ key, value }));
-    });
     return this.flowResult().steps.map((step, index) => {
       return {
         index,

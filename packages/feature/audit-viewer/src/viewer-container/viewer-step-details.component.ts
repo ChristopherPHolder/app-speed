@@ -10,34 +10,32 @@ import { MetricSummary, ViewerStepMetricSummaryComponent } from './viewer-step-m
 import { ViewerFileStripComponent } from './viewer-file-strip.component';
 import { ViewerDiagnosticComponent } from './viewer-diagnostic.component';
 import { DiagnosticItem } from './viewer-diagnostic-panel.component';
-import { metricAudits, metricResults, } from './view-step-details.adaptor';
+import { metricAudits, metricResults } from './view-step-details.adaptor';
 
 @Component({
   selector: 'viewer-step-detail',
   template: `
     <mat-card>
       <mat-card-content>
-        <viewer-step-metric-summary [metricSummary]='categoryMetricSummary()[0]["performance"]' />
+        <viewer-step-metric-summary [metricSummary]="categoryMetricSummary()[0]['performance']" />
       </mat-card-content>
     </mat-card>
-    
+
     <mat-card>
       <mat-card-header>
-        <mat-card-title>
-          Film Strip
-        </mat-card-title>
+        <mat-card-title> Film Strip </mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <viewer-file-strip [filmStrip]='filmStrip()' />
+        <viewer-file-strip [filmStrip]="filmStrip()" />
       </mat-card-content>
     </mat-card>
-    
+
     <mat-card>
       <mat-card-header>
         <mat-card-title>DIAGNOSTICS</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <viewer-diagnostic [items]='diagnosticItems()'/>
+        <viewer-diagnostic [items]="diagnosticItems()" />
       </mat-card-content>
     </mat-card>
   `,
@@ -68,10 +66,10 @@ export class ViewerStepDetailComponent {
   });
 
   private categoryAcronyms = computed(() => {
-    return this.stepDetails().lhr.categories['performance']['auditRefs']
-      .filter(v => v.group === 'metrics')
+    return this.stepDetails()
+      .lhr.categories['performance']['auditRefs'].filter((v) => v.group === 'metrics')
       .map((v) => v.acronym);
-  })
+  });
 
   diagnostics = computed(() => {
     const report = this.stepDetails().lhr;
@@ -85,37 +83,43 @@ export class ViewerStepDetailComponent {
   });
 
   private readonly failedAudits = computed(() => this.diagnostics().failed);
-  private readonly alertItems = computed(() => this.failedAudits().filter((v) => {
-      return v.guidanceLevel === 1 && Object.keys(v.metricSavings || {}).filter((i) => this.categoryAcronyms().includes(i)).length;
-    })
+  private readonly alertItems = computed(() =>
+    this.failedAudits().filter((v) => {
+      return (
+        v.guidanceLevel === 1 &&
+        Object.keys(v.metricSavings || {}).filter((i) => this.categoryAcronyms().includes(i)).length
+      );
+    }),
   );
   warnItems = computed(() => {
     const alertIds = this.alertItems().map((v) => v.id);
     return this.failedAudits().filter((v) => !alertIds.includes(v.id));
   });
   informItems = computed(() => {
-    return this.diagnostics().passed.filter(({metricSavings}) => !!metricSavings && this.affectsMetric(Object.keys(metricSavings || {})))
+    return this.diagnostics().passed.filter(
+      ({ metricSavings }) => !!metricSavings && this.affectsMetric(Object.keys(metricSavings || {})),
+    );
   });
 
   private diagnosticItemsMapper = (status: StatusOptions) => (results: AuditResult) => {
     const { id, title, displayValue, description, details, metricSavings } = results;
     return { id, status, title, displayValue, description, details, affectedMetrics: Object.keys(metricSavings || {}) };
-  }
+  };
 
   diagnosticItems = computed<DiagnosticItem[]>(() => {
     return [
       this.alertItems().map(this.diagnosticItemsMapper(STATUS.ALERT)),
       this.warnItems().map(this.diagnosticItemsMapper(STATUS.WARN)),
       this.informItems().map(this.diagnosticItemsMapper(STATUS.INFO)),
-    ].flat()
-  })
+    ].flat();
+  });
 
   private affectsMetric(metricSavings: string[]): boolean {
     return !!metricSavings.filter((i) => this.categoryAcronyms().includes(i)).length;
   }
   private categoriesMetricSummary(categories: FlowResult.Step['lhr']['categories']): Record<string, MetricSummary[]>[] {
     return Object.entries(categories).map(([key, value]) => ({
-        [key]: metricResults(metricAudits(value.auditRefs), this.stepDetails().lhr.audits)
+      [key]: metricResults(metricAudits(value.auditRefs), this.stepDetails().lhr.audits),
     }));
   }
 }

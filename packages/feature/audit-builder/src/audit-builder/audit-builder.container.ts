@@ -110,8 +110,7 @@ export class AuditBuilderContainer {
     this.builder.formGroup.disable();
     this.accordion().closeAll();
     this.router.navigate([], { relativeTo: this.route });
-    // this.schedulerService.submitAudit(event);
-    alert('WOLOLO' + event);
+    this.schedulerService.submitAudit(event);
   };
 
   updateAuditDetails(auditDetails: object): void {

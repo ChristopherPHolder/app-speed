@@ -16,47 +16,12 @@ import { JsonPipe } from '@angular/common';
 @Component({
   selector: 'viewer-container',
   template: `
-    <!--    <form *rxIf="!auditId()" [formGroup]="lookupForm" (ngSubmit)="updateUrl()">-->
-    <!--      <mat-card>-->
-    <!--        <mat-card-content class="row">-->
-    <!--          <mat-form-field class="full-width">-->
-    <!--            <mat-label>Audit ID</mat-label>-->
-    <!--            <input matInput placeholder="Audit ID" [formControl]="lookupForm.controls.key" />-->
-    <!--            <mat-error *rxIf="true">Title <strong>required</strong></mat-error>-->
-    <!--          </mat-form-field>-->
-    <!--          <button class="submit-btn" mat-fab [extended]="true" color="primary" type="submit">Load Audit</button>-->
-    <!--        </mat-card-content>-->
-    <!--      </mat-card>-->
-    <!--    </form>-->
-
     <div *rxIf="results; let r">
       <viewer-audit-summary *rxIf="auditSummary; let summary" [auditSummary]="summary" />
       @for (step of steps(); track step.name) {
         <viewer-step-detail [stepDetails]="step" />
       }
     </div>
-  `,
-  styles: `
-    :host {
-      display: block;
-      max-width: 960px;
-      margin: auto;
-      --mdc-elevated-card-container-shape: 0;
-    }
-    /*.full-width {*/
-    /*  width: 100%;*/
-    /*}*/
-    /*.row {*/
-    /*  display: flex;*/
-    /*  flex-direction: row;*/
-    /*}*/
-    /*.submit-btn {*/
-    /*  margin-left: 8px;*/
-
-    /*  @media only screen and (width >= 600px) {*/
-    /*    margin-left: 16px;*/
-    /*  }*/
-    /*}*/
   `,
   standalone: true,
   imports: [
@@ -87,18 +52,6 @@ export class AuditViewerContainer {
     switchMap((auditKey) => this.#api.get<FlowResult>(auditKey)),
   );
 
-  // router = inject(Router);
-  // public lookupForm = new FormGroup({
-  //   key: new FormControl(''),
-  // });
-  //
-  // updateUrl() {
-  //   this.router.navigate([], {
-  //     queryParams: {
-  //       auditId: this.lookupForm.controls.key.value,
-  //     },
-  //   });
-  // }
   readonly response = toSignal(this.results);
   steps = computed<FlowResult['steps'] | undefined>(() => {
     const results = this.response();

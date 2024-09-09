@@ -17,8 +17,8 @@ import { AuditViewerContainer } from '@app-speed/feature/audit-viewer';
     <div class="grid-container" *rxIf="scheduler.processing">
       <mat-card class="loading-card">
         <mat-card-header>
-          <mat-card-title> Running Analysis</mat-card-title>
-          <mat-card-subtitle> progress</mat-card-subtitle>
+          <mat-card-title> Running Analysis </mat-card-title>
+          <mat-card-subtitle> progress </mat-card-subtitle>
         </mat-card-header>
         <mat-card-content [style.padding-top]="'16px'">
           <mat-spinner [diameter]="64" />
@@ -34,6 +34,12 @@ import { AuditViewerContainer } from '@app-speed/feature/audit-viewer';
     .loading-card {
       align-items: center;
       text-align: center;
+    }
+
+    :host {
+      display: block;
+      max-width: 960px;
+      margin: auto;
     }
   `,
   imports: [
