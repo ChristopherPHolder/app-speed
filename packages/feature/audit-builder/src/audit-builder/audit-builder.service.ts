@@ -37,10 +37,13 @@ export class AuditBuilderService {
   auditInit$(initialAuditDetails$: Observable<AuditDetails>): Observable<boolean> {
     return initialAuditDetails$.pipe(
       tap((details) => {
-        this.formGroup.controls.title.setValue(details.title);
-        this.formGroup.controls.device.setValue(details.device);
-        this.formGroup.controls.timeout.setValue(details.timeout);
-        details.steps.forEach((step, index) => this.initStep(step, index));
+        if (this.formGroup.untouched) {
+          this.formGroup.controls.title.setValue(details.title);
+          this.formGroup.controls.device.setValue(details.device);
+          this.formGroup.controls.timeout.setValue(details.timeout);
+          details.steps.forEach((step, index) => this.initStep(step, index));
+          this.formGroup.markAsTouched();
+        }
       }),
       map(() => true),
       first(),

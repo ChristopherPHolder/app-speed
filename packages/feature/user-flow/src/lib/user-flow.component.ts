@@ -5,6 +5,8 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { RxIf } from '@rx-angular/template/if';
 import { SchedulerService } from '@app-speed/data-access';
 import { AuditViewerContainer } from '@app-speed/feature/audit-viewer';
+import { StageIndicatorComponent } from './stage-indicator.component';
+import { ReplaySubject } from 'rxjs';
 
 @Component({
   selector: 'lib-user-flow',
@@ -13,6 +15,10 @@ import { AuditViewerContainer } from '@app-speed/feature/audit-viewer';
     <builder-form />
 
     <viewer-container *rxIf="scheduler.key$; let key" [auditId]="key" />
+
+    @defer {
+      <stage-indicator-component />
+    }
 
     <div class="grid-container" *rxIf="scheduler.processing">
       <mat-card class="loading-card">
@@ -27,15 +33,6 @@ import { AuditViewerContainer } from '@app-speed/feature/audit-viewer';
     </div>
   `,
   styles: `
-    .grid-container {
-      margin: 20px;
-    }
-
-    .loading-card {
-      align-items: center;
-      text-align: center;
-    }
-
     :host {
       display: block;
       max-width: 960px;
@@ -52,6 +49,7 @@ import { AuditViewerContainer } from '@app-speed/feature/audit-viewer';
     MatProgressSpinner,
     RxIf,
     AuditViewerContainer,
+    StageIndicatorComponent,
   ],
 })
 export class UserFlowComponent {

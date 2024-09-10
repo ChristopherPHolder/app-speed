@@ -97,12 +97,23 @@ export class AuditBuilderContainer {
 
   public readonly initialAuditDetails$: Observable<AuditDetails> = this.route.queryParams.pipe(
     map((params) => params['auditDetails']),
-    tap((auditDetails) => auditDetails || this.updateAuditDetails(DEFAULT_AUDIT_DETAILS)),
+    tap((auditDetails) => this.initializeQueryParams(auditDetails)),
     filter((auditDetail) => !!auditDetail),
     map((auditDetail) => JSON.parse(auditDetail)),
     first(),
     takeUntilDestroyed(),
   );
+
+  private initializeQueryParams(auditDetails: any): void {
+    if (auditDetails) {
+      return;
+    }
+    console.log('untouched', this.builder.formGroup.untouched);
+    if (this.builder.formGroup.untouched) {
+      return this.updateAuditDetails(DEFAULT_AUDIT_DETAILS);
+    }
+    this.updateAuditDetails(this.builder.formGroup.getRawValue());
+  }
   builder = inject(AuditBuilderService);
   public readonly auditInit$ = this.builder.auditInit$(this.initialAuditDetails$);
 
