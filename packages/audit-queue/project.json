@@ -1,5 +1,5 @@
 {
-  "name": "@app-speed/audit-queue",
+  "name": "audit-queue",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/audit-queue/src",
   "projectType": "library",
@@ -25,11 +25,16 @@
       "outputs": ["{options.outputFile}"]
     },
     "test": {
-      "executor": "@nx/vite:test",
-      "outputs": ["{workspaceRoot}/coverage/packages/audit-queue"],
+      "inputs": [
+        "default",
+        "^default",
+        {
+          "externalDependencies": ["vitest"]
+        }
+      ],
       "options": {
         "passWithNoTests": true,
-        "reportsDirectory": "../../coverage/packages/audit-queue"
+        "coverage.reportsDirectory": "../../coverage/packages/audit-queue"
       }
     }
   }

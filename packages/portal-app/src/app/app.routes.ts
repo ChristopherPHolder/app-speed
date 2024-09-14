@@ -2,13 +2,18 @@ import { Route } from '@angular/router';
 
 export const appRoutes: Route[] = [
   {
-    path: 'audit-builder',
-    loadComponent: () => import('@app-speed/feature/audit-builder').then(c => c.AuditBuilderContainer),
+    path: 'user-flow',
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('@app-speed/feature/user-flow'),
+      },
+      {
+        path: 'viewer',
+        loadComponent: () => import('@app-speed/feature/viewer'),
+      },
+    ],
   },
-  {
-    path: 'results-viewer',
-    loadComponent: () => import('@app-speed/feature/audit-viewer').then(c => c.AuditViewerContainer),
-  },
-  { path: '',   redirectTo: 'audit-builder', pathMatch: 'full' },
-  { path: '**',   redirectTo: 'results-viewer' },
+  { path: '', redirectTo: 'user-flow', pathMatch: 'full' },
+  { path: '**', redirectTo: 'results-viewer' },
 ];

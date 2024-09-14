@@ -1,5 +1,5 @@
 {
-  "name": "@app-speed/cli-interfaces",
+  "name": "cli-interfaces",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "/src",
   "projectType": "library",

@@ -20,17 +20,17 @@ import { TableComponent } from './table.component';
       }
       @case ('list') {
         @for (item of listDetails().items; track $index) {
-          <viewer-details [details]='item' />
+          <viewer-details [details]="item" />
         }
       }
       @case ('opportunity') {
-        TODO opportunity
+        <viewer-table [tableDetails]="tableDetails()" />
       }
       @case ('screenshot') {
         TODO screenshot
       }
       @case ('table') {
-        <viewer-table [tableDetails]='tableDetails()' />
+        <viewer-table [tableDetails]="tableDetails()" />
       }
     }
   `,

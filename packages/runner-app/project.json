@@ -57,8 +57,13 @@
       "outputs": ["{options.outputFile}"]
     },
     "test": {
-      "executor": "@nx/vite:test",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "inputs": [
+        "default",
+        "^default",
+        {
+          "externalDependencies": ["vitest"]
+        }
+      ],
       "options": {
         "passWithNoTests": true
       },

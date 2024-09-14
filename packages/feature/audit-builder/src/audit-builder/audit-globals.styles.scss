@@ -2,15 +2,11 @@
   display: flex;
   flex-direction: row;
 }
-.cta {
-  @media only screen and (max-width: 600px) {
-    padding-right: 0;
-  }
-  height: fit-content;
-}
 
-.cta__submit {
-  @media only screen and (min-width: 600px) {
+.submit-btn {
+  margin-left: 8px;
+
+  @media only screen and (width >= 600px) {
     margin-left: 16px;
   }
 }
@@ -25,9 +21,5 @@
 }
 
 .col:last-child {
-  margin-right: 0;
-}
-
-.end__col {
   margin-right: 0;
 }

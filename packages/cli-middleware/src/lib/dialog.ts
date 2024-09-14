@@ -1,28 +1,44 @@
-import {ApiGatewayManagementApiClient, PostToConnectionCommand} from '@aws-sdk/client-apigatewaymanagementapi';
-import type {UfWsActions} from '@app-speed/shared';
-import { Reports } from '@app-speed/shared';
+import { ApiGatewayManagementApiClient, PostToConnectionCommand } from '@aws-sdk/client-apigatewaymanagementapi';
 
-export async function sendAuditResults(connectionId: string, endpoint: string, resultsUrl: string,): Promise<void> {
-  const reports: Reports = {
-    htmlReportUrl: resultsUrl
+export async function sendAuditResults(connectionId: string, endpoint: string, resultsKey: string): Promise<void> {
+  const responseData = {
+    type: 'stage-change',
+    stage: 'done',
+    key: resultsKey,
   };
 
-  const responseData: UfWsActions = {
-    type: 'done',
-    payload: reports
+  await sendMessageToRequestor(responseData, connectionId, endpoint);
+}
+
+export async function informAuditItRunning(connectionId: string, endpoint: string) {
+  const responseData = {
+    type: 'stage-change',
+    stage: 'running',
   };
 
-  const client: ApiGatewayManagementApiClient = new ApiGatewayManagementApiClient({
+  await sendMessageToRequestor(responseData, connectionId, endpoint);
+}
+
+export async function informAuditError(connectionId: string, endpoint: string) {
+  const responseData = {
+    type: 'stage-change',
+    stage: 'failed',
+  };
+
+  await sendMessageToRequestor(responseData, connectionId, endpoint);
+}
+
+async function sendMessageToRequestor(message: object, connectionId: string, endpoint: string) {
+  const client = new ApiGatewayManagementApiClient({
     region: 'us-east-1',
-    endpoint: endpoint
+    endpoint: endpoint,
   });
-
 
   const command: PostToConnectionCommand = new PostToConnectionCommand({
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    Data: JSON.stringify(responseData),
-    ConnectionId: connectionId
+    Data: JSON.stringify(message),
+    ConnectionId: connectionId,
   });
 
   await client.send(command);

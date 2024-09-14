@@ -27,7 +27,7 @@ import { RouterLink } from '@angular/router';
 })
 export class ShellComponent {
   readonly sideNavItems = [
-    { name: 'Audit Builder', route: 'audit-builder' },
-    { name: 'Audit Viewer', route: 'audit-viewer' },
+    { name: 'Audit Builder', route: 'user-flow' },
+    { name: 'Audit Viewer', route: 'user-flow/viewer' },
   ];
 }

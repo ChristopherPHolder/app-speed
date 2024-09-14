@@ -16,7 +16,7 @@
         "polyfills": ["zone.js"],
         "tsConfig": "packages/portal-app/tsconfig.app.json",
         "assets": ["{projectRoot}/src/favicon.ico", "{projectRoot}/src/assets"],
-        "styles": ["@angular/material/prebuilt-themes/indigo-pink.css", "{projectRoot}/src/styles.scss"]
+        "styles": ["{projectRoot}/src/styles.scss"]
       },
       "configurations": {
         "production": {
@@ -46,7 +46,7 @@
       "defaultConfiguration": "production"
     },
     "serve": {
-      "executor": "@angular-devkit/build-angular:dev-server",
+      "executor": "@nx/angular:dev-server",
       "configurations": {
         "production": {
           "buildTarget": "portal-app:build:production"

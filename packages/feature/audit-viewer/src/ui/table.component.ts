@@ -21,13 +21,13 @@ import { KibibytesPipe } from '../utils/kibibytes.pipe';
   selector: 'viewer-table',
   template: `
     <ui-scroll-container>
-      <table mat-table [dataSource]='dataSource()'>
-        <tr mat-header-row *matHeaderRowDef='displayedColumns()'></tr>
-        <tr mat-row *matRowDef='let row; columns: displayedColumns();'></tr>
+      <table mat-table [dataSource]="dataSource()">
+        <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns()"></tr>
 
-        <ng-container *ngFor='let heading of headings()' [matColumnDef]='$any(heading.key)'>
+        <ng-container *ngFor="let heading of headings()" [matColumnDef]="$any(heading.key)">
           <th mat-header-cell *matHeaderCellDef>{{ heading.label }}</th>
-          <td mat-cell *matCellDef='let item'>
+          <td mat-cell *matCellDef="let item">
             @switch (heading.valueType) {
               @case ('ms') {
                 {{ item[$any(heading.key)] | round }}
@@ -36,7 +36,7 @@ import { KibibytesPipe } from '../utils/kibibytes.pipe';
                 {{ item[$any(heading.key)] | kibibytes }}
               }
               @case ('node') {
-                -> TODO type node || {{ item.node.nodeLabel }} {{ item.node.snippet }}
+                -> TODO
               }
               @default {
                 {{ item[$any(heading.key)] }}
@@ -49,15 +49,16 @@ import { KibibytesPipe } from '../utils/kibibytes.pipe';
   `,
   styles: `
     table {
-        border: 1px solid var(--mat-table-row-item-outline-color);
-        tr {
-            td:not(:first-child), th:not(:first-child) {
-                text-align: end;
-            }
+      border: 1px solid var(--mat-table-row-item-outline-color);
+      tr {
+        td:not(:first-child),
+        th:not(:first-child) {
+          text-align: end;
         }
-        tr:nth-child(odd) {
-            background-color: #eee;
-        }
+      }
+      tr:nth-child(odd) {
+        background-color: #eee;
+      }
     }
   `,
   standalone: true,
@@ -82,7 +83,7 @@ import { KibibytesPipe } from '../utils/kibibytes.pipe';
 })
 export class TableComponent {
   tableDetails = input.required<Details.Table>();
-  readonly headings = computed(() => this.tableDetails().headings.filter(({key}) => key !== null));
+  readonly headings = computed(() => this.tableDetails().headings.filter(({ key }) => key !== null));
   readonly dataSource = computed(() => this.tableDetails().items);
-  readonly displayedColumns = computed(() => this.headings().map(({key}) => key));
+  readonly displayedColumns = computed(() => this.headings().map(({ key }) => key));
 }

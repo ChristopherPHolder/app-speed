@@ -1,5 +1,5 @@
 {
-  "name": "@app-speed/user-flow-replay",
+  "name": "user-flow-replay",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/user-flow-replay/src",
   "projectType": "library",
@@ -21,11 +21,16 @@
       "outputs": ["{options.outputFile}"]
     },
     "test": {
-      "executor": "@nx/vite:test",
-      "outputs": ["{workspaceRoot}/coverage/packages/user-flow-replay"],
+      "inputs": [
+        "default",
+        "^default",
+        {
+          "externalDependencies": ["vitest"]
+        }
+      ],
       "options": {
         "passWithNoTests": true,
-        "reportsDirectory": "../../coverage/packages/user-flow-replay"
+        "coverage.reportsDirectory": "../../coverage/packages/user-flow-replay"
       }
     }
   }
