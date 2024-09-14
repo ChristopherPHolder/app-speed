@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { webSocket } from 'rxjs/webSocket';
-import { filter, map } from 'rxjs';
+import { BehaviorSubject, filter, map, merge, tap } from 'rxjs';
 
 // TODO should consume the type from the service!
 type StageChangeResponse = {
@@ -20,11 +20,30 @@ function isStageChangeResponse(message: unknown): message is StageChangeResponse
   );
 }
 
+const STAGE = {
+  BUILDING: 'building',
+  PROCESSING: 'processing',
+  SCHEDULING: 'scheduling',
+  SCHEDULED: 'scheduled',
+  RUNNING: 'running',
+  DONE: 'done',
+} as const satisfies Record<string, string>;
+
+const NO_DISPLAY_STAGES = [STAGE.BUILDING, STAGE.DONE] as string[];
+
+export type Stage = (typeof STAGE)[keyof typeof STAGE];
+
 @Injectable({ providedIn: 'root' })
 export class SchedulerService {
   webSocket = webSocket('wss://3b6gqoq7s8.execute-api.us-east-1.amazonaws.com/prod/');
 
+  readonly #processStage$ = new BehaviorSubject<Stage>(STAGE.BUILDING);
+
   stage = this.webSocket.pipe(filter(isStageChangeResponse));
+  readonly stageName$ = merge(this.#processStage$, this.stage.pipe(map((stage) => stage.stage)));
+
+  readonly shouldDisplayIndicator$ = this.stageName$.pipe(map((stage) => !NO_DISPLAY_STAGES.includes(stage)));
+
   processing = this.stage.pipe(
     map(({ stage, message }) => {
       if (stage === 'complete') return false;
@@ -39,6 +58,7 @@ export class SchedulerService {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
     map((event) => event.key as string),
+    tap(() => this.#processStage$.next('done')),
   );
 
   constructor() {
@@ -48,6 +68,7 @@ export class SchedulerService {
   }
 
   submitAudit(auditDetails: any) {
+    this.#processStage$.next(STAGE.SCHEDULING);
     this.webSocket.next({
       action: 'schedule-audit',
       audit: JSON.stringify(auditDetails),

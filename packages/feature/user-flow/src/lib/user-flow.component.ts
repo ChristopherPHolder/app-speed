@@ -6,6 +6,7 @@ import { RxIf } from '@rx-angular/template/if';
 import { SchedulerService } from '@app-speed/data-access';
 import { AuditViewerContainer } from '@app-speed/feature/audit-viewer';
 import { StageIndicatorComponent } from './stage-indicator.component';
+import { RxPush } from '@rx-angular/template/push';
 
 @Component({
   selector: 'lib-user-flow',
@@ -16,20 +17,8 @@ import { StageIndicatorComponent } from './stage-indicator.component';
     <viewer-container *rxIf="scheduler.key$; let key" [auditId]="key" />
 
     @defer {
-      <stage-indicator-component />
+      <stage-indicator-component *rxIf="scheduler.shouldDisplayIndicator$" [stageName]="scheduler.stageName$ | push" />
     }
-
-    <div class="grid-container" *rxIf="scheduler.processing">
-      <mat-card class="loading-card">
-        <mat-card-header>
-          <mat-card-title> Running Analysis </mat-card-title>
-          <mat-card-subtitle> progress </mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content [style.padding-top]="'16px'">
-          <mat-spinner [diameter]="64" />
-        </mat-card-content>
-      </mat-card>
-    </div>
   `,
   styles: `
     :host {
@@ -49,6 +38,7 @@ import { StageIndicatorComponent } from './stage-indicator.component';
     RxIf,
     AuditViewerContainer,
     StageIndicatorComponent,
+    RxPush,
   ],
 })
 export class UserFlowComponent {

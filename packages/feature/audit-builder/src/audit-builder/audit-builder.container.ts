@@ -108,7 +108,6 @@ export class AuditBuilderContainer {
     if (auditDetails) {
       return;
     }
-    console.log('untouched', this.builder.formGroup.untouched);
     if (this.builder.formGroup.untouched) {
       return this.updateAuditDetails(DEFAULT_AUDIT_DETAILS);
     }
