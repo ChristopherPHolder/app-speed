@@ -44,21 +44,9 @@ export class SchedulerService {
 
   readonly shouldDisplayIndicator$ = this.stageName$.pipe(map((stage) => !NO_DISPLAY_STAGES.includes(stage)));
 
-  processing = this.stage.pipe(
-    map(({ stage, message }) => {
-      if (stage === 'complete') return false;
-      return { stage, message };
-    }),
-  );
-
-  public readonly key$ = this.webSocket.pipe(
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    filter((event) => event.type === 'done'),
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    map((event) => event.key as string),
-    tap(() => this.#processStage$.next('done')),
+  readonly key$ = this.stage.pipe(
+    filter((event) => event.stage === 'done' && !!event.key),
+    map((event) => event.key!),
   );
 
   constructor() {

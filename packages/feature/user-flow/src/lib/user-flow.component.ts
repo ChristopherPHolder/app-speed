@@ -14,7 +14,9 @@ import { RxPush } from '@rx-angular/template/push';
   template: `
     <builder-form />
 
-    <viewer-container *rxIf="scheduler.key$; let key" [auditId]="key" />
+    @defer {
+      <viewer-container *rxIf="scheduler.key$; let key" [auditId]="key" />
+    }
 
     @defer {
       <stage-indicator-component *rxIf="scheduler.shouldDisplayIndicator$" [stageName]="scheduler.stageName$ | push" />
