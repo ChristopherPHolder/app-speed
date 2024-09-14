@@ -16,9 +16,7 @@ import { StageIndicatorComponent } from './stage-indicator.component';
 
     @defer {
       <viewer-container *rxIf="scheduler.key$; let key" [auditId]="key" />
-    }
 
-    @defer {
       <stage-indicator-component *rxIf="scheduler.shouldDisplayIndicator$" [stageName]="scheduler.stageName$ | push" />
     }
   `,
