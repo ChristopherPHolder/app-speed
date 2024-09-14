@@ -1,9 +1,9 @@
 /* eslint-disable */
 export default {
   displayName: 'audit-manager',
-  preset: '../../jest.preset.js',
+  preset: '../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-  coverageDirectory: '../../coverage/apps/audit-manager',
+  coverageDirectory: '../../../coverage/apps/audit-manager',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',
