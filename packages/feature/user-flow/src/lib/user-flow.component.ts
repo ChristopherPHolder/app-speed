@@ -3,10 +3,10 @@ import { AuditBuilderContainer } from '@app-speed/feature/audit-builder';
 import { MatCard, MatCardContent, MatCardHeader, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { RxIf } from '@rx-angular/template/if';
+import { RxPush } from '@rx-angular/template/push';
 import { SchedulerService } from '@app-speed/data-access';
 import { AuditViewerContainer } from '@app-speed/feature/audit-viewer';
 import { StageIndicatorComponent } from './stage-indicator.component';
-import { RxPush } from '@rx-angular/template/push';
 
 @Component({
   selector: 'lib-user-flow',
