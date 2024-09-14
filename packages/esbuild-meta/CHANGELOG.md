@@ -1,3 +1,17 @@
+## 1.4.15 (2024-09-14)
+
+
+### 🩹 Fixes
+
+- **workspace:** migrate nx vitest inferred ([16e996b](https://github.com/ChristopherPHolder/app-speed/commit/16e996b))
+
+- **workspace:** migrate nx vitest inferred ([fe3e582](https://github.com/ChristopherPHolder/app-speed/commit/fe3e582))
+
+
+### ❤️  Thank You
+
+- ChristopherPHolder
+
 ## 1.4.14 (2024-07-04)
 
 
