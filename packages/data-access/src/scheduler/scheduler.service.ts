@@ -27,6 +27,7 @@ const STAGE = {
   SCHEDULED: 'scheduled',
   RUNNING: 'running',
   DONE: 'done',
+  FAILED: 'failed',
 } as const satisfies Record<string, string>;
 
 const NO_DISPLAY_STAGES = [STAGE.BUILDING, STAGE.DONE] as string[];

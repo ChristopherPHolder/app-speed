@@ -34,7 +34,7 @@ import { RxIf } from '@rx-angular/template/if';
           <mat-spinner [diameter]="64" />
         </mat-card-content>
         <mat-card-footer>
-          <p><small>If this loader is confusing please consider opening a ticket with suggestions!</small></p>
+          <p><small>If this loader is confusing please opening a ticket with suggestions!</small></p>
         </mat-card-footer>
       </mat-card>
     </div>
@@ -62,6 +62,12 @@ export class StageIndicatorComponent {
     }
     if (stage === 'running') {
       return { title: 'Running Audit', subtitle: 'Currently running audit, results will be available soon' };
+    }
+    if (stage === 'failed') {
+      return {
+        title: 'Audit Failed',
+        subtitle: 'Audit Failed on server sorry still have not added proper error handling here!',
+      };
     }
     // Default message
     return { title: 'Running Analysis', subtitle: 'progress' };

@@ -1,7 +1,7 @@
 import { AuditExecutor, AuditQueue, AuditStore } from '@app-speed/cli-interfaces';
 import { UserFlowAudit } from '@app-speed/user-flow-replay';
 import { AuditRunParams } from '@app-speed/shared';
-import { sendAuditResults } from '../dialog';
+import { informAuditError, informAuditItRunning, sendAuditResults } from '../dialog';
 
 export class UserFlowExecutor implements AuditExecutor {
   constructor(
@@ -16,7 +16,8 @@ export class UserFlowExecutor implements AuditExecutor {
       console.log('Executing Runner on', queueItem);
       const { requesterId, endpoint, targetUrl } = queueItem;
 
-      // @TODO We need to inform the requester that it audit is now running
+      await informAuditItRunning(requesterId, endpoint);
+
       try {
         const userFlowAudit = new UserFlowAudit(JSON.parse(targetUrl));
         const results = await userFlowAudit.results();
@@ -27,6 +28,7 @@ export class UserFlowExecutor implements AuditExecutor {
       } catch (error) {
         console.error(error);
         // @TODO we need to inform the requester the audit failed and why!
+        await informAuditError(requesterId, endpoint);
       }
 
       queueItem = await this.queue.nextItem();
