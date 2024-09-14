@@ -32,6 +32,15 @@ export class SchedulerService {
     }),
   );
 
+  public readonly key$ = this.webSocket.pipe(
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    filter((event) => event.type === 'done'),
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    map((event) => event.key as string),
+  );
+
   constructor() {
     this.webSocket.subscribe((event) => {
       console.log('webSocket event', event);

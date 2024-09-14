@@ -6,7 +6,6 @@ import { RxIf } from '@rx-angular/template/if';
 import { SchedulerService } from '@app-speed/data-access';
 import { AuditViewerContainer } from '@app-speed/feature/audit-viewer';
 import { StageIndicatorComponent } from './stage-indicator.component';
-import { ReplaySubject } from 'rxjs';
 
 @Component({
   selector: 'lib-user-flow',
