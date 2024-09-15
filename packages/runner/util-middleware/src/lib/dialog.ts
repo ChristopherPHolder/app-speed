@@ -1,9 +1,10 @@
 import { ApiGatewayManagementApiClient, PostToConnectionCommand } from '@aws-sdk/client-apigatewaymanagementapi';
+import { StageChangeMessage, CONDUCTOR_STAGE } from '@app-speed/shared/websocket-message-util-lib';
 
 export async function sendAuditResults(connectionId: string, endpoint: string, resultsKey: string): Promise<void> {
-  const responseData = {
+  const responseData: StageChangeMessage = {
     type: 'stage-change',
-    stage: 'done',
+    stage: CONDUCTOR_STAGE.DONE,
     key: resultsKey,
   };
 
@@ -11,24 +12,24 @@ export async function sendAuditResults(connectionId: string, endpoint: string, r
 }
 
 export async function informAuditItRunning(connectionId: string, endpoint: string) {
-  const responseData = {
+  const responseData: StageChangeMessage = {
     type: 'stage-change',
-    stage: 'running',
+    stage: CONDUCTOR_STAGE.RUNNING,
   };
 
   await sendMessageToRequestor(responseData, connectionId, endpoint);
 }
 
 export async function informAuditError(connectionId: string, endpoint: string) {
-  const responseData = {
+  const responseData: StageChangeMessage = {
     type: 'stage-change',
-    stage: 'failed',
+    stage: CONDUCTOR_STAGE.FAILED,
   };
 
   await sendMessageToRequestor(responseData, connectionId, endpoint);
 }
 
-async function sendMessageToRequestor(message: object, connectionId: string, endpoint: string) {
+async function sendMessageToRequestor(message: StageChangeMessage, connectionId: string, endpoint: string) {
   const client = new ApiGatewayManagementApiClient({
     region: 'us-east-1',
     endpoint: endpoint,

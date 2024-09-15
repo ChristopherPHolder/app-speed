@@ -14,6 +14,7 @@ import {
   waitUntilInstanceRunning,
 } from '@aws-sdk/client-ec2';
 import { SendCommandCommand, SendCommandCommandOutput, SSMClient } from '@aws-sdk/client-ssm';
+import { CONDUCTOR_STAGE, StageChangeMessage } from '@app-speed/shared/websocket-message-util-lib';
 
 const INSTANCE_IDS = ['i-0781d8307e3c9e9f7'];
 const REGION = { region: 'us-east-1' };
@@ -23,12 +24,6 @@ const GROUP_ID = 'scheduled-audit';
 
 type AuditRequest = {
   audit: any;
-};
-
-type StageChangeResponse = {
-  type: 'stage-change';
-  stage: string;
-  message?: string;
 };
 
 async function activateUserFlowConductor(): Promise<SendCommandCommandOutput> {
@@ -99,10 +94,9 @@ export const handler: Handler<APIGatewayProxyEvent, APIGatewayProxyResult> = asy
 
     await makeInstanceActive(); // TODO Should be a separate function invoked by adding an item to the QUEUE
 
-    const responseBody: StageChangeResponse = {
+    const responseBody: StageChangeMessage = {
       type: 'stage-change',
-      stage: 'scheduled',
-      message: 'Audit has been Scheduled',
+      stage: CONDUCTOR_STAGE.SCHEDULED,
     };
 
     return formatedResponse(RESPONSE_SUCCESSFUL.OK, JSON.stringify(responseBody), domainName);

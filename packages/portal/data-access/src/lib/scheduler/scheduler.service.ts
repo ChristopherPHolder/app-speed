@@ -1,36 +1,20 @@
 import { Injectable } from '@angular/core';
 import { webSocket } from 'rxjs/webSocket';
-import { BehaviorSubject, filter, map, merge, tap } from 'rxjs';
-
-// TODO should consume the type from the service!
-type StageChangeResponse = {
-  type: 'stage-change';
-  stage: string;
-  message?: string;
-  key?: string;
-};
-
-function isStageChangeResponse(message: unknown): message is StageChangeResponse {
-  return (
-    typeof message === 'object' &&
-    message !== null &&
-    'type' in message &&
-    'stage' in message &&
-    message.type === 'stage-change'
-  );
-}
+import { BehaviorSubject, filter, map, merge } from 'rxjs';
+import {
+  CONDUCTOR_STAGE,
+  isDoneStageChangeMessage,
+  isStageChangeMessage,
+} from '@app-speed/shared/websocket-message-util-lib';
 
 const STAGE = {
   BUILDING: 'building',
   PROCESSING: 'processing',
   SCHEDULING: 'scheduling',
-  SCHEDULED: 'scheduled',
-  RUNNING: 'running',
-  DONE: 'done',
-  FAILED: 'failed',
+  ...CONDUCTOR_STAGE,
 } as const satisfies Record<string, string>;
 
-const NO_DISPLAY_STAGES = [STAGE.BUILDING, STAGE.DONE] as string[];
+const NO_DISPLAY_STAGES = [STAGE.BUILDING, CONDUCTOR_STAGE.DONE] as string[];
 
 export type Stage = (typeof STAGE)[keyof typeof STAGE];
 
@@ -40,14 +24,14 @@ export class SchedulerService {
 
   readonly #processStage$ = new BehaviorSubject<Stage>(STAGE.BUILDING);
 
-  stage = this.webSocket.pipe(filter(isStageChangeResponse));
+  stage = this.webSocket.pipe(filter(isStageChangeMessage));
   readonly stageName$ = merge(this.#processStage$, this.stage.pipe(map((stage) => stage.stage)));
 
   readonly shouldDisplayIndicator$ = this.stageName$.pipe(map((stage) => !NO_DISPLAY_STAGES.includes(stage)));
 
   readonly key$ = this.stage.pipe(
-    filter((event) => event.stage === 'done' && !!event.key),
-    map((event) => event.key!),
+    filter(isDoneStageChangeMessage),
+    map((event) => event.key),
   );
 
   constructor() {
