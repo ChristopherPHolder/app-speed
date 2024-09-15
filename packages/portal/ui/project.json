@@ -56,7 +56,7 @@
         "outputDir": "dist/storybook/ui",
         "tsConfig": "{workspaceRoot}/{projectRoot}/tsconfig.storybook.json",
         "configDir": "{workspaceRoot}/{projectRoot}/.storybook",
-        "browserTarget": "ui-lib:build-storybook",
+        "browserTarget": "portal-ui-lib:build-storybook",
         "compodoc": false
       },
       "configurations": {
