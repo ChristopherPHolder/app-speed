@@ -1,4 +1,4 @@
-import { AuditStore, ResultReports } from '@runner/interface';
+import { AuditStore, ResultReports } from '@app-speed/runner-interface';
 
 export type LocalStoreConfig = {
   storePath: string;

@@ -1,8 +1,8 @@
-import { AuditStore } from '@runner/interface';
+import { AuditStore } from '@app-speed/runner-interface';
 
 const storeMap = {
-  local: import('@runner/store/local'),
-  s3: import('@runner/store/s3'),
+  local: import('@app-speed/runner-store/local'),
+  s3: import('@app-speed/runner-store/s3'),
 } as const;
 
 type StoreKeys = keyof typeof storeMap;

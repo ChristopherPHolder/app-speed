@@ -1,4 +1,4 @@
-import { AuditStore, ResultReports } from '@runner/interface';
+import { AuditStore, ResultReports } from '@app-speed/runner-interface';
 import { PutObjectCommand, S3Client, S3ClientConfig } from '@aws-sdk/client-s3';
 
 export class S3Store implements AuditStore {

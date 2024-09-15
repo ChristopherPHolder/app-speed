@@ -1,6 +1,6 @@
 import { ArgumentsCamelCase, CommandBuilder, CommandModule } from 'yargs';
-import { createAuditQueue, createAuditStore, UserFlowExecutor } from '@runner/middleware';
-import { AuditExecutor, AuditQueue, AuditStore } from '@runner/interface';
+import { createAuditQueue, createAuditStore, UserFlowExecutor } from '@app-speed/runner-middleware';
+import { AuditExecutor, AuditQueue, AuditStore } from '@app-speed/runner-interface';
 import { GlobalOptions, queue, QueueOption, store, StoreOption } from '../args';
 
 type UserFlowCommandOptions = GlobalOptions & QueueOption & StoreOption;

@@ -9,7 +9,7 @@ import {
 } from '@aws-sdk/client-sqs';
 
 import { Message } from '@aws-sdk/client-sqs/dist-types/models/models_0';
-import { AuditQueue, AuditRunParams } from '@runner/interface';
+import { AuditQueue, AuditRunParams } from '@app-speed/runner-interface';
 import { DEFAULT_AWS_REGION } from '@app-speed/shared/data-access';
 
 type SQSConfig = {
