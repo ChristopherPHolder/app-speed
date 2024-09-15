@@ -1,5 +1,5 @@
 import { ApiGatewayManagementApiClient, PostToConnectionCommand } from '@aws-sdk/client-apigatewaymanagementapi';
-import { StageChangeMessage, CONDUCTOR_STAGE } from '@app-speed/shared/websocket-message-util-lib';
+import { StageChangeMessage, CONDUCTOR_STAGE } from '@app-speed/shared/websocket-util-lib';
 
 export async function sendAuditResults(connectionId: string, endpoint: string, resultsKey: string): Promise<void> {
   const responseData: StageChangeMessage = {

@@ -1,0 +1,6 @@
+{
+  "name": "@app-speed/shared/websocket-util-lib",
+  "version": "0.0.1",
+  "peerDependencies": {},
+  "sideEffects": false
+}

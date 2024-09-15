@@ -1,5 +1,5 @@
 {
-  "name": "runner-middleware",
+  "name": "runner-middleware-lib",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/runner/util-middleware/src",
   "projectType": "library",
@@ -12,8 +12,7 @@
         "outputPath": "dist/{projectRoot}",
         "main": "{projectRoot}/src/index.ts",
         "tsConfig": "{projectRoot}/tsconfig.lib.json",
-        "assets": ["{projectRoot}/*.md"],
-        "generatePackageJson": true
+        "assets": ["{projectRoot}/*.md"]
       }
     },
     "lint": {
@@ -30,7 +29,7 @@
       ],
       "options": {
         "passWithNoTests": true,
-        "coverage.reportsDirectory": "../../../coverage/packages/cli-middleware"
+        "coverage.reportsDirectory": "../../../coverage/{projectRoot}"
       }
     }
   }

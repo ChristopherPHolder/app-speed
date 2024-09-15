@@ -1,5 +1,5 @@
 {
-  "name": "shared-util-lib",
+  "name": "conductor-shared-util-lib",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/conductor/shared-util-lib/src",
   "projectType": "library",
@@ -9,19 +9,18 @@
       "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/packages/userflow-conductor/shared-util-lib",
-        "main": "packages/userflow-conductor/shared-util-lib/src/index.ts",
-        "tsConfig": "packages/userflow-conductor/shared-util-lib/tsconfig.lib.json",
-        "assets": ["packages/userflow-conductor/shared-util-lib/*.md"],
-        "generatePackageJson": true,
-        "format": ["cjs"]
+        "outputPath": "dist/{projectRoot}",
+        "main": "{projectRoot}/src/index.ts",
+        "tsConfig": "{projectRoot}/tsconfig.lib.json",
+        "assets": [],
+        "format": ["esm"]
       }
     },
     "test": {
       "executor": "@nx/vite:test",
       "outputs": ["{options.reportsDirectory}"],
       "options": {
-        "reportsDirectory": "../../../coverage/packages/userflow-conductor/shared-util-lib"
+        "reportsDirectory": "../../../coverage/{projectRoot}"
       }
     }
   }

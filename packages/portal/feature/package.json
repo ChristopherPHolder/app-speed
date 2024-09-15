@@ -1,5 +1,5 @@
 {
-  "name": "@app-speed/feature",
+  "name": "@app-speed/portal-feature",
   "version": "0.0.1",
   "peerDependencies": {
     "rxjs": "~7.5.0",
@@ -11,9 +11,7 @@
     "@angular/forms": "18.1.4",
     "@rx-angular/template": "18.0.0",
     "lighthouse": "^12.2.0",
-    "@app-speed/ui": "0.0.0",
-    "@angular/platform-browser": "18.1.4",
-    "@app-speed/data-access": "0.0.1"
+    "@angular/platform-browser": "18.1.4"
   },
   "sideEffects": false
 }

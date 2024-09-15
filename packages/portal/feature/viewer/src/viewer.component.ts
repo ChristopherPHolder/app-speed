@@ -6,14 +6,14 @@ import { MatFabButton } from '@angular/material/button';
 import { MatInput } from '@angular/material/input';
 import { RxIf } from '@rx-angular/template/if';
 import { Router } from '@angular/router';
-import { AuditViewerContainer, FlowResultComponent } from '@portal/feature/audit-viewer';
+import { AuditViewerContainer, FlowResultComponent } from '@app-speed/portal-feature/audit-viewer';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { FlowResult } from 'lighthouse';
 import { filter, map, Observable, switchMap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { NgIf } from '@angular/common';
-import { S3_RESULTS_BUCKET_URL } from '@portal/data-access';
+import { S3_RESULTS_BUCKET_URL } from '@app-speed/portal-data-access';
 
 @Component({
   standalone: true,

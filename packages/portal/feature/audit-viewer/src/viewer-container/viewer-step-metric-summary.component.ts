@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
-import { StatusBadgeComponent, StatusOptions, STATUS_COLOR } from '@portal/ui/status-badge';
+import { StatusBadgeComponent, StatusOptions, STATUS_COLOR } from '@app-speed/portal-ui/status-badge';
 import { MdToAnkerPipe } from '../utils/md-to-anker.pipe';
 
 export type MetricSummary = {

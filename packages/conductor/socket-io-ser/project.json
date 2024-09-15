@@ -1,5 +1,5 @@
 {
-  "name": "conductor-socket-io-ser",
+  "name": "conductor-socket-io-service",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/conductor/socket-io-ser/src",
   "projectType": "application",
@@ -9,9 +9,9 @@
       "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/packages/conductor/socket-io-ser",
-        "main": "packages/conductor/socket-io-ser/src/index.ts",
-        "tsConfig": "packages/conductor/socket-io-ser/tsconfig.lib.json",
+        "outputPath": "dist/{projectRoot}",
+        "main": "{projectRoot}/src/index.ts",
+        "tsConfig": "{projectRoot}/tsconfig.lib.json",
         "declaration": false,
         "bundle": true,
         "minify": false,
@@ -25,7 +25,7 @@
     "deploy": {
       "executor": "@app-speed/aws-deploy:lambda-deploy",
       "options": {
-        "dist": "dist/packages/conductor/socket-io-ser",
+        "dist": "dist/{projectRoot}",
         "functionName": "AppSpeed_Socket-IO"
       },
       "dependsOn": ["build"]
@@ -34,7 +34,7 @@
       "executor": "@nx/vite:test",
       "outputs": ["{options.reportsDirectory}"],
       "options": {
-        "reportsDirectory": "../../../coverage/packages/conductor/socket-io-ser"
+        "reportsDirectory": "../../../coverage/{projectRoot}"
       }
     }
   }

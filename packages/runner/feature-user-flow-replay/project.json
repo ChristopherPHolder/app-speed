@@ -29,7 +29,7 @@
       ],
       "options": {
         "passWithNoTests": true,
-        "coverage.reportsDirectory": "../../../coverage/packages/user-flow-replay"
+        "coverage.reportsDirectory": "../../../coverage/{projectRoot}"
       }
     }
   }

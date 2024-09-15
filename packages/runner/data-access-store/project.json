@@ -30,7 +30,7 @@
       ],
       "options": {
         "passWithNoTests": true,
-        "coverage.reportsDirectory": "../../../coverage/packages/audit-store"
+        "coverage.reportsDirectory": "../../../coverage/{projectRoot}"
       }
     }
   }

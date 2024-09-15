@@ -6,11 +6,11 @@ export const appRoutes: Route[] = [
     children: [
       {
         path: '',
-        loadComponent: () => import('@portal/feature/user-flow'),
+        loadComponent: () => import('@app-speed/portal-feature/user-flow'),
       },
       {
         path: 'viewer',
-        loadComponent: () => import('@portal/feature/viewer'),
+        loadComponent: () => import('@app-speed/portal-feature/viewer'),
       },
     ],
   },

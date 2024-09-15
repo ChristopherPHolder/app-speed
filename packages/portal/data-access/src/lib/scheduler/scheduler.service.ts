@@ -1,11 +1,7 @@
 import { Injectable } from '@angular/core';
 import { webSocket } from 'rxjs/webSocket';
 import { BehaviorSubject, filter, map, merge } from 'rxjs';
-import {
-  CONDUCTOR_STAGE,
-  isDoneStageChangeMessage,
-  isStageChangeMessage,
-} from '@app-speed/shared/websocket-message-util-lib';
+import { CONDUCTOR_STAGE, isDoneStageChangeMessage, isStageChangeMessage } from '@app-speed/shared/websocket-util-lib';
 
 const STAGE = {
   BUILDING: 'building',

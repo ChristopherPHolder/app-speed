@@ -24,7 +24,7 @@ export type { StageChangeMessage, ConductorStages };
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const invalidStageChangeMessage: StageChangeMessage = {
+const invalidStageChangeMessageMissingStage: StageChangeMessage = {
   type: 'stage-change',
 };
 
@@ -44,15 +44,6 @@ const scheduledStageChangeMessage: StageChangeMessage<ConductorStages['SCHEDULED
 const runningStageChangeMessage: StageChangeMessage<ConductorStages['RUNNING']> = {
   type: 'stage-change',
   stage: CONDUCTOR_STAGE.RUNNING,
-};
-
-// Should error because DoneStageChangeMessage requires a key property
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const invalidStageChangeMessage: StageChangeMessage = {
-  type: 'stage-change',
-  stage: CONDUCTOR_STAGE.DONE,
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

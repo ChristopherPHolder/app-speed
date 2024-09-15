@@ -12,7 +12,7 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { filter, map, switchMap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { JsonPipe } from '@angular/common';
-import { S3_RESULTS_BUCKET_URL } from '@portal/data-access';
+import { S3_RESULTS_BUCKET_URL } from '@app-speed/portal-data-access';
 
 @Component({
   selector: 'viewer-container',

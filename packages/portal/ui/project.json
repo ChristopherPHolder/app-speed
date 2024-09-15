@@ -1,23 +1,23 @@
 {
-  "name": "ui-lib",
+  "name": "portal-ui-lib",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
-  "sourceRoot": "packages/ui",
+  "sourceRoot": "packages/portal/ui/src",
   "prefix": "ui",
   "tags": ["frontend"],
   "targets": {
     "build": {
-      "executor": "@nx/angular:package",
+      "executor": "@nx/angular:ng-packagr-lite",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
-        "project": "{workspaceRoot}/{projectRoot}/ng-package.json"
+        "project": "{projectRoot}/ng-package.json"
       },
       "configurations": {
         "production": {
-          "tsConfig": "{workspaceRoot}/{projectRoot}/tsconfig.lib.prod.json"
+          "tsConfig": "{projectRoot}/tsconfig.lib.prod.json"
         },
         "development": {
-          "tsConfig": "{workspaceRoot}/{projectRoot}/tsconfig.lib.json"
+          "tsConfig": "{projectRoot}/tsconfig.lib.json"
         }
       },
       "defaultConfiguration": "production"

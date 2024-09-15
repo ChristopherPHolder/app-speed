@@ -14,7 +14,7 @@ import {
   waitUntilInstanceRunning,
 } from '@aws-sdk/client-ec2';
 import { SendCommandCommand, SendCommandCommandOutput, SSMClient } from '@aws-sdk/client-ssm';
-import { CONDUCTOR_STAGE, StageChangeMessage } from '@app-speed/shared/websocket-message-util-lib';
+import { CONDUCTOR_STAGE, StageChangeMessage } from '@app-speed/shared/websocket-util-lib';
 import { DEFAULT_AWS_REGION } from '@app-speed/shared/data-access';
 
 const INSTANCE_IDS = ['i-0781d8307e3c9e9f7'];

@@ -1,11 +1,11 @@
 import { Component, inject } from '@angular/core';
-import { AuditBuilderContainer } from '@portal/feature/audit-builder';
+import { AuditBuilderContainer } from '@app-speed/portal-feature/audit-builder';
 import { MatCard, MatCardContent, MatCardHeader, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { RxIf } from '@rx-angular/template/if';
 import { RxPush } from '@rx-angular/template/push';
-import { SchedulerService } from '@portal/data-access';
-import { AuditViewerContainer } from '@portal/feature/audit-viewer';
+import { SchedulerService } from '@app-speed/portal-data-access';
+import { AuditViewerContainer } from '@app-speed/portal-feature/audit-viewer';
 import { StageIndicatorComponent } from './stage-indicator.component';
 
 @Component({

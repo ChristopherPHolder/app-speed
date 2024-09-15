@@ -1,5 +1,5 @@
 import { Result as AuditResult } from 'lighthouse/types/lhr/audit-result';
-import { STATUS, StatusOptions } from '@portal/ui/status-badge';
+import { STATUS, StatusOptions } from '@app-speed/portal-ui/status-badge';
 import { FlowResult, Result } from 'lighthouse';
 import { MetricSummary } from './viewer-step-metric-summary.component';
 

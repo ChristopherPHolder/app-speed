@@ -5,7 +5,7 @@ import {
   MatExpansionPanelHeader,
   MatExpansionPanelTitle,
 } from '@angular/material/expansion';
-import { StatusBadgeComponent, StatusOptions } from '@portal/ui/status-badge';
+import { StatusBadgeComponent, StatusOptions } from '@app-speed/portal-ui/status-badge';
 import Details from 'lighthouse/types/lhr/audit-details';
 import { MdToAnkerPipe } from '../utils/md-to-anker.pipe';
 import { DetailsComponent } from '../ui/details.component';

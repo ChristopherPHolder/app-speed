@@ -13,7 +13,7 @@ import {
   MatTable,
 } from '@angular/material/table';
 import { JsonPipe, NgFor } from '@angular/common';
-import { ScrollContainerComponent } from '@portal/ui/scroll-container';
+import { ScrollContainerComponent } from '@app-speed/portal-ui/scroll-container';
 import { RoundPipe } from '../utils/round.pipe';
 import { KibibytesPipe } from '../utils/kibibytes.pipe';
 
