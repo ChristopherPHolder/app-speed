@@ -19,10 +19,6 @@
       "@app-speed/cli-middleware": ["packages/cli-middleware/src/index.ts"],
       "@app-speed/environments": ["packages/environments/public-api.ts"],
       "@app-speed/esbuild-meta": ["packages/esbuild-meta/src/index.ts"],
-      "@app-speed/feature/audit-builder": ["packages/feature/audit-builder/src/index.ts"],
-      "@app-speed/feature/audit-viewer": ["packages/feature/audit-viewer/src/index.ts"],
-      "@app-speed/feature/user-flow": ["packages/feature/user-flow/src/index.ts"],
-      "@app-speed/feature/viewer": ["packages/feature/viewer/src/index.ts"],
       "@app-speed/shared": ["packages/shared/public-api.ts"],
       "@app-speed/ui/loading-spinner": ["packages/ui/loading-spinner/public-api.ts"],
       "@app-speed/ui/radial-chart": ["packages/ui/radial-chart/public-api.ts"],
@@ -33,6 +29,10 @@
       "@app-speed/userflow-conductor/shared-util-lib": ["packages/userflow-conductor/shared-util-lib/src/index.ts"],
       "@app-speed/userflow-conductor/socket-io-ser": ["packages/userflow-conductor/socket-io-ser/src/index.ts"],
       "@portal/data-access": ["packages/portal/data-access/src/index.ts"],
+      "@portal/feature/audit-builder": ["packages/portal/feature/audit-builder/src/index.ts"],
+      "@portal/feature/audit-viewer": ["packages/portal/feature/audit-viewer/src/index.ts"],
+      "@portal/feature/viewer": ["packages/portal/feature/viewer/src/index.ts"],
+      "@portal/feature/user-flow": ["packages/portal/feature/user-flow/src/index.ts"],
       "schedule-audit": ["packages/userflow-conductor/schedule-audit/src/index.ts"]
     }
   }

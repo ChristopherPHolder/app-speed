@@ -6,7 +6,7 @@ import { MatFabButton } from '@angular/material/button';
 import { MatInput } from '@angular/material/input';
 import { RxIf } from '@rx-angular/template/if';
 import { Router } from '@angular/router';
-import { AuditViewerContainer, FlowResultComponent } from '@app-speed/feature/audit-viewer';
+import { AuditViewerContainer, FlowResultComponent } from '@portal/feature/audit-viewer';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { FlowResult } from 'lighthouse';
 import { filter, map, Observable, switchMap } from 'rxjs';
