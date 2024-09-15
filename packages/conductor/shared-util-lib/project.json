@@ -1,9 +1,9 @@
 {
   "name": "shared-util-lib",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/userflow-conductor/shared-util-lib/src",
+  "sourceRoot": "packages/conductor/shared-util-lib/src",
   "projectType": "library",
-  "tags": ["type:util", "scope:userflow-conductor"],
+  "tags": ["type:util", "scope:conductor"],
   "targets": {
     "build": {
       "executor": "@nx/esbuild:esbuild",

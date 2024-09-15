@@ -4,7 +4,7 @@ import {
   RESPONSE_SERVER_ERROR,
   extractedError,
   formatedResponse,
-} from '@app-speed/userflow-conductor/shared-util-lib';
+} from '@app-speed/conductor/shared-util-lib';
 import { SendMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
 import {
   DescribeInstanceStatusCommand,

@@ -5,7 +5,7 @@
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
       "parserOptions": {
-        "project": ["packages/userflow-conductor/schedule-audit/tsconfig.*?.json"]
+        "project": ["packages/conductor/schedule-audit/tsconfig.*?.json"]
       },
       "rules": {}
     },

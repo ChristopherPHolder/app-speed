@@ -4,7 +4,7 @@ import {
   formatedResponse,
   RESPONSE_SERVER_ERROR,
   RESPONSE_SUCCESSFUL,
-} from '@app-speed/userflow-conductor/shared-util-lib';
+} from '@app-speed/conductor/shared-util-lib';
 
 const enum EVENT_TYPE {
   CONNECT = 'CONNECT',

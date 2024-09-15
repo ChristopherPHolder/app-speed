@@ -1,5 +1,5 @@
 {
-  "name": "is-online-ser",
+  "name": "conductor-is-online-ser",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/userflow-conductor/is-online-ser/src",
   "projectType": "application",

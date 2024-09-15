@@ -1,5 +1,5 @@
 {
-  "name": "@app-speed/shared",
+  "name": "shared",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
   "sourceRoot": "packages/shared/src",

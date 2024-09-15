@@ -5,7 +5,7 @@
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
       "parserOptions": {
-        "project": ["packages/userflow-conductor/socket-io-ser/tsconfig.*?.json"]
+        "project": ["packages/conductor/is-online-ser/tsconfig.*?.json"]
       },
       "rules": {}
     },

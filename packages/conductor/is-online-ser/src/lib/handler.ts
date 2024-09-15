@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Handler } from 'aws-lambda';
-import { RESPONSE_SUCCESSFUL, RESPONSE_SERVER_ERROR } from '@app-speed/userflow-conductor/shared-util-lib';
-import { extractedError, formatedResponse } from '@app-speed/userflow-conductor/shared-util-lib';
+import { RESPONSE_SUCCESSFUL, RESPONSE_SERVER_ERROR } from '@app-speed/conductor/shared-util-lib';
+import { extractedError, formatedResponse } from '@app-speed/conductor/shared-util-lib';
 
 export const handler: Handler<APIGatewayProxyEvent, APIGatewayProxyResult> = async (event, context) => {
   try {

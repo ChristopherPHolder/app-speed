@@ -5,6 +5,7 @@ import { Browser, launch, Page } from 'puppeteer';
 import { startFlow, UserFlow as LHUserFlow } from 'lighthouse';
 import { ResultReports } from '@app-speed/shared';
 import { AppSpeedUserFlow } from '@app-speed/shared';
+import { AuditRunner } from '@runner/interface';
 
 export type UserFlowRunnerContext = {
   browser: Browser;
@@ -12,7 +13,7 @@ export type UserFlowRunnerContext = {
   flow: LHUserFlow;
 };
 
-export class UserFlowAudit {
+export class UserFlowAudit implements AuditRunner {
   private readonly replayScript: AppSpeedUserFlow;
 
   constructor(appSpeedUserFlow: object | AppSpeedUserFlow) {
@@ -34,10 +35,10 @@ export class UserFlowAudit {
   }
 
   private async initializeRunnerContext(): Promise<UserFlowRunnerContext> {
-    const browser = await launch({ headless: "new", args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+    const browser = await launch({ headless: 'new', args: ['--no-sandbox', '--disable-setuid-sandbox'] });
     const page = await browser.newPage();
     const flow = await startFlow(page, { name: this.replayScript.title });
-    return {browser, page, flow};
+    return { browser, page, flow };
   }
 
   private async createRunner(runnerContext: UserFlowRunnerContext): Promise<Runner> {
@@ -53,7 +54,7 @@ export class UserFlowAudit {
   private async extractResults(runnerContext: UserFlowRunnerContext): Promise<ResultReports> {
     const jsonReport = JSON.stringify(await runnerContext.flow.createFlowResult());
     const htmlReport = await runnerContext.flow.generateReport();
-    return {jsonReport, htmlReport};
+    return { jsonReport, htmlReport };
   }
 
   private async terminateRunnerContext(runnerContext: UserFlowRunnerContext): Promise<void> {
