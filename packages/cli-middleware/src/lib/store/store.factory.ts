@@ -1,8 +1,8 @@
 import { AuditStore } from '@app-speed/cli-interfaces';
 
 const storeMap = {
-  local: import('@app-speed/audit-store/local'),
-  s3: import('@app-speed/audit-store/s3'),
+  local: import('@runner/store/local'),
+  s3: import('@runner/store/s3'),
 } as const;
 
 type StoreKeys = keyof typeof storeMap;

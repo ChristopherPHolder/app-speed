@@ -13,7 +13,7 @@
     "baseUrl": ".",
     "paths": {
       "@app-speed/audit-queue/*": ["packages/audit-queue/src/lib/*"],
-      "@app-speed/audit-store/*": ["packages/audit-store/src/lib/*"],
+      "@runner/store/*": ["packages/runner/data-access-store/src/lib/*"],
       "@app-speed/aws-deploy": ["packages/aws-deploy/src/index.ts"],
       "@app-speed/cli-interfaces": ["packages/cli-interfaces/src/index.ts"],
       "@app-speed/cli-middleware": ["packages/cli-middleware/src/index.ts"],
