@@ -42,6 +42,16 @@
       "options": {
         "packageRoot": "dist/packages/{projectName}"
       }
+    },
+    "@nx/angular:ng-packagr-lite": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
+    },
+    "@nx/js:tsc": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
     }
   },
   "defaultBase": "main",
@@ -54,7 +64,14 @@
     },
     "@nx/angular:library": {
       "linter": "eslint",
-      "unitTestRunner": "jest"
+      "unitTestRunner": "jest",
+      "buildable": "true",
+      "changeDetection": "OnPush",
+      "flat": true,
+      "inlineStyle": true,
+      "inlineTemplate": true,
+      "setParserOptionsProject": true,
+      "style": "scss"
     },
     "@nx/angular:component": {
       "style": "scss"
@@ -103,11 +120,7 @@
     {
       "plugin": "@nx/vite/plugin",
       "options": {
-        "buildTargetName": "build",
-        "serveTargetName": "serve",
-        "previewTargetName": "preview",
-        "testTargetName": "test",
-        "serveStaticTargetName": "serve-static"
+        "testTargetName": "test"
       },
       "include": [
         "packages/runner-app/**/*",
@@ -120,11 +133,7 @@
     {
       "plugin": "@nx/vite/plugin",
       "options": {
-        "buildTargetName": "build",
-        "serveTargetName": "serve",
-        "previewTargetName": "preview",
-        "testTargetName": "e2e",
-        "serveStaticTargetName": "serve-static"
+        "testTargetName": "e2e"
       },
       "include": ["packages/esbuild-meta/**/*", "packages/runner-e2e/**/*"]
     }

@@ -7,6 +7,7 @@ import 'dotenv';
 
 import { LambdaDeployExecutorSchema } from './schema';
 import archiver = require('archiver');
+import { DEFAULT_AWS_REGION } from '@app-speed/shared/data-access';
 
 const zip = (sourceDir: string): Promise<Uint8Array> => {
   const archive = archiver('zip', { zlib: { level: 9 } });
@@ -28,7 +29,7 @@ const zip = (sourceDir: string): Promise<Uint8Array> => {
 
 const runExecutor: PromiseExecutor<LambdaDeployExecutorSchema> = async ({ dist, functionName }) => {
   const client = new LambdaClient({
-    region: 'us-east-1',
+    region: DEFAULT_AWS_REGION,
     credentials: {
       accessKeyId: env._AWS_ACCESS_KEY_ID!,
       secretAccessKey: env._AWS_SECRET_ACCESS_KEY!,
