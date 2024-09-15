@@ -1,16 +1,15 @@
 import { join } from 'path';
 import { cwd } from 'process';
-import { readdirSync, readFileSync } from 'fs'
+import { readdirSync, readFileSync } from 'fs';
 
-import { AuditQueue } from '@app-speed/cli-interfaces';
+import { AuditQueue } from '@runner/interface';
 import { AuditRunParams } from '@app-speed/shared';
 
 export type LocalQueueConfig = {
-  path: string
-}
+  path: string;
+};
 
 export class LocalQueue implements AuditQueue {
-
   private readonly defaultConfig = { path: './user-flow' };
   private readonly localPath: string;
   private readonly queuedRef: string[];
@@ -20,7 +19,7 @@ export class LocalQueue implements AuditQueue {
     try {
       this.queuedRef = readdirSync(join(cwd(), this.localPath));
     } catch {
-      this.queuedRef = []
+      this.queuedRef = [];
     }
   }
 

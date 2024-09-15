@@ -1,4 +1,4 @@
-import { AuditExecutor, AuditQueue, AuditStore } from '@app-speed/cli-interfaces';
+import { AuditExecutor, AuditQueue, AuditStore } from '@runner/interface';
 import { UserFlowAudit } from '@app-speed/user-flow-replay';
 import { AuditRunParams } from '@app-speed/shared';
 import { informAuditError, informAuditItRunning, sendAuditResults } from '../dialog';

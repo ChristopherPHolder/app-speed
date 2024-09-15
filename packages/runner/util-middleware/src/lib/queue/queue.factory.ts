@@ -1,4 +1,4 @@
-import { AuditQueue } from '@app-speed/cli-interfaces';
+import { AuditQueue } from '@runner/interface';
 
 const queueMap = new Map<string, Promise<any>>();
 queueMap.set('local', import('@runner/queue/local-queue'));

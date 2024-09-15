@@ -1,9 +1,9 @@
-import { AuditStore } from '@app-speed/cli-interfaces';
+import { AuditStore } from '@runner/interface';
 import { ResultReports } from '@app-speed/shared';
 
 export type LocalStoreConfig = {
-  storePath: string
-}
+  storePath: string;
+};
 
 export class LocalStore implements AuditStore {
   private storePath = './audit-results';

@@ -9,16 +9,15 @@ import {
 } from '@aws-sdk/client-sqs';
 
 import { Message } from '@aws-sdk/client-sqs/dist-types/models/models_0';
-import { AuditQueue } from '@app-speed/cli-interfaces';
+import { AuditQueue } from '@runner/interface';
 import { AuditRunParams } from '@app-speed/shared';
 
 type SQSConfig = {
   region: string;
   url: string;
-}
+};
 
 export class AwsSqs implements AuditQueue {
-
   private sqsClient!: SQSClient;
   private config: SQSConfig;
   private defaultConfig: SQSConfig = {
@@ -28,7 +27,7 @@ export class AwsSqs implements AuditQueue {
 
   constructor(config: SQSConfig) {
     this.config = config || this.defaultConfig;
-    const sqsClientConfig:  SQSClientConfig = {region: this.config.region};
+    const sqsClientConfig: SQSClientConfig = { region: this.config.region };
     this.sqsClient = new SQSClient(sqsClientConfig);
   }
 

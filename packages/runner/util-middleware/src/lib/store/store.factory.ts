@@ -1,4 +1,4 @@
-import { AuditStore } from '@app-speed/cli-interfaces';
+import { AuditStore } from '@runner/interface';
 
 const storeMap = {
   local: import('@runner/store/local'),
