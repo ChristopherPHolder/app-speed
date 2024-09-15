@@ -90,6 +90,7 @@
     "@types/yargs": "^17.0.32",
     "@typescript-eslint/eslint-plugin": "7.16.0",
     "@typescript-eslint/parser": "7.16.0",
+    "@typescript-eslint/utils": "^7.16.0",
     "@vitest/coverage-v8": "1.4.0",
     "@vitest/ui": "1.4.0",
     "archiver": "^7.0.1",

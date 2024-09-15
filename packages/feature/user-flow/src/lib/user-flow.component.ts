@@ -4,7 +4,7 @@ import { MatCard, MatCardContent, MatCardHeader, MatCardSubtitle, MatCardTitle }
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { RxIf } from '@rx-angular/template/if';
 import { RxPush } from '@rx-angular/template/push';
-import { SchedulerService } from '@app-speed/data-access';
+import { SchedulerService } from '@portal/data-access';
 import { AuditViewerContainer } from '@app-speed/feature/audit-viewer';
 import { StageIndicatorComponent } from './stage-indicator.component';
 
