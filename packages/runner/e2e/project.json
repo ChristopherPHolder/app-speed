@@ -1,8 +1,8 @@
 {
-  "name": "audit-runner-e2e",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "runner-e2e",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
-  "implicitDependencies": ["audit-runner"],
+  "implicitDependencies": ["runner-app"],
   "targets": {
     "e2e": {
       "inputs": [
