@@ -116,6 +116,26 @@
       "options": {
         "targetName": "lint"
       }
+    },
+    {
+      "plugin": "@nx/vite/plugin",
+      "options": {
+        "testTargetName": "test"
+      },
+      "include": [
+        "packages/runner-app/**/*",
+        "packages/audit-queue/**/*",
+        "packages/audit-store/**/*",
+        "packages/cli-middleware/**/*",
+        "packages/user-flow-replay/**/*"
+      ]
+    },
+    {
+      "plugin": "@nx/vite/plugin",
+      "options": {
+        "testTargetName": "e2e"
+      },
+      "include": ["packages/esbuild-meta/**/*", "packages/runner-e2e/**/*"]
     }
   ]
 }
