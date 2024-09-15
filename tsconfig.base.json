@@ -33,7 +33,6 @@
       "@portal/feature/audit-viewer": ["packages/portal/feature/audit-viewer/src/index.ts"],
       "@portal/feature/viewer": ["packages/portal/feature/viewer/src/index.ts"],
       "@portal/feature/user-flow": ["packages/portal/feature/user-flow/src/index.ts"],
-      "schedule-audit": ["packages/userflow-conductor/schedule-audit/src/index.ts"]
     }
   }
 }
