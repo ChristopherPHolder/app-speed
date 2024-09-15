@@ -3,9 +3,8 @@ import { UserFlowRunnerExtension } from './runner-extension';
 import { parse } from './parse';
 import { Browser, launch, Page } from 'puppeteer';
 import { startFlow, UserFlow as LHUserFlow } from 'lighthouse';
-import { ResultReports } from '@app-speed/shared';
-import { AppSpeedUserFlow } from '@app-speed/shared';
-import { AuditRunner } from '@runner/interface';
+import { AppSpeedUserFlow } from './types';
+import { AuditRunner, ResultReports } from '@runner/interface';
 
 export type UserFlowRunnerContext = {
   browser: Browser;

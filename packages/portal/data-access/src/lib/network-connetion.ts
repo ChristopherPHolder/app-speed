@@ -1,8 +1,8 @@
-import { environment } from '@app-speed/environments';
 import { ErrorHandler, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, catchError, distinctUntilChanged, map, Observable, of, switchMap, timer } from 'rxjs';
 import { RxEffects } from '@rx-angular/state/effects';
+import { IS_ONLINE_ENDPOINT } from './constants';
 
 export const NETWORK_INFORMATION_TYPE = { UNKNOWN: 'unknown', NONE: 'none', WIFI: 'wifi' } as const;
 type _ = keyof typeof NETWORK_INFORMATION_TYPE;
@@ -24,7 +24,7 @@ export class NetworkConnection extends RxEffects {
   }
 
   isOnline() {
-    return this.http.get<number>(environment.isOnlineApi).pipe(
+    return this.http.get<number>(IS_ONLINE_ENDPOINT).pipe(
       map((_) => NETWORK_INFORMATION_TYPE.WIFI),
       catchError((e) => of(NETWORK_INFORMATION_TYPE.NONE)),
     );

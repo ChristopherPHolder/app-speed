@@ -1,5 +1,4 @@
-import { AuditStore } from '@runner/interface';
-import { ResultReports } from '@app-speed/shared';
+import { AuditStore, ResultReports } from '@runner/interface';
 import { PutObjectCommand, S3Client, S3ClientConfig } from '@aws-sdk/client-s3';
 
 export class S3Store implements AuditStore {
@@ -8,7 +7,6 @@ export class S3Store implements AuditStore {
     region: 'eu-central-1',
   };
   private readonly bucketName = 'deepblue-userflow-records';
-  private readonly bucketUrl = 'https://deepblue-userflow-records.s3.eu-central-1.amazonaws.com/';
 
   constructor() {
     this.client = new S3Client(this.defaultConfig);

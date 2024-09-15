@@ -12,6 +12,7 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { filter, map, switchMap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { JsonPipe } from '@angular/common';
+import { S3_RESULTS_BUCKET_URL } from '@portal/data-access';
 
 @Component({
   selector: 'viewer-container',
@@ -48,7 +49,7 @@ export class AuditViewerContainer {
 
   results = toObservable(this.auditId).pipe(
     filter((audit) => audit !== undefined),
-    map((auditKey: string) => `https://deepblue-userflow-records.s3.eu-central-1.amazonaws.com/${auditKey}.uf.json`),
+    map((auditKey: string) => `${S3_RESULTS_BUCKET_URL}${auditKey}.uf.json`),
     switchMap((auditKey) => this.#api.get<FlowResult>(auditKey)),
   );
 

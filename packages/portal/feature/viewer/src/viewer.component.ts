@@ -13,6 +13,7 @@ import { filter, map, Observable, switchMap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { NgIf } from '@angular/common';
+import { S3_RESULTS_BUCKET_URL } from '@portal/data-access';
 
 @Component({
   standalone: true,
@@ -89,7 +90,7 @@ export class ViewerComponent {
   flowResult$: Observable<FlowResult> = toObservable(this.auditId).pipe(
     filter((audit) => audit !== undefined),
     filter((audit) => audit !== ''),
-    map((auditKey: string) => `https://deepblue-userflow-records.s3.eu-central-1.amazonaws.com/${auditKey}.uf.json`),
+    map((auditKey: string) => `${S3_RESULTS_BUCKET_URL}${auditKey}.uf.json`),
     switchMap((auditKey) => this.#api.get<FlowResult>(auditKey)),
   );
 

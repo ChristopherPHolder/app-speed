@@ -1,4 +1,4 @@
-import { AppSpeedUserFlow, AppSpeedUserFlowStep } from '@app-speed/shared';
+import { AppSpeedUserFlow, AppSpeedUserFlowStep } from './types';
 import { parse as puppeteerReplayParse, StepType } from '@puppeteer/replay';
 import { isMeasureType } from './utils';
 
@@ -27,7 +27,7 @@ export function parse(recordingJson: any): AppSpeedUserFlow {
   const parsed: AppSpeedUserFlow = puppeteerReplayParse({ ...recordingJson, steps });
 
   ufArr.forEach((value, index) => {
-    value && (parsed.steps.splice(index, 0, value));
+    value && parsed.steps.splice(index, 0, value);
   });
 
   // parse customEvents from our stringify function

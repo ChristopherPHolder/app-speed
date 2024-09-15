@@ -9,8 +9,8 @@ import {
 } from '@aws-sdk/client-sqs';
 
 import { Message } from '@aws-sdk/client-sqs/dist-types/models/models_0';
-import { AuditQueue } from '@runner/interface';
-import { AuditRunParams } from '@app-speed/shared';
+import { AuditQueue, AuditRunParams } from '@runner/interface';
+import { DEFAULT_AWS_REGION } from '@app-speed/shared/data-access';
 
 type SQSConfig = {
   region: string;
@@ -21,7 +21,7 @@ export class AwsSqs implements AuditQueue {
   private sqsClient!: SQSClient;
   private config: SQSConfig;
   private defaultConfig: SQSConfig = {
-    region: 'us-east-1',
+    region: DEFAULT_AWS_REGION,
     url: 'https://sqs.us-east-1.amazonaws.com/495685399379/ScheduledUserflows.fifo',
   };
 

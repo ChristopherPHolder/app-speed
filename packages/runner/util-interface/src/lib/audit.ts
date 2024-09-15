@@ -1,4 +1,4 @@
-import { ResultReports } from '@app-speed/shared';
+import { ResultReports } from './shared';
 
 export interface AuditExecutor {
   exec(): Promise<void>;

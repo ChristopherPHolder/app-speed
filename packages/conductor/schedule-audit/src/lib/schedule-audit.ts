@@ -15,9 +15,10 @@ import {
 } from '@aws-sdk/client-ec2';
 import { SendCommandCommand, SendCommandCommandOutput, SSMClient } from '@aws-sdk/client-ssm';
 import { CONDUCTOR_STAGE, StageChangeMessage } from '@app-speed/shared/websocket-message-util-lib';
+import { DEFAULT_AWS_REGION } from '@app-speed/shared/data-access';
 
 const INSTANCE_IDS = ['i-0781d8307e3c9e9f7'];
-const REGION = { region: 'us-east-1' };
+const REGION = { region: DEFAULT_AWS_REGION };
 const QUEUE_URL = 'https://sqs.us-east-1.amazonaws.com/495685399379/ScheduledUserflows.fifo';
 const DOCUMENT_NAME = 'deepblue_userflow_initiator';
 const GROUP_ID = 'scheduled-audit';
