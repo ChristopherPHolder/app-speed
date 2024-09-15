@@ -5,7 +5,7 @@ import { Result as AuditResult } from 'lighthouse/types/lhr/audit-result';
 import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 
-import { StatusOptions, STATUS } from '@app-speed/ui/status-badge';
+import { StatusOptions, STATUS } from '@portal/ui/status-badge';
 import { MetricSummary, ViewerStepMetricSummaryComponent } from './viewer-step-metric-summary.component';
 import { ViewerFileStripComponent } from './viewer-file-strip.component';
 import { ViewerDiagnosticComponent } from './viewer-diagnostic.component';

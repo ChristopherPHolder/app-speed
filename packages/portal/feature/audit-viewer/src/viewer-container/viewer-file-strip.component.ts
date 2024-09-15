@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { ScrollContainerComponent } from '@app-speed/ui/scroll-container';
+import { ScrollContainerComponent } from '@portal/ui/scroll-container';
 
 @Component({
   selector: 'viewer-file-strip',
@@ -7,7 +7,7 @@ import { ScrollContainerComponent } from '@app-speed/ui/scroll-container';
     <ui-scroll-container>
       <div class="film-strip-container">
         @for (item of filmStrip(); track item) {
-          <img class='film-strip-frame' [src]='item.data' height='100px' alt=''>
+          <img class="film-strip-frame" [src]="item.data" height="100px" alt="" />
         }
       </div>
     </ui-scroll-container>
@@ -23,15 +23,17 @@ import { ScrollContainerComponent } from '@app-speed/ui/scroll-container';
       border: groove gray;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       border-radius: 8px;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
 
       &:not(:first-child):not(:last-child) {
-          margin: 0 8px;
+        margin: 0 8px;
       }
 
       &:hover {
-          transform: scale(1.05);
-          box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        transform: scale(1.05);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
       }
     }
   `,
@@ -40,5 +42,5 @@ import { ScrollContainerComponent } from '@app-speed/ui/scroll-container';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ViewerFileStripComponent {
-  filmStrip = input.required<{data: string}[]>()
+  filmStrip = input.required<{ data: string }[]>();
 }
