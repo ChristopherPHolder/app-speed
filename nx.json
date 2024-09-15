@@ -115,11 +115,7 @@
     {
       "plugin": "@nx/vite/plugin",
       "options": {
-        "buildTargetName": "build",
-        "serveTargetName": "serve",
-        "previewTargetName": "preview",
-        "testTargetName": "test",
-        "serveStaticTargetName": "serve-static"
+        "testTargetName": "test"
       },
       "include": [
         "packages/runner-app/**/*",
@@ -132,11 +128,7 @@
     {
       "plugin": "@nx/vite/plugin",
       "options": {
-        "buildTargetName": "build",
-        "serveTargetName": "serve",
-        "previewTargetName": "preview",
-        "testTargetName": "e2e",
-        "serveStaticTargetName": "serve-static"
+        "testTargetName": "e2e"
       },
       "include": ["packages/esbuild-meta/**/*", "packages/runner-e2e/**/*"]
     }
