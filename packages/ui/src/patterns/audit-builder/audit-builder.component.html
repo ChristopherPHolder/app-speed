@@ -1,0 +1,19 @@
+<form class='form box--medium' [formGroup]='auditForm' (ngSubmit)="ui.formSubmit($event)">
+  <!--  TODO Convert Form Row into Separate Core -->
+  <div class='form__row'>
+    <input formControlName='title' class="form__input form__input--medium form__input--longest" type='text'>
+    <button class="form__submit form__submit--medium form__submit--active" type='submit'>Analyze</button>
+<!--    <span class='box'>-->
+<!--      &lt;!&ndash;      @TODO Fix SVG Import       &ndash;&gt;-->
+<!--      <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z"/></svg>-->
+<!--    </span>-->
+  </div>
+  <ng-container formArrayName='steps' *ngFor='let step of defaultAudit.steps; let i = index'>
+    <ui-audit-step
+      class='box box--small'
+      [stepDetails]='step'
+      (addStep)='addStep($event, i)'
+      (removeStep)='removeStep(i)'
+    />
+  </ng-container>
+</form>

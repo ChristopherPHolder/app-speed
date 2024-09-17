@@ -1,0 +1,8 @@
+{
+  "name": "@app-speed/userflow-constructor/shared-util-lib",
+  "version": "0.0.1",
+  "dependencies": {},
+  "type": "commonjs",
+  "main": "./index.cjs",
+  "private": true
+}
