@@ -1,5 +1,5 @@
 {
-  "name": "aws-deploy-nx-plugin",
+  "name": "aws-deploy",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/aws-deploy/src",
   "projectType": "library",

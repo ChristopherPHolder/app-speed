@@ -5,8 +5,7 @@
     "@nx/devkit": "19.5.7",
     "@aws-sdk/client-lambda": "^3.609.0",
     "dotenv": "16.4.5",
-    "archiver": "^7.0.1",
-    "@app-speed/shared/data-access": "0.0.1"
+    "archiver": "^7.0.1"
   },
   "type": "commonjs",
   "main": "./src/index.js",
