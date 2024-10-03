@@ -6,7 +6,7 @@ import { ShellComponent } from '@app-speed/ui/shell';
   standalone: true,
   imports: [ShellComponent, RouterOutlet],
   selector: 'app-root',
-  template: `<ui-shell><router-outlet/></ui-shell>`,
+  template: `<ui-shell><router-outlet /></ui-shell>`,
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
