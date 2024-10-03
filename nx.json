@@ -42,6 +42,11 @@
       "options": {
         "packageRoot": "dist/packages/{projectName}"
       }
+    },
+    "@nx/angular:browser-esbuild": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
     }
   },
   "defaultBase": "main",
