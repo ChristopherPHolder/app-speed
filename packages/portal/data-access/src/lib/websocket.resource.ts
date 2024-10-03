@@ -1,15 +1,17 @@
 import { AUDIT_REQUEST, AUDIT_STATUS, AuditRunParams, UfWsRecieveActions, UfWsSendActions } from '@app-speed/shared';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { environment } from '@app-speed/environments';
 import { filter, map, Observable } from 'rxjs';
 import { ResultModel } from './result.model';
 import { Ws } from './ws';
 
+// TODO this code is currently not being used, it should ether be deleted used!
 @Injectable({
   providedIn: 'root',
 })
 export class WebsocketResource {
   private _initialized = false;
+  private readonly ws: Ws<UfWsRecieveActions, UfWsSendActions> = inject(Ws);
   readonly progress$ = this.ws.messages$.pipe(map(({ type }) => type));
   readonly reports$: Observable<ResultModel> = this.ws.messages$.pipe(
     filter(({ type }) => type === AUDIT_STATUS.DONE),
@@ -17,9 +19,9 @@ export class WebsocketResource {
     map(({ payload }) => payload as ResultModel),
   );
 
-  constructor(private readonly ws: Ws<UfWsRecieveActions, UfWsSendActions>) {
+  constructor() {
     // @TODO init on runAudit to save bandwidth
-    this.init();
+    // this.init();
   }
 
   init() {

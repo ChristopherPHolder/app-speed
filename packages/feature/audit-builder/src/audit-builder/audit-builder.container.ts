@@ -27,7 +27,7 @@ import { DEFAULT_AUDIT_DETAILS } from '../schema/audit.constants';
 import { AuditDetails } from '../schema/types';
 import { rxEffects } from '@rx-angular/state/effects';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
-import { SchedulerService } from '@app-speed/data-access';
+import { SchedulerService } from '@app-speed/portal-data-access';
 
 @Component({
   selector: 'builder-form',

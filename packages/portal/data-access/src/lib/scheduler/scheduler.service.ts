@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { webSocket } from 'rxjs/webSocket';
-import { BehaviorSubject, filter, map, merge, tap } from 'rxjs';
+import { BehaviorSubject, filter, map, merge } from 'rxjs';
 
 // TODO should consume the type from the service!
 type StageChangeResponse = {
