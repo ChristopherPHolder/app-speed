@@ -54,5 +54,3 @@ export class S3Store implements AuditStore {
     return result;
   }
 }
-
-export default S3Store;

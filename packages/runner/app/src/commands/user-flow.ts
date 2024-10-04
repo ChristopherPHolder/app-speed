@@ -9,7 +9,7 @@ const userFlowBuilder: CommandBuilder = { queue, store };
 
 const userFlowHandler = async (args: ArgumentsCamelCase<UserFlowCommandOptions>): Promise<void> => {
   const auditQueue: AuditQueue = await createAuditQueue(args.queue);
-  const auditStore: AuditStore = await createAuditStore(args.store);
+  const auditStore: AuditStore = createAuditStore(args.store);
   const audit: AuditExecutor = new UserFlowExecutor(auditQueue, auditStore);
   args.dryRun || (await audit.exec());
 };

@@ -1,8 +1,9 @@
+import { LocalStore, S3Store } from '@app-speed/runner-data-access-store';
 import { AuditStore } from '@app-speed/cli-interfaces';
 
 const storeMap = {
-  local: import('@app-speed/audit-store/local'),
-  s3: import('@app-speed/audit-store/s3'),
+  local: LocalStore,
+  s3: S3Store,
 } as const;
 
 type StoreKeys = keyof typeof storeMap;
@@ -11,11 +12,11 @@ function isInStoreMap(store: string): store is StoreKeys {
   return Object.keys(storeMap).includes(store);
 }
 
-export async function createAuditStore(store: string): Promise<AuditStore> {
+export function createAuditStore(store: string): AuditStore {
   if (!isInStoreMap(store)) {
     throw new Error('Could not load Store!');
   }
 
-  const { default: Store } = await storeMap[store];
+  const Store = storeMap[store];
   return new Store() satisfies AuditStore;
 }
