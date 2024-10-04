@@ -42,6 +42,16 @@
       "options": {
         "packageRoot": "dist/packages/{projectName}"
       }
+    },
+    "@nx/angular:browser-esbuild": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
+    },
+    "@nx/angular:ng-packagr-lite": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
     }
   },
   "defaultBase": "main",
@@ -54,7 +64,17 @@
     },
     "@nx/angular:library": {
       "linter": "eslint",
-      "unitTestRunner": "jest"
+      "unitTestRunner": "none",
+      "skipTests": true,
+      "buildable": true,
+      "changeDetection": "OnPush",
+      "flat": true,
+      "inlineStyle": true,
+      "inlineTemplate": true,
+      "simpleName": true,
+      "setParserOptionsProject": true,
+      "compilationMode": "partial",
+      "style": "scss"
     },
     "@nx/angular:component": {
       "style": "scss"

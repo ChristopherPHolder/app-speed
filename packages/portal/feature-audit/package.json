@@ -1,0 +1,19 @@
+{
+  "name": "@app-speed/portal-feature-audit",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/common": "^18.2.0",
+    "@angular/core": "^18.2.0",
+    "@angular/material": "18.2.6",
+    "@angular/router": "18.2.6",
+    "@angular/forms": "18.2.6",
+    "rxjs": "~7.5.0",
+    "@rx-angular/template": "18.0.0",
+    "@rx-angular/state": "18.0.0",
+    "@app-speed/portal-data-access": "0.0.1",
+    "lighthouse": "^12.2.0",
+    "@app-speed/portal-ui": "0.0.0",
+    "@angular/platform-browser": "18.2.6"
+  },
+  "sideEffects": false
+}

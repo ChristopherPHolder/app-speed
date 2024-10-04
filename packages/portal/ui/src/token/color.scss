@@ -1,0 +1,83 @@
+:root {
+  /**
+  * @tokens Primary Colors
+  * @presenter Color
+  */
+
+  --color-primary: #009ef6;
+  --color-primary-active: #0095e8;
+  --color-primary-light: #ecf8ff;
+
+  /**
+  * @tokens Success Colors
+  * @presenter Color
+  */
+
+  --color-success: #50cd89;
+  --color-success-active: #47be7d;
+  --color-success-light: #e8fff3;
+
+  /**
+  * @tokens Danger Colors
+  * @presenter Color
+  */
+
+  --color-danger: #f1416c;
+  --color-danger-active: #d9214e;
+  --color-danger-light: #fff5f8;
+
+  /**
+  * @tokens Warning Colors
+  * @presenter Color
+  */
+
+  --color-warning: #ffc700;
+  --color-warning-active: #f1bc00;
+  --color-warning-light: #fff8dd;
+
+  /**
+  * @tokens Info Colors
+  * @presenter Color
+  */
+
+  --color-info: #7239ea;
+  --color-info-active: #5014d0;
+  --color-info-light: #f8f5ff;
+
+  /**
+  * @tokens White Colors
+  * @presenter Color
+  */
+
+  --color-white: #ffffff;
+  --color-white-active: #f5f8fa;
+  --color-dark: #181c32;
+
+  /**
+  * @tokens Gray Colors
+  * @presenter Color
+  */
+
+  --color-gray-100: #f9f9f9;
+  --color-gray-200: #f1f1f2;
+  --color-gray-300: #e1e3ea;
+  --color-gray-400: #d8d8e5;
+  --color-gray-500: #a1a5b7;
+  --color-gray-600: #7e8299;
+  --color-gray-700: #5e6278;
+  --color-gray-800: #3f4254;
+  --color-gray-900: #181c32;
+
+  /**
+  * @tokens Legacy Colors
+  * @presenter Color
+ */
+
+  --color-orange: #ff5d22;
+  --color-veryLightGray: #f5f5f5;
+  --color-lightGray: #e5e4e4;
+  --color-gray: gray;
+  --color-darkBlue: #221638;
+  --color-green: green;
+  --color-red: red;
+}

@@ -1,0 +1,29 @@
+{
+  "name": "portal-feature-audit",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/portal/feature-audit/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/angular:ng-packagr-lite",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "options": {
+        "project": "packages/portal/feature-audit/ng-package.json"
+      },
+      "configurations": {
+        "production": {
+          "tsConfig": "packages/portal/feature-audit/tsconfig.lib.prod.json"
+        },
+        "development": {
+          "tsConfig": "packages/portal/feature-audit/tsconfig.lib.json"
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "portal-feature-shell",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/portal/feature-shell/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/angular:ng-packagr-lite",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "options": {
+        "project": "packages/portal/feature-shell/ng-package.json"
+      },
+      "configurations": {
+        "production": {
+          "tsConfig": "packages/portal/feature-shell/tsconfig.lib.prod.json"
+        },
+        "development": {
+          "tsConfig": "packages/portal/feature-shell/tsconfig.lib.json"
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}
