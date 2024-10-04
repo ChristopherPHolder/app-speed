@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SafeResourceUrl } from '@angular/platform-browser';
-import { LoadingSpinnerComponent } from '@app-speed/portal-ui';
+import { LoadingSpinnerComponent } from '@app-speed/portal-ui/loading-spinner';
 import { map, Observable } from 'rxjs';
 import { AuditStatusType } from '@app-speed/shared';
 import { RxState } from '@rx-angular/state';
