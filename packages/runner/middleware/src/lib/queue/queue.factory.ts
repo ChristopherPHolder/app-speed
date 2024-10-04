@@ -7,6 +7,6 @@ queueMap.set('sqs', AwsSqs);
 
 export async function createAuditQueue(path: string, config?: object): Promise<AuditQueue> {
   const queueImport = queueMap.get(path);
-  const { default: Queue } = queueImport ? queueImport : await import(path);
+  const { default: Queue } = queueImport ? queueImport : await import(path).then((q) => q.default);
   return new Queue(config);
 }
