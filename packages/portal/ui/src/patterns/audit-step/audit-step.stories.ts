@@ -15,9 +15,7 @@ export const StartNavigation: Story = {
   args: {
     stepDetails: {
       type: 'startNavigation',
-      stepOptions: {
-        name: 'Initial Navigation',
-      },
+      name: 'Initial Navigation',
     },
   },
 };
