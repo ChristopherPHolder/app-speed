@@ -1,9 +1,7 @@
 import { Component, input, model } from '@angular/core';
 import { SwiperComponent } from './swiper.component';
 import { SwiperOptions } from 'swiper/types';
-import { Navigation, Pagination } from 'swiper/modules';
 import { RadialChartComponent } from '@app-speed/portal-ui/radial-chart';
-import { NgClass, NgForOf } from '@angular/common';
 
 export type AuditSummary = {
   screenShot: string;
@@ -18,7 +16,7 @@ export type AuditSummary = {
 @Component({
   selector: 'ui-audit-summary',
   standalone: true,
-  imports: [SwiperComponent, RadialChartComponent, NgForOf, NgClass],
+  imports: [SwiperComponent, RadialChartComponent],
   template: `
     <ui-swiper class="swiper" [swiperOptions]="swiperConfig">
       @for (step of auditSummary(); track step) {
@@ -182,7 +180,6 @@ export class AuditSummaryComponent {
   auditSummary = input.required<AuditSummary>();
   activeIndex = model<number>(0);
   swiperConfig: SwiperOptions = {
-    modules: [Navigation, Pagination],
     centeredSlides: true,
     slidesPerView: 3,
     on: {
