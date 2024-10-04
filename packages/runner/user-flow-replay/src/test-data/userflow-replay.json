@@ -16,42 +16,21 @@
     {
       "type": "click",
       "target": "main",
-      "selectors": [
-        [
-          "aria/Mocha"
-        ],
-        [
-          "[data-test=Mocha]"
-        ]
-      ],
+      "selectors": [["aria/Mocha"], ["[data-test=Mocha]"]],
       "offsetY": 0,
       "offsetX": 0
     },
     {
       "type": "click",
       "target": "main",
-      "selectors": [
-        [
-          "aria/Proceed to checkout"
-        ],
-        [
-          "[data-test=checkout]"
-        ]
-      ],
+      "selectors": [["aria/Proceed to checkout"], ["[data-test=checkout]"]],
       "offsetY": 0,
       "offsetX": 0
     },
     {
       "type": "change",
       "value": "chris@holder.dev",
-      "selectors": [
-        [
-          "aria/Name"
-        ],
-        [
-          "#name"
-        ]
-      ],
+      "selectors": [["aria/Name"], ["#name"]],
       "target": "main"
     },
     {

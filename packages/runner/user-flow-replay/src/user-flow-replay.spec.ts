@@ -4,21 +4,20 @@ import { writeFileSync } from 'fs';
 
 describe.skip('userFlowReplay', () => {
   it('should work', async () => {
-
-    const replayScript= {
+    const replayScript = {
       title: 'Example Title',
       steps: [
         {
           type: 'startNavigation',
-          stepOptions: { name: 'Initial Navigation' }
+          stepOptions: { name: 'Initial Navigation' },
         },
         {
-          type:  'navigate',
+          type: 'navigate',
           url: 'https://google.com',
         },
-        { type: 'endNavigation' }
-      ]
-    }
+        { type: 'endNavigation' },
+      ],
+    };
 
     const userFlowAudit = new UserFlowAudit(replayScript);
     const results = await userFlowAudit.run();

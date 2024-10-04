@@ -29,11 +29,10 @@
       "@app-speed/runner-data-access-queue": ["packages/runner/data-access/queue/src/index.ts"],
       "@app-speed/runner-data-access-store": ["packages/runner/data-access/store/src/index.ts"],
       "@app-speed/runner-middleware": ["packages/runner/middleware/src/index.ts"],
+      "@app-speed/runner-user-flow-replay": ["packages/runner/user-flow-replay/public-api.ts"],
       "@app-speed/shared": ["packages/shared/public-api.ts"],
-      "@app-speed/user-flow-replay": ["packages/user-flow-replay/public-api.ts"],
       "@app-speed/userflow-conductor/shared-util-lib": ["packages/userflow-conductor/shared-util-lib/src/index.ts"],
       "@app-speed/userflow-conductor/socket-io-ser": ["packages/userflow-conductor/socket-io-ser/src/index.ts"],
-      "schedule-audit": ["packages/userflow-conductor/schedule-audit/src/index.ts"]
     }
   }
 }

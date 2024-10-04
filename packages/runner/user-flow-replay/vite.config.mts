@@ -8,18 +8,9 @@ export default defineConfig({
 
   plugins: [
     viteTsConfigPaths({
-      root: '../../',
+      root: '../../../',
     }),
   ],
-
-  // Uncomment this if you are using workers.
-  // worker: {
-  //  plugins: [
-  //    viteTsConfigPaths({
-  //      root: '../../',
-  //    }),
-  //  ],
-  // },
 
   test: {
     reporters: ['default'],

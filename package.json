@@ -1,6 +1,5 @@
 {
   "name": "app-speed",
-  "main": "apps/user-flow-runner/src/app/runner.ts",
   "scripts": {
     "start": "nx serve user-flow-manager",
     "lint:affected": "nx run-many --all --t lint",

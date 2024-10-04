@@ -1,5 +1,5 @@
 import { AuditExecutor, AuditQueue, AuditStore } from '@app-speed/runner-interfaces';
-import { UserFlowAudit } from '@app-speed/user-flow-replay';
+import { UserFlowAudit } from '@app-speed/runner-user-flow-replay';
 import { AuditRunParams } from '@app-speed/shared';
 import { informAuditError, informAuditItRunning, sendAuditResults } from '../dialog';
 

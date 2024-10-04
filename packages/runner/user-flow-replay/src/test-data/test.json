@@ -6,7 +6,7 @@
       "stepOptions": { "name": "Initial Navigation" }
     },
     {
-      "type":  "navigate",
+      "type": "navigate",
       "url": "https://google.com"
     },
     { "type": "endNavigation" }
