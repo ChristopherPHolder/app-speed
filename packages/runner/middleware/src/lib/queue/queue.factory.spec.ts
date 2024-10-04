@@ -18,4 +18,4 @@ describe.skip('queue factory', async () => {
     expect(queue.nextItem).toBeTruthy();
     expect(typeof queue.nextItem).toBe('function');
   });
-})
+});

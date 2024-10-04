@@ -1,5 +1,5 @@
 import { ArgumentsCamelCase, CommandBuilder, CommandModule } from 'yargs';
-import { createAuditQueue, createAuditStore, UserFlowExecutor } from '@app-speed/cli-middleware';
+import { createAuditQueue, createAuditStore, UserFlowExecutor } from '@app-speed/runner-middleware';
 import { AuditExecutor, AuditQueue, AuditStore } from '@app-speed/cli-interfaces';
 import { GlobalOptions, queue, QueueOption, store, StoreOption } from '../args';
 

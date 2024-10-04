@@ -14,7 +14,6 @@
     "paths": {
       "@app-speed/aws-deploy": ["packages/aws-deploy/src/index.ts"],
       "@app-speed/cli-interfaces": ["packages/cli-interfaces/src/index.ts"],
-      "@app-speed/cli-middleware": ["packages/cli-middleware/src/index.ts"],
       "@app-speed/environments": ["packages/environments/public-api.ts"],
       "@app-speed/esbuild-meta": ["packages/esbuild-meta/src/index.ts"],
       "@app-speed/portal-data-access": ["packages/portal/data-access/src/index.ts"],
@@ -29,6 +28,7 @@
       "@app-speed/portal-ui/status-badge": ["packages/portal/ui/status-badge/public-api.ts"],
       "@app-speed/runner-data-access-queue": ["packages/runner/data-access/queue/src/index.ts"],
       "@app-speed/runner-data-access-store": ["packages/runner/data-access/store/src/index.ts"],
+      "@app-speed/runner-middleware": ["packages/runner/middleware/src/index.ts"],
       "@app-speed/shared": ["packages/shared/public-api.ts"],
       "@app-speed/user-flow-replay": ["packages/user-flow-replay/public-api.ts"],
       "@app-speed/userflow-conductor/shared-util-lib": ["packages/userflow-conductor/shared-util-lib/src/index.ts"],
