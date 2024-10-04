@@ -20,14 +20,18 @@ export class UserFlowRunnerExtension extends PuppeteerRunnerExtension {
     if (!isMeasureType(step.type)) {
       return super.runStep(step as Step, flowRecording);
     }
+    if (step.type === 'endTimespan') {
+      try {
+        await this.page.waitForNetworkIdle({ timeout: 10_000 });
+      } catch (e) {
+        console.log(e);
+      }
+    }
     if (step.type === 'endTimespan' || step.type === 'endNavigation') {
       return this.flow[step.type]();
     }
-    if (step.type === 'startNavigation') {
-      return this.flow[step.type]({ ...step.stepOptions });
-    }
-    if (step.type === 'startTimespan') {
-      return this.flow[step.type]({ ...step.flags });
+    if (step.type === 'startNavigation' || step.type === 'startTimespan' || step.type === 'snapshot') {
+      return this.flow[step.type]({ name: step.name });
     }
   }
 }

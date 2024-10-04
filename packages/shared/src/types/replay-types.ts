@@ -21,15 +21,15 @@ export const LighthouseStepType = {
 } as const;
 
 export type MeasureModes =
-  typeof LighthouseStepType.StartNavigation |
-  typeof LighthouseStepType.EndNavigation |
-  typeof LighthouseStepType.StartTimespan |
-  typeof LighthouseStepType.EndTimespan |
-  typeof LighthouseStepType.Snapshot;
+  | typeof LighthouseStepType.StartNavigation
+  | typeof LighthouseStepType.EndNavigation
+  | typeof LighthouseStepType.StartTimespan
+  | typeof LighthouseStepType.EndTimespan
+  | typeof LighthouseStepType.Snapshot;
 
 export interface StartNavigationStep {
   type: typeof LighthouseStepType.StartNavigation;
-  stepOptions?: LighthouseStepFlags
+  name?: string;
 }
 
 export interface EndNavigationStep {
@@ -38,7 +38,7 @@ export interface EndNavigationStep {
 
 export interface StartTimespanStep {
   type: typeof LighthouseStepType.StartTimespan;
-  flags?: Flags
+  name?: string;
 }
 
 export interface EndTimespanStep {
@@ -47,21 +47,29 @@ export interface EndTimespanStep {
 
 export interface SnapshotStep {
   type: typeof LighthouseStepType.Snapshot;
-  flags?: Flags;
+  name?: string;
 }
 
-export declare type LighthouseStep = StartNavigationStep | EndNavigationStep | StartTimespanStep | EndTimespanStep | SnapshotStep;
+export declare type LighthouseStep =
+  | StartNavigationStep
+  | EndNavigationStep
+  | StartTimespanStep
+  | EndTimespanStep
+  | SnapshotStep;
 
 export declare type AppSpeedUserFlowStep = PuppeteerReplayStep | LighthouseStep;
 
-export type AppSpeedUserFlow = Modify<PuppeteerReplayUserFlow, {
-  steps: AppSpeedUserFlowStep[];
-}>;
+export type AppSpeedUserFlow = Modify<
+  PuppeteerReplayUserFlow,
+  {
+    steps: AppSpeedUserFlowStep[];
+  }
+>;
 // It should work with an empty user-flow
 const example0: AppSpeedUserFlow = {
   title: 'Example Title',
-  steps: []
-}
+  steps: [],
+};
 
 // It should work with a puppeteer step
 // const example1: AppSpeedUserFlow = {
@@ -84,9 +92,7 @@ const example2: AppSpeedUserFlow = {
   steps: [
     {
       type: LighthouseStepType.StartNavigation,
-      stepOptions: {
-        name: 'Example Step name'
-      }
-    }
-  ]
-}
+      name: 'Example Step name',
+    },
+  ],
+};
