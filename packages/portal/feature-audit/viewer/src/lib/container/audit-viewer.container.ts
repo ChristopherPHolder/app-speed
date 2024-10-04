@@ -1,81 +1,63 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
-import type { FlowResult } from 'lighthouse';
-import { AuditSummary, AuditSummaryComponent } from '../viewer-container/audit-summary.component';
-import { ViewerStepDetailComponent } from '../viewer-container/viewer-step-details.component';
-import { MatCard, MatCardContent } from '@angular/material/card';
-import { MatFormField, MatLabel } from '@angular/material/form-field';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatError, MatInput } from '@angular/material/input';
-import { RxIf } from '@rx-angular/template/if';
-import { MatFabButton } from '@angular/material/button';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { filter, map, switchMap } from 'rxjs';
+import { ChangeDetectionStrategy, Component, computed, inject, input, model } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { JsonPipe } from '@angular/common';
+import { filter, map, Observable, switchMap } from 'rxjs';
+import { FlowResult } from 'lighthouse';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { AuditSummary, AuditSummaryComponent } from '@app-speed/portal-ui/audit-summary';
+import { ViewerStepDetailComponent } from '../viewer-container/viewer-step-details.component';
 
 @Component({
   selector: 'viewer-container',
   template: `
-    <div *rxIf="results; let r">
-      <viewer-audit-summary *rxIf="auditSummary; let summary" [auditSummary]="summary" />
-      @for (step of steps(); track step.name) {
-        <viewer-step-detail [stepDetails]="step" />
-      }
-    </div>
+    @if (auditSummary(); as summary) {
+      <ui-audit-summary [(activeIndex)]="activeIndex" [auditSummary]="summary" />
+    }
+    @if (auditStep(); as step) {
+      <viewer-step-detail [stepDetails]="step" />
+    }
   `,
   standalone: true,
-  imports: [
-    AuditSummaryComponent,
-    ViewerStepDetailComponent,
-    MatCard,
-    MatCardContent,
-    MatFormField,
-    MatLabel,
-    FormsModule,
-    MatInput,
-    MatError,
-    RxIf,
-    MatFabButton,
-    JsonPipe,
-    ReactiveFormsModule,
-  ],
+  imports: [AuditSummaryComponent, ViewerStepDetailComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix
 export class AuditViewerContainer {
-  auditId = input<string>();
+  auditId = input.required<string>();
+  activeIndex = model<number>(0);
+  // 2024-08-18T05_160t0WjP64yCyRK0xVadug
   readonly #api = inject(HttpClient);
 
-  results = toObservable(this.auditId).pipe(
+  flowResult$: Observable<FlowResult> = toObservable(this.auditId).pipe(
     filter((audit) => audit !== undefined),
+    filter((audit) => audit !== ''),
     map((auditKey: string) => `https://deepblue-userflow-records.s3.eu-central-1.amazonaws.com/${auditKey}.uf.json`),
     switchMap((auditKey) => this.#api.get<FlowResult>(auditKey)),
   );
 
-  readonly response = toSignal(this.results);
-  steps = computed<FlowResult['steps'] | undefined>(() => {
-    const results = this.response();
-    if (!results) return;
-    return results.steps;
-  });
+  auditSummary = toSignal<AuditSummary>(
+    this.flowResult$.pipe(
+      filter(Boolean),
+      map(({ steps }) => {
+        return steps.map(({ lhr: { fullPageScreenshot, categories, gatherMode }, name }) => ({
+          screenShot: fullPageScreenshot?.screenshot.data || '',
+          title: name,
+          subTitle: gatherMode,
+          categoryScores: Object.values(categories).map(({ title, score }) => ({
+            name: title,
+            score: parseInt(((score || 0) * 100).toFixed(0), 10),
+          })),
+        }));
+      }),
+    ),
+  );
 
-  readonly #stepSummaries = computed(() => {
-    const results = this.response();
-    if (!results) return;
-    return results.steps.map((step, index) => {
-      return {
-        index,
-        name: step.name,
-        thumbnail: step.lhr.fullPageScreenshot!.screenshot,
-        gatherMode: step.lhr.gatherMode,
-        categories: step.lhr.categories,
-      };
-    });
-  });
-
-  readonly auditSummary = computed<AuditSummary | undefined>(() => {
-    const stepSummaries = this.#stepSummaries();
-    if (!stepSummaries) return;
-    return { stepSummaries };
+  results = toSignal(this.flowResult$.pipe(filter(Boolean)));
+  auditStep = computed(() => {
+    const results = this.results();
+    const activeStep = this.activeIndex();
+    if (!results || activeStep === undefined) {
+      return;
+    }
+    return results.steps[activeStep];
   });
 }
