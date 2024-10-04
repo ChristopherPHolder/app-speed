@@ -8,7 +8,7 @@ describe('user-flow command', () => {
   const execPath = `node ${cliPath}`;
 
   function commandOutput(args: string): string {
-    return execSync(`${execPath} ${args}`).toString()
+    return execSync(`${execPath} ${args}`).toString();
   }
 
   it('should print a help message', () => {
