@@ -2,7 +2,7 @@ import { Component, input, model } from '@angular/core';
 import { SwiperComponent } from './swiper.component';
 import { SwiperOptions } from 'swiper/types';
 import { Navigation, Pagination } from 'swiper/modules';
-import { RadialChartComponent } from '@app-speed/ui/radial-chart';
+import { RadialChartComponent } from '@app-speed/portal-ui/radial-chart';
 import { NgClass, NgForOf } from '@angular/common';
 
 export type AuditSummary = {

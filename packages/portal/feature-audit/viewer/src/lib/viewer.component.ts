@@ -12,8 +12,10 @@ import { filter, map, Observable, switchMap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { NgIf } from '@angular/common';
-import { AuditSummary, AuditSummaryComponent } from '@app-speed/ui/audit-summary';
-import { ViewerStepDetailComponent } from '../../audit-viewer/src/viewer-container/viewer-step-details.component';
+import { AuditViewerContainer } from './container/audit-viewer.container';
+import { FlowResultComponent } from './flow-result.component';
+import { AuditSummary, AuditSummaryComponent } from '@app-speed/portal-ui/audit-summary';
+import { ViewerStepDetailComponent } from './viewer-container/viewer-step-details.component';
 
 @Component({
   standalone: true,
