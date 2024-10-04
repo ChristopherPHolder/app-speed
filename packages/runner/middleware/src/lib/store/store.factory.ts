@@ -1,5 +1,5 @@
 import { LocalStore, S3Store } from '@app-speed/runner-data-access-store';
-import { AuditStore } from '@app-speed/cli-interfaces';
+import { AuditStore } from '@app-speed/runner-interfaces';
 
 const storeMap = {
   local: LocalStore,

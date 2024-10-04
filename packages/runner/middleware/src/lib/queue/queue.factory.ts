@@ -1,4 +1,4 @@
-import { AuditQueue } from '@app-speed/cli-interfaces';
+import { AuditQueue } from '@app-speed/runner-interfaces';
 import { AwsSqs, LocalQueue } from '@app-speed/runner-data-access-queue';
 
 const queueMap = new Map<string, new (options: any) => AuditQueue>();

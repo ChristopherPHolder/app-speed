@@ -1,4 +1,4 @@
-import { AuditStore } from '@app-speed/cli-interfaces';
+import { AuditStore } from '@app-speed/runner-interfaces';
 import { ResultReports } from '@app-speed/shared';
 import { PutObjectCommand, S3Client, S3ClientConfig } from '@aws-sdk/client-s3';
 

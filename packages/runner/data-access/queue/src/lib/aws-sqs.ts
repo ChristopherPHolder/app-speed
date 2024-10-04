@@ -9,7 +9,7 @@ import {
 } from '@aws-sdk/client-sqs';
 
 import { Message } from '@aws-sdk/client-sqs/dist-types/models/models_0';
-import { AuditQueue } from '@app-speed/cli-interfaces';
+import { AuditQueue } from '@app-speed/runner-interfaces';
 import { AuditRunParams } from '@app-speed/shared';
 
 type SQSConfig = {

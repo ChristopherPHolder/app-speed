@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { AuditQueue } from '@app-speed/cli-interfaces';
+import { AuditQueue } from '@app-speed/runner-interfaces';
 import { createAuditQueue } from './queue.factory';
 
 describe.skip('queue factory', async () => {

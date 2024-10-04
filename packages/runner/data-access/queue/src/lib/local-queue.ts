@@ -2,7 +2,7 @@ import { join } from 'path';
 import { cwd } from 'process';
 import { readdirSync, readFileSync } from 'fs';
 
-import { AuditQueue } from '@app-speed/cli-interfaces';
+import { AuditQueue } from '@app-speed/runner-interfaces';
 import { AuditRunParams } from '@app-speed/shared';
 
 export type LocalQueueConfig = {
