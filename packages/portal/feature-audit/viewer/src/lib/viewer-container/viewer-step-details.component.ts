@@ -1,11 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { MatTable } from '@angular/material/table';
 import { FlowResult } from 'lighthouse';
 import { Result as AuditResult } from 'lighthouse/types/lhr/audit-result';
-import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
-import { MatIcon } from '@angular/material/icon';
 
-import { StatusOptions, STATUS } from '@app-speed/portal-ui/status-badge';
+import { STATUS, StatusOptions } from '@app-speed/portal-ui/status-badge';
 import { MetricSummary, ViewerStepMetricSummaryComponent } from './viewer-step-metric-summary.component';
 import { ViewerFileStripComponent } from './viewer-file-strip.component';
 import { ViewerDiagnosticComponent } from './viewer-diagnostic.component';
@@ -15,43 +12,23 @@ import { metricAudits, metricResults } from './view-step-details.adaptor';
 @Component({
   selector: 'viewer-step-detail',
   template: `
-    <mat-card>
-      <mat-card-content>
-        <viewer-step-metric-summary [metricSummary]="categoryMetricSummary()[0]['performance']" />
-      </mat-card-content>
-    </mat-card>
+    <viewer-step-metric-summary [metricSummary]="categoryMetricSummary()[0]['performance']" />
 
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title> Film Strip </mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <viewer-file-strip [filmStrip]="filmStrip()" />
-      </mat-card-content>
-    </mat-card>
+    <viewer-file-strip [filmStrip]="filmStrip()" />
 
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>DIAGNOSTICS</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <viewer-diagnostic [items]="diagnosticItems()" />
-      </mat-card-content>
-    </mat-card>
+    <div>DIAGNOSTICS</div>
+    <viewer-diagnostic [items]="diagnosticItems()" />
   `,
   standalone: true,
-  imports: [
-    MatTable,
-    ViewerStepMetricSummaryComponent,
-    MatCard,
-    MatCardContent,
-    MatCardHeader,
-    MatCardTitle,
-    MatIcon,
-    ViewerFileStripComponent,
-    ViewerDiagnosticComponent,
-  ],
+  imports: [ViewerStepMetricSummaryComponent, ViewerFileStripComponent, ViewerDiagnosticComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  styles: `
+    :host {
+      display: block;
+      max-width: 1200px;
+      margin: auto;
+    }
+  `,
 })
 export class ViewerStepDetailComponent {
   stepDetails = input.required<FlowResult.Step>();
