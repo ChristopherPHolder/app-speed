@@ -4,8 +4,8 @@ export const store: Options = {
   describe: 'Queue path of config',
   alias: 's',
   default: 'local',
-  type: 'string'
-}
+  type: 'string',
+};
 
 export interface StoreOption {
   store: string;

@@ -1,7 +1,7 @@
 {
-  "name": "audit-runner",
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/runner-app/src",
+  "name": "runner-app",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/runner/app/src",
   "projectType": "application",
   "tags": ["backend"],
   "targets": {
@@ -15,7 +15,7 @@
         "format": ["esm"],
         "bundle": true,
         "main": "{projectRoot}/src/main.ts",
-        "tsConfig": "packages/runner-app/tsconfig.app.json",
+        "tsConfig": "packages/runner/app/tsconfig.app.json",
         "assets": ["{projectRoot}/src/assets"],
         "generatePackageJson": true,
         "esbuildOptions": {
@@ -41,14 +41,14 @@
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "audit-runner:build"
+        "buildTarget": "runner-app:build"
       },
       "configurations": {
         "development": {
-          "buildTarget": "audit-runner:build:development"
+          "buildTarget": "runner-app:build:development"
         },
         "production": {
-          "buildTarget": "audit-runner:build:production"
+          "buildTarget": "runner-app:build:production"
         }
       }
     },

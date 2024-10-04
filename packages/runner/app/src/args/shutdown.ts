@@ -2,7 +2,7 @@ import { Options } from 'yargs';
 
 export const shutdown: Options = {
   type: 'boolean',
-  default: false
+  default: false,
 };
 
 export interface ShutdownOption {

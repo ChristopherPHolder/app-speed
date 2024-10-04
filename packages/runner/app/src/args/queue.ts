@@ -4,8 +4,8 @@ export const queue: Options = {
   describe: 'Queue path of config',
   alias: 'q',
   default: 'local',
-  type: 'string'
-}
+  type: 'string',
+};
 
 export interface QueueOption {
   queue: string;

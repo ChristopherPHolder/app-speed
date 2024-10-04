@@ -7,7 +7,7 @@ import { verbose, help, dryRun, shutdown } from './args';
 import { execSync } from 'node:child_process';
 
 const argv = await yargs(hideBin(process.argv))
-  .command([ userFlowCommand ])
+  .command([userFlowCommand])
   .options({ verbose, help, shutdown, dryRun })
   .parse();
 

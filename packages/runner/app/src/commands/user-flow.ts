@@ -11,7 +11,7 @@ const userFlowHandler = async (args: ArgumentsCamelCase<UserFlowCommandOptions>)
   const auditQueue: AuditQueue = await createAuditQueue(args.queue);
   const auditStore: AuditStore = await createAuditStore(args.store);
   const audit: AuditExecutor = new UserFlowExecutor(auditQueue, auditStore);
-  args.dryRun || await audit.exec();
+  args.dryRun || (await audit.exec());
 };
 
 export const userFlowCommand: CommandModule<NonNullable<unknown>, UserFlowCommandOptions> = {
@@ -20,4 +20,4 @@ export const userFlowCommand: CommandModule<NonNullable<unknown>, UserFlowComman
   aliases: 'uf',
   builder: userFlowBuilder,
   handler: userFlowHandler,
-}
+};
