@@ -6,13 +6,14 @@ import { MatFabButton } from '@angular/material/button';
 import { MatInput } from '@angular/material/input';
 import { RxIf } from '@rx-angular/template/if';
 import { Router } from '@angular/router';
-import { AuditViewerContainer, FlowResultComponent } from '@app-speed/feature/audit-viewer';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { FlowResult } from 'lighthouse';
 import { filter, map, Observable, switchMap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { NgIf } from '@angular/common';
+import { AuditViewerContainer } from './container/audit-viewer.container';
+import { FlowResultComponent } from './flow-result.component';
 
 @Component({
   standalone: true,
