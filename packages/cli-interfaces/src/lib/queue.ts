@@ -1,7 +1,5 @@
 import { AuditRunParams } from '@app-speed/shared';
 
-export type AuditQueue = Queue<AuditRunParams>;
-
-interface Queue <T>{
-  nextItem(): Promise<T | void>;
+export abstract class AuditQueue {
+  abstract nextItem(): Promise<AuditRunParams | void>;
 }

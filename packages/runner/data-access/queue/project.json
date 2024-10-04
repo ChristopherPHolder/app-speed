@@ -1,0 +1,27 @@
+{
+  "name": "runner-data-access-queue",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/runner/data-access/queue/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/runner/data-access/queue",
+        "main": "packages/runner/data-access/queue/src/index.ts",
+        "tsConfig": "packages/runner/data-access/queue/tsconfig.lib.json",
+        "assets": ["packages/runner/data-access/queue/*.md"],
+        "format": ["esm"]
+      }
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "../../../../coverage/packages/runner/data-access/queue"
+      }
+    }
+  }
+}

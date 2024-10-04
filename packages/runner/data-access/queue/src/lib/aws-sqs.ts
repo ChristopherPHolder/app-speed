@@ -15,10 +15,9 @@ import { AuditRunParams } from '@app-speed/shared';
 type SQSConfig = {
   region: string;
   url: string;
-}
+};
 
 export class AwsSqs implements AuditQueue {
-
   private sqsClient!: SQSClient;
   private config: SQSConfig;
   private defaultConfig: SQSConfig = {
@@ -28,7 +27,7 @@ export class AwsSqs implements AuditQueue {
 
   constructor(config: SQSConfig) {
     this.config = config || this.defaultConfig;
-    const sqsClientConfig:  SQSClientConfig = {region: this.config.region};
+    const sqsClientConfig: SQSClientConfig = { region: this.config.region };
     this.sqsClient = new SQSClient(sqsClientConfig);
   }
 
@@ -71,5 +70,3 @@ export class AwsSqs implements AuditQueue {
     return auditParams;
   }
 }
-
-export default AwsSqs;

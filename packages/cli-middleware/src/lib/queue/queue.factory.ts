@@ -1,11 +1,12 @@
 import { AuditQueue } from '@app-speed/cli-interfaces';
+import { AwsSqs, LocalQueue } from '@app-speed/runner-data-access-queue';
 
-const queueMap = new Map<string, Promise<any>>();
-queueMap.set('local', import('@app-speed/audit-queue/local-queue'));
-queueMap.set('sqs', import('@app-speed/audit-queue/aws-sqs'));
+const queueMap = new Map<string, new (options: any) => AuditQueue>();
+queueMap.set('local', LocalQueue);
+queueMap.set('sqs', AwsSqs);
 
 export async function createAuditQueue(path: string, config?: object): Promise<AuditQueue> {
   const queueImport = queueMap.get(path);
-  const { default: Queue } = queueImport ? await queueImport : await import(path);
+  const { default: Queue } = queueImport ? queueImport : await import(path);
   return new Queue(config);
 }
