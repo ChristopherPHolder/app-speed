@@ -12,7 +12,7 @@
     "@rx-angular/state": "18.0.0",
     "@app-speed/portal-data-access": "0.0.1",
     "lighthouse": "^12.2.0",
-    "@app-speed/ui": "0.0.0",
+    "@app-speed/portal-ui": "0.0.0",
     "@angular/platform-browser": "18.2.6"
   },
   "sideEffects": false

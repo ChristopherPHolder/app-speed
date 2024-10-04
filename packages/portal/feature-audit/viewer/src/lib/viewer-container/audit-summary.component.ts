@@ -15,18 +15,18 @@ import {
 } from '@angular/material/table';
 import { MatIcon } from '@angular/material/icon';
 import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
-import { ScrollContainerComponent } from '@app-speed/ui/scroll-container';
-import { RadialChartComponent } from '@app-speed/ui/radial-chart';
+import { ScrollContainerComponent } from '@app-speed/portal-ui/scroll-container';
+import { RadialChartComponent } from '@app-speed/portal-ui/radial-chart';
 import { ViewerScoreComponent } from './viewer-score.component';
 
 export type StepSummary = {
-  thumbnail: { data: string, width: number, height: number }
+  thumbnail: { data: string; width: number; height: number };
   gatherMode: Result.GatherMode;
   name: string;
-  categories: Record<string, Result.Category>
+  categories: Record<string, Result.Category>;
 };
 export type AuditSummary = {
-  stepSummaries: StepSummary[],
+  stepSummaries: StepSummary[];
 };
 
 @Component({
@@ -37,77 +37,77 @@ export type AuditSummary = {
         <mat-card-title>Audit Summery</mat-card-title>
       </mat-card-header>
       <ui-scroll-container>
-        <mat-card-content style='overflow: auto;'>
-          <table mat-table recycleRows [dataSource]='auditSummary().stepSummaries'>
-
-            <ng-container matColumnDef='thumbnail'>
+        <mat-card-content style="overflow: auto;">
+          <table mat-table recycleRows [dataSource]="auditSummary().stepSummaries">
+            <ng-container matColumnDef="thumbnail">
               <th mat-header-cell *matHeaderCellDef></th>
-              <td mat-cell *matCellDef='let element' style='border: none;'>
-                <div class='center-row-content' style='padding: 5px 0'>
-                  <img [src]='element.thumbnail.data' height='80' alt=''>
+              <td mat-cell *matCellDef="let element" style="border: none;">
+                <div class="center-row-content" style="padding: 5px 0">
+                  <img [src]="element.thumbnail.data" height="80" alt="" />
                 </div>
               </td>
             </ng-container>
 
-            <ng-container matColumnDef='gatherMode'>
-              <th mat-header-cell *matHeaderCellDef class='center-header'>Gather Mode</th>
-              <td mat-cell *matCellDef='let element' style='border: none;'>
-                <div class='center-row-content'>
+            <ng-container matColumnDef="gatherMode">
+              <th mat-header-cell *matHeaderCellDef class="center-header">Gather Mode</th>
+              <td mat-cell *matCellDef="let element" style="border: none;">
+                <div class="center-row-content">
                   @switch (element.gatherMode) {
                     @case ('navigation') {
-                      <mat-icon style='transform: scale(1.5);'>assistant_navigation</mat-icon>
+                      <mat-icon style="transform: scale(1.5);">assistant_navigation</mat-icon>
                     }
                     @case ('timespan') {
-                      <mat-icon style='transform: scale(1.5);'>schedule</mat-icon>
+                      <mat-icon style="transform: scale(1.5);">schedule</mat-icon>
                     }
                     @case ('snapshot') {
-                      <mat-icon style='transform: scale(1.5);'>camera</mat-icon>
+                      <mat-icon style="transform: scale(1.5);">camera</mat-icon>
                     }
                   }
                 </div>
               </td>
             </ng-container>
 
-            <ng-container matColumnDef='name'>
+            <ng-container matColumnDef="name">
               <th mat-header-cell *matHeaderCellDef>Name</th>
-              <td mat-cell *matCellDef='let element'>{{ element.name }}</td>
+              <td mat-cell *matCellDef="let element">{{ element.name }}</td>
             </ng-container>
 
             @for (category of categories; track category.id) {
-              <ng-container [matColumnDef]='category.key'>
-                <th mat-header-cell *matHeaderCellDef class='center-header'>{{category.title}}</th>
-                <td mat-cell *matCellDef='let element'>
-                  <div class='center-row-content'>
-                    <viewer-score [category]='element.categories[category.id]'/>
+              <ng-container [matColumnDef]="category.key">
+                <th mat-header-cell *matHeaderCellDef class="center-header">{{ category.title }}</th>
+                <td mat-cell *matCellDef="let element">
+                  <div class="center-row-content">
+                    <viewer-score [category]="element.categories[category.id]" />
                   </div>
                 </td>
               </ng-container>
             }
 
-            <tr mat-header-row *matHeaderRowDef='displayedColumns'></tr>
-            <tr mat-row *matRowDef='let row; columns: displayedColumns;'></tr>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
           </table>
         </mat-card-content>
       </ui-scroll-container>
     </mat-card>
-
   `,
-  styles: [`
+  styles: [
+    `
       .center-row-content {
-          width: 100%;
-          display: flex;
-          justify-content: center;
+        width: 100%;
+        display: flex;
+        justify-content: center;
       }
       .center-header {
-          text-align: center;
+        text-align: center;
       }
       .mat-mdc-row .mat-mdc-cell {
-          cursor: pointer;
+        cursor: pointer;
       }
       .mat-mdc-row:hover .mat-mdc-cell {
-          background-color: var(--mdc-switch-selected-track-color);
+        background-color: var(--mdc-switch-selected-track-color);
       }
-  `],
+    `,
+  ],
   standalone: true,
   imports: [
     MatTable,
@@ -136,7 +136,13 @@ export class AuditSummaryComponent {
   auditSummary = input.required<AuditSummary>();
 
   readonly displayedColumns = [
-    'thumbnail', 'gatherMode', 'name', 'performance', 'accessibility', 'bestPractices', 'seo'
+    'thumbnail',
+    'gatherMode',
+    'name',
+    'performance',
+    'accessibility',
+    'bestPractices',
+    'seo',
   ];
   readonly categories = [
     { title: 'Performance', id: 'performance', key: 'performance' },
