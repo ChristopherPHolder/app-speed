@@ -1,7 +1,8 @@
-import { Component, input, model } from '@angular/core';
+import { Component, inject, input, model } from '@angular/core';
 import { SwiperComponent } from './swiper.component';
 import { SwiperOptions } from 'swiper/types';
 import { RadialChartComponent } from '@app-speed/portal-ui/radial-chart';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 
 export type AuditSummary = {
   screenShot: string;
@@ -179,9 +180,11 @@ export type AuditSummary = {
 export class AuditSummaryComponent {
   auditSummary = input.required<AuditSummary>();
   activeIndex = model<number>(0);
+  #breakpointObserver = inject(BreakpointObserver);
+  isMobile = this.#breakpointObserver.isMatched([Breakpoints.Small, Breakpoints.XSmall]);
   swiperConfig: SwiperOptions = {
     centeredSlides: true,
-    slidesPerView: 3,
+    slidesPerView: this.isMobile ? 1 : 3,
     on: {
       init: () => this.activeIndex.set(0),
       activeIndexChange: (swiper) => this.activeIndex.set(swiper.activeIndex),
