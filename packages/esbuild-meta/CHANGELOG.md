@@ -1,3 +1,15 @@
+## 1.4.17 (2024-10-08)
+
+
+### 🩹 Fixes
+
+- **esbuild-meta:** fix filter bug ([76a5eb9](https://github.com/ChristopherPHolder/app-speed/commit/76a5eb9))
+
+
+### ❤️  Thank You
+
+- ChristopherPHolder
+
 ## 1.4.16 (2024-10-08)
 
 
