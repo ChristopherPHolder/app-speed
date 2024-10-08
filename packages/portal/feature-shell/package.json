@@ -2,7 +2,6 @@
   "name": "@app-speed/portal-feature-shell",
   "version": "0.0.1",
   "peerDependencies": {
-    "@angular/common": "^18.2.0",
     "@angular/core": "^18.2.0",
     "@angular/router": "18.2.6",
     "@angular/material": "18.2.6",
