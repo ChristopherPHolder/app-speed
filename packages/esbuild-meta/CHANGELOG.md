@@ -1,3 +1,15 @@
+## 1.4.16 (2024-10-08)
+
+
+### 🩹 Fixes
+
+- **esbuild-meta:** fix filter bug ([821c230](https://github.com/ChristopherPHolder/app-speed/commit/821c230))
+
+
+### ❤️  Thank You
+
+- ChristopherPHolder
+
 ## 1.4.15 (2024-09-14)
 
 
