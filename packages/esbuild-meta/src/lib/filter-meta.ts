@@ -46,8 +46,6 @@ const filterMetaHandler: FilterMetaCommandModule['handler'] = (argv: FilterMetaO
   const meta = getJson<Metafile>(argv.statsPath);
   const entryPoints = extractEntryPoints(meta, argv.entryPoints);
 
-  console.log('WOLOLO', entryPoints);
-
   filterMetaFromEntryPoints(meta, entryPoints);
 
   if (argv.excludeDynamicImports) {
