@@ -3,15 +3,12 @@ import type {
   StepType as PuppeteerReplayStepType,
   UserFlow as PuppeteerReplayUserFlow,
 } from '@puppeteer/replay';
-import type { Flags } from 'lighthouse';
 
 export type { PuppeteerReplayStepType };
 // @TODO Move to global types and explain what it does
 type Modify<T, R> = Omit<T, keyof R> & R;
 
-interface LighthouseStepFlags extends Flags {
-  name?: string;
-}
+// @TODO Should be inferred from lighthouse
 export const LighthouseStepType = {
   StartNavigation: 'startNavigation',
   EndNavigation: 'endNavigation',
