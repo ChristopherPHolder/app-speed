@@ -1,0 +1,8 @@
+{
+  "name": "@app-speed/runner-data-access-store",
+  "version": "0.0.1",
+  "dependencies": {},
+  "type": "module",
+  "main": "./index.js",
+  "private": true
+}

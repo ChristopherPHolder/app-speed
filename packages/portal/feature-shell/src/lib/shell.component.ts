@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 import { MatIconButton } from '@angular/material/button';
 import { MatListItem, MatNavList } from '@angular/material/list';
@@ -35,7 +34,7 @@ import { RouterLink, RouterOutlet } from '@angular/router';
         }
       </mat-sidenav>
       <mat-sidenav-content>
-        <mat-toolbar color="primary">
+        <mat-toolbar>
           @defer (on immediate) {
             <button type="button" aria-label="Toggle sidenav" mat-icon-button (click)="drawer.open()">
               <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
@@ -45,7 +44,12 @@ import { RouterLink, RouterOutlet } from '@angular/router';
             <img src="assets/logo.svg" alt="App Speed Logo" height="150%" width="auto" />
           </span>
         </mat-toolbar>
-        <router-outlet />
+        <main>
+          <router-outlet />
+        </main>
+        <footer>
+          <p>Made with ❤️ by <a href="https://x.com/chrispholder">Chris</a></p>
+        </footer>
       </mat-sidenav-content>
     </mat-sidenav-container>
   `,
@@ -63,6 +67,24 @@ import { RouterLink, RouterOutlet } from '@angular/router';
       position: sticky;
       top: 0;
       z-index: 1;
+    }
+    mat-toolbar {
+      background-color: #ecf0ff;
+    }
+    mat-sidenav-content {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    footer {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #ecf0ff;
+      color: #333;
+      margin-top: auto;
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

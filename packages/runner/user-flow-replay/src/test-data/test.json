@@ -1,0 +1,14 @@
+{
+  "title": "Example Title",
+  "steps": [
+    {
+      "type": "startNavigation",
+      "stepOptions": { "name": "Initial Navigation" }
+    },
+    {
+      "type": "navigate",
+      "url": "https://google.com"
+    },
+    { "type": "endNavigation" }
+  ]
+}

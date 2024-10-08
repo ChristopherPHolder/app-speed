@@ -12,12 +12,12 @@ import { metricAudits, metricResults } from './view-step-details.adaptor';
 @Component({
   selector: 'viewer-step-detail',
   template: `
-    <viewer-step-metric-summary [metricSummary]="categoryMetricSummary()[0]['performance']" />
+    <viewer-step-metric-summary [metricSummary]="categoryMetricSummary()[0]['performance']" class="pad" />
 
     <viewer-file-strip [filmStrip]="filmStrip()" />
 
     <div>DIAGNOSTICS</div>
-    <viewer-diagnostic [items]="diagnosticItems()" />
+    <viewer-diagnostic class="pad" [items]="diagnosticItems()" />
   `,
   standalone: true,
   imports: [ViewerStepMetricSummaryComponent, ViewerFileStripComponent, ViewerDiagnosticComponent],
@@ -27,6 +27,10 @@ import { metricAudits, metricResults } from './view-step-details.adaptor';
       display: block;
       max-width: 1200px;
       margin: auto;
+      padding: 20px;
+    }
+    .pad {
+      padding: 20px;
     }
   `,
 })

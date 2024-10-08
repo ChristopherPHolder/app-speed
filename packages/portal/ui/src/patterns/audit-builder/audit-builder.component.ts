@@ -20,9 +20,7 @@ const defaultAudit: AppSpeedUserFlow = {
   steps: [
     {
       type: 'startNavigation',
-      stepOptions: {
-        name: 'Initial Navigation',
-      },
+      name: 'Initial Navigation',
     },
     {
       // This is an issue related to Puppeteer Replay

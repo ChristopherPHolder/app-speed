@@ -17,7 +17,7 @@ import { ViewerStepDetailComponent } from './viewer-container/viewer-step-detail
   standalone: true,
   template: `
     <form class="grid-container" [formGroup]="lookupForm" (ngSubmit)="onSubmit()">
-      <mat-card>
+      <mat-card class="search-bar">
         <mat-card-content>
           <div class="row">
             <mat-form-field class="full-width">
@@ -47,6 +47,10 @@ import { ViewerStepDetailComponent } from './viewer-container/viewer-step-detail
   styles: `
     .grid-container {
       margin: 20px;
+    }
+    .search-bar {
+      max-width: 1200px;
+      margin: auto;
     }
     .full-width {
       width: 100%;

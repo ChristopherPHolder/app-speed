@@ -1,0 +1,24 @@
+{
+  "name": "runner-interfaces",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/runner/interfaces/src",
+  "projectType": "library",
+  "tags": ["server"],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/runner/interfaces",
+        "main": "packages/runner/interfaces/src/index.ts",
+        "tsConfig": "packages/runner/interfaces/tsconfig.json",
+        "assets": ["packages/runner/interfaces/*.md"],
+        "generatePackageJson": true
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
+    }
+  }
+}
