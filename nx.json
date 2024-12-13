@@ -1,4 +1,20 @@
 {
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "defaultBase": "main",
+  "namedInputs": {
+    "default": ["{projectRoot}/**/*", "sharedGlobals"],
+    "production": [
+      "default",
+      "!{projectRoot}/.eslintrc.json",
+      "!{projectRoot}/eslint.config.js",
+      "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
+      "!{projectRoot}/tsconfig.spec.json",
+      "!{projectRoot}/jest.config.[jt]s",
+      "!{projectRoot}/src/test-setup.[jt]s",
+      "!{projectRoot}/test-setup.[jt]s"
+    ],
+    "sharedGlobals": []
+  },
   "targetDefaults": {
     "build": {
       "dependsOn": ["^build"],
@@ -54,7 +70,6 @@
       "inputs": ["production", "^production"]
     }
   },
-  "defaultBase": "main",
   "generators": {
     "@nx/angular:application": {
       "style": "scss",
@@ -79,15 +94,6 @@
     "@nx/angular:component": {
       "style": "scss"
     }
-  },
-  "namedInputs": {
-    "default": ["{projectRoot}/**/*", "sharedGlobals"],
-    "sharedGlobals": [],
-    "production": [
-      "default",
-      "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
-      "!{projectRoot}/tsconfig.spec.json"
-    ]
   },
   "release": {
     "projects": ["esbuild-meta"],
