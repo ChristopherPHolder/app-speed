@@ -1,15 +1,23 @@
 import { Component, inject, input, model } from '@angular/core';
 import { SwiperComponent } from './swiper.component';
 import { SwiperOptions } from 'swiper/types';
-import { RadialChartComponent } from '@app-speed/portal-ui/radial-chart';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { FractionalResultChipComponent } from '@app-speed/portal-ui/fractional-result-chip';
+import { RadialChartComponent } from '@app-speed/portal-ui/radial-chart';
 
 export type AuditSummary = {
   screenShot: string;
   title: string;
   subTitle: string;
+  shouldDisplayAsFraction: boolean;
   categoryScores: {
     name: string;
+    asFraction: {
+      numPassed: number;
+      numPassableAudits: number;
+      numInformative: number;
+      totalWeight: number;
+    };
     score: number;
   }[];
 }[];
@@ -17,7 +25,7 @@ export type AuditSummary = {
 @Component({
   selector: 'ui-audit-summary',
   standalone: true,
-  imports: [SwiperComponent, RadialChartComponent],
+  imports: [SwiperComponent, RadialChartComponent, FractionalResultChipComponent],
   template: `
     <ui-swiper class="swiper" [swiperOptions]="swiperConfig">
       @for (step of auditSummary(); track step) {
@@ -25,7 +33,7 @@ export type AuditSummary = {
           <div style="display: block; position: relative">
             <div>
               <div class="circle bottom"></div>
-              @if ($index > 0) {
+              @if (!$first) {
                 <div class="line left"></div>
               }
               @if ($index <= auditSummary().length - 2) {
@@ -45,8 +53,17 @@ export type AuditSummary = {
 
           @if (activeIndex() === $index) {
             <div class="score-container">
-              @for (category of step.categoryScores; track category) {
-                <span><ui-radial-chart [score]="category.score" size="md" /> {{ category.name }} </span>
+              @if (step.shouldDisplayAsFraction) {
+                @for (category of step.categoryScores; track category) {
+                  <span>
+                    <ui-fractional-result-chip [results]="category.asFraction" />
+                    <div>{{ category.name }}</div>
+                  </span>
+                }
+              } @else {
+                @for (category of step.categoryScores; track category) {
+                  <span><ui-radial-chart [score]="category.score" size="md" /> {{ category.name }} </span>
+                }
               }
             </div>
           }

@@ -5,6 +5,7 @@ import { FlowResult } from 'lighthouse';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { AuditSummary, AuditSummaryComponent } from '@app-speed/portal-ui/audit-summary';
 import { ViewerStepDetailComponent } from '../viewer-container/viewer-step-details.component';
+import { ReportUtils } from 'lighthouse/report/renderer/report-utils';
 
 @Component({
   selector: 'viewer-container',
@@ -25,6 +26,7 @@ export class AuditViewerContainer {
   auditId = input.required<string>();
   activeIndex = model<number>(0);
   // 2024-08-18T05_160t0WjP64yCyRK0xVadug
+  // 2024-12-02T06_16YXXBTvY4WgTBfMoih8mo
   readonly #api = inject(HttpClient);
 
   flowResult$: Observable<FlowResult> = toObservable(this.auditId).pipe(
@@ -38,14 +40,24 @@ export class AuditViewerContainer {
     this.flowResult$.pipe(
       filter(Boolean),
       map(({ steps }) => {
-        return steps.map(({ lhr: { fullPageScreenshot, categories, gatherMode }, name }) => ({
+        return steps.map(({ lhr: { fullPageScreenshot, categories, gatherMode, audits }, name }) => ({
           screenShot: fullPageScreenshot?.screenshot.data || '',
           title: name,
           subTitle: gatherMode,
-          categoryScores: Object.values(categories).map(({ title, score }) => ({
-            name: title,
-            score: parseInt(((score || 0) * 100).toFixed(0), 10),
-          })),
+          shouldDisplayAsFraction: ReportUtils.shouldDisplayAsFraction(gatherMode),
+          categoryScores: Object.values(categories).map((category) => {
+            const extendedCategory = {
+              ...category,
+              auditRefs: category.auditRefs.map((ref) => {
+                return { ...ref, result: audits[ref.id] };
+              }),
+            };
+            return {
+              name: category.title,
+              asFraction: ReportUtils.calculateCategoryFraction(extendedCategory),
+              score: parseInt(((category.score || 0) * 100).toFixed(0), 10),
+            };
+          }),
         }));
       }),
     ),
@@ -58,6 +70,7 @@ export class AuditViewerContainer {
     if (!results || activeStep === undefined) {
       return;
     }
+    console.log('activeStep', activeStep, results.steps[activeStep]);
     return results.steps[activeStep];
   });
 }

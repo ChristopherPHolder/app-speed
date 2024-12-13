@@ -1,10 +1,5 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, input } from '@angular/core';
-import {
-  MatExpansionPanel,
-  MatExpansionPanelDescription,
-  MatExpansionPanelHeader,
-  MatExpansionPanelTitle,
-} from '@angular/material/expansion';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
 import { StatusBadgeComponent, StatusOptions } from '@app-speed/portal-ui/status-badge';
 import Details from 'lighthouse/types/lhr/audit-details';
 import { MdToAnkerPipe } from '../utils/md-to-anker.pipe';
@@ -66,7 +61,6 @@ export type DiagnosticItem = {
   standalone: true,
   imports: [
     MatExpansionPanel,
-    MatExpansionPanelDescription,
     MatExpansionPanelHeader,
     MatExpansionPanelTitle,
     MdToAnkerPipe,
@@ -76,12 +70,8 @@ export type DiagnosticItem = {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ViewerDiagnosticPanelComponent implements AfterViewInit {
+export class ViewerDiagnosticPanelComponent {
   item = input.required<DiagnosticItem>();
-
-  ngAfterViewInit() {
-    console.log('item', { item: this.item() });
-  }
 
   // @TODO
   // Some data needs modified to produce the correct details.

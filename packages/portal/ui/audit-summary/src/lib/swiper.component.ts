@@ -1,10 +1,12 @@
 import {
+  afterNextRender,
   AfterViewInit,
   Component,
   ElementRef,
   inject,
   input,
   NgZone,
+  OnDestroy,
   ViewChild,
   ViewEncapsulation,
 } from '@angular/core';
@@ -27,17 +29,23 @@ import Swiper from 'swiper';
     @import 'swiper/css';
   `,
 })
-export class SwiperComponent implements AfterViewInit {
+export class SwiperComponent implements AfterViewInit, OnDestroy {
   readonly #ngZone = inject(NgZone);
 
-  @ViewChild('swiperContainer') swiperRef!: ElementRef;
+  swiper!: Swiper;
 
+  @ViewChild('swiperContainer') swiperRef!: ElementRef;
   showPagination = input<boolean>(true);
+
   swiperOptions = input.required<SwiperOptions>();
 
   ngAfterViewInit() {
-    this.swiper = new Swiper(this.swiperRef.nativeElement, this.swiperOptions());
+    this.#ngZone.runOutsideAngular(() => {
+      this.swiper = new Swiper(this.swiperRef.nativeElement, this.swiperOptions());
+    });
   }
 
-  swiper!: Swiper;
+  ngOnDestroy() {
+    this.swiper.destroy();
+  }
 }

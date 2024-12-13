@@ -74,7 +74,7 @@ export type MetricSummary = {
     }
   `,
   standalone: true,
-  imports: [MatIcon, StatusBadgeComponent, MdToAnkerPipe],
+  imports: [StatusBadgeComponent, MdToAnkerPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ViewerStepMetricSummaryComponent {

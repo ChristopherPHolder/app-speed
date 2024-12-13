@@ -12,9 +12,14 @@ import { metricAudits, metricResults } from './view-step-details.adaptor';
 @Component({
   selector: 'viewer-step-detail',
   template: `
-    <viewer-step-metric-summary [metricSummary]="categoryMetricSummary()[0]['performance']" class="pad" />
+    @let metricSummary = categoryMetricSummary();
+    @if (metricSummary.length) {
+      <viewer-step-metric-summary [metricSummary]="metricSummary" class="pad" />
+    }
 
-    <viewer-file-strip [filmStrip]="filmStrip()" />
+    @if (filmStrip(); as filmStrip) {
+      <viewer-file-strip [filmStrip]="filmStrip" />
+    }
 
     <div>DIAGNOSTICS</div>
     <viewer-diagnostic class="pad" [items]="diagnosticItems()" />
@@ -37,13 +42,14 @@ import { metricAudits, metricResults } from './view-step-details.adaptor';
 export class ViewerStepDetailComponent {
   stepDetails = input.required<FlowResult.Step>();
   categories = computed(() => this.stepDetails().lhr.categories);
-  categoryMetricSummary = computed<Record<string, MetricSummary[]>[]>(() => {
+  categoryMetricSummary = computed<MetricSummary[]>(() => {
     return this.categoriesMetricSummary(this.stepDetails().lhr.categories);
   });
-  filmStrip = computed(() => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    return this.stepDetails().lhr.audits['screenshot-thumbnails']['details']?.['items'] as any as { data: string }[];
+  filmStrip = computed<{ data: string }[] | undefined>(() => {
+    // @ts-expect-error Can't extract valid audit type from lighthouse
+    return this.stepDetails().lhr.audits?.['screenshot-thumbnails']?.['details']?.['items'] as any as
+      | { data: string }[]
+      | undefined;
   });
 
   private categoryAcronyms = computed(() => {
@@ -98,9 +104,9 @@ export class ViewerStepDetailComponent {
   private affectsMetric(metricSavings: string[]): boolean {
     return !!metricSavings.filter((i) => this.categoryAcronyms().includes(i)).length;
   }
-  private categoriesMetricSummary(categories: FlowResult.Step['lhr']['categories']): Record<string, MetricSummary[]>[] {
+  private categoriesMetricSummary(categories: FlowResult.Step['lhr']['categories']): MetricSummary[] {
     return Object.entries(categories).map(([key, value]) => ({
       [key]: metricResults(metricAudits(value.auditRefs), this.stepDetails().lhr.audits),
-    }));
+    }))[0]['performance'];
   }
 }

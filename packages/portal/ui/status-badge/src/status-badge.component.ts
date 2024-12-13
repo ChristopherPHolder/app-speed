@@ -8,7 +8,7 @@ const statusBadgeMap = (status: StatusOptions) => ({ icon: STATUS_ICON[status], 
 
 @Component({
   selector: 'ui-status-badge',
-  template: `<mat-icon [style.color]="status().color">{{ status().icon }}</mat-icon>`,
+  template: `<mat-icon [inline]="true" [style.color]="status().color">{{ status().icon }}</mat-icon>`,
   styles: `
     :host {
       display: inherit;

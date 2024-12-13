@@ -21,6 +21,7 @@
       "@app-speed/portal-feature-audit/viewer": ["packages/portal/feature-audit/viewer/src/index.ts"],
       "@app-speed/portal-feature-shell": ["packages/portal/feature-shell/src/index.ts"],
       "@app-speed/portal-ui/audit-summary": ["packages/portal/ui/audit-summary/src/index.ts"],
+      "@app-speed/portal-ui/fractional-result-chip": ["packages/portal/ui/fractional-result-chip/public-api.ts"],
       "@app-speed/portal-ui/loading-spinner": ["packages/portal/ui/loading-spinner/public-api.ts"],
       "@app-speed/portal-ui/radial-chart": ["packages/portal/ui/radial-chart/public-api.ts"],
       "@app-speed/portal-ui/scroll-container": ["packages/portal/ui/scroll-container/public-api.ts"],
