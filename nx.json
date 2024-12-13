@@ -148,5 +148,6 @@
       },
       "include": ["packages/esbuild-meta/**/*", "packages/runner-e2e/**/*"]
     }
-  ]
+  ],
+  "useLegacyCache": true
 }

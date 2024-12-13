@@ -9,8 +9,8 @@ import { MatSelect } from '@angular/material/select';
 import { StepProperty } from '../schema/types';
 
 @Component({
-  selector: 'builder-input-boolean',
-  template: `
+    selector: 'builder-input-boolean',
+    template: `
     <div>
       <mat-form-field>
         <mat-label>{{ schema.name }}</mat-label>
@@ -31,8 +31,7 @@ import { StepProperty } from '../schema/types';
       }
     </div>
   `,
-  imports: [ReactiveFormsModule, MatFormField, MatLabel, MatSelect, MatOption, MatIcon, MatIconButton],
-  standalone: true,
+    imports: [ReactiveFormsModule, MatFormField, MatLabel, MatSelect, MatOption, MatIcon, MatIconButton]
 })
 export class InputBooleanComponent {
   @Input({ required: true }) schema!: StepProperty;

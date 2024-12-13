@@ -14,8 +14,7 @@ import { AuditSummaryComponent } from '@app-speed/portal-ui/audit-summary';
 import { ViewerStepDetailComponent } from './viewer-container/viewer-step-details.component';
 
 @Component({
-  standalone: true,
-  template: `
+    template: `
     <form class="grid-container" [formGroup]="lookupForm" (ngSubmit)="onSubmit()">
       <mat-card class="search-bar">
         <mat-card-content>
@@ -44,7 +43,7 @@ import { ViewerStepDetailComponent } from './viewer-container/viewer-step-detail
       <viewer-container [auditId]="auditId" />
     }
   `,
-  styles: `
+    styles: `
     .grid-container {
       margin: 20px;
     }
@@ -67,25 +66,25 @@ import { ViewerStepDetailComponent } from './viewer-container/viewer-step-detail
       }
     }
   `,
-  imports: [
-    ReactiveFormsModule,
-    MatCard,
-    MatCardContent,
-    MatCardHeader,
-    MatCardTitle,
-    MatError,
-    MatFabButton,
-    MatFormField,
-    MatInput,
-    MatLabel,
-    RxIf,
-    AuditViewerContainer,
-    MatProgressSpinner,
-    NgIf,
-    FlowResultComponent,
-    AuditSummaryComponent,
-    ViewerStepDetailComponent,
-  ],
+    imports: [
+        ReactiveFormsModule,
+        MatCard,
+        MatCardContent,
+        MatCardHeader,
+        MatCardTitle,
+        MatError,
+        MatFabButton,
+        MatFormField,
+        MatInput,
+        MatLabel,
+        RxIf,
+        AuditViewerContainer,
+        MatProgressSpinner,
+        NgIf,
+        FlowResultComponent,
+        AuditSummaryComponent,
+        ViewerStepDetailComponent,
+    ]
 })
 export class ViewerComponent {
   auditId = input<string>('');

@@ -23,10 +23,9 @@ export type AuditSummary = {
 }[];
 
 @Component({
-  selector: 'ui-audit-summary',
-  standalone: true,
-  imports: [SwiperComponent, RadialChartComponent, FractionalResultChipComponent],
-  template: `
+    selector: 'ui-audit-summary',
+    imports: [SwiperComponent, RadialChartComponent, FractionalResultChipComponent],
+    template: `
     <ui-swiper class="swiper" [swiperOptions]="swiperConfig">
       @for (step of auditSummary(); track step) {
         <div class="swiper-slide">
@@ -71,7 +70,7 @@ export type AuditSummary = {
       }
     </ui-swiper>
   `,
-  styles: `
+    styles: `
     .screen-shot-box {
       position: relative;
       display: flex;
@@ -192,7 +191,7 @@ export type AuditSummary = {
       text-align: center;
       margin-bottom: 12px;
     }
-  `,
+  `
 })
 export class AuditSummaryComponent {
   auditSummary = input.required<AuditSummary>();

@@ -7,21 +7,20 @@ import { MatToolbar } from '@angular/material/toolbar';
 import { RouterLink, RouterOutlet } from '@angular/router';
 
 @Component({
-  selector: 'portal-shell',
-  standalone: true,
-  imports: [
-    MatSidenavContainer,
-    MatSidenav,
-    MatSidenavContent,
-    MatToolbar,
-    MatNavList,
-    MatIcon,
-    MatIconButton,
-    MatListItem,
-    RouterLink,
-    RouterOutlet,
-  ],
-  template: `
+    selector: 'portal-shell',
+    imports: [
+        MatSidenavContainer,
+        MatSidenav,
+        MatSidenavContent,
+        MatToolbar,
+        MatNavList,
+        MatIcon,
+        MatIconButton,
+        MatListItem,
+        RouterLink,
+        RouterOutlet,
+    ],
+    template: `
     <mat-sidenav-container class="sidenav-container">
       <mat-sidenav #drawer class="sidenav" fixedInViewport [attr.role]="'dialog'" [mode]="'over'">
         <mat-toolbar>Menu</mat-toolbar>
@@ -53,7 +52,7 @@ import { RouterLink, RouterOutlet } from '@angular/router';
       </mat-sidenav-content>
     </mat-sidenav-container>
   `,
-  styles: `
+    styles: `
     .sidenav-container {
       height: 100%;
     }
@@ -87,7 +86,7 @@ import { RouterLink, RouterOutlet } from '@angular/router';
       margin-top: auto;
     }
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ShellComponent {
   readonly sideNavItems = [

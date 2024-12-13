@@ -14,24 +14,23 @@ import { ToTitleCasePipe } from '../utils/toTitleCase.pipe';
 import { DEVICE_TYPE } from '../schema/audit.constants';
 
 @Component({
-  selector: 'builder-audit-global',
-  standalone: true,
-  imports: [
-    RxIf,
-    RxFor,
-    ReactiveFormsModule,
-    ToTitleCasePipe,
-    MatFormField,
-    MatInput,
-    MatCardActions,
-    MatButton,
-    MatSelect,
-    MatOption,
-    MatError,
-    MatLabel,
-    MatFabButton,
-  ],
-  template: `
+    selector: 'builder-audit-global',
+    imports: [
+        RxIf,
+        RxFor,
+        ReactiveFormsModule,
+        ToTitleCasePipe,
+        MatFormField,
+        MatInput,
+        MatCardActions,
+        MatButton,
+        MatSelect,
+        MatOption,
+        MatError,
+        MatLabel,
+        MatFabButton,
+    ],
+    template: `
     <div class="row">
       <mat-form-field class="full-width">
         <mat-label>Audit Title</mat-label>
@@ -70,7 +69,7 @@ import { DEVICE_TYPE } from '../schema/audit.constants';
       </mat-form-field>
     </div>
   `,
-  styleUrl: './audit-globals.styles.scss',
+    styleUrl: './audit-globals.styles.scss'
 })
 export class AuditGlobalsComponent {
   protected readonly DEVICE_TYPES = Object.values(DEVICE_TYPE);

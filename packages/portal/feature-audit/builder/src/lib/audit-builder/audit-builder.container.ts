@@ -30,8 +30,8 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { SchedulerService } from '@app-speed/portal-data-access';
 
 @Component({
-  selector: 'builder-form',
-  template: `
+    selector: 'builder-form',
+    template: `
     <form
       *rxIf="auditInit$"
       novalidate
@@ -49,25 +49,24 @@ import { SchedulerService } from '@app-speed/portal-data-access';
       </mat-card>
     </form>
   `,
-  styleUrl: './audit-builder.styles.scss',
-  standalone: true,
-  imports: [
-    RxLet,
-    RxIf,
-    RxFor,
-    ReactiveFormsModule,
-    AuditGlobalsComponent,
-    AuditStepComponent,
-    AuditGlobalsComponent,
-    MatCard,
-    MatCardContent,
-    MatAccordion,
-    MatProgressSpinner,
-    MatCardHeader,
-    MatCardTitle,
-    MatCardFooter,
-    MatCardSubtitle,
-  ],
+    styleUrl: './audit-builder.styles.scss',
+    imports: [
+        RxLet,
+        RxIf,
+        RxFor,
+        ReactiveFormsModule,
+        AuditGlobalsComponent,
+        AuditStepComponent,
+        AuditGlobalsComponent,
+        MatCard,
+        MatCardContent,
+        MatAccordion,
+        MatProgressSpinner,
+        MatCardHeader,
+        MatCardTitle,
+        MatCardFooter,
+        MatCardSubtitle,
+    ]
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix
 export class AuditBuilderContainer {

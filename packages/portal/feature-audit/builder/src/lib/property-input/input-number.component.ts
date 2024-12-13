@@ -8,10 +8,9 @@ import { MatInput } from '@angular/material/input';
 import { StepProperty } from '../schema/types';
 
 @Component({
-  selector: 'builder-input-number',
-  standalone: true,
-  imports: [ReactiveFormsModule, MatFormField, MatInput, MatIconButton, MatIcon, MatLabel],
-  template: `
+    selector: 'builder-input-number',
+    imports: [ReactiveFormsModule, MatFormField, MatInput, MatIconButton, MatIcon, MatLabel],
+    template: `
     <div>
       <mat-form-field>
         <mat-label>{{ schema.name }}</mat-label>
@@ -28,7 +27,7 @@ import { StepProperty } from '../schema/types';
         </button>
       }
     </div>
-  `,
+  `
 })
 export class InputNumberComponent {
   @Input({ required: true }) schema!: StepProperty;

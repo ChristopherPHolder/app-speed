@@ -3,16 +3,15 @@ import { MatChip, MatChipAvatar } from '@angular/material/chips';
 import { StatusBadgeComponent } from '@app-speed/portal-ui/status-badge';
 
 @Component({
-  selector: 'ui-fractional-result-chip',
-  standalone: true,
-  template: `
+    selector: 'ui-fractional-result-chip',
+    template: `
     <mat-chip [disableRipple]="true" [class]="status()">
       <ui-status-badge [status]="status()" matChipAvatar style="display: contents;" />
       {{ results().numPassed }} / {{ results().numPassableAudits }}
     </mat-chip>
   `,
-  imports: [MatChip, StatusBadgeComponent, MatChipAvatar],
-  styles: `
+    imports: [MatChip, StatusBadgeComponent, MatChipAvatar],
+    styles: `
     .warn {
       --mdc-chip-elevated-container-color: rgba(255, 170, 51, 0.2);
     }
@@ -22,7 +21,7 @@ import { StatusBadgeComponent } from '@app-speed/portal-ui/status-badge';
     .alert {
       --mdc-chip-elevated-container-color: rgba(204, 0, 0, 0.2);
     }
-  `,
+  `
 })
 export class FractionalResultChipComponent {
   results = input.required<{

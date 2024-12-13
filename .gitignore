@@ -122,3 +122,5 @@ tmp
 # Nx vite config caches
 # Issue is related to https://github.com/nrwl/nx/issues/22086 and https://github.com/GoogleChrome/lighthouse/issues/16203
 *.timestamp-*
+
+vite.config.*.timestamp*

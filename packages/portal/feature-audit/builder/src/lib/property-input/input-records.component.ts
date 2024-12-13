@@ -7,8 +7,8 @@ import { FormControl } from '@angular/forms';
 import { StepProperty } from '../schema/types';
 
 @Component({
-  selector: 'builder-input-records',
-  template: `
+    selector: 'builder-input-records',
+    template: `
     <div>
       TODO
       @if (!schema.required) {
@@ -24,8 +24,7 @@ import { StepProperty } from '../schema/types';
       <p>{{ schema | json }}</p>
     </div>
   `,
-  standalone: true,
-  imports: [MatIconButton, MatIcon, JsonPipe],
+    imports: [MatIconButton, MatIcon, JsonPipe]
 })
 export class InputRecordsComponent {
   @Input({ required: true }) schema!: StepProperty;

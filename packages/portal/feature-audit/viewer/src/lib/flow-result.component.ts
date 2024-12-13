@@ -5,15 +5,14 @@ import { AuditSummaryComponent } from './viewer-container/audit-summary.componen
 import { RxIf } from '@rx-angular/template/if';
 
 @Component({
-  selector: 'viewer-flow-result',
-  standalone: true,
-  template: `
+    selector: 'viewer-flow-result',
+    template: `
     @for (step of steps(); track step.name) {
       <viewer-step-detail [stepDetails]="step" />
     }
   `,
-  styles: ``,
-  imports: [ViewerStepDetailComponent, AuditSummaryComponent, RxIf],
+    styles: ``,
+    imports: [ViewerStepDetailComponent, AuditSummaryComponent, RxIf]
 })
 export class FlowResultComponent {
   flowResult = input.required<FlowResult>();

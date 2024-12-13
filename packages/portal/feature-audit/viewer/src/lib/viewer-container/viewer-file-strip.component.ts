@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { ScrollContainerComponent } from '@app-speed/portal-ui/scroll-container';
 
 @Component({
-  selector: 'viewer-file-strip',
-  template: `
+    selector: 'viewer-file-strip',
+    template: `
     <ui-scroll-container>
       <div class="film-strip-container">
         @for (item of filmStrip(); track item) {
@@ -12,7 +12,7 @@ import { ScrollContainerComponent } from '@app-speed/portal-ui/scroll-container'
       </div>
     </ui-scroll-container>
   `,
-  styles: `
+    styles: `
     .film-strip-container {
       display: flex;
       overflow: auto;
@@ -37,9 +37,8 @@ import { ScrollContainerComponent } from '@app-speed/portal-ui/scroll-container'
       }
     }
   `,
-  standalone: true,
-  imports: [ScrollContainerComponent],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [ScrollContainerComponent],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ViewerFileStripComponent {
   filmStrip = input.required<{ data: string }[]>();

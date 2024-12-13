@@ -9,9 +9,8 @@ import { AuditViewerContainer } from '@app-speed/portal-feature-audit/viewer';
 import { StageIndicatorComponent } from './stage-indicator.component';
 
 @Component({
-  selector: 'lib-user-flow',
-  standalone: true,
-  template: `
+    selector: 'lib-user-flow',
+    template: `
     <builder-form />
 
     @defer {
@@ -20,26 +19,26 @@ import { StageIndicatorComponent } from './stage-indicator.component';
       <stage-indicator-component *rxIf="scheduler.shouldDisplayIndicator$" [stageName]="scheduler.stageName$ | push" />
     }
   `,
-  styles: `
+    styles: `
     :host {
       display: block;
       max-width: 960px;
       margin: auto;
     }
   `,
-  imports: [
-    AuditBuilderContainer,
-    MatCard,
-    MatCardContent,
-    MatCardHeader,
-    MatCardSubtitle,
-    MatCardTitle,
-    MatProgressSpinner,
-    RxIf,
-    AuditViewerContainer,
-    StageIndicatorComponent,
-    RxPush,
-  ],
+    imports: [
+        AuditBuilderContainer,
+        MatCard,
+        MatCardContent,
+        MatCardHeader,
+        MatCardSubtitle,
+        MatCardTitle,
+        MatProgressSpinner,
+        RxIf,
+        AuditViewerContainer,
+        StageIndicatorComponent,
+        RxPush,
+    ]
 })
 export class UserFlowComponent {
   public readonly scheduler = inject(SchedulerService);

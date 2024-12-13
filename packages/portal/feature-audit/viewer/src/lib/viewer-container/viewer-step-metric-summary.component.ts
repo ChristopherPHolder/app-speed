@@ -11,8 +11,8 @@ export type MetricSummary = {
 };
 
 @Component({
-  selector: 'viewer-step-metric-summary',
-  template: `
+    selector: 'viewer-step-metric-summary',
+    template: `
     <div class="header">
       <span>METRICS</span>
       <div (click)="toddleDescriptionVisibility()">{{ toggleBtnText() }} view</div>
@@ -32,7 +32,7 @@ export type MetricSummary = {
       }
     </div>
   `,
-  styles: `
+    styles: `
     .header {
       display: flex;
       justify-content: space-between;
@@ -73,9 +73,8 @@ export type MetricSummary = {
       margin-left: auto;
     }
   `,
-  standalone: true,
-  imports: [StatusBadgeComponent, MdToAnkerPipe],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [StatusBadgeComponent, MdToAnkerPipe],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ViewerStepMetricSummaryComponent {
   metricSummary = input.required<MetricSummary[]>();
