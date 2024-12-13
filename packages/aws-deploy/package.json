@@ -2,9 +2,9 @@
   "name": "@app-speed/aws-deploy",
   "version": "0.0.1",
   "dependencies": {
-    "@nx/devkit": "19.8.2",
+    "@nx/devkit": "20.2.2",
     "@aws-sdk/client-lambda": "^3.609.0",
-    "dotenv": "16.4.5",
+    "dotenv": "16.4.7",
     "archiver": "^7.0.1"
   },
   "type": "commonjs",
