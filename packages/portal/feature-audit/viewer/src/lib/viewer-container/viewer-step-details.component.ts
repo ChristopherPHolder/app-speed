@@ -10,8 +10,8 @@ import { DiagnosticItem } from './viewer-diagnostic-panel.component';
 import { metricAudits, metricResults } from './view-step-details.adaptor';
 
 @Component({
-  selector: 'viewer-step-detail',
-  template: `
+    selector: 'viewer-step-detail',
+    template: `
     @let metricSummary = categoryMetricSummary();
     @if (metricSummary.length) {
       <viewer-step-metric-summary [metricSummary]="metricSummary" class="pad" />
@@ -24,10 +24,9 @@ import { metricAudits, metricResults } from './view-step-details.adaptor';
     <div>DIAGNOSTICS</div>
     <viewer-diagnostic class="pad" [items]="diagnosticItems()" />
   `,
-  standalone: true,
-  imports: [ViewerStepMetricSummaryComponent, ViewerFileStripComponent, ViewerDiagnosticComponent],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  styles: `
+    imports: [ViewerStepMetricSummaryComponent, ViewerFileStripComponent, ViewerDiagnosticComponent],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    styles: `
     :host {
       display: block;
       max-width: 1200px;
@@ -37,7 +36,7 @@ import { metricAudits, metricResults } from './view-step-details.adaptor';
     .pad {
       padding: 20px;
     }
-  `,
+  `
 })
 export class ViewerStepDetailComponent {
   stepDetails = input.required<FlowResult.Step>();

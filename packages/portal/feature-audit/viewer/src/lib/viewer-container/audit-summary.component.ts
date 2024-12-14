@@ -30,8 +30,8 @@ export type AuditSummary = {
 };
 
 @Component({
-  selector: 'viewer-audit-summary',
-  template: `
+    selector: 'viewer-audit-summary',
+    template: `
     <mat-card>
       <mat-card-header>
         <mat-card-title>Audit Summery</mat-card-title>
@@ -90,8 +90,8 @@ export type AuditSummary = {
       </ui-scroll-container>
     </mat-card>
   `,
-  styles: [
-    `
+    styles: [
+        `
       .center-row-content {
         width: 100%;
         display: flex;
@@ -107,30 +107,29 @@ export type AuditSummary = {
         background-color: var(--mdc-switch-selected-track-color);
       }
     `,
-  ],
-  standalone: true,
-  imports: [
-    MatTable,
-    MatRecycleRows,
-    MatColumnDef,
-    MatHeaderCell,
-    MatHeaderCellDef,
-    MatCell,
-    MatCellDef,
-    MatHeaderRow,
-    MatHeaderRowDef,
-    MatRow,
-    MatRowDef,
-    MatIcon,
-    MatCard,
-    MatCardContent,
-    MatCardHeader,
-    MatCardTitle,
-    RadialChartComponent,
-    ViewerScoreComponent,
-    ScrollContainerComponent,
-  ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    ],
+    imports: [
+        MatTable,
+        MatRecycleRows,
+        MatColumnDef,
+        MatHeaderCell,
+        MatHeaderCellDef,
+        MatCell,
+        MatCellDef,
+        MatHeaderRow,
+        MatHeaderRowDef,
+        MatRow,
+        MatRowDef,
+        MatIcon,
+        MatCard,
+        MatCardContent,
+        MatCardHeader,
+        MatCardTitle,
+        RadialChartComponent,
+        ViewerScoreComponent,
+        ScrollContainerComponent,
+    ],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AuditSummaryComponent {
   auditSummary = input.required<AuditSummary>();

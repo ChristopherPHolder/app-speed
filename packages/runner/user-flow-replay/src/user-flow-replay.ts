@@ -34,7 +34,7 @@ export class UserFlowAudit {
   }
 
   private async initializeRunnerContext(): Promise<UserFlowRunnerContext> {
-    const browser = await launch({ headless: 'new', args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+    const browser = await launch({ headless: false, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
     const page = await browser.newPage();
     const flow = await startFlow(page, { name: this.replayScript.title });
     return { browser, page, flow };

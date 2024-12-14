@@ -1,10 +1,11 @@
-import {BypassSrcDirective} from './bypass-src.directive';
-import {Component} from '@angular/core';
-import {ComponentFixture, TestBed, waitForAsync} from '@angular/core/testing';
-import {By} from '@angular/platform-browser';
+import { BypassSrcDirective } from './bypass-src.directive';
+import { Component } from '@angular/core';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 
 @Component({
-  template: '<iframe bypassSrc=""></iframe>'
+  template: '<iframe bypassSrc=""></iframe>',
+  imports: [BypassSrcDirective],
 })
 class TestComponent {}
 
@@ -14,16 +15,10 @@ describe('BypassSrcDirective', () => {
   let input: string;
 
   beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [TestComponent],
-      imports: [BypassSrcDirective]
-    }).compileComponents();
-  }))
-
-  beforeEach(() => {
+    TestBed.configureTestingModule({ imports: [TestComponent] });
     fixture = TestBed.createComponent(TestComponent);
     iframe = fixture.debugElement.query(By.directive(BypassSrcDirective)).nativeElement;
-  });
+  }));
 
   it('should set src attribute on the iframe', () => {
     expect(iframe.src).toBe('http://localhost/');
@@ -44,7 +39,6 @@ describe('BypassSrcDirective', () => {
   });
 
   it('should combine the input with the current domain if it does not include the http protocol', () => {
-
     input = 'example.com';
     iframe.src = input;
     fixture.detectChanges();

@@ -14,17 +14,16 @@ import { INPUT_TYPE, PROPERTY_NAME } from '../schema/property.constants';
 import { PropertyName, StepType } from '../schema/types';
 
 @Component({
-  selector: 'builder-step-property',
-  standalone: true,
-  imports: [
-    InputStringComponent,
-    InputNumberComponent,
-    InputBooleanComponent,
-    InputOptionsComponent,
-    InputStringArrayComponent,
-    InputRecordsComponent,
-  ],
-  template: `
+    selector: 'builder-step-property',
+    imports: [
+        InputStringComponent,
+        InputNumberComponent,
+        InputBooleanComponent,
+        InputOptionsComponent,
+        InputStringArrayComponent,
+        InputRecordsComponent,
+    ],
+    template: `
     @switch (schema().inputType) {
       @case (INPUT_TYPE.STRING) {
         <builder-input-string
@@ -70,7 +69,7 @@ import { PropertyName, StepType } from '../schema/types';
         />
       }
     }
-  `,
+  `
 })
 export class StepPropertyComponent {
   protected readonly INPUT_TYPE = INPUT_TYPE;

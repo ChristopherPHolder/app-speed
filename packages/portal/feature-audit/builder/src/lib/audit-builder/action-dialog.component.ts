@@ -5,8 +5,8 @@ import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { AuditBuilderService } from './audit-builder.service';
 
 @Component({
-  selector: 'builder-step-action-dialog',
-  template: `
+    selector: 'builder-step-action-dialog',
+    template: `
     <button
       type="button"
       mat-icon-button
@@ -23,8 +23,7 @@ import { AuditBuilderService } from './audit-builder.service';
       <button type="button" mat-menu-item (click)="builder.addStep(stepIndex + 1)">Add Step After</button>
     </mat-menu>
   `,
-  standalone: true,
-  imports: [MatIconButton, MatMenuTrigger, MatIcon, MatMenu, MatMenuItem],
+    imports: [MatIconButton, MatMenuTrigger, MatIcon, MatMenu, MatMenuItem]
 })
 export class StepActionDialogComponent {
   @Input({ required: true }) stepIndex!: number;

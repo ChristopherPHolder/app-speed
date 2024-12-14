@@ -9,19 +9,18 @@ import { StepPropertyComponent } from '../property-input/property.component';
 import { MatFabButton } from '@angular/material/button';
 
 @Component({
-  selector: 'builder-audit-step',
-  standalone: true,
-  imports: [
-    ToTitleCasePipe,
-    StepActionDialogComponent,
-    StepPropertyComponent,
-    KeyValuePipe,
-    MatExpansionPanel,
-    MatExpansionPanelHeader,
-    MatExpansionPanelTitle,
-    MatFabButton,
-  ],
-  template: `
+    selector: 'builder-audit-step',
+    imports: [
+        ToTitleCasePipe,
+        StepActionDialogComponent,
+        StepPropertyComponent,
+        KeyValuePipe,
+        MatExpansionPanel,
+        MatExpansionPanelHeader,
+        MatExpansionPanelTitle,
+        MatFabButton,
+    ],
+    template: `
     <mat-expansion-panel [expanded]="true">
       <mat-expansion-panel-header>
         <mat-panel-title>
@@ -50,7 +49,7 @@ import { MatFabButton } from '@angular/material/button';
       }
     </mat-expansion-panel>
   `,
-  styles: `
+    styles: `
     .toggle_menu {
       position: absolute;
       top: 48px;
@@ -61,7 +60,7 @@ import { MatFabButton } from '@angular/material/button';
         right: 4px;
       }
     }
-  `,
+  `
 })
 export class AuditStepComponent {
   @Input({ required: true }) stepIndex!: number;

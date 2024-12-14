@@ -3,8 +3,8 @@ import Details from 'lighthouse/types/lhr/audit-details';
 import { TableComponent } from './table.component';
 
 @Component({
-  selector: 'viewer-details',
-  template: `
+    selector: 'viewer-details',
+    template: `
     @switch (details().type) {
       @case ('debugdata') {
         TODO debugdata
@@ -34,9 +34,8 @@ import { TableComponent } from './table.component';
       }
     }
   `,
-  standalone: true,
-  imports: [TableComponent],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [TableComponent],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DetailsComponent {
   details = input.required<Details | Details.Table | Details.List>();

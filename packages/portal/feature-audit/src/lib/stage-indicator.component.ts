@@ -11,19 +11,18 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { RxIf } from '@rx-angular/template/if';
 
 @Component({
-  standalone: true,
-  selector: 'stage-indicator-component',
-  imports: [
-    RxIf,
-    MatCard,
-    MatCardHeader,
-    MatCardTitle,
-    MatCardSubtitle,
-    MatCardContent,
-    MatProgressSpinner,
-    MatCardFooter,
-  ],
-  template: `
+    selector: 'stage-indicator-component',
+    imports: [
+        RxIf,
+        MatCard,
+        MatCardHeader,
+        MatCardTitle,
+        MatCardSubtitle,
+        MatCardContent,
+        MatProgressSpinner,
+        MatCardFooter,
+    ],
+    template: `
     <div class="grid-container">
       <mat-card class="loading-card">
         <mat-card-header>
@@ -39,7 +38,7 @@ import { RxIf } from '@rx-angular/template/if';
       </mat-card>
     </div>
   `,
-  styles: `
+    styles: `
     .grid-container {
       margin: 20px;
     }
@@ -48,7 +47,7 @@ import { RxIf } from '@rx-angular/template/if';
       align-items: center;
       text-align: center;
     }
-  `,
+  `
 })
 export class StageIndicatorComponent {
   stageName = input.required<string>();

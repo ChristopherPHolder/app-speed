@@ -8,8 +8,8 @@ import { ViewerStepDetailComponent } from '../viewer-container/viewer-step-detai
 import { ReportUtils } from 'lighthouse/report/renderer/report-utils';
 
 @Component({
-  selector: 'viewer-container',
-  template: `
+    selector: 'viewer-container',
+    template: `
     @if (auditSummary(); as summary) {
       <ui-audit-summary [(activeIndex)]="activeIndex" [auditSummary]="summary" />
     }
@@ -17,9 +17,8 @@ import { ReportUtils } from 'lighthouse/report/renderer/report-utils';
       <viewer-step-detail [stepDetails]="step" />
     }
   `,
-  standalone: true,
-  imports: [AuditSummaryComponent, ViewerStepDetailComponent],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [AuditSummaryComponent, ViewerStepDetailComponent],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix
 export class AuditViewerContainer {

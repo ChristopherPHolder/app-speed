@@ -17,8 +17,8 @@ export type DiagnosticItem = {
 };
 
 @Component({
-  selector: 'viewer-diagnostic-panel',
-  template: `
+    selector: 'viewer-diagnostic-panel',
+    template: `
     <mat-expansion-panel>
       <mat-expansion-panel-header>
         <mat-panel-title>
@@ -45,7 +45,7 @@ export type DiagnosticItem = {
       }
     </mat-expansion-panel>
   `,
-  styles: `
+    styles: `
     .status-badge {
       margin-right: 8px;
       overflow: visible;
@@ -58,17 +58,16 @@ export type DiagnosticItem = {
       }
     }
   `,
-  standalone: true,
-  imports: [
-    MatExpansionPanel,
-    MatExpansionPanelHeader,
-    MatExpansionPanelTitle,
-    MdToAnkerPipe,
-    StatusBadgeComponent,
-    DetailsComponent,
-    MatChip,
-  ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [
+        MatExpansionPanel,
+        MatExpansionPanelHeader,
+        MatExpansionPanelTitle,
+        MdToAnkerPipe,
+        StatusBadgeComponent,
+        DetailsComponent,
+        MatChip,
+    ],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ViewerDiagnosticPanelComponent {
   item = input.required<DiagnosticItem>();

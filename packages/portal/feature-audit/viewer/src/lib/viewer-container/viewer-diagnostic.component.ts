@@ -3,17 +3,16 @@ import { MatAccordion } from '@angular/material/expansion';
 import { DiagnosticItem, ViewerDiagnosticPanelComponent } from './viewer-diagnostic-panel.component';
 
 @Component({
-  selector: 'viewer-diagnostic',
-  template: `
+    selector: 'viewer-diagnostic',
+    template: `
     <mat-accordion>
       @for (item of items(); track item.id) {
         <viewer-diagnostic-panel [item]='item'/>
       }
     </mat-accordion>
   `,
-  standalone: true,
-  imports: [MatAccordion, ViewerDiagnosticPanelComponent],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    imports: [MatAccordion, ViewerDiagnosticPanelComponent],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ViewerDiagnosticComponent {
   items = input.required<DiagnosticItem[]>();

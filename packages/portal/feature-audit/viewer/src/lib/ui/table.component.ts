@@ -18,8 +18,8 @@ import { RoundPipe } from '../utils/round.pipe';
 import { KibibytesPipe } from '../utils/kibibytes.pipe';
 
 @Component({
-  selector: 'viewer-table',
-  template: `
+    selector: 'viewer-table',
+    template: `
     <ui-scroll-container>
       <table mat-table [dataSource]="dataSource()">
         <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
@@ -47,7 +47,7 @@ import { KibibytesPipe } from '../utils/kibibytes.pipe';
       </table>
     </ui-scroll-container>
   `,
-  styles: `
+    styles: `
     table {
       border: 1px solid var(--mat-table-row-item-outline-color);
       tr {
@@ -61,25 +61,24 @@ import { KibibytesPipe } from '../utils/kibibytes.pipe';
       }
     }
   `,
-  standalone: true,
-  imports: [
-    MatTable,
-    MatHeaderRow,
-    MatRow,
-    MatHeaderRowDef,
-    MatColumnDef,
-    MatRowDef,
-    JsonPipe,
-    NgFor,
-    MatHeaderCell,
-    MatHeaderCellDef,
-    MatCell,
-    MatCellDef,
-    RoundPipe,
-    KibibytesPipe,
-    ScrollContainerComponent,
-  ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [
+        MatTable,
+        MatHeaderRow,
+        MatRow,
+        MatHeaderRowDef,
+        MatColumnDef,
+        MatRowDef,
+        JsonPipe,
+        NgFor,
+        MatHeaderCell,
+        MatHeaderCellDef,
+        MatCell,
+        MatCellDef,
+        RoundPipe,
+        KibibytesPipe,
+        ScrollContainerComponent,
+    ],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TableComponent {
   tableDetails = input.required<Details.Table>();

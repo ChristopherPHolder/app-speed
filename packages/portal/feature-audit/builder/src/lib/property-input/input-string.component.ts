@@ -11,21 +11,20 @@ import { JsonPipe } from '@angular/common';
 import { ToTitleCasePipe } from '../utils/toTitleCase.pipe';
 
 @Component({
-  selector: 'builder-input-string',
-  standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MatError,
-    MatLabel,
-    MatInput,
-    MatFormField,
-    MatIcon,
-    MatIconButton,
-    RxIf,
-    JsonPipe,
-    ToTitleCasePipe,
-  ],
-  template: `
+    selector: 'builder-input-string',
+    imports: [
+        ReactiveFormsModule,
+        MatError,
+        MatLabel,
+        MatInput,
+        MatFormField,
+        MatIcon,
+        MatIconButton,
+        RxIf,
+        JsonPipe,
+        ToTitleCasePipe,
+    ],
+    template: `
     <div>
       <mat-form-field>
         <mat-label>{{ schema.name }}</mat-label>
@@ -45,7 +44,7 @@ import { ToTitleCasePipe } from '../utils/toTitleCase.pipe';
         </button>
       }
     </div>
-  `,
+  `
 })
 export class InputStringComponent {
   @Input({ required: true }) schema!: StepProperty;

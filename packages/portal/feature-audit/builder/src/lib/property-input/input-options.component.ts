@@ -10,10 +10,9 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { StepProperty } from '../schema/types';
 
 @Component({
-  selector: 'builder-input-options',
-  standalone: true,
-  imports: [RxFor, ReactiveFormsModule, MatLabel, MatFormField, MatSelect, MatOption, MatIcon, MatIconButton],
-  template: `
+    selector: 'builder-input-options',
+    imports: [RxFor, ReactiveFormsModule, MatLabel, MatFormField, MatSelect, MatOption, MatIcon, MatIconButton],
+    template: `
     <div>
       <mat-form-field>
         <mat-label>{{ schema.name }} </mat-label>
@@ -34,7 +33,7 @@ import { StepProperty } from '../schema/types';
         </button>
       }
     </div>
-  `,
+  `
 })
 export class InputOptionsComponent {
   @Input({ required: true }) schema!: StepProperty;

@@ -8,10 +8,9 @@ import { MatInput } from '@angular/material/input';
 import { StepProperty } from '../schema/types';
 
 @Component({
-  selector: 'builder-input-string-array',
-  standalone: true,
-  imports: [ReactiveFormsModule, MatIconButton, MatIcon, MatFormField, MatInput],
-  template: `
+    selector: 'builder-input-string-array',
+    imports: [ReactiveFormsModule, MatIconButton, MatIcon, MatFormField, MatInput],
+    template: `
     <!-- TODO Improve Styling For Input Section -->
     <!-- One potential solution is to simple add a -> icon next to the items -->
     <div>
@@ -57,7 +56,7 @@ import { StepProperty } from '../schema/types';
         </div>
       }
     </div>
-  `,
+  `
 })
 export class InputStringArrayComponent {
   @Input({ required: true }) schema!: StepProperty;
