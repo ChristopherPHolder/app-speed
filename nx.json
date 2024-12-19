@@ -95,30 +95,6 @@
       "style": "scss"
     }
   },
-  "release": {
-    "projects": ["esbuild-meta"],
-    "projectsRelationship": "independent",
-    "version": {
-      "preVersionCommand": "npx nx run-many -t build",
-      "generatorOptions": {
-        "specifierSource": "conventional-commits",
-        "currentVersionResolver": "git-tag",
-        "fallbackCurrentVersionResolver": "disk",
-        "packageRoot": "dist/packages/{projectName}"
-      }
-    },
-    "changelog": {
-      "projectChangelogs": {
-        "createRelease": "github"
-      }
-    },
-    "releaseTagPattern": "release/{projectName}/{version}",
-    "git": {
-      "commit": true,
-      "tag": true,
-      "commitMessage": "ci({projectName}): publish v{version}"
-    }
-  },
   "plugins": [
     {
       "plugin": "@nx/eslint/plugin",
@@ -142,17 +118,6 @@
         "packages/cli-middleware/**/*",
         "packages/user-flow-replay/**/*"
       ]
-    },
-    {
-      "plugin": "@nx/vite/plugin",
-      "options": {
-        "buildTargetName": "build",
-        "serveTargetName": "serve",
-        "previewTargetName": "preview",
-        "testTargetName": "e2e",
-        "serveStaticTargetName": "serve-static"
-      },
-      "include": ["packages/esbuild-meta/**/*", "packages/runner-e2e/**/*"]
     }
   ],
   "useLegacyCache": true
