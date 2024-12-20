@@ -3,6 +3,7 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "prefix": "app",
+  "root": "packages/portal/app",
   "sourceRoot": "packages/portal/app/src",
   "tags": ["frontend"],
   "targets": {
@@ -16,7 +17,7 @@
         "polyfills": ["zone.js"],
         "tsConfig": "packages/portal/app/tsconfig.app.json",
         "assets": ["{projectRoot}/src/favicon.ico", "{projectRoot}/src/assets"],
-        "styles": ["{projectRoot}/src/styles.scss"]
+        "styles": ["{workspaceRoot}/packages/portal/ui/theme/styles.scss"]
       },
       "configurations": {
         "production": {

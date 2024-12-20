@@ -1,6 +1,7 @@
 {
   "$schema": "../../../node_modules/ng-packagr/ng-package.schema.json",
   "dest": "../../../dist/packages/portal/ui",
+  "assets": [{ "input": "theme", "glob": "**/*.scss", "output": "@ui" }],
   "lib": {
     "entryFile": "src/index.ts"
   }

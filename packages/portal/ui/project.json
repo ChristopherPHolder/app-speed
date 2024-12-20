@@ -7,7 +7,7 @@
   "tags": ["frontend"],
   "targets": {
     "build": {
-      "executor": "@nx/angular:package",
+      "executor": "@nx/angular:ng-packagr-lite",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
         "project": "{workspaceRoot}/{projectRoot}/ng-package.json"
@@ -39,7 +39,7 @@
         "port": 4400,
         "configDir": "{workspaceRoot}/{projectRoot}/.storybook",
         "tsConfig": "{workspaceRoot}/{projectRoot}/tsconfig.storybook.json",
-        "styles": ["@angular/material/prebuilt-themes/indigo-pink.css"],
+        "styles": ["{workspaceRoot}/{projectRoot}/theme/styles.scss"],
         "browserTarget": "portal-ui:build-storybook",
         "compodoc": false
       },
@@ -54,6 +54,7 @@
       "outputs": ["{options.outputDir}"],
       "options": {
         "outputDir": "dist/storybook/ui",
+        "styles": ["{workspaceRoot}/{projectRoot}/theme/styles.scss"],
         "tsConfig": "{workspaceRoot}/{projectRoot}/tsconfig.storybook.json",
         "configDir": "{workspaceRoot}/{projectRoot}/.storybook",
         "browserTarget": "portal-ui:build-storybook",
