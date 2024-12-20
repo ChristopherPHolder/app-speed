@@ -1,10 +1,10 @@
 {
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "portal-app",
-  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "prefix": "app",
-  "root": "packages/portal/app",
-  "sourceRoot": "packages/portal/app/src",
+  "root": "apps/portal",
+  "sourceRoot": "apps/portal/src",
   "tags": ["frontend"],
   "targets": {
     "build": {
@@ -15,7 +15,7 @@
         "index": "{projectRoot}/src/index.html",
         "main": "{projectRoot}/src/main.ts",
         "polyfills": ["zone.js"],
-        "tsConfig": "packages/portal/app/tsconfig.app.json",
+        "tsConfig": "{projectRoot}/tsconfig.app.json",
         "assets": ["{projectRoot}/src/favicon.ico", "{projectRoot}/src/assets"],
         "styles": ["{workspaceRoot}/packages/portal/ui/theme/styles.scss"]
       },
