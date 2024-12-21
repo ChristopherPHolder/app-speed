@@ -2,9 +2,9 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { NgScrollbarModule } from 'ngx-scrollbar';
 
 @Component({
-    selector: 'ui-scroll-container',
-    template: `<ng-scrollbar><ng-content /></ng-scrollbar>`,
-    styles: `
+  selector: 'ui-scroll-container',
+  template: `<ng-scrollbar><ng-content /></ng-scrollbar>`,
+  styles: `
     ng-scrollbar {
       --scrollbar-track-color: rgb(0 0 0 / 5%);
       /* TODO - extract token correctly */
@@ -15,7 +15,7 @@ import { NgScrollbarModule } from 'ngx-scrollbar';
       border-radius: 3px;
     }
   `,
-    imports: [NgScrollbarModule],
-    changeDetection: ChangeDetectionStrategy.OnPush
+  imports: [NgScrollbarModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScrollContainerComponent {}

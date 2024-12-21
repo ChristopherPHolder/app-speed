@@ -2,7 +2,8 @@
   "name": "portal-ui",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
-  "sourceRoot": "packages/portal/ui",
+  "root": "libs/portal/ui",
+  "sourceRoot": "libs/portal/ui",
   "prefix": "ui",
   "tags": ["frontend"],
   "targets": {
