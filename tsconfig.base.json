@@ -14,7 +14,7 @@
     "paths": {
       "@app-speed/aws-deploy": ["packages/aws-deploy/src/index.ts"],
       "@app-speed/environments": ["packages/environments/public-api.ts"],
-      "@app-speed/portal-data-access": ["packages/portal/data-access/src/index.ts"],
+      "@app-speed/portal-data-access": ["libs/portal/data-access/src/index.ts"],
       "@app-speed/portal-feature-audit": ["packages/portal/feature-audit/src/index.ts"],
       "@app-speed/portal-feature-audit/builder": ["packages/portal/feature-audit/builder/src/index.ts"],
       "@app-speed/portal-feature-audit/viewer": ["packages/portal/feature-audit/viewer/src/index.ts"],
