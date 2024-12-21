@@ -29,7 +29,7 @@
       "@app-speed/runner-data-access-store": ["libs/runner/data-access-store/src/index.ts"],
       "@app-speed/runner-interfaces": ["libs/runner/interfaces/src/index.ts"],
       "@app-speed/runner-middleware": ["libs/runner/middleware/src/index.ts"],
-      "@app-speed/runner-user-flow-replay": ["packages/runner/user-flow-replay/public-api.ts"],
+      "@app-speed/runner-user-flow-replay": ["libs/runner/user-flow-replay/src/public-api.ts"],
       "@app-speed/shared": ["packages/shared/public-api.ts"],
       "@app-speed/userflow-conductor/shared-util-lib": ["packages/userflow-conductor/shared-util-lib/src/index.ts"],
       "@app-speed/userflow-conductor/socket-io-ser": ["packages/userflow-conductor/socket-io-ser/src/index.ts"]

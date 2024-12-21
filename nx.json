@@ -113,6 +113,5 @@
         "packages/user-flow-replay/**/*"
       ]
     }
-  ],
-  "useLegacyCache": true
+  ]
 }
