@@ -4,8 +4,8 @@ export const AUDIT_STATUS = {
   QUEUED: 'queued',
   LOADING: 'loading',
   DONE: 'done',
-  FAILED: 'failed'
+  FAILED: 'failed',
 } as const;
 export const AUDIT_REQUEST = {
-  SCHEDULE_AUDIT: 'scheduleAudits'
+  SCHEDULE_AUDIT: 'scheduleAudits',
 } as const;

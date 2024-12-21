@@ -3,7 +3,7 @@ import { cwd } from 'process';
 import { readdirSync, readFileSync } from 'fs';
 
 import { AuditQueue } from '@app-speed/runner-interfaces';
-import { AuditRunParams } from '@app-speed/shared';
+import { AuditRunParams } from '@app-speed/shared-utils';
 
 export type LocalQueueConfig = {
   path: string;

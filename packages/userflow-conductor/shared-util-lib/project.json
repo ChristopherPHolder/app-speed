@@ -1,5 +1,5 @@
 {
-  "name": "shared-util-lib",
+  "name": "shared-util-lib-c",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/userflow-conductor/shared-util-lib/src",
   "projectType": "library",

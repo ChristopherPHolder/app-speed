@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input, ViewEncapsulation } from '@angular/core';
 import { map, Observable } from 'rxjs';
-import { AuditStatusType } from '@app-speed/shared';
+import { AuditStatusType } from '@app-speed/shared-utils';
 import { RxLet } from '@rx-angular/template/let';
 
 const progressMap: Record<Partial<AuditStatusType>, string> = {

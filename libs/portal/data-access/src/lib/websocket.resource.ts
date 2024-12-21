@@ -1,4 +1,10 @@
-import { AUDIT_REQUEST, AUDIT_STATUS, AuditRunParams, UfWsRecieveActions, UfWsSendActions } from '@app-speed/shared';
+import {
+  AUDIT_REQUEST,
+  AUDIT_STATUS,
+  AuditRunParams,
+  UfWsRecieveActions,
+  UfWsSendActions,
+} from '@app-speed/shared-utils';
 import { Injectable, inject } from '@angular/core';
 import { environment } from '@app-speed/environments';
 import { filter, map, Observable } from 'rxjs';

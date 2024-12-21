@@ -11,13 +11,13 @@ export {
   SnapshotStep,
   LighthouseStep,
   AppSpeedUserFlowStep,
-  AppSpeedUserFlow
+  AppSpeedUserFlow,
 } from './src/types/replay-types';
 export {
   AuditStatusType,
   AuditRequestType,
   UfWsSendActions,
   UfWsRecieveActions,
-  UfWsActions
+  UfWsActions,
 } from './src/types/ws-types';
 export { Reports, ResultReports, AuditRunParams } from './src/types/types';

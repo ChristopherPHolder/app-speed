@@ -1,6 +1,6 @@
 import { PuppeteerRunnerExtension, Step, UserFlow as UserFlowRecording } from '@puppeteer/replay';
 import { Browser, Page } from 'puppeteer';
-import { AppSpeedUserFlowStep } from '@app-speed/shared';
+import { AppSpeedUserFlowStep } from '@app-speed/shared-utils';
 import { isMeasureType } from './utils';
 import { UserFlow } from 'lighthouse';
 

@@ -1,6 +1,6 @@
 import { AuditExecutor, AuditQueue, AuditStore } from '@app-speed/runner-interfaces';
 import { UserFlowAudit } from '@app-speed/runner-user-flow-replay';
-import { AuditRunParams } from '@app-speed/shared';
+import { AuditRunParams } from '@app-speed/shared-utils';
 import { informAuditError, informAuditItRunning, sendAuditResults } from '../dialog';
 
 export class UserFlowExecutor implements AuditExecutor {
