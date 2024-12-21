@@ -1,5 +1,5 @@
-export { BypassSrcDirective } from './src/directives/bypass-src.directive';
-export { AUDIT_STATUS, AUDIT_REQUEST } from './src/constants/constants';
+export { BypassSrcDirective } from './directives/bypass-src.directive';
+export { AUDIT_STATUS, AUDIT_REQUEST } from './constants/constants';
 export {
   PuppeteerReplayStepType,
   LighthouseStepType,
@@ -12,12 +12,6 @@ export {
   LighthouseStep,
   AppSpeedUserFlowStep,
   AppSpeedUserFlow,
-} from './src/types/replay-types';
-export {
-  AuditStatusType,
-  AuditRequestType,
-  UfWsSendActions,
-  UfWsRecieveActions,
-  UfWsActions,
-} from './src/types/ws-types';
-export { Reports, ResultReports, AuditRunParams } from './src/types/types';
+} from './types/replay-types';
+export { AuditStatusType, AuditRequestType, UfWsSendActions, UfWsRecieveActions, UfWsActions } from './types/ws-types';
+export { Reports, ResultReports, AuditRunParams } from './types/types';

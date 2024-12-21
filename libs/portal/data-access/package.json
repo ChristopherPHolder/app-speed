@@ -4,10 +4,10 @@
   "peerDependencies": {
     "@angular/common": "19.0.4",
     "@angular/core": "19.0.4",
-    "@app-speed/environments": "*",
     "rxjs": "~7.5.0",
     "@rx-angular/state": "19.0.0",
-    "@app-speed/shared-utils": "0.0.1"
+    "@app-speed/shared-utils": "*",
+    "@app-speed/shared-environments": "*"
   },
   "sideEffects": false
 }
