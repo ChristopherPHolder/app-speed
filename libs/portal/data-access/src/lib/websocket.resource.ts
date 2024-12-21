@@ -6,7 +6,7 @@ import {
   UfWsSendActions,
 } from '@app-speed/shared-utils';
 import { Injectable, inject } from '@angular/core';
-import { environment } from '@app-speed/environments';
+import { environment } from '@app-speed/shared-environments';
 import { filter, map, Observable } from 'rxjs';
 import { ResultModel } from './result.model';
 import { Ws } from './ws';
