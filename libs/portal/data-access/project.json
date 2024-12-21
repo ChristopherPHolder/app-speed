@@ -1,7 +1,8 @@
 {
   "name": "portal-data-access",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/portal/data-access/src",
+  "root": "libs/portal/data-access",
+  "sourceRoot": "libs/portal/data-access/src",
   "prefix": "lib",
   "projectType": "library",
   "tags": [],
@@ -10,14 +11,14 @@
       "executor": "@nx/angular:ng-packagr-lite",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
-        "project": "packages/portal/data-access/ng-package.json"
+        "project": "{projectRoot}/ng-package.json"
       },
       "configurations": {
         "production": {
-          "tsConfig": "packages/portal/data-access/tsconfig.lib.prod.json"
+          "tsConfig": "{projectRoot}/tsconfig.lib.prod.json"
         },
         "development": {
-          "tsConfig": "packages/portal/data-access/tsconfig.lib.json"
+          "tsConfig": "{projectRoot}/tsconfig.lib.json"
         }
       },
       "defaultConfiguration": "production"

@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { ResultModel } from './result.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ResultResource {
   constructor(private http: HttpClient) {}
