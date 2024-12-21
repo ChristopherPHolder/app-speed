@@ -27,7 +27,7 @@
       "@app-speed/portal-ui/status-badge": ["libs/portal/ui/status-badge/public-api.ts"],
       "@app-speed/runner-data-access-queue": ["libs/runner/data-access-queue/src/index.ts"],
       "@app-speed/runner-data-access-store": ["libs/runner/data-access-store/src/index.ts"],
-      "@app-speed/runner-interfaces": ["packages/runner/interfaces/src/index.ts"],
+      "@app-speed/runner-interfaces": ["libs/runner/interfaces/src/index.ts"],
       "@app-speed/runner-middleware": ["packages/runner/middleware/src/index.ts"],
       "@app-speed/runner-user-flow-replay": ["packages/runner/user-flow-replay/public-api.ts"],
       "@app-speed/shared": ["packages/shared/public-api.ts"],
