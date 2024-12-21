@@ -14,7 +14,7 @@ import {
   waitUntilInstanceRunning,
 } from '@aws-sdk/client-ec2';
 
-import { UfWsRecieveActions } from '@app-speed/shared';
+import { UfWsRecieveActions } from '@app-speed/shared-utils';
 
 import {
   CONNECTED,

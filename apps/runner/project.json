@@ -1,0 +1,91 @@
+{
+  "name": "runner-app",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "root": "apps/runner",
+  "sourceRoot": "apps/runner/src",
+  "projectType": "application",
+  "tags": ["backend"],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "platform": "node",
+        "outputPath": "dist/{projectRoot}",
+        "format": ["esm"],
+        "bundle": true,
+        "main": "{projectRoot}/src/main.ts",
+        "tsConfig": "{projectRoot}/tsconfig.app.json",
+        "assets": ["{projectRoot}/src/assets"],
+        "generatePackageJson": true,
+        "esbuildOptions": {
+          "sourcemap": true,
+          "outExtension": {
+            ".js": ".js"
+          }
+        }
+      },
+      "configurations": {
+        "development": {},
+        "production": {
+          "esbuildOptions": {
+            "sourcemap": false
+          }
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "runner-app:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "runner-app:build:development"
+        },
+        "production": {
+          "buildTarget": "runner-app:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
+    },
+    "test": {
+      "inputs": [
+        "default",
+        "^default",
+        {
+          "externalDependencies": ["vitest"]
+        }
+      ],
+      "options": {
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    },
+    "s3-upload": {
+      "executor": "@app-speed/aws-deploy:s3-upload",
+      "dependsOn": ["build"],
+      "options": {
+        "upload": "dist/{projectRoot}",
+        "bucket": "s3://ufo-runner-dev"
+      }
+    },
+    "deploy": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["s3-upload"],
+      "options": {
+        "command": "node ./scripts/deploy-runner.js"
+      }
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "name": "shared-environments",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "libs/shared/environments/src",
+  "prefix": "app",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/angular:ng-packagr-lite",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "options": {
+        "project": "{projectRoot}/ng-package.json",
+        "tsConfig": "{projectRoot}/tsconfig.lib.json"
+      },
+      "configurations": {
+        "production": {
+          "tsConfig": "{projectRoot}/tsconfig.lib.prod.json"
+        },
+        "development": {
+          "tsConfig": "{projectRoot}/tsconfig.lib.json"
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
+    }
+  }
+}

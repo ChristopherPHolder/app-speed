@@ -1,0 +1,18 @@
+@use '@angular/material' as mat;
+
+$light-theme: mat.define-theme(
+  (
+    color: (
+      theme-type: light,
+      primary: mat.$azure-palette,
+    ),
+  )
+);
+
+@mixin core() {
+  @include mat.core;
+}
+
+@mixin all-component-theme() {
+  @include mat.all-component-themes($light-theme);
+}

@@ -1,0 +1,13 @@
+@use 'theme';
+
+body {
+  height: 100%;
+  margin: 0;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
+
+@include theme.core;
+
+html {
+  @include theme.all-component-theme;
+}

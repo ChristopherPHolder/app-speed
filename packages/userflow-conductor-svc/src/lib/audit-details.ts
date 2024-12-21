@@ -1,5 +1,5 @@
 import { APIGatewayProxyWebsocketEventV2 } from 'aws-lambda';
-import { AUDIT_REQUEST, AuditRunParams, UfWsSendActions } from '@app-speed/shared';
+import { AUDIT_REQUEST, AuditRunParams, UfWsSendActions } from '@app-speed/shared-utils';
 import { ERROR_01, ERROR_02 } from './constants';
 
 export function extractAuditDetails(event: APIGatewayProxyWebsocketEventV2): AuditRunParams {

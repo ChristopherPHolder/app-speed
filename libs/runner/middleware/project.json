@@ -1,0 +1,37 @@
+{
+  "name": "runner-middleware",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/runner/middleware/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/runner/middleware",
+        "main": "libs/runner/middleware/src/index.ts",
+        "tsConfig": "libs/runner/middleware/tsconfig.lib.json",
+        "assets": ["libs/runner/middleware/*.md"],
+        "generatePackageJson": true
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
+    },
+    "test": {
+      "inputs": [
+        "default",
+        "^default",
+        {
+          "externalDependencies": ["vitest"]
+        }
+      ],
+      "options": {
+        "passWithNoTests": true,
+        "coverage.reportsDirectory": "../../coverage/libs/runner/middleware"
+      }
+    }
+  }
+}
