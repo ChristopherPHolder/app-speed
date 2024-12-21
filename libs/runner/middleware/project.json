@@ -1,7 +1,7 @@
 {
   "name": "runner-middleware",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/runner/imiddleware/src",
+  "sourceRoot": "libs/runner/middleware/src",
   "projectType": "library",
   "tags": [],
   "targets": {
@@ -9,10 +9,10 @@
       "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/libs/runner/imiddleware",
-        "main": "libs/runner/imiddleware/src/index.ts",
-        "tsConfig": "libs/runner/imiddleware/tsconfig.lib.json",
-        "assets": ["libs/runner/imiddleware/*.md"],
+        "outputPath": "dist/libs/runner/middleware",
+        "main": "libs/runner/middleware/src/index.ts",
+        "tsConfig": "libs/runner/middleware/tsconfig.lib.json",
+        "assets": ["libs/runner/middleware/*.md"],
         "generatePackageJson": true
       }
     },
@@ -30,7 +30,7 @@
       ],
       "options": {
         "passWithNoTests": true,
-        "coverage.reportsDirectory": "../../coverage/libs/runner/imiddleware"
+        "coverage.reportsDirectory": "../../coverage/libs/runner/middleware"
       }
     }
   }
