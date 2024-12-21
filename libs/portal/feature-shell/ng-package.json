@@ -1,6 +1,6 @@
 {
   "$schema": "../../../node_modules/ng-packagr/ng-package.schema.json",
-  "dest": "../../../dist/packages/portal/feature-shell",
+  "dest": "../../../dist/libs/portal/feature-shell",
   "lib": {
     "entryFile": "src/index.ts"
   }
