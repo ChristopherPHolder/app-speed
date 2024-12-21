@@ -1,11 +1,11 @@
 {
-  "extends": ["../../../../.eslintrc.json"],
+  "extends": ["../../../.eslintrc.json"],
   "ignorePatterns": ["!**/*"],
   "overrides": [
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
       "parserOptions": {
-        "project": ["packages/runner/data-access/store/tsconfig.*?.json"]
+        "project": ["libs/runner/data-access-store/tsconfig.*?.json"]
       },
       "rules": {}
     },

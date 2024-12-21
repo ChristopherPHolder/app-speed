@@ -1,0 +1,28 @@
+{
+  "name": "runner-data-access-store",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/runner/data-access-store/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/runner/data-access-store",
+        "main": "libs/runner/data-access-store/src/index.ts",
+        "tsConfig": "libs/runner/data-access-store/tsconfig.lib.json",
+        "assets": ["libs/runner/data-access-store/*.md"],
+        "generatePackageJson": true,
+        "format": ["esm"]
+      }
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "../../../coverage/libs/runner/data-access-store"
+      }
+    }
+  }
+}

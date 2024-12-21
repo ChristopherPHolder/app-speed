@@ -5,7 +5,7 @@ import { nxCopyAssetsPlugin } from '@nx/vite/plugins/nx-copy-assets.plugin';
 
 export default defineConfig({
   root: __dirname,
-  cacheDir: '../../../../node_modules/.vite/packages/runner/data-access/store',
+  cacheDir: '../../../node_modules/.vite/packages/runner/data-access/store',
 
   plugins: [nxViteTsPaths(), nxCopyAssetsPlugin(['*.md'])],
 
@@ -20,6 +20,6 @@ export default defineConfig({
     environment: 'node',
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     reporters: ['default'],
-    coverage: { reportsDirectory: '../../../../coverage/packages/runner/data-access/store', provider: 'v8' },
+    coverage: { reportsDirectory: '../../../coverage/packages/runner/data-access/store', provider: 'v8' },
   },
 });

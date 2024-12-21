@@ -9,7 +9,6 @@ describe.skip('localStore', () => {
     // expect file to be persisted
   });
 
-
   it('should work with config', () => {
     const localStore = new LocalStore();
     const stored = localStore.store('' as any);
