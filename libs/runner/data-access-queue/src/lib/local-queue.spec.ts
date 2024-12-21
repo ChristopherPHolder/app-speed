@@ -6,17 +6,17 @@ import { writeFileSync, rmSync, mkdirSync } from 'fs';
 import { LocalQueue, LocalQueueConfig } from './local-queue';
 
 describe.skip('local queue', async () => {
-  const mockPath =  './user-flow';
+  const mockPath = './user-flow';
 
   beforeAll(() => {
     mkdirSync(mockPath);
     writeFileSync(join(mockPath, 'mock-audit.json'), '{ "audit": "mock-audit" }');
-  })
+  });
 
-  afterAll(() => rmSync(mockPath, {recursive: true}));
+  afterAll(() => rmSync(mockPath, { recursive: true }));
 
   it('should load local audit', async () => {
-    const config: LocalQueueConfig = { path: mockPath }
+    const config: LocalQueueConfig = { path: mockPath };
     const queue = new LocalQueue(config);
 
     const firstItem = await queue.nextItem();
