@@ -42,3 +42,9 @@ These abstractions define the building blocks of the cli and the apis it can cal
 The abstractions are then implemented in the lower level modules and are called and executed in the higher level modules.
 
 The abstraction build apone each other and are assembel in the middleware to them be executed in the cli.
+
+## Hardware requirements
+
+To reduce variability in the results of the audits its important to follow the hardware recommendations outlined in
+lighthouse is docs on [Variability](https://github.com/GoogleChrome/lighthouse/blob/main/docs/variability.md) and 
+[Strategies for Dealing With Variance](https://github.com/GoogleChrome/lighthouse/blob/main/docs/variability.md#strategies-for-dealing-with-variance)
