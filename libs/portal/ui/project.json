@@ -1,0 +1,79 @@
+{
+  "name": "portal-ui",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "root": "libs/portal/ui",
+  "sourceRoot": "libs/portal/ui",
+  "prefix": "ui",
+  "tags": ["frontend"],
+  "targets": {
+    "build": {
+      "executor": "@nx/angular:ng-packagr-lite",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "options": {
+        "project": "{workspaceRoot}/{projectRoot}/ng-package.json"
+      },
+      "configurations": {
+        "production": {
+          "tsConfig": "{workspaceRoot}/{projectRoot}/tsconfig.lib.prod.json"
+        },
+        "development": {
+          "tsConfig": "{workspaceRoot}/{projectRoot}/tsconfig.lib.json"
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "{workspaceRoot}/{projectRoot}/jest.config.ts"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
+    },
+    "storybook": {
+      "executor": "@storybook/angular:start-storybook",
+      "options": {
+        "port": 4400,
+        "configDir": "{workspaceRoot}/{projectRoot}/.storybook",
+        "tsConfig": "{workspaceRoot}/{projectRoot}/tsconfig.storybook.json",
+        "styles": ["{workspaceRoot}/{projectRoot}/theme/styles.scss"],
+        "browserTarget": "portal-ui:build-storybook",
+        "compodoc": false
+      },
+      "configurations": {
+        "ci": {
+          "quiet": true
+        }
+      }
+    },
+    "build-storybook": {
+      "executor": "@storybook/angular:build-storybook",
+      "outputs": ["{options.outputDir}"],
+      "options": {
+        "outputDir": "dist/storybook/ui",
+        "styles": ["{workspaceRoot}/{projectRoot}/theme/styles.scss"],
+        "tsConfig": "{workspaceRoot}/{projectRoot}/tsconfig.storybook.json",
+        "configDir": "{workspaceRoot}/{projectRoot}/.storybook",
+        "browserTarget": "portal-ui:build-storybook",
+        "compodoc": false
+      },
+      "configurations": {
+        "ci": {
+          "quiet": true
+        }
+      }
+    },
+    "publish-storybook": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build-storybook"],
+      "options": {
+        "parallel": false,
+        "commands": ["npx chromatic -d ./dist/storybook/ui --exit-zero-on-changes"]
+      }
+    }
+  }
+}
