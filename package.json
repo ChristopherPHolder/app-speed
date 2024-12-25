@@ -77,6 +77,10 @@
     "@storybook/angular": "8.4.6",
     "@storybook/core-common": "8.4.6",
     "@storybook/core-server": "8.4.6",
+    "@swc-node/register": "~1.9.1",
+    "@swc/cli": "~0.3.12",
+    "@swc/core": "~1.5.7",
+    "@swc/helpers": "~0.5.11",
     "@types/archiver": "^6.0.2",
     "@types/aws-lambda": "^8.10.140",
     "@types/jest": "29.5.13",
@@ -139,5 +143,8 @@
     "@nx/nx-linux-x64-musl": "20.3.0",
     "@nx/nx-win32-arm64-msvc": "20.3.0",
     "@nx/nx-win32-x64-msvc": "20.3.0"
+  },
+  "overrides": {
+    "chokidar": "4.0.0"
   }
 }

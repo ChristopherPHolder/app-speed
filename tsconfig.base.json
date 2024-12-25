@@ -13,6 +13,7 @@
     "baseUrl": ".",
     "paths": {
       "@app-speed/aws-deploy": ["packages/aws-deploy/src/index.ts"],
+      "@app-speed/nx-plugin": ["tools/nx-plugin/src/index.ts"],
       "@app-speed/portal-data-access": ["libs/portal/data-access/src/index.ts"],
       "@app-speed/portal-feature-audit": ["libs/portal/feature-audit/src/index.ts"],
       "@app-speed/portal-feature-audit/builder": ["libs/portal/feature-audit/builder/src/index.ts"],
