@@ -6,27 +6,27 @@ import { execSync } from 'child_process';
 type ExecutorExit = {
   success: boolean;
   message: string;
-}
+};
 
 export default async function runExecutor(
   options: S3UploadExecutorSchema,
-  context?: ExecutorContext
+  context?: ExecutorContext,
 ): Promise<ExecutorExit> {
   console.info('Executing S3 Upload');
 
   if (!options.bucket) {
-    console.log(`${EXECUTOR_FAIL_BASE} ${MISSING_BUCKET}`)
+    console.log(`${EXECUTOR_FAIL_BASE} ${MISSING_BUCKET}`);
     return {
       success: false,
-      message: `${EXECUTOR_FAIL_BASE} ${MISSING_BUCKET}`
-    }
+      message: `${EXECUTOR_FAIL_BASE} ${MISSING_BUCKET}`,
+    };
   }
 
   if (!isValidBucketName(options.bucket)) {
     console.log(`${EXECUTOR_FAIL_BASE} ${INVALID_BUCKET}`);
     return {
       success: false,
-      message: `${EXECUTOR_FAIL_BASE} ${INVALID_BUCKET}`
+      message: `${EXECUTOR_FAIL_BASE} ${INVALID_BUCKET}`,
     };
   }
 
@@ -34,31 +34,31 @@ export default async function runExecutor(
     console.log(`${EXECUTOR_FAIL_BASE} ${MISSING_UPLOAD}`);
     return {
       success: false,
-      message: `${EXECUTOR_FAIL_BASE} ${MISSING_UPLOAD}`
+      message: `${EXECUTOR_FAIL_BASE} ${MISSING_UPLOAD}`,
     };
   }
 
   if (context) {
     try {
-      execSync(`aws s3 sync ./${options.upload} ${options.bucket} --delete`)
+      execSync(`aws s3 sync ./${options.upload} ${options.bucket} --delete`);
     } catch (error) {
       if (error instanceof Error) {
         return {
           success: false,
-          message: error.message
-        }
+          message: error.message,
+        };
       }
       return {
         success: false,
-        message: 'Unexpected Error when tying to upload to s3'
-      }
+        message: 'Unexpected Error when tying to upload to s3',
+      };
     }
   }
 
   console.log(EXECUTOR_SUCCESS_BASE);
   return {
     success: true,
-    message: EXECUTOR_SUCCESS_BASE
+    message: EXECUTOR_SUCCESS_BASE,
   };
 }
 
