@@ -1,9 +1,8 @@
 {
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "portal-app",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "prefix": "app",
-  "root": "apps/portal",
   "sourceRoot": "apps/portal/src",
   "tags": ["frontend"],
   "targets": {
@@ -56,7 +55,10 @@
           "buildTarget": "portal-app:build:development"
         }
       },
-      "defaultConfiguration": "development"
+      "defaultConfiguration": "development",
+      "options": {
+        "proxyConfig": "apps/portal/proxy.conf.json"
+      }
     },
     "extract-i18n": {
       "executor": "@angular-devkit/build-angular:extract-i18n",

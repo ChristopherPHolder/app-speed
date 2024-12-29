@@ -117,6 +117,14 @@
         "packages/cli-middleware/**/*",
         "packages/user-flow-replay/**/*"
       ]
+    },
+    {
+      "plugin": "@nx/webpack/plugin",
+      "options": {
+        "buildTargetName": "build",
+        "serveTargetName": "serve",
+        "previewTargetName": "preview"
+      }
     }
   ]
 }
