@@ -1,0 +1,26 @@
+{
+  "name": "api-conductor-lib",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/api/conductor/src",
+  "projectType": "library",
+  "tags": ["backend"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/api/conductor",
+        "tsConfig": "libs/api/conductor/tsconfig.lib.json",
+        "packageJson": "libs/api/conductor/package.json",
+        "main": "libs/api/conductor/src/index.ts"
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/api/conductor/jest.config.ts"
+      }
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "shared-conductor",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "root": "libs/shared/conductor",
+  "sourceRoot": "libs/shared/conductor/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": ["shared"],
+  "targets": {
+    "build": {
+      "executor": "@nx/angular:ng-packagr-lite",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "options": {
+        "project": "libs/shared/conductor/ng-package.json"
+      },
+      "configurations": {
+        "production": {
+          "tsConfig": "libs/shared/conductor/tsconfig.lib.prod.json"
+        },
+        "development": {
+          "tsConfig": "libs/shared/conductor/tsconfig.lib.json"
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}
