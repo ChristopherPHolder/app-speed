@@ -2,11 +2,16 @@
 // TODO Implement boolean control input type.
 // TODO implement stringArray
 
-import { StepDetails, StepProperty } from './types';
-import { STEP_PROPERTY } from './properties.schema';
-import { STEP_TYPE } from './step.constants';
+import { requiredFeature, STEP_PROPERTY, StepProperty } from './step-property';
+import { STEP_TYPE, StepType } from './step-type';
+import { PROPERTY_NAME, PropertyName } from './property-name';
+import { InputType } from './input-type';
 
-const requiredFeature = (property: StepProperty): StepProperty => ({ ...property, required: true });
+export type StepDetails = {
+  type: StepType;
+  properties: StepProperty[];
+  description?: string;
+};
 
 export const EMPTY_STEP: StepDetails = {
   type: STEP_TYPE.EMPTY,
@@ -242,3 +247,6 @@ const USER_STEPS: StepDetails[] = [
 ];
 
 export const STEP_OPTIONS = [EMPTY_STEP, ASSERTION_STEPS, USER_STEPS, AUDIT_STEPS].flat();
+
+// @TODO improve this type
+export type Step = { [PROPERTY_NAME.TYPE]: StepType } & Partial<Record<PropertyName, InputType>>;

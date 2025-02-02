@@ -1,5 +1,5 @@
 // Audit Step Types are the ones related to running Lighthouse User-Flow Audits!
-export const AUDIT_STEP_TYPE = {
+export const LIGHTHOUSE_AUDIT_STEP_TYPE = {
   START_NAVIGATION: 'startNavigation',
   END_NAVIGATION: 'endNavigation',
   START_TIMESPAN: 'startTimespan',
@@ -8,13 +8,13 @@ export const AUDIT_STEP_TYPE = {
 } as const;
 
 // Assertion Step Types are those related to puppeteer assertion steps!
-export const ASSERTION_STEP_TYPE = {
+const ASSERTION_STEP_TYPE = {
   WAIT_FOR_ELEMENT: 'waitForElement',
   WAIT_FOR_EXPRESSION: 'waitForExpression',
 } as const;
 
 // User Step Types are those related to puppeteer user steps!
-export const USER_STEP_TYPE = {
+const USER_STEP_TYPE = {
   CHANGE: 'change',
   CLICK: 'click',
   CLOSE: 'close',
@@ -30,7 +30,9 @@ export const USER_STEP_TYPE = {
 
 export const STEP_TYPE = {
   EMPTY: '', // TODO This should not be here as it is also used in the property options
-  ...AUDIT_STEP_TYPE,
+  ...LIGHTHOUSE_AUDIT_STEP_TYPE,
   ...ASSERTION_STEP_TYPE,
   ...USER_STEP_TYPE,
 } as const;
+export type StepType = (typeof STEP_TYPE)[keyof typeof STEP_TYPE];
+export const STEP_OPTIONS = Object.values(STEP_TYPE);

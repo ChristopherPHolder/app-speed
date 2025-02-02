@@ -3,8 +3,7 @@ import { JsonPipe } from '@angular/common';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { FormControl } from '@angular/forms';
-
-import { StepProperty } from '../schema/types';
+import { StepProperty } from '@app-speed/shared-user-flow-replay';
 
 @Component({
   selector: 'builder-input-records',

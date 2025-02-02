@@ -1,14 +1,22 @@
 import { ChangeDetectionStrategy, Component, inject, ViewEncapsulation } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { ConductorService } from '@app-speed/portal-data-access/conductor';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   imports: [RouterOutlet],
   selector: 'app-root',
-  template: ` <button (click)="conductor.scheduleAudit(' ')">Schedule</button> <router-outlet />`,
+  template: `<router-outlet />`,
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent {
-  protected conductor = inject(ConductorService);
+  http = inject(HttpClient);
+
+  put = () => this.http.put('api/conductor/auditComplete', { id: 1 });
+
+  constructor() {
+    this.http.put('api/conductor/auditComplete', { id: 1 }).subscribe((e) => {
+      console.log('Audit Complete', e);
+    });
+  }
 }

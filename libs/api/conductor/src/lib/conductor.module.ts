@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ConductorGateway } from './conductor.gateway';
-import { AuditStoreService } from './audit-store.service';
+import { AuditQueueService } from './audit-queue.service';
 import { ConductorController } from './conductor.controller';
+import { RunnerManagerService } from './runner-manager.service';
 
 @Module({
   controllers: [ConductorController],
-  providers: [ConductorGateway, AuditStoreService],
-  exports: [],
+  providers: [ConductorGateway, AuditQueueService, RunnerManagerService],
 })
 export class ConductorModule {}

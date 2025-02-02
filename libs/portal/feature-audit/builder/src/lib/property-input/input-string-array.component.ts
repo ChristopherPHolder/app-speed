@@ -4,8 +4,7 @@ import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatFormField } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
-
-import { StepProperty } from '../schema/types';
+import { StepProperty } from '@app-speed/shared-user-flow-replay';
 
 @Component({
   selector: 'builder-input-string-array',

@@ -16,7 +16,6 @@
       "@app-speed/aws-deploy": ["packages/aws-deploy/src/index.ts"],
       "@app-speed/nx-plugin": ["tools/nx-plugin/src/index.ts"],
       "@app-speed/portal-data-access": ["libs/portal/data-access/src/index.ts"],
-      "@app-speed/portal-data-access/conductor": ["libs/portal/data-access/conductor/src/index.ts"],
       "@app-speed/portal-feature-audit": ["libs/portal/feature-audit/src/index.ts"],
       "@app-speed/portal-feature-audit/builder": ["libs/portal/feature-audit/builder/src/index.ts"],
       "@app-speed/portal-feature-audit/viewer": ["libs/portal/feature-audit/viewer/src/index.ts"],
@@ -34,6 +33,8 @@
       "@app-speed/runner-user-flow-replay": ["libs/runner/user-flow-replay/src/public-api.ts"],
       "@app-speed/shared-conductor": ["libs/shared/conductor/src/index.ts"],
       "@app-speed/shared-environments": ["libs/shared/environments/src/public-api.ts"],
+      "@app-speed/shared-user-flow-replay": ["libs/shared/user-flow-replay/src/index.ts"],
+      "@app-speed/shared-user-flow-replay/schema": ["libs/shared/user-flow-replay/schema/src/index.ts"],
       "@app-speed/shared-utils": ["libs/shared/utils/src/public-api.ts"],
       "@app-speed/userflow-conductor/shared-util-lib": ["packages/userflow-conductor/shared-util-lib/src/index.ts"],
       "@app-speed/userflow-conductor/socket-io-ser": ["packages/userflow-conductor/socket-io-ser/src/index.ts"]

@@ -15,7 +15,7 @@
         "outputPath": "dist/{projectRoot}",
         "format": ["esm"],
         "bundle": true,
-        "main": "{projectRoot}/src/main.ts",
+        "main": "{projectRoot}/src/bin.ts",
         "tsConfig": "{projectRoot}/tsconfig.app.json",
         "assets": ["{projectRoot}/src/assets"],
         "generatePackageJson": true,

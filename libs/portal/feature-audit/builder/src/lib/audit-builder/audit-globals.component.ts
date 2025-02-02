@@ -4,14 +4,13 @@ import { ReactiveFormsModule } from '@angular/forms';
 
 import { MatLabel } from '@angular/material/form-field';
 import { MatOption, MatSelect } from '@angular/material/select';
-import { MatCardActions } from '@angular/material/card';
-import { MatButton, MatFabButton } from '@angular/material/button';
+import { MatFabButton } from '@angular/material/button';
 import { RxIf } from '@rx-angular/template/if';
 import { RxFor } from '@rx-angular/template/for';
 
 import { AuditBuilderService } from './audit-builder.service';
 import { ToTitleCasePipe } from '../utils/toTitleCase.pipe';
-import { DEVICE_TYPE } from '../schema/audit.constants';
+import { DEVICE_OPTIONS } from '@app-speed/shared-user-flow-replay';
 
 @Component({
   selector: 'builder-audit-global',
@@ -22,8 +21,6 @@ import { DEVICE_TYPE } from '../schema/audit.constants';
     ToTitleCasePipe,
     MatFormField,
     MatInput,
-    MatCardActions,
-    MatButton,
     MatSelect,
     MatOption,
     MatError,
@@ -72,7 +69,7 @@ import { DEVICE_TYPE } from '../schema/audit.constants';
   styleUrl: './audit-globals.styles.scss',
 })
 export class AuditGlobalsComponent {
-  protected readonly DEVICE_TYPES = Object.values(DEVICE_TYPE);
+  protected readonly DEVICE_TYPES = DEVICE_OPTIONS;
   @Output() valueChange = new EventEmitter();
   builder = inject(AuditBuilderService);
 }

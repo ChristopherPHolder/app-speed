@@ -1,8 +1,18 @@
-import { StepProperty } from './types';
-import { STEP_TYPE } from './step.constants';
-import { PROPERTY_NAME, INPUT_TYPE } from './property.constants';
+import { INPUT_TYPE, InputType, InputValue } from './input-type';
+import { PROPERTY_NAME, PropertyName } from './property-name';
+import { STEP_OPTIONS } from './step-type';
 
-const STEP_OPTIONS = Object.values(STEP_TYPE);
+export type StepProperty = {
+  name: PropertyName;
+  inputType: InputType;
+  defaultValue?: InputValue;
+  options?: string[];
+  description?: string;
+  required?: boolean;
+};
+
+export const requiredFeature = (property: StepProperty): StepProperty => ({ ...property, required: true });
+
 export const TYPE: StepProperty = {
   name: PROPERTY_NAME.TYPE,
   inputType: INPUT_TYPE.OPTIONS,

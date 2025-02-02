@@ -6,7 +6,7 @@ import { preventDefault, RxActionFactory, RxActions } from '@rx-angular/state/ac
 import { filter, map, Observable, withLatestFrom } from 'rxjs';
 import { RxEffects } from '@rx-angular/state/effects';
 
-import type { AppSpeedUserFlow, AppSpeedUserFlowStep } from '@app-speed/shared-utils';
+import type { AppSpeedUserFlow, AppSpeedUserFlowStep } from '@app-speed/shared-user-flow-replay';
 import { AuditStepComponent } from '../audit-step/audit-step.component';
 
 type UiActions = {

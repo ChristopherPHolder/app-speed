@@ -8,10 +8,7 @@ import { InputNumberComponent } from './input-number.component';
 import { InputBooleanComponent } from './input-boolean.component';
 import { InputOptionsComponent } from './input-options.component';
 import { InputRecordsComponent } from './input-records.component';
-
-import { INPUT_TYPE, PROPERTY_NAME } from '../schema/property.constants';
-
-import { PropertyName, StepType } from '../schema/types';
+import { INPUT_TYPE, PROPERTY_NAME, PropertyName, StepType } from '@app-speed/shared-user-flow-replay';
 
 @Component({
   selector: 'builder-step-property',

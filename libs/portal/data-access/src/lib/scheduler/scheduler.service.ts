@@ -1,53 +1,35 @@
 import { Injectable } from '@angular/core';
 import { webSocket } from 'rxjs/webSocket';
 import { BehaviorSubject, filter, map, merge } from 'rxjs';
+import {
+  CONDUCTOR_EVENT_SCHEDULE_AUDIT,
+  CONDUCTOR_SOCKET_HOST,
+  CONDUCTOR_SOCKET_PATH,
+  AUDIT_STAGE,
+  AuditStage,
+  isConductorStageChangeEvent,
+  isConductorEventMessage,
+  isConductorStageChangeDoneEventMessage,
+} from '@app-speed/shared-conductor';
 
-// TODO should consume the type from the service!
-type StageChangeResponse = {
-  type: 'stage-change';
-  stage: string;
-  message?: string;
-  key?: string;
-};
-
-function isStageChangeResponse(message: unknown): message is StageChangeResponse {
-  return (
-    typeof message === 'object' &&
-    message !== null &&
-    'type' in message &&
-    'stage' in message &&
-    message.type === 'stage-change'
-  );
-}
-
-const STAGE = {
-  BUILDING: 'building',
-  PROCESSING: 'processing',
-  SCHEDULING: 'scheduling',
-  SCHEDULED: 'scheduled',
-  RUNNING: 'running',
-  DONE: 'done',
-  FAILED: 'failed',
-} as const satisfies Record<string, string>;
-
-const NO_DISPLAY_STAGES = [STAGE.BUILDING, STAGE.DONE] as string[];
-
-export type Stage = (typeof STAGE)[keyof typeof STAGE];
+const NO_DISPLAY_STAGES = [AUDIT_STAGE.BUILDING, AUDIT_STAGE.DONE] as string[];
 
 @Injectable({ providedIn: 'root' })
 export class SchedulerService {
-  webSocket = webSocket('wss://3b6gqoq7s8.execute-api.us-east-1.amazonaws.com/prod/');
+  webSocket = webSocket(`${CONDUCTOR_SOCKET_HOST}/${CONDUCTOR_SOCKET_PATH}?token=${crypto.randomUUID()}`);
 
-  readonly #processStage$ = new BehaviorSubject<Stage>(STAGE.BUILDING);
+  conductorEventMessage$ = this.webSocket.pipe(filter(isConductorEventMessage));
 
-  stage = this.webSocket.pipe(filter(isStageChangeResponse));
-  readonly stageName$ = merge(this.#processStage$, this.stage.pipe(map((stage) => stage.stage)));
+  readonly #processStage$ = new BehaviorSubject<AuditStage>(AUDIT_STAGE.BUILDING);
+
+  stage$ = this.conductorEventMessage$.pipe(filter((message) => isConductorStageChangeEvent(message)));
+  readonly stageName$ = merge(this.#processStage$, this.stage$.pipe(map((stage) => stage.stage)));
 
   readonly shouldDisplayIndicator$ = this.stageName$.pipe(map((stage) => !NO_DISPLAY_STAGES.includes(stage)));
 
-  readonly key$ = this.stage.pipe(
-    filter((event) => event.stage === 'done' && !!event.key),
-    map((event) => event.key!),
+  readonly key$ = this.stage$.pipe(
+    filter(isConductorStageChangeDoneEventMessage),
+    map(({ data: { key } }) => key),
   );
 
   constructor() {
@@ -57,10 +39,10 @@ export class SchedulerService {
   }
 
   submitAudit(auditDetails: any) {
-    this.#processStage$.next(STAGE.SCHEDULING);
+    this.#processStage$.next(AUDIT_STAGE.SCHEDULING);
     this.webSocket.next({
-      action: 'schedule-audit',
-      audit: JSON.stringify(auditDetails),
+      event: CONDUCTOR_EVENT_SCHEDULE_AUDIT,
+      data: auditDetails,
     });
   }
 }

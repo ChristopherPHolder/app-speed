@@ -5,10 +5,9 @@ import { MatIcon } from '@angular/material/icon';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatError, MatInput } from '@angular/material/input';
 
-import { StepProperty } from '../schema/types';
 import { RxIf } from '@rx-angular/template/if';
-import { JsonPipe } from '@angular/common';
 import { ToTitleCasePipe } from '../utils/toTitleCase.pipe';
+import { StepProperty } from '@app-speed/shared-user-flow-replay';
 
 @Component({
   selector: 'builder-input-string',
@@ -21,7 +20,6 @@ import { ToTitleCasePipe } from '../utils/toTitleCase.pipe';
     MatIcon,
     MatIconButton,
     RxIf,
-    JsonPipe,
     ToTitleCasePipe,
   ],
   template: `

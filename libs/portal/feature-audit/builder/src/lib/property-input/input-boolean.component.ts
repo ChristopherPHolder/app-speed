@@ -6,7 +6,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatOption } from '@angular/material/core';
 import { MatSelect } from '@angular/material/select';
 
-import { StepProperty } from '../schema/types';
+import { StepProperty } from '@app-speed/shared-user-flow-replay';
 
 @Component({
   selector: 'builder-input-boolean',

@@ -1,8 +1,7 @@
-import { PuppeteerRunnerExtension, Step, UserFlow as UserFlowRecording } from '@puppeteer/replay';
-import { Browser, Page } from 'puppeteer';
-import { AppSpeedUserFlowStep } from '@app-speed/shared-utils';
-import { isMeasureType } from './utils';
-import { UserFlow } from 'lighthouse';
+import { PuppeteerRunnerExtension, Step, StepType, UserFlow as UserFlowRecording } from '@puppeteer/replay';
+import type { Browser, Page } from 'puppeteer';
+import type { UserFlow } from 'lighthouse';
+import { isReplayUserflowStep, isReplayUserflowStepWithFlags } from '@app-speed/shared-user-flow-replay/schema';
 
 export class UserFlowRunnerExtension extends PuppeteerRunnerExtension {
   constructor(
@@ -16,22 +15,24 @@ export class UserFlowRunnerExtension extends PuppeteerRunnerExtension {
     super(browser, page, opts);
   }
 
-  override async runStep(step: AppSpeedUserFlowStep, flowRecording: UserFlowRecording): Promise<void> {
-    if (!isMeasureType(step.type)) {
+  override async runStep(step: Step, flowRecording: UserFlowRecording): Promise<void> {
+    if (step.type !== StepType.CustomStep) {
       return super.runStep(step as Step, flowRecording);
     }
-    if (step.type === 'endTimespan') {
-      try {
-        await this.page.waitForNetworkIdle({ timeout: 10_000 });
-      } catch (e) {
-        console.log(e);
-      }
+    if (!isReplayUserflowStep(step)) {
+      throw new Error('Custom step is not handled');
     }
-    if (step.type === 'endTimespan' || step.type === 'endNavigation') {
-      return this.flow[step.type]();
+
+    if (isReplayUserflowStepWithFlags(step)) {
+      return this.flow[step.name](step.parameters);
     }
-    if (step.type === 'startNavigation' || step.type === 'startTimespan' || step.type === 'snapshot') {
-      return this.flow[step.type]({ name: step.name });
+
+    try {
+      await this.page.waitForNetworkIdle({ timeout: 10_000 });
+    } catch (e) {
+      console.log(e);
     }
+
+    return this.flow[step.name]();
   }
 }

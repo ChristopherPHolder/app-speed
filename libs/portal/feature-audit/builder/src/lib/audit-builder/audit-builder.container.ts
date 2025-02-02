@@ -23,11 +23,10 @@ import { AuditStepComponent } from './audit-step.component';
 import { AuditBuilderService } from './audit-builder.service';
 import { AuditGlobalsComponent } from './audit-globals.component';
 
-import { DEFAULT_AUDIT_DETAILS } from '../schema/audit.constants';
-import { AuditDetails } from '../schema/types';
 import { rxEffects } from '@rx-angular/state/effects';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { SchedulerService } from '@app-speed/portal-data-access';
+import { DEFAULT_AUDIT_DETAILS, AuditDetails } from '@app-speed/shared-user-flow-replay';
 
 @Component({
   selector: 'builder-form',

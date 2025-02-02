@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import type { AppSpeedUserFlowStep } from '@app-speed/shared-utils';
+import type { AppSpeedUserFlowStep } from '@app-speed/shared-user-flow-replay';
 import { KebabMenuComponent } from '../../component/icons/kebab-menu.component';
 
 @Component({

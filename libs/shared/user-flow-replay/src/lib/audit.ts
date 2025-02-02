@@ -1,8 +1,12 @@
-export const DEVICE_TYPE = {
-  MOBILE: 'mobile',
-  TABLET: 'tablet',
-  DESKTOP: 'desktop',
-} as const;
+import { DeviceType } from './device-type';
+import { Step } from './step';
+
+export interface AuditDetails {
+  title: string;
+  device: DeviceType;
+  timeout: number;
+  steps: Step[]; // TODO fix type
+}
 
 export const DEFAULT_AUDIT_DETAILS = {
   title: '',

@@ -1,28 +1,43 @@
 import { Injectable } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { first, map, Observable, tap } from 'rxjs';
-
 import {
   AuditDetails,
   DeviceType,
+  EMPTY_STEP,
+  INPUT_TYPE,
+  INPUT_TYPE_DEFAULT,
+  INPUT_TYPE_VALIDATOR,
   InputType,
   InputValue,
+  PROPERTY_NAME,
   PropertyName,
   Step,
+  STEP_OPTIONS,
+  STEP_TYPE,
   StepDetails,
   StepProperty,
   StepType,
-} from '../schema/types';
-import { EMPTY_STEP, STEP_OPTIONS } from '../schema/step.schema';
-import { STEP_TYPE } from '../schema/step.constants';
-import {
-  INPUT_TYPE_VALIDATOR,
-  PROPERTY_CONTROL_BUILDER,
-  PROPERTY_DEFAULT,
-  PROPERTY_NAME,
-} from '../schema/property.constants';
+} from '@app-speed/shared-user-flow-replay';
 
 type StepFormGroup = FormGroup<Partial<Record<PropertyName, FormControl | FormArray>>>;
+
+const PROPERTY_CONTROL_BUILDER = {
+  [INPUT_TYPE.STRING]: (value: string) =>
+    new FormControl<string>(value, { validators: [Validators.required], nonNullable: true }),
+  [INPUT_TYPE.NUMBER]: (value: number) =>
+    new FormControl<number>(value, { validators: [Validators.required], nonNullable: true }),
+  [INPUT_TYPE.BOOLEAN]: (value: boolean) =>
+    new FormControl<boolean>(value, { validators: [Validators.required], nonNullable: true }),
+  [INPUT_TYPE.OPTIONS]: (value: string) =>
+    new FormControl<string>(value, { validators: [Validators.required], nonNullable: true }),
+  [INPUT_TYPE.STRING_ARRAY]: (value: string[]) =>
+    new FormArray(
+      value.map((i) => new FormControl<string>(i, { validators: [Validators.required], nonNullable: true })),
+    ),
+  [INPUT_TYPE.RECORDS]: (value: string) =>
+    new FormControl<string>(value, { validators: [Validators.required], nonNullable: true }),
+} as const;
 
 @Injectable({ providedIn: 'root' })
 export class AuditBuilderService {
@@ -96,7 +111,7 @@ export class AuditBuilderService {
     if (isValid(defaultValue)) {
       return defaultValue;
     }
-    return PROPERTY_DEFAULT[inputType];
+    return INPUT_TYPE_DEFAULT[inputType];
   }
 
   private typedKeys<T extends object>(obj: T): (keyof T)[] {
