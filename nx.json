@@ -16,53 +16,20 @@
     "sharedGlobals": []
   },
   "targetDefaults": {
-    "build": {
-      "dependsOn": ["^build"],
-      "inputs": ["default", "^default"],
-      "cache": true
-    },
-    "build-storybook": {
-      "cache": true
-    },
-    "e2e": {
-      "cache": true
-    },
-    "@nx/eslint:lint": {
-      "inputs": ["default", "{workspaceRoot}/.eslintrc.json"],
-      "cache": true
-    },
-    "@nx/vite:test": {
-      "cache": true,
-      "inputs": ["default", "^default"]
-    },
+    "build": { "dependsOn": ["^build"], "inputs": ["default", "^default"], "cache": true },
+    "build-storybook": { "cache": true },
+    "e2e": { "cache": true },
+    "@nx/eslint:lint": { "inputs": ["default", "{workspaceRoot}/.eslintrc.json"], "cache": true },
+    "@nx/vite:test": { "cache": true, "inputs": ["default", "^default"] },
     "@nx/jest:jest": {
       "inputs": ["default", "^default", "{workspaceRoot}/jest.preset.js"],
       "cache": true,
-      "options": {
-        "passWithNoTests": true
-      },
-      "configurations": {
-        "ci": {
-          "ci": true,
-          "codeCoverage": true
-        }
-      }
+      "options": { "passWithNoTests": true },
+      "configurations": { "ci": { "ci": true, "codeCoverage": true } }
     },
-    "@nx/esbuild:esbuild": {
-      "cache": true,
-      "dependsOn": ["^build"],
-      "inputs": ["production", "^production"]
-    },
-    "@nx/angular:browser-esbuild": {
-      "cache": true,
-      "dependsOn": ["^build"],
-      "inputs": ["production", "^production"]
-    },
-    "@nx/angular:ng-packagr-lite": {
-      "cache": true,
-      "dependsOn": ["^build"],
-      "inputs": ["production", "^production"]
-    }
+    "@nx/esbuild:esbuild": { "cache": true, "dependsOn": ["^build"], "inputs": ["production", "^production"] },
+    "@nx/angular:browser-esbuild": { "cache": true, "dependsOn": ["^build"], "inputs": ["production", "^production"] },
+    "@nx/angular:ng-packagr-lite": { "cache": true, "dependsOn": ["^build"], "inputs": ["production", "^production"] }
   },
   "generators": {
     "@nx/angular:application": {
@@ -85,17 +52,10 @@
       "compilationMode": "partial",
       "style": "scss"
     },
-    "@nx/angular:component": {
-      "style": "scss"
-    }
+    "@nx/angular:component": { "style": "scss" }
   },
   "plugins": [
-    {
-      "plugin": "@nx/eslint/plugin",
-      "options": {
-        "targetName": "eslint:lint"
-      }
-    },
+    { "plugin": "@nx/eslint/plugin", "options": { "targetName": "eslint:lint" } },
     {
       "plugin": "@nx/vite/plugin",
       "options": {
@@ -113,5 +73,6 @@
         "packages/user-flow-replay/**/*"
       ]
     }
-  ]
+  ],
+  "nxCloudId": "67b1e61a2185ed22a4099d4a"
 }
