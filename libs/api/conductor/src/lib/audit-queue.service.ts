@@ -1,6 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Schema } from 'effect';
-import { ReplayUserflowAuditSchema } from '@app-speed/shared-user-flow-replay/schema';
 
 type AuditDetails = {
   id: string;

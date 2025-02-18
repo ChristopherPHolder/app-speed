@@ -51,7 +51,7 @@ const UserflowStepTypeWithStepFlagsScheme = Schema.transform(
 const ReplayUserflowStepWithoutFlagsSchema = Schema.Struct({
   ...CustomStepParamsSchema.fields,
   name: UserflowStepTypeWithoutStepFlagsLiteral,
-  parameters: Schema.Undefined,
+  parameters: Schema.optional(Schema.Undefined),
 });
 
 const UserflowStepTypeWithoutStepFlagsScheme = Schema.transform(
@@ -73,6 +73,8 @@ const UserflowStepTypeWithoutStepFlagsScheme = Schema.transform(
 );
 
 const ReplayUserflowStepSchema = Schema.Union(ReplayUserflowStepWithoutFlagsSchema, ReplayUserflowStepWithFlagsSchema);
+
+export const decodeReplayUserflowStepSchema = Schema.decodeUnknownSync(ReplayUserflowStepSchema);
 export const isReplayUserflowStep = Schema.is(ReplayUserflowStepSchema);
 export const isReplayUserflowStepWithFlags = Schema.is(ReplayUserflowStepWithFlagsSchema);
 

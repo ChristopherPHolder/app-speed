@@ -55,10 +55,21 @@ export class ConductorGateway implements OnGatewayConnection, OnGatewayDisconnec
   }
 
   handleConnection(client: WebSocket, request: IncomingMessage): void {
-    const token = new URL(request.url!, request.headers.origin).searchParams.get('token');
-    if (token) {
-      this.#clientMap.set(client, token);
+    if (!request.url) {
+      this.#logger.log(`Client project tried to connect but is missing url`);
+      return client.close();
     }
+
+    const token = new URL(request.url, request.headers.origin).searchParams.get('token');
+
+    if (!token) {
+      this.#logger.log(`Client tried to connect but token`);
+      return client.close();
+    }
+
+    this.#clientMap.set(client, token);
+    this.#logger.log(`Client connecting from websocket with token ${token}`);
+
     client.send(
       JSON.stringify({
         event: 'connected',
@@ -67,7 +78,7 @@ export class ConductorGateway implements OnGatewayConnection, OnGatewayDisconnec
     );
   }
 
-  handleDisconnect(client: any): void {
-    console.log('---->> handleDisconnect', this.#clientMap.get(client));
+  handleDisconnect(client: WebSocket): void {
+    this.#logger.log(`Client disconnected from websocket with token ${this.#clientMap.get(client)}`);
   }
 }

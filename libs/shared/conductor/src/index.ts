@@ -12,3 +12,10 @@ export {
   isConductorStageChangeEvent,
   isConductorStageChangeDoneEventMessage,
 } from './lib/utils';
+export {
+  SuccessfulAuditResult,
+  FailedAuditResult,
+  UploadAuditResultsRequestBody,
+  isFailedAuditResult,
+  isSuccessfulAuditResult,
+} from './lib/audit-result';

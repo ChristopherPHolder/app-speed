@@ -1,4 +1,5 @@
 import { AUDIT_STAGE, AUDIT_STAGE_CHANGE_EVENT, EVENT_MESSAGE } from './constants';
+import type { FlowResult } from 'lighthouse';
 
 export type AuditStages = typeof AUDIT_STAGE;
 export type AuditStageKey = keyof AuditStages;

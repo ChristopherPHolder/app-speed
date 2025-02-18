@@ -1,5 +1,10 @@
-import { Controller, Get, Logger, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Post } from '@nestjs/common';
 import { AuditQueueService } from './audit-queue.service';
+import {
+  isFailedAuditResult,
+  isSuccessfulAuditResult,
+  UploadAuditResultsRequestBody,
+} from '@app-speed/shared-conductor';
 
 @Controller('conductor')
 export class ConductorController {
@@ -12,22 +17,35 @@ export class ConductorController {
     return { data: this.auditQueue.list() };
   }
 
-  count = 10;
   @Post('dequeueAudits')
   dequeueAudits() {
-    if (this.count) {
-      this.count--;
-      return { data: this.count };
+    const item = this.auditQueue.dequeue();
+    if (!item) {
+      return { data: null };
     }
-    setTimeout(() => {
-      this.count = 10;
-    }, 5_000);
-    return { data: null };
+
+    return {
+      data: {
+        auditId: item.id,
+        auditDetails: item.details,
+      },
+    };
   }
 
-  @Put('auditComplete')
-  auditComplete() {
-    this.#logger.log('Audit Complete');
-    return { data: this.auditQueue.list() };
+  @Post('uploadResults')
+  uploadResults(@Body() result: UploadAuditResultsRequestBody) {
+    this.#logger.log(`Upload ${result.data.auditResult.status} audit ${result.data.auditId}`);
+
+    if (isFailedAuditResult(result)) {
+      this.#logger.log(`Audit failed with error: `);
+      this.#logger.error(result.data.auditResult.error);
+    }
+
+    if (isSuccessfulAuditResult(result)) {
+      this.#logger.log(`Audit failed with `);
+    }
+
+    this.#logger.log('File:', result);
+    return { data: 'TODO' };
   }
 }
