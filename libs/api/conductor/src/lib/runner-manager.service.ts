@@ -1,4 +1,4 @@
-import { execSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import { Injectable, Logger } from '@nestjs/common';
 
 import {
@@ -20,8 +20,7 @@ export class RunnerManagerService {
 
   async activateRunner(local = true) {
     this.#logger.log('Activate Runner');
-
-    return execSync('echo "' + local + '"');
+    return spawnSync('npx nx execute runner-app', { stdio: 'inherit', shell: true });
 
     // const instanceStatus = await this.#instanceState();
     // if (instanceStatus.InstanceStatuses?.length) {

@@ -1,10 +1,18 @@
 import { Duration, Effect } from 'effect';
 import { Browser, launch } from 'puppeteer';
-import { startFlow } from 'lighthouse';
-import { UserFlowRunnerExtension } from './runner-extension';
 import { createRunner, parse as puppeteerReplayParse } from '@puppeteer/replay';
-import { ReplayUserflowAudit } from '@app-speed/shared-user-flow-replay/schema';
+import { Config, defaultConfig, desktopConfig, startFlow } from 'lighthouse';
+
+import { DeviceSchema, ReplayUserflowAudit } from '@app-speed/shared-user-flow-replay/schema';
+
+import { UserFlowRunnerExtension } from './runner-extension';
 import { AuditRequestSchema } from './data-access/queue.effect';
+import { DEVICE_TYPE } from '@app-speed/shared-user-flow-replay';
+
+const configOptions = {
+  [DEVICE_TYPE.MOBILE]: defaultConfig,
+  [DEVICE_TYPE.DESKTOP]: desktopConfig,
+} as const satisfies Record<typeof DeviceSchema.Type, Config>;
 
 const RunnerContext = Effect.gen(function* () {
   const browser = yield* Effect.acquireRelease(
@@ -19,7 +27,9 @@ export const runAudit = Effect.fn((audit: ReplayUserflowAudit) =>
   Effect.gen(function* () {
     const { browser, page } = yield* RunnerContext;
 
-    const flow = yield* Effect.promise(() => startFlow(page, { name: audit.title }));
+    const flow = yield* Effect.promise(() =>
+      startFlow(page, { name: audit.title, config: configOptions[audit.device] }),
+    );
 
     const runnerExtension = new UserFlowRunnerExtension(browser, page, flow);
 
@@ -37,12 +47,12 @@ export const processAudit = Effect.fn((auditRequest: typeof AuditRequestSchema.T
   return Effect.gen(function* () {
     yield* Effect.log(`Starting processing ${auditRequest.auditId}`);
 
-    const [_duration, result] = yield* Effect.timed(runAudit(auditRequest.auditDetails));
+    const [duration, result] = yield* Effect.timed(runAudit(auditRequest.auditDetails));
 
-    const duration = Duration.format(_duration);
+    const auditDuration = Duration.format(duration);
 
-    yield* Effect.log(`Completed processing ${auditRequest.auditId} in ${duration}`);
+    yield* Effect.log(`Completed processing ${auditRequest.auditId} in ${auditDuration}`);
 
-    return { result, duration };
+    return { result, duration: auditDuration };
   });
 });

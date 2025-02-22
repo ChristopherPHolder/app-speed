@@ -3,6 +3,7 @@ export { CONDUCTOR_SOCKET_PATH, CONDUCTOR_SOCKET_HOST, CONDUCTOR_EVENT_SCHEDULE_
 export {
   ConductorEventMessageBase,
   ConductorStageChangeMessage,
+  ConductorStageChangeUnknownMessage,
   AuditStages,
   AuditStageKey,
   AuditStage,

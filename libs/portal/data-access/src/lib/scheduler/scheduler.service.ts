@@ -1,24 +1,23 @@
-import { Injectable } from '@angular/core';
-import { webSocket } from 'rxjs/webSocket';
+import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, filter, map, merge } from 'rxjs';
 import {
-  CONDUCTOR_EVENT_SCHEDULE_AUDIT,
-  CONDUCTOR_SOCKET_HOST,
-  CONDUCTOR_SOCKET_PATH,
   AUDIT_STAGE,
   AuditStage,
-  isConductorStageChangeEvent,
+  CONDUCTOR_EVENT_SCHEDULE_AUDIT,
+  ConductorStageChangeUnknownMessage,
   isConductorEventMessage,
   isConductorStageChangeDoneEventMessage,
+  isConductorStageChangeEvent,
 } from '@app-speed/shared-conductor';
+import { SocketService } from '../socket.service';
 
 const NO_DISPLAY_STAGES = [AUDIT_STAGE.BUILDING, AUDIT_STAGE.DONE] as string[];
 
 @Injectable({ providedIn: 'root' })
 export class SchedulerService {
-  webSocket = webSocket(`${CONDUCTOR_SOCKET_HOST}/${CONDUCTOR_SOCKET_PATH}?token=${crypto.randomUUID()}`);
+  private webSocketService = inject<SocketService<ConductorStageChangeUnknownMessage, any>>(SocketService);
 
-  conductorEventMessage$ = this.webSocket.pipe(filter(isConductorEventMessage));
+  conductorEventMessage$ = this.webSocketService.messages$.pipe(filter(isConductorEventMessage));
 
   readonly #processStage$ = new BehaviorSubject<AuditStage>(AUDIT_STAGE.BUILDING);
 
@@ -32,15 +31,9 @@ export class SchedulerService {
     map(({ data: { key } }) => key),
   );
 
-  constructor() {
-    this.webSocket.subscribe((event) => {
-      console.log('webSocket event', event);
-    });
-  }
-
   submitAudit(auditDetails: any) {
     this.#processStage$.next(AUDIT_STAGE.SCHEDULING);
-    this.webSocket.next({
+    this.webSocketService.sendMessage({
       event: CONDUCTOR_EVENT_SCHEDULE_AUDIT,
       data: auditDetails,
     });

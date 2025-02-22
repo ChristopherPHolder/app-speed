@@ -1,17 +1,17 @@
 import { Command, Options } from '@effect/cli';
-import { Effect } from 'effect';
+import { Duration, Effect } from 'effect';
 import { processQueue } from '@app-speed/runner-user-flow-replay';
 
-const queue = Options.text('queue');
+const queue = Options.text('queue').pipe(Options.withDefault('local'));
 
 const command = Command.make('audit', { queue }, ({ queue }) => {
   return Effect.gen(function* () {
-    yield* Effect.log(`Queue: ${queue}`);
+    yield* Effect.log('Initialize audit runner');
+    yield* Effect.log(`Extracting audits from ${queue}`);
 
-    yield* processQueue;
+    const [duration] = yield* Effect.timed(processQueue);
 
-    yield* Effect.log('Audits Complete');
-    return void 0;
+    yield* Effect.log(`Completed audits in ${Duration.format(duration)}`);
   });
 });
 

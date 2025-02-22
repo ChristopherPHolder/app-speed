@@ -1,9 +1,13 @@
+import { Schema } from 'effect';
+
 export const DEVICE_TYPE = {
   MOBILE: 'mobile',
-  TABLET: 'tablet',
+  // TODO implement config for table
+  // TABLET: 'tablet',
   DESKTOP: 'desktop',
 } as const;
 
-export const DEVICE_OPTIONS = Object.values(DEVICE_TYPE);
+export const DeviceSchema = Schema.Literal(DEVICE_TYPE.MOBILE, DEVICE_TYPE.DESKTOP);
 
-export type DeviceType = (typeof DEVICE_TYPE)[keyof typeof DEVICE_TYPE];
+export type DeviceType = typeof DeviceSchema.Type;
+export const DEVICE_OPTIONS = DeviceSchema.literals;

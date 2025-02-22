@@ -1,8 +1,6 @@
 import { Component, computed, input } from '@angular/core';
 import { FlowResult } from 'lighthouse';
 import { ViewerStepDetailComponent } from './viewer-container/viewer-step-details.component';
-import { AuditSummaryComponent } from './viewer-container/audit-summary.component';
-import { RxIf } from '@rx-angular/template/if';
 
 @Component({
   selector: 'viewer-flow-result',
@@ -12,7 +10,7 @@ import { RxIf } from '@rx-angular/template/if';
     }
   `,
   styles: ``,
-  imports: [ViewerStepDetailComponent, AuditSummaryComponent, RxIf],
+  imports: [ViewerStepDetailComponent],
 })
 export class FlowResultComponent {
   flowResult = input.required<FlowResult>();

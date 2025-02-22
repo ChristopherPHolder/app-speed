@@ -12,7 +12,7 @@ import {
   MatRowDef,
   MatTable,
 } from '@angular/material/table';
-import { JsonPipe, NgFor } from '@angular/common';
+import { NgFor } from '@angular/common';
 import { ScrollContainerComponent } from '@app-speed/portal-ui/scroll-container';
 import { RoundPipe } from '../utils/round.pipe';
 import { KibibytesPipe } from '../utils/kibibytes.pipe';
@@ -68,7 +68,6 @@ import { KibibytesPipe } from '../utils/kibibytes.pipe';
     MatHeaderRowDef,
     MatColumnDef,
     MatRowDef,
-    JsonPipe,
     NgFor,
     MatHeaderCell,
     MatHeaderCellDef,

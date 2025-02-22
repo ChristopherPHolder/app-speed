@@ -69,7 +69,7 @@ import { DEVICE_OPTIONS } from '@app-speed/shared-user-flow-replay';
   styleUrl: './audit-globals.styles.scss',
 })
 export class AuditGlobalsComponent {
-  protected readonly DEVICE_TYPES = DEVICE_OPTIONS;
+  protected readonly DEVICE_TYPES: readonly string[] = DEVICE_OPTIONS;
   @Output() valueChange = new EventEmitter();
   builder = inject(AuditBuilderService);
 }

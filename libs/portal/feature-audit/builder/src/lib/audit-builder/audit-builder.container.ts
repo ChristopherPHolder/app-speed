@@ -5,18 +5,10 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { filter, first, map, Observable, tap, withLatestFrom } from 'rxjs';
-import { RxLet } from '@rx-angular/template/let';
 import { rxActions } from '@rx-angular/state/actions';
 import { RxIf } from '@rx-angular/template/if';
 import { RxFor } from '@rx-angular/template/for';
-import {
-  MatCard,
-  MatCardContent,
-  MatCardFooter,
-  MatCardHeader,
-  MatCardSubtitle,
-  MatCardTitle,
-} from '@angular/material/card';
+import { MatCard, MatCardContent } from '@angular/material/card';
 import { MatAccordion } from '@angular/material/expansion';
 
 import { AuditStepComponent } from './audit-step.component';
@@ -24,9 +16,8 @@ import { AuditBuilderService } from './audit-builder.service';
 import { AuditGlobalsComponent } from './audit-globals.component';
 
 import { rxEffects } from '@rx-angular/state/effects';
-import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { SchedulerService } from '@app-speed/portal-data-access';
-import { DEFAULT_AUDIT_DETAILS, AuditDetails } from '@app-speed/shared-user-flow-replay';
+import { AuditDetails, DEFAULT_AUDIT_DETAILS } from '@app-speed/shared-user-flow-replay';
 
 @Component({
   selector: 'builder-form',
@@ -50,7 +41,6 @@ import { DEFAULT_AUDIT_DETAILS, AuditDetails } from '@app-speed/shared-user-flow
   `,
   styleUrl: './audit-builder.styles.scss',
   imports: [
-    RxLet,
     RxIf,
     RxFor,
     ReactiveFormsModule,
@@ -60,11 +50,6 @@ import { DEFAULT_AUDIT_DETAILS, AuditDetails } from '@app-speed/shared-user-flow
     MatCard,
     MatCardContent,
     MatAccordion,
-    MatProgressSpinner,
-    MatCardHeader,
-    MatCardTitle,
-    MatCardFooter,
-    MatCardSubtitle,
   ],
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix

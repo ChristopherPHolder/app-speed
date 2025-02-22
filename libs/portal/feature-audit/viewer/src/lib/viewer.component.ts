@@ -1,17 +1,12 @@
 import { Component, inject, input } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
+import { MatCard, MatCardContent } from '@angular/material/card';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatFabButton } from '@angular/material/button';
 import { MatInput } from '@angular/material/input';
 import { RxIf } from '@rx-angular/template/if';
 import { Router } from '@angular/router';
-import { MatProgressSpinner } from '@angular/material/progress-spinner';
-import { NgIf } from '@angular/common';
 import { AuditViewerContainer } from './container/audit-viewer.container';
-import { FlowResultComponent } from './flow-result.component';
-import { AuditSummaryComponent } from '@app-speed/portal-ui/audit-summary';
-import { ViewerStepDetailComponent } from './viewer-container/viewer-step-details.component';
 
 @Component({
   template: `
@@ -70,8 +65,6 @@ import { ViewerStepDetailComponent } from './viewer-container/viewer-step-detail
     ReactiveFormsModule,
     MatCard,
     MatCardContent,
-    MatCardHeader,
-    MatCardTitle,
     MatError,
     MatFabButton,
     MatFormField,
@@ -79,11 +72,6 @@ import { ViewerStepDetailComponent } from './viewer-container/viewer-step-detail
     MatLabel,
     RxIf,
     AuditViewerContainer,
-    MatProgressSpinner,
-    NgIf,
-    FlowResultComponent,
-    AuditSummaryComponent,
-    ViewerStepDetailComponent,
   ],
 })
 export class ViewerComponent {
