@@ -10,6 +10,8 @@ export const UserflowAuditStepTypeScheme = Schema.Literal(
   LIGHTHOUSE_AUDIT_STEP_TYPE.SNAPSHOT,
 ) satisfies { readonly literals: readonly string[] };
 
+export type UserflowStepType = typeof UserflowAuditStepTypeScheme.Type;
+
 const UserflowStepTypeWithStepFlagsLiteral = UserflowAuditStepTypeScheme.pipe(
   Schema.pickLiteral(
     LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
@@ -28,11 +30,22 @@ const ReplayUserflowStepWithFlagsSchema = Schema.Struct({
   parameters: Schema.Struct({ name: Schema.NonEmptyString }),
 });
 
+export const LighthouseUserflowStepWithFlagsSchema = Schema.Struct({
+  type: UserflowStepTypeWithStepFlagsLiteral,
+  name: Schema.NonEmptyString,
+});
+
+export const LighthouseUserflowStepWithoutFlagsSchema = Schema.Struct({
+  type: UserflowStepTypeWithoutStepFlagsLiteral,
+});
+
+export const LighthouseUserflowStepSchema = Schema.Union(
+  LighthouseUserflowStepWithFlagsSchema,
+  LighthouseUserflowStepWithoutFlagsSchema,
+);
+
 const UserflowStepTypeWithStepFlagsScheme = Schema.transform(
-  Schema.Struct({
-    type: UserflowStepTypeWithStepFlagsLiteral,
-    name: Schema.NonEmptyString,
-  }),
+  LighthouseUserflowStepWithFlagsSchema,
   ReplayUserflowStepWithFlagsSchema,
   {
     strict: true,
@@ -48,16 +61,14 @@ const UserflowStepTypeWithStepFlagsScheme = Schema.transform(
   },
 );
 
-const ReplayUserflowStepWithoutFlagsSchema = Schema.Struct({
+export const ReplayUserflowStepWithoutFlagsSchema = Schema.Struct({
   ...CustomStepParamsSchema.fields,
   name: UserflowStepTypeWithoutStepFlagsLiteral,
   parameters: Schema.optional(Schema.Undefined),
 });
 
 const UserflowStepTypeWithoutStepFlagsScheme = Schema.transform(
-  Schema.Struct({
-    type: UserflowStepTypeWithoutStepFlagsLiteral,
-  }),
+  LighthouseUserflowStepWithoutFlagsSchema,
   ReplayUserflowStepWithoutFlagsSchema,
   {
     strict: true,
@@ -75,11 +86,12 @@ const UserflowStepTypeWithoutStepFlagsScheme = Schema.transform(
 const ReplayUserflowStepSchema = Schema.Union(ReplayUserflowStepWithoutFlagsSchema, ReplayUserflowStepWithFlagsSchema);
 
 export const decodeReplayUserflowStepSchema = Schema.decodeUnknownSync(ReplayUserflowStepSchema);
+export const isUserflowStepTypeWithStepFlags = Schema.is(UserflowStepTypeWithStepFlagsLiteral);
 export const isReplayUserflowStep = Schema.is(ReplayUserflowStepSchema);
 export const isReplayUserflowStepWithFlags = Schema.is(ReplayUserflowStepWithFlagsSchema);
 
 export const UserflowAuditStepSchema = Schema.Union(
-  ReplayUserflowStepSchema,
   UserflowStepTypeWithStepFlagsScheme,
   UserflowStepTypeWithoutStepFlagsScheme,
+  // ReplayUserflowStepSchema,
 );

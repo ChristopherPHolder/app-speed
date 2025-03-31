@@ -4,6 +4,7 @@ export const INPUT_TYPE = {
   BOOLEAN: 'boolean',
   OPTIONS: 'options',
   STRING_ARRAY: 'stringArray',
+  NUMBER_ARRAY: 'numberArray',
   RECORDS: 'records',
 } as const;
 
@@ -23,6 +24,7 @@ export const INPUT_TYPE_DEFAULT = {
   [INPUT_TYPE.BOOLEAN]: false,
   [INPUT_TYPE.OPTIONS]: '',
   [INPUT_TYPE.STRING_ARRAY]: [''] satisfies string[], // TODO improve typing
+  [INPUT_TYPE.NUMBER_ARRAY]: [0],
   [INPUT_TYPE.RECORDS]: '', // TODO
 } as const;
 

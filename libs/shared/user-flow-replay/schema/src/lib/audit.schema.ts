@@ -1,10 +1,14 @@
 import { Schema } from 'effect';
 import { DeviceSchema } from '@app-speed/shared-user-flow-replay';
-import { UserflowAuditStepSchema, UserflowAuditStepTypeScheme } from './userflow-step';
+import { LighthouseUserflowStepSchema, UserflowAuditStepTypeScheme } from './userflow-step';
 import { PuppeteerReplayStepSchema } from './puppeteer-replay-step';
 import { StepType } from '@puppeteer/replay';
 
-const AuditStepSchema = Schema.Union(PuppeteerReplayStepSchema, UserflowAuditStepSchema);
+export const AuditStepSchema = Schema.Union(
+  ...PuppeteerReplayStepSchema.members,
+  ...LighthouseUserflowStepSchema.members,
+);
+
 export type AuditStep = typeof AuditStepSchema.Type;
 const AuditStepsSchema = Schema.NonEmptyArray(AuditStepSchema);
 
@@ -19,7 +23,7 @@ export const ReplayUserflowAuditSchema = Schema.Struct({
   title: Schema.NonEmptyString,
   device: DeviceSchema,
   timeout: Schema.optional(Schema.NonNegativeInt),
-  steps: AuditStepsSchema.pipe(RequiresAuditStepSchemaFilter),
+  steps: AuditStepSchema,
 });
 
 export type ReplayUserflowAudit = typeof ReplayUserflowAuditSchema.Type;

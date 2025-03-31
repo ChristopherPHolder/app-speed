@@ -15,7 +15,7 @@ export type StepDetails = {
 
 export const EMPTY_STEP: StepDetails = {
   type: STEP_TYPE.EMPTY,
-  properties: [STEP_PROPERTY.TYPE],
+  properties: [STEP_PROPERTY.type],
 };
 
 // DOCS https://github.com/puppeteer/replay/blob/main/docs/api/interfaces/Schema.WaitForElementStep.md
@@ -24,17 +24,17 @@ const WAIT_FOR_ELEMENT_STEP: StepDetails = {
   description:
     'waitForElement allows waiting for the presence (or absence) of the number of elements identified by the selector.',
   properties: [
-    STEP_PROPERTY.TYPE,
-    STEP_PROPERTY.ASSERTED_EVENTS,
-    STEP_PROPERTY.ATTRIBUTES,
-    STEP_PROPERTY.COUNT,
-    STEP_PROPERTY.FRAME,
-    STEP_PROPERTY.OPERATOR,
-    STEP_PROPERTY.PROPERTIES,
-    requiredFeature(STEP_PROPERTY.SELECTORS),
-    STEP_PROPERTY.TARGET,
-    STEP_PROPERTY.TIMEOUT,
-    STEP_PROPERTY.VISIBLE,
+    STEP_PROPERTY.type,
+    STEP_PROPERTY.assertEvents,
+    STEP_PROPERTY.attributes,
+    STEP_PROPERTY.count,
+    STEP_PROPERTY.frame,
+    STEP_PROPERTY.operator,
+    STEP_PROPERTY.properties,
+    requiredFeature(STEP_PROPERTY.selectors),
+    STEP_PROPERTY.target,
+    STEP_PROPERTY.timeout,
+    STEP_PROPERTY.visible,
   ],
 };
 
@@ -43,12 +43,12 @@ const WAIT_FOR_EXPRESSION_STEP: StepDetails = {
   type: STEP_TYPE.WAIT_FOR_EXPRESSION,
   description: 'waitForExpression allows for a JavaScript expression to resolve to truthy value.',
   properties: [
-    STEP_PROPERTY.TYPE,
-    STEP_PROPERTY.ASSERTED_EVENTS,
-    requiredFeature(STEP_PROPERTY.EXPRESSION),
-    STEP_PROPERTY.FRAME,
-    STEP_PROPERTY.TARGET,
-    STEP_PROPERTY.TIMEOUT,
+    STEP_PROPERTY.type,
+    STEP_PROPERTY.assertEvents,
+    requiredFeature(STEP_PROPERTY.expression),
+    STEP_PROPERTY.frame,
+    STEP_PROPERTY.target,
+    STEP_PROPERTY.timeout,
   ],
 };
 
@@ -56,11 +56,11 @@ const WAIT_FOR_EXPRESSION_STEP: StepDetails = {
 const CHANGE_STEP: StepDetails = {
   type: STEP_TYPE.CHANGE,
   properties: [
-    STEP_PROPERTY.TYPE,
-    STEP_PROPERTY.ASSERTED_EVENTS,
-    STEP_PROPERTY.FRAME,
-    requiredFeature(STEP_PROPERTY.SELECTORS),
-    requiredFeature(STEP_PROPERTY.VALUE),
+    STEP_PROPERTY.type,
+    STEP_PROPERTY.assertEvents,
+    STEP_PROPERTY.frame,
+    requiredFeature(STEP_PROPERTY.selectors),
+    requiredFeature(STEP_PROPERTY.value),
   ],
 };
 
@@ -68,24 +68,24 @@ const CHANGE_STEP: StepDetails = {
 const CLICK_STEP: StepDetails = {
   type: STEP_TYPE.CLICK,
   properties: [
-    STEP_PROPERTY.TYPE,
-    STEP_PROPERTY.ASSERTED_EVENTS,
-    STEP_PROPERTY.BUTTON,
-    STEP_PROPERTY.DEVICE_TYPE,
-    STEP_PROPERTY.DURATION,
-    STEP_PROPERTY.FRAME,
-    requiredFeature(STEP_PROPERTY.OFFSET_X),
-    requiredFeature(STEP_PROPERTY.OFFSET_Y),
-    requiredFeature(STEP_PROPERTY.SELECTORS),
-    STEP_PROPERTY.TARGET,
-    STEP_PROPERTY.TIMEOUT,
+    STEP_PROPERTY.type,
+    STEP_PROPERTY.assertEvents,
+    STEP_PROPERTY.button,
+    STEP_PROPERTY.deviceType,
+    STEP_PROPERTY.duration,
+    STEP_PROPERTY.frame,
+    requiredFeature(STEP_PROPERTY.offsetX),
+    requiredFeature(STEP_PROPERTY.offsetY),
+    requiredFeature(STEP_PROPERTY.selectors),
+    STEP_PROPERTY.target,
+    STEP_PROPERTY.timeout,
   ],
 };
 
 // DOCS https://github.com/puppeteer/replay/blob/main/docs/api/interfaces/Schema.CloseStep.md
 const CLOSE_STEP: StepDetails = {
   type: STEP_TYPE.CLOSE,
-  properties: [STEP_PROPERTY.TYPE, STEP_PROPERTY.ASSERTED_EVENTS, STEP_PROPERTY.TARGET, STEP_PROPERTY.TIMEOUT],
+  properties: [STEP_PROPERTY.type, STEP_PROPERTY.assertEvents, STEP_PROPERTY.target, STEP_PROPERTY.timeout],
 };
 
 // DOCS https://github.com/puppeteer/replay/blob/main/docs/api/interfaces/Schema.CustomStepParams.md
@@ -95,17 +95,17 @@ const CLOSE_STEP: StepDetails = {
 const DOUBLE_CLICK_STEP: StepDetails = {
   type: STEP_TYPE.DOUBLE_CLICK,
   properties: [
-    STEP_PROPERTY.TYPE,
-    STEP_PROPERTY.ASSERTED_EVENTS,
-    STEP_PROPERTY.BUTTON,
-    STEP_PROPERTY.DEVICE_TYPE,
-    STEP_PROPERTY.DURATION,
-    STEP_PROPERTY.FRAME,
-    requiredFeature(STEP_PROPERTY.OFFSET_X),
-    requiredFeature(STEP_PROPERTY.OFFSET_Y),
-    requiredFeature(STEP_PROPERTY.SELECTORS),
-    STEP_PROPERTY.TARGET,
-    STEP_PROPERTY.TIMEOUT,
+    STEP_PROPERTY.type,
+    STEP_PROPERTY.assertEvents,
+    STEP_PROPERTY.button,
+    STEP_PROPERTY.deviceType,
+    STEP_PROPERTY.duration,
+    STEP_PROPERTY.frame,
+    requiredFeature(STEP_PROPERTY.offsetX),
+    requiredFeature(STEP_PROPERTY.offsetY),
+    requiredFeature(STEP_PROPERTY.selectors),
+    STEP_PROPERTY.target,
+    STEP_PROPERTY.timeout,
   ],
 };
 
@@ -113,13 +113,13 @@ const DOUBLE_CLICK_STEP: StepDetails = {
 const EMULATE_NETWORK_CONDITIONS_STEP: StepDetails = {
   type: STEP_TYPE.EMULATE_NETWORK_CONDITIONS,
   properties: [
-    STEP_PROPERTY.TYPE,
-    STEP_PROPERTY.ASSERTED_EVENTS,
-    requiredFeature(STEP_PROPERTY.DOWNLOAD),
-    requiredFeature(STEP_PROPERTY.LATENCY),
-    STEP_PROPERTY.TARGET,
-    STEP_PROPERTY.TIMEOUT,
-    requiredFeature(STEP_PROPERTY.UPLOAD),
+    STEP_PROPERTY.type,
+    STEP_PROPERTY.assertEvents,
+    requiredFeature(STEP_PROPERTY.download),
+    requiredFeature(STEP_PROPERTY.latency),
+    STEP_PROPERTY.target,
+    STEP_PROPERTY.timeout,
+    requiredFeature(STEP_PROPERTY.upload),
   ],
 };
 
@@ -127,12 +127,12 @@ const EMULATE_NETWORK_CONDITIONS_STEP: StepDetails = {
 const HOVER_STEP: StepDetails = {
   type: STEP_TYPE.HOVER,
   properties: [
-    STEP_PROPERTY.TYPE,
-    STEP_PROPERTY.ASSERTED_EVENTS,
-    STEP_PROPERTY.FRAME,
-    requiredFeature(STEP_PROPERTY.SELECTORS),
-    STEP_PROPERTY.TARGET,
-    STEP_PROPERTY.TIMEOUT,
+    STEP_PROPERTY.type,
+    STEP_PROPERTY.assertEvents,
+    STEP_PROPERTY.frame,
+    requiredFeature(STEP_PROPERTY.selectors),
+    STEP_PROPERTY.target,
+    STEP_PROPERTY.timeout,
   ],
 };
 
@@ -140,11 +140,11 @@ const HOVER_STEP: StepDetails = {
 const KEY_DOWN_STEP: StepDetails = {
   type: STEP_TYPE.KEY_DOWN,
   properties: [
-    STEP_PROPERTY.TYPE,
-    STEP_PROPERTY.ASSERTED_EVENTS,
-    requiredFeature(STEP_PROPERTY.KEY),
-    STEP_PROPERTY.TARGET,
-    STEP_PROPERTY.TIMEOUT,
+    STEP_PROPERTY.type,
+    STEP_PROPERTY.assertEvents,
+    requiredFeature(STEP_PROPERTY.key),
+    STEP_PROPERTY.target,
+    STEP_PROPERTY.timeout,
   ],
 };
 
@@ -152,11 +152,11 @@ const KEY_DOWN_STEP: StepDetails = {
 const KEY_UP_STEP: StepDetails = {
   type: STEP_TYPE.KEY_UP,
   properties: [
-    STEP_PROPERTY.TYPE,
-    STEP_PROPERTY.ASSERTED_EVENTS,
-    requiredFeature(STEP_PROPERTY.KEY),
-    STEP_PROPERTY.TARGET,
-    STEP_PROPERTY.TIMEOUT,
+    STEP_PROPERTY.type,
+    STEP_PROPERTY.assertEvents,
+    requiredFeature(STEP_PROPERTY.key),
+    STEP_PROPERTY.target,
+    STEP_PROPERTY.timeout,
   ],
 };
 
@@ -164,11 +164,11 @@ const KEY_UP_STEP: StepDetails = {
 const NAVIGATE_STEP: StepDetails = {
   type: STEP_TYPE.NAVIGATE,
   properties: [
-    STEP_PROPERTY.TYPE,
-    STEP_PROPERTY.ASSERTED_EVENTS,
-    STEP_PROPERTY.TARGET,
-    STEP_PROPERTY.TIMEOUT,
-    requiredFeature(STEP_PROPERTY.URL),
+    STEP_PROPERTY.type,
+    STEP_PROPERTY.assertEvents,
+    STEP_PROPERTY.target,
+    STEP_PROPERTY.timeout,
+    requiredFeature(STEP_PROPERTY.url),
   ],
 };
 
@@ -176,13 +176,13 @@ const NAVIGATE_STEP: StepDetails = {
 const SCROLL_PAGE_STEP: StepDetails = {
   type: STEP_TYPE.SCROLL,
   properties: [
-    STEP_PROPERTY.TYPE,
-    STEP_PROPERTY.ASSERTED_EVENTS,
-    STEP_PROPERTY.FRAME,
-    STEP_PROPERTY.TARGET,
-    STEP_PROPERTY.TIMEOUT,
-    STEP_PROPERTY.X,
-    STEP_PROPERTY.Y,
+    STEP_PROPERTY.type,
+    STEP_PROPERTY.assertEvents,
+    STEP_PROPERTY.frame,
+    STEP_PROPERTY.target,
+    STEP_PROPERTY.timeout,
+    STEP_PROPERTY.x,
+    STEP_PROPERTY.y,
   ],
 };
 
@@ -190,42 +190,42 @@ const SCROLL_PAGE_STEP: StepDetails = {
 const SET_VIEWPORT_STEP: StepDetails = {
   type: STEP_TYPE.SET_VIEWPORT,
   properties: [
-    STEP_PROPERTY.TYPE,
-    STEP_PROPERTY.ASSERTED_EVENTS,
-    requiredFeature(STEP_PROPERTY.DEVICE_SCALE_FACTOR),
-    requiredFeature(STEP_PROPERTY.HAS_TOUCH),
-    requiredFeature(STEP_PROPERTY.HEIGHT),
-    requiredFeature(STEP_PROPERTY.IS_LANDSCAPE),
-    requiredFeature(STEP_PROPERTY.IS_MOBILE),
-    STEP_PROPERTY.TARGET,
-    STEP_PROPERTY.TIMEOUT,
-    requiredFeature(STEP_PROPERTY.WIDTH),
+    STEP_PROPERTY.type,
+    STEP_PROPERTY.assertEvents,
+    requiredFeature(STEP_PROPERTY.deviceScaleFactor),
+    requiredFeature(STEP_PROPERTY.hasTouch),
+    requiredFeature(STEP_PROPERTY.height),
+    requiredFeature(STEP_PROPERTY.isLandscape),
+    requiredFeature(STEP_PROPERTY.isMobile),
+    STEP_PROPERTY.target,
+    STEP_PROPERTY.timeout,
+    requiredFeature(STEP_PROPERTY.width),
   ],
 };
 
 const START_NAVIGATION: StepDetails = {
   type: STEP_TYPE.START_NAVIGATION,
-  properties: [STEP_PROPERTY.TYPE, requiredFeature(STEP_PROPERTY.NAME)],
+  properties: [STEP_PROPERTY.type, requiredFeature(STEP_PROPERTY.name)],
 };
 
 const END_NAVIGATION: StepDetails = {
   type: STEP_TYPE.END_NAVIGATION,
-  properties: [STEP_PROPERTY.TYPE],
+  properties: [STEP_PROPERTY.type],
 };
 
 const START_TIMESPAN: StepDetails = {
   type: STEP_TYPE.START_TIMESPAN,
-  properties: [STEP_PROPERTY.TYPE, requiredFeature(STEP_PROPERTY.NAME)],
+  properties: [STEP_PROPERTY.type, requiredFeature(STEP_PROPERTY.name)],
 };
 
 const END_TIMESPAN: StepDetails = {
   type: STEP_TYPE.END_TIMESPAN,
-  properties: [STEP_PROPERTY.TYPE],
+  properties: [STEP_PROPERTY.type],
 };
 
 const SNAPSHOT: StepDetails = {
   type: STEP_TYPE.SNAPSHOT,
-  properties: [STEP_PROPERTY.TYPE, requiredFeature(STEP_PROPERTY.NAME)],
+  properties: [STEP_PROPERTY.type, requiredFeature(STEP_PROPERTY.name)],
 };
 
 const AUDIT_STEPS: StepDetails[] = [START_NAVIGATION, END_NAVIGATION, START_TIMESPAN, END_TIMESPAN, SNAPSHOT];

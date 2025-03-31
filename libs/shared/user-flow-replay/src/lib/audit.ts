@@ -17,4 +17,4 @@ export const DEFAULT_AUDIT_DETAILS = {
     { type: 'navigate', url: '' },
     { type: 'endNavigation' },
   ],
-} as const;
+} as const as any as AuditDetails;

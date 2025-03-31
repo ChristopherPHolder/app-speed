@@ -5,11 +5,34 @@ import {
   isSuccessfulAuditResult,
   UploadAuditResultsRequestBody,
 } from '@app-speed/shared-conductor';
+import { Schema } from 'effect';
+import { ReplayUserflowAuditSchema } from '@app-speed/shared-user-flow-replay/schema';
 
 @Controller('conductor')
 export class ConductorController {
   readonly #logger = new Logger(ConductorController.name);
   constructor(private readonly auditQueue: AuditQueueService) {}
+
+  @Post('requestAudit')
+  requestAudit(@Body() body: unknown) {
+    if (body && Schema.is(ReplayUserflowAuditSchema)(body)) {
+      return { success: true };
+    } else {
+      console.log('Failed Body', body);
+      try {
+        Schema.decodeUnknownSync(ReplayUserflowAuditSchema)(body);
+      } catch (e) {
+        console.error(e);
+      }
+
+      return { success: false };
+    }
+    console.log('WOLOLO', body);
+    return body;
+    // Should validate audit
+    // Should return audit failed if invalid Schema
+    // Should return Audit ID
+  }
 
   @Get('audits')
   queuedAudits() {

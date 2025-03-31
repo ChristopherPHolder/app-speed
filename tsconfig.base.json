@@ -20,6 +20,8 @@
       "@app-speed/portal-feature-audit/builder": ["libs/portal/feature-audit/builder/src/index.ts"],
       "@app-speed/portal-feature-audit/viewer": ["libs/portal/feature-audit/viewer/src/index.ts"],
       "@app-speed/portal-feature-shell": ["libs/portal/feature-shell/src/index.ts"],
+      "@app-speed/portal-ui-audit-builder": ["libs/portal/ui-audit-builder/src/index.ts"],
+      "@app-speed/portal-ui/audit-builder": ["libs/portal/ui/audit-builder/src/index.ts"],
       "@app-speed/portal-ui/audit-summary": ["libs/portal/ui/audit-summary/src/index.ts"],
       "@app-speed/portal-ui/fractional-result-chip": ["libs/portal/ui/fractional-result-chip/public-api.ts"],
       "@app-speed/portal-ui/loading-spinner": ["libs/portal/ui/loading-spinner/public-api.ts"],

@@ -41,7 +41,9 @@ const AssertedEventsSchema = Schema.Struct({
   url: Schema.optional(UrlWithHttpsSchema),
 });
 const FrameSelectorSchema = Schema.Array(Schema.NonNegativeInt);
-const SelectorSchema = Schema.Union(Schema.String, Schema.Array(Schema.String));
+// TODO FIX Selectors is actually more complex, its an array of strings or string arrays.
+// const SelectorSchema = Schema.Union(Schema.String, Schema.Array(Schema.String)); TODO Fix
+const SelectorSchema = Schema.NonEmptyString;
 const SelectorsSchema = Schema.Array(SelectorSchema);
 const PointerButtonTypeSchema = Schema.Literal(
   'primary',

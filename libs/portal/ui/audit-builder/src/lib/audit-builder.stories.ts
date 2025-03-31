@@ -1,4 +1,4 @@
-import { Meta, StoryObj } from '@storybook/angular';
+import type { Meta, StoryObj } from '@storybook/angular';
 import { AuditBuilderComponent } from './audit-builder.component';
 
 const meta: Meta<AuditBuilderComponent> = {
@@ -7,7 +7,8 @@ const meta: Meta<AuditBuilderComponent> = {
 };
 
 export default meta;
-
 type Story = StoryObj<AuditBuilderComponent>;
 
-export const Default: Story = {};
+export const Default: Story = {
+  args: {},
+};

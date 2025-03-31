@@ -1,116 +1,76 @@
-import { Component, inject, viewChild } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { AfterViewInit, ChangeDetectionStrategy, Component, inject, OnInit, viewChild } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-
-import { filter, first, map, Observable, tap, withLatestFrom } from 'rxjs';
-import { rxActions } from '@rx-angular/state/actions';
-import { RxIf } from '@rx-angular/template/if';
-import { RxFor } from '@rx-angular/template/for';
-import { MatCard, MatCardContent } from '@angular/material/card';
-import { MatAccordion } from '@angular/material/expansion';
-
-import { AuditStepComponent } from './audit-step.component';
-import { AuditBuilderService } from './audit-builder.service';
-import { AuditGlobalsComponent } from './audit-globals.component';
-
-import { rxEffects } from '@rx-angular/state/effects';
-import { SchedulerService } from '@app-speed/portal-data-access';
+import { AuditBuilderComponent } from '@app-speed/portal-ui/audit-builder';
+import { ActivatedRoute, Router } from '@angular/router';
+import { BehaviorSubject, filter, tap } from 'rxjs';
 import { AuditDetails, DEFAULT_AUDIT_DETAILS } from '@app-speed/shared-user-flow-replay';
+import { LoadingStatusComponent } from './loading-status.component';
+import { RxIf } from '@rx-angular/template/if';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'builder-form',
   template: `
-    <form
-      *rxIf="auditInit$"
-      novalidate
-      class="grid-container"
-      [formGroup]="builder.formGroup"
-      (ngSubmit)="actions.submit($event)"
-    >
-      <mat-card>
-        <mat-card-content>
-          <builder-audit-global />
-          <mat-accordion [multi]="true">
-            <builder-audit-step *rxFor="let control of builder.steps.controls; let idx = index" [stepIndex]="idx" />
-          </mat-accordion>
-        </mat-card-content>
-      </mat-card>
-    </form>
+    <ui-audit-builder (submitAudit)="submitAudit()" [initialAudit]="initialAudit" />
+
+    <loading-status *rxIf="submitting" />
   `,
   styleUrl: './audit-builder.styles.scss',
-  imports: [
-    RxIf,
-    RxFor,
-    ReactiveFormsModule,
-    AuditGlobalsComponent,
-    AuditStepComponent,
-    AuditGlobalsComponent,
-    MatCard,
-    MatCardContent,
-    MatAccordion,
-  ],
+  imports: [ReactiveFormsModule, AuditBuilderComponent, LoadingStatusComponent, RxIf],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix
-export class AuditBuilderContainer {
+export class AuditBuilderContainer implements OnInit, AfterViewInit {
+  auditForm = viewChild.required(AuditBuilderComponent);
+  private modifyingAudit = true;
+  protected readonly submitting = new BehaviorSubject<boolean>(false);
+
+  private http = inject(HttpClient);
+
+  submitAudit() {
+    this.modifyingAudit = false;
+    this.auditForm().formGroup.disable({ onlySelf: true });
+    this.auditForm().accordion().closeAll();
+    this.submitting.next(true);
+    this.http.post('api/conductor/requestAudit', this.auditForm().formGroup.getRawValue()).subscribe((value) => {
+      console.log('WOLOLO', value);
+    });
+  }
+
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  accordion = viewChild.required(MatAccordion);
+  initialAudit!: AuditDetails;
 
-  readonly schedulerService = inject(SchedulerService);
-
-  actions = rxActions<{ submit: AuditDetails }>();
-
-  constructor() {
-    this.actions.onSubmit(
-      (submit$) =>
-        submit$.pipe(
-          withLatestFrom(this.builder.formGroup.statusChanges, this.builder.formGroup.valueChanges),
-          filter(([, formState]) => formState === 'VALID'),
-          map(([, , formValue]) => formValue as AuditDetails),
-        ),
-      this.submitEffect,
-    );
-
-    rxEffects(({ register }) => {
-      register(this.builder.formGroup.valueChanges, (auditDetails) => this.updateAuditDetails(auditDetails));
-    });
+  ngOnInit() {
+    // TODO move logic to router
+    this.initialAudit = this.getInitialAuditDetails();
   }
 
-  public readonly initialAuditDetails$: Observable<AuditDetails> = this.route.queryParams.pipe(
-    map((params) => params['auditDetails']),
-    tap((auditDetails) => this.initializeQueryParams(auditDetails)),
-    filter((auditDetail) => !!auditDetail),
-    map((auditDetail) => JSON.parse(auditDetail)),
-    first(),
-    takeUntilDestroyed(),
-  );
-
-  private initializeQueryParams(auditDetails: any): void {
-    if (auditDetails) {
-      return;
-    }
-    if (this.builder.formGroup.untouched) {
-      return this.updateAuditDetails(DEFAULT_AUDIT_DETAILS);
-    }
-    this.updateAuditDetails(this.builder.formGroup.getRawValue());
+  ngAfterViewInit() {
+    this.auditForm()
+      .formGroup.valueChanges.pipe(
+        filter(() => this.modifyingAudit),
+        tap((auditDetails) => {
+          return this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: { ['audit-details']: JSON.stringify(auditDetails) },
+            queryParamsHandling: 'replace',
+          });
+        }),
+      )
+      .subscribe();
   }
-  builder = inject(AuditBuilderService);
-  public readonly auditInit$ = this.builder.auditInit$(this.initialAuditDetails$);
 
-  submitEffect = (event: AuditDetails) => {
-    this.builder.formGroup.disable();
-    this.accordion().closeAll();
-    this.router.navigate([], { relativeTo: this.route });
-    this.schedulerService.submitAudit(event);
-  };
-
-  updateAuditDetails(auditDetails: object): void {
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { auditDetails: JSON.stringify(auditDetails) },
-      queryParamsHandling: 'merge',
-    });
+  private getInitialAuditDetails(): AuditDetails {
+    const auditDetailsQuery = this.route.snapshot.queryParams['audit-details'];
+    if (auditDetailsQuery) {
+      try {
+        return JSON.parse(auditDetailsQuery);
+      } catch (e) {
+        console.error('AuditDetailsQuery', e);
+        return DEFAULT_AUDIT_DETAILS;
+      }
+    }
+    return DEFAULT_AUDIT_DETAILS;
   }
 }
