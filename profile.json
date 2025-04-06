@@ -1,0 +1,28 @@
+[
+  {
+    "name": "thread_name",
+    "ph": "M",
+    "pid": 89288,
+    "tid": 0,
+    "ts": 0,
+    "args": {
+      "name": "Group #1"
+    }
+  },
+  {
+    "name": "shared-user-flow-replay:test",
+    "cat": "shared-user-flow-replay,test,",
+    "ph": "X",
+    "ts": 1743402013004000,
+    "dur": 7314000,
+    "pid": 89288,
+    "tid": 0,
+    "args": {
+      "target": {
+        "project": "shared-user-flow-replay",
+        "target": "test"
+      },
+      "status": "success"
+    }
+  }
+]
