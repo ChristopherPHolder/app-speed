@@ -58,24 +58,6 @@
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"]
     },
-    "test": {
-      "inputs": [
-        "default",
-        "^default",
-        {
-          "externalDependencies": ["vitest"]
-        }
-      ],
-      "options": {
-        "passWithNoTests": true
-      },
-      "configurations": {
-        "ci": {
-          "ci": true,
-          "codeCoverage": true
-        }
-      }
-    },
     "s3-upload": {
       "executor": "@app-speed/aws-deploy:s3-upload",
       "dependsOn": ["build"],

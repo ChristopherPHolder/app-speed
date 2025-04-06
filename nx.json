@@ -31,10 +31,6 @@
       "inputs": ["default", "{workspaceRoot}/.eslintrc.json"],
       "cache": true
     },
-    "@nx/vite:test": {
-      "cache": true,
-      "inputs": ["default", "^default"]
-    },
     "@nx/jest:jest": {
       "inputs": ["default", "^default", "{workspaceRoot}/jest.preset.js"],
       "cache": true,
@@ -100,23 +96,6 @@
       "options": {
         "targetName": "eslint:lint"
       }
-    },
-    {
-      "plugin": "@nx/vite/plugin",
-      "options": {
-        "buildTargetName": "build",
-        "serveTargetName": "serve",
-        "previewTargetName": "preview",
-        "testTargetName": "test",
-        "serveStaticTargetName": "serve-static"
-      },
-      "include": [
-        "packages/runner-app/**/*",
-        "packages/audit-queue/**/*",
-        "packages/audit-store/**/*",
-        "packages/cli-middleware/**/*",
-        "packages/user-flow-replay/**/*"
-      ]
     },
     {
       "plugin": "@nx/webpack/plugin",

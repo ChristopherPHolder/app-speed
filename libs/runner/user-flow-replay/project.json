@@ -19,19 +19,6 @@
     "lint": {
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"]
-    },
-    "test": {
-      "inputs": [
-        "default",
-        "^default",
-        {
-          "externalDependencies": ["vitest"]
-        }
-      ],
-      "options": {
-        "passWithNoTests": true,
-        "coverage.reportsDirectory": "../../coverage/{projectRoot}"
-      }
     }
   }
 }
