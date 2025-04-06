@@ -76,7 +76,6 @@
     "@nx/node": "20.7.1",
     "@nx/plugin": "20.7.1",
     "@nx/storybook": "20.7.1",
-    "@nx/vite": "20.7.1",
     "@nx/web": "20.7.1",
     "@nx/webpack": "20.7.1",
     "@schematics/angular": "19.2.6",
