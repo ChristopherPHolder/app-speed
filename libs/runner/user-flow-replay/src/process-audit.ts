@@ -3,11 +3,11 @@ import { Browser, launch } from 'puppeteer';
 import { createRunner, parse as puppeteerReplayParse } from '@puppeteer/replay';
 import { Config, defaultConfig, desktopConfig, startFlow } from 'lighthouse';
 
-import { DeviceSchema, ReplayUserflowAudit } from '@app-speed/shared-user-flow-replay/schema';
+import { ReplayUserflowAudit } from '@app-speed/shared-user-flow-replay/schema';
 
 import { UserFlowRunnerExtension } from './runner-extension';
 import { AuditRequestSchema } from './data-access/queue.effect';
-import { DEVICE_TYPE } from '@app-speed/shared-user-flow-replay';
+import { DEVICE_TYPE, DeviceSchema } from '@app-speed/shared-user-flow-replay';
 
 const configOptions = {
   [DEVICE_TYPE.MOBILE]: defaultConfig,
