@@ -2,10 +2,11 @@
   "name": "@app-speed/portal-feature-shell",
   "version": "0.0.1",
   "peerDependencies": {
-    "@angular/core": "19.0.4",
-    "@angular/router": "19.0.4",
-    "@angular/material": "19.0.3",
-    "@app-speed/portal-feature-audit": "0.0.1"
+    "@angular/core": "19.2.5",
+    "@angular/router": "19.2.5",
+    "@angular/material": "19.2.8",
+    "@app-speed/portal-feature-audit": "0.0.1",
+    "@app-speed/portal-ui": "0.0.0"
   },
   "sideEffects": false
 }
