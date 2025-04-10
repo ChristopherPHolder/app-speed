@@ -1,6 +1,38 @@
 import { Schema } from 'effect';
 import { LIGHTHOUSE_AUDIT_STEP_TYPE } from '@app-speed/shared-user-flow-replay';
 import { CustomStepParamsSchema } from './puppeteer-replay-step';
+import { AuditStepTypeSchema } from './audit-step.schema';
+
+export const UserflowStartNavigationStepSchema = Schema.Struct({
+  type: AuditStepTypeSchema.pipe(Schema.pickLiteral('startNavigation')),
+  name: Schema.optional(Schema.NonEmptyString),
+});
+export const UserflowEndNavigationStepSchema = Schema.Struct({
+  type: AuditStepTypeSchema.pipe(Schema.pickLiteral('endNavigation')),
+});
+
+export const UserflowStartTimespanStepSchema = Schema.Struct({
+  type: AuditStepTypeSchema.pipe(Schema.pickLiteral('startTimespan')),
+  name: Schema.optional(Schema.NonEmptyString),
+});
+
+export const UserflowEndTimespanStepSchema = Schema.Struct({
+  type: AuditStepTypeSchema.pipe(Schema.pickLiteral('endTimespan')),
+});
+
+export const UserflowSnapshotStepSchema = Schema.Struct({
+  type: AuditStepTypeSchema.pipe(Schema.pickLiteral('snapshot')),
+});
+
+export const UserflowStepSchema = Schema.Union(
+  UserflowStartNavigationStepSchema,
+  UserflowEndNavigationStepSchema,
+  UserflowStartTimespanStepSchema,
+  UserflowEndTimespanStepSchema,
+  UserflowSnapshotStepSchema,
+);
+
+export const isUserflowStep = Schema.is(UserflowStepSchema);
 
 export const UserflowAuditStepTypeScheme = Schema.Literal(
   LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
@@ -93,5 +125,5 @@ export const isReplayUserflowStepWithFlags = Schema.is(ReplayUserflowStepWithFla
 export const UserflowAuditStepSchema = Schema.Union(
   UserflowStepTypeWithStepFlagsScheme,
   UserflowStepTypeWithoutStepFlagsScheme,
-  // ReplayUserflowStepSchema,
+  ReplayUserflowStepSchema,
 );

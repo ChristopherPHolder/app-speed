@@ -2,7 +2,7 @@
   {
     "name": "thread_name",
     "ph": "M",
-    "pid": 89288,
+    "pid": 43568,
     "tid": 0,
     "ts": 0,
     "args": {
@@ -13,16 +13,16 @@
     "name": "shared-user-flow-replay:test",
     "cat": "shared-user-flow-replay,test,",
     "ph": "X",
-    "ts": 1743402013004000,
-    "dur": 7314000,
-    "pid": 89288,
+    "ts": 1743930722522000,
+    "dur": 3134000,
+    "pid": 43568,
     "tid": 0,
     "args": {
       "target": {
         "project": "shared-user-flow-replay",
         "target": "test"
       },
-      "status": "success"
+      "status": "failure"
     }
   }
 ]

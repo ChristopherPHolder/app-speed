@@ -23,16 +23,17 @@ import {
 import { Schema } from 'effect';
 import { ReadonlyDeep } from 'type-fest';
 import { KeySchema } from './puppeteer-replay-key';
+import { AuditStepTypeSchema } from './audit-step.schema';
 
 type SchemaType<T> = { Type: ReadonlyDeep<T> };
 
 const UrlWithHttpsSchema = Schema.String.pipe(
   Schema.pattern(/^https:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9()@:%_+.~#?&/=]*$/),
-  Schema.annotations({
-    identifier: 'Valid URL with HTTPS',
-    title: 'Valid url with https protocol',
-    description: 'This field requires being a valid URL that uses the HTTPS Protocol',
-  }),
+  // Schema.annotations({
+  //   identifier: 'Valid URL with HTTPS',
+  //   title: 'Valid url with https protocol',
+  //   description: 'This field requires being a valid URL that uses the HTTPS Protocol',
+  // }),
 );
 
 const AssertedEventsSchema = Schema.Struct({
@@ -93,6 +94,14 @@ export const CustomStepParamsSchema = Schema.Struct({
   name: Schema.NonEmptyString,
 }) satisfies SchemaType<CustomStepParams>;
 
+export const CustomStepWithTargetSchema = Schema.Struct({
+  ...CustomStepParamsSchema.fields,
+  target: Schema.optional(Schema.String),
+});
+export const CustomStepWithFrameSchema = Schema.Struct({
+  ...CustomStepParamsSchema.fields,
+  frame: Schema.optional(FrameSelectorSchema),
+});
 export const CustomStepSchema = Schema.Union(
   Schema.Struct({
     ...CustomStepParamsSchema.fields,
@@ -153,14 +162,14 @@ export const KeyUpStepSchema = Schema.Struct({
 }) satisfies { Type: ReadonlyDeep<KeyUpStep> };
 
 export const NavigateStepSchema = Schema.Struct({
-  type: Schema.Literal(StepType.Navigate),
+  type: AuditStepTypeSchema.pipe(Schema.pickLiteral(StepType.Navigate)),
   assertedEvents: Schema.optional(Schema.Array(AssertedEventsSchema)),
   target: Schema.optional(Schema.String),
   timeout: Schema.optional(Schema.NonNegativeInt),
   url: UrlWithHttpsSchema,
 }) satisfies SchemaType<NavigateStep>;
 
-const ScrollPageStepSchema = Schema.Struct({
+export const ScrollPageStepSchema = Schema.Struct({
   type: Schema.Literal(StepType.Scroll),
   assertedEvents: Schema.optional(Schema.Array(AssertedEventsSchema)),
   frame: Schema.optional(FrameSelectorSchema),
@@ -170,12 +179,13 @@ const ScrollPageStepSchema = Schema.Struct({
   y: Schema.Number,
 });
 
-export const ScrollStepSchema = Schema.Union(
-  ScrollPageStepSchema,
-  Schema.Struct({
-    ...ScrollPageStepSchema.fields,
-    selectors: SelectorsSchema,
-  }),
+export const ScrollStepSchema = ScrollPageStepSchema.pipe(
+  Schema.compose(
+    Schema.Struct({
+      ...ScrollPageStepSchema.fields,
+      selectors: SelectorsSchema,
+    }),
+  ),
 ) satisfies SchemaType<ScrollStep>;
 
 export const SetViewStepSchema = Schema.Struct({

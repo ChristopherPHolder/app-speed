@@ -1,0 +1,13 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`AuditStepSchema > should reject if no user-flow step in audit 1`] = `[ParseError: Audit requires at least one userflow step]`;
+
+exports[`AuditStepSchema > should reject if no user-flow step in audit 2`] = `[ParseError: Snapshot step cannot come before navigation]`;
+
+exports[`AuditStepSchema > should reject if no user-flow step in audit 3`] = `[ParseError: Audit requires at least one userflow step]`;
+
+exports[`AuditStepSchema > should reject if snapshot step is before navigation 1`] = `[ParseError: Snapshot step cannot come before navigation]`;
+
+exports[`AuditStepSchema > should reject if steps does not have navigation step 1`] = `[ParseError: Audit requires at least one navigation]`;
+
+exports[`AuditStepSchema > should reject if userflow start step does not contain end step 1`] = `[ParseError: Audit requires at least one userflow step]`;
