@@ -1,10 +1,10 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, OnInit } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, DestroyRef, inject, input } from '@angular/core';
 import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
 import { StepFormGroup } from './audit-builder-form';
 import { MatFabButton } from '@angular/material/button';
 import { OptionsFieldComponent } from './fields/options-field.component';
 import { ReactiveFormsModule } from '@angular/forms';
-import { tap } from 'rxjs';
+import { distinctUntilChanged, skip, startWith, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToTitleCasePipe } from './utils/toTitleCase.pipe';
 import { InputFieldComponent } from './fields/input-field.component';
@@ -92,14 +92,22 @@ import { ArrayFieldComponent } from './fields/array-field.component';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AuditStepComponent implements OnInit {
+export class AuditStepComponent {
   stepControl = input.required<StepFormGroup>();
   private readonly destroyRef = inject(DestroyRef);
 
-  ngOnInit() {
-    this.stepControl()
-      .controls['type'].valueChanges.pipe(
-        tap((stepType) => this.stepControl().resetStepControls(stepType!)),
+  constructor() {
+    afterNextRender(() => this.handleStepTypeChange());
+  }
+
+  private handleStepTypeChange(): void {
+    const stepTypeControl = this.stepControl().controls['type'];
+    stepTypeControl.valueChanges
+      .pipe(
+        startWith(stepTypeControl.value),
+        distinctUntilChanged(),
+        skip(1),
+        tap((newStepType) => this.stepControl().resetStepControls(newStepType)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
