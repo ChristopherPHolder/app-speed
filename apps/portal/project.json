@@ -49,12 +49,10 @@
       "executor": "@nx/angular:dev-server",
       "configurations": {
         "production": {
-          "buildTarget": "portal-app:build:production",
-          "proxyConfig": "apps/portal/proxy.conf.json"
+          "buildTarget": "portal-app:build:production"
         },
         "development": {
-          "buildTarget": "portal-app:build:development",
-          "proxyConfig": "apps/portal/proxy.conf.json"
+          "buildTarget": "portal-app:build:development"
         }
       },
       "defaultConfiguration": "development",
