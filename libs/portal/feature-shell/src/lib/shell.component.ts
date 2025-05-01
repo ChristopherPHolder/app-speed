@@ -47,7 +47,7 @@ import { RouterLink, RouterOutlet } from '@angular/router';
           <router-outlet />
         </main>
         <footer>
-          <p>Made with ❤️ by <a href="https://x.com/chrispholder">Chris</a></p>
+          <p>Made with ❤️ by <a target="_blank" href="https://x.com/chrispholder">Chris</a></p>
         </footer>
       </mat-sidenav-content>
     </mat-sidenav-container>
