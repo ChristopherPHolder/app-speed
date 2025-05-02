@@ -3,10 +3,12 @@ import { AuditQueueService } from './audit-queue.service';
 import {
   isFailedAuditResult,
   isSuccessfulAuditResult,
+  RequestAuditResponse,
   UploadAuditResultsRequestBody,
 } from '@app-speed/shared-conductor';
-import { Schema } from 'effect';
+import { Schema, Either, ParseResult } from 'effect';
 import { ReplayUserflowAuditSchema } from '@app-speed/shared-user-flow-replay/schema';
+import { randomUUID } from 'node:crypto';
 
 @Controller('conductor')
 export class ConductorController {
@@ -14,24 +16,18 @@ export class ConductorController {
   constructor(private readonly auditQueue: AuditQueueService) {}
 
   @Post('requestAudit')
-  requestAudit(@Body() body: unknown) {
-    if (body && Schema.is(ReplayUserflowAuditSchema)(body)) {
-      return { success: true };
-    } else {
-      console.log('Failed Body', body);
-      try {
-        Schema.decodeUnknownSync(ReplayUserflowAuditSchema)(body);
-      } catch (e) {
-        console.error(e);
-      }
+  requestAudit(@Body() body: unknown): RequestAuditResponse {
+    const eitherAuditDetails = Schema.decodeUnknownEither(ReplayUserflowAuditSchema)(body);
 
-      return { success: false };
+    if (Either.isLeft(eitherAuditDetails)) {
+      const parseError = eitherAuditDetails.left;
+      const formatedErrorMessage = ParseResult.TreeFormatter.formatErrorSync(parseError);
+      return { status: 'failed', message: { errorMessage: formatedErrorMessage } };
     }
-    console.log('WOLOLO', body);
-    return body;
-    // Should validate audit
-    // Should return audit failed if invalid Schema
-    // Should return Audit ID
+
+    const auditId = randomUUID();
+    // TODO initilize process
+    return { status: 'success', message: { auditId } };
   }
 
   @Get('audits')

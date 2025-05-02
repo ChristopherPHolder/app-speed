@@ -39,3 +39,30 @@ export type ConductorStageChangeMessage<AuditStageType extends AuditStageChangeE
     : ConductorStageChangeMessageBase<AuditStageType>;
 
 export type ConductorStageChangeUnknownMessage = ConductorStageChangeMessage<AuditStageChangeEvents>;
+
+const REQUEST_AUDIT_RESPONSE_STATUS = { SUCCESS: 'success', FAILED: 'failed' } as const;
+type RequestAuditResponseStatus = (typeof REQUEST_AUDIT_RESPONSE_STATUS)[keyof typeof REQUEST_AUDIT_RESPONSE_STATUS];
+
+interface RequestAuditResponseSuccessMessage {
+  auditId: string;
+}
+
+interface RequestAuditResponseFailedMessage {
+  errorMessage: string;
+}
+// Response type for Controller Request Audit Endpoint
+export interface RequestAuditResponseBase {
+  status: RequestAuditResponseStatus;
+}
+
+export interface RequestAuditSuccessResponse extends RequestAuditResponseBase {
+  status: 'success';
+  message: RequestAuditResponseSuccessMessage;
+}
+
+export interface RequestAuditFailedResponse extends RequestAuditResponseBase {
+  status: 'failed';
+  message: RequestAuditResponseFailedMessage;
+}
+
+export type RequestAuditResponse = RequestAuditSuccessResponse | RequestAuditFailedResponse;

@@ -29,12 +29,7 @@ type SchemaType<T> = { Type: ReadonlyDeep<T> };
 
 const UrlWithHttpsSchema = Schema.String.pipe(
   Schema.pattern(/^https:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9()@:%_+.~#?&/=]*$/),
-  // Schema.annotations({
-  //   identifier: 'Valid URL with HTTPS',
-  //   title: 'Valid url with https protocol',
-  //   description: 'This field requires being a valid URL that uses the HTTPS Protocol',
-  // }),
-);
+).annotations({ title: 'UrlWithHttps' });
 
 const AssertedEventsSchema = Schema.Struct({
   title: Schema.optional(Schema.NonEmptyString),
@@ -87,9 +82,8 @@ export const CloseStepSchema = Schema.Struct({
   timeout: Schema.optional(Schema.NonNegativeInt),
 }) satisfies SchemaType<CloseStep>;
 
-export const CustomStepTypeLiteral = Schema.Literal(StepType.CustomStep);
 export const CustomStepParamsSchema = Schema.Struct({
-  type: CustomStepTypeLiteral,
+  type: Schema.Literal(StepType.CustomStep),
   parameters: Schema.Unknown,
   name: Schema.NonEmptyString,
 }) satisfies SchemaType<CustomStepParams>;
@@ -167,7 +161,7 @@ export const NavigateStepSchema = Schema.Struct({
   target: Schema.optional(Schema.String),
   timeout: Schema.optional(Schema.NonNegativeInt),
   url: UrlWithHttpsSchema,
-}) satisfies SchemaType<NavigateStep>;
+}).annotations({ title: 'NavigationStep' }) satisfies SchemaType<NavigateStep>;
 
 export const ScrollPageStepSchema = Schema.Struct({
   type: Schema.Literal(StepType.Scroll),
@@ -243,4 +237,4 @@ export const PuppeteerReplayStepSchema = Schema.Union(
   SetViewStepSchema,
   WaitForElementStepSchema,
   WaitForExpressionStepSchema,
-) satisfies SchemaType<Step>;
+).annotations({ title: 'PuppeteerReplayStep' }) satisfies SchemaType<Step>;
