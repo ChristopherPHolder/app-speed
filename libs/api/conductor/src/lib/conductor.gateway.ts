@@ -9,7 +9,7 @@ import {
 import {
   AuditStages,
   CONDUCTOR_EVENT_SCHEDULE_AUDIT,
-  CONDUCTOR_SOCKET_PATH,
+  CONDUCTOR_PATH,
   ConductorStageChangeMessage,
 } from '@app-speed/shared-conductor';
 import { AuditQueueService } from './audit-queue.service';
@@ -20,7 +20,7 @@ import { Schema } from 'effect';
 import { ReplayUserflowAuditSchema } from '@app-speed/shared-user-flow-replay/schema';
 import { Logger } from '@nestjs/common';
 
-@WebSocketGateway({ cors: '*', path: CONDUCTOR_SOCKET_PATH })
+@WebSocketGateway({ cors: '*', path: CONDUCTOR_PATH })
 export class ConductorGateway implements OnGatewayConnection, OnGatewayDisconnect {
   readonly #clientMap = new Map<WebSocket, string>();
   readonly #logger = new Logger(ConductorGateway.name);

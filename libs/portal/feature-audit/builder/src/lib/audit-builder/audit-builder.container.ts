@@ -7,6 +7,9 @@ import { AuditDetails, DEFAULT_AUDIT_DETAILS } from '@app-speed/shared-user-flow
 import { LoadingStatusComponent } from './loading-status.component';
 import { RxIf } from '@rx-angular/template/if';
 import { HttpClient } from '@angular/common/http';
+import { MatDialog } from '@angular/material/dialog';
+import { ErrorDialogComponent } from './error-dialog.component';
+import { ApiService } from '@app-speed/portal-data-access';
 
 @Component({
   selector: 'builder-form',
@@ -21,20 +24,36 @@ import { HttpClient } from '@angular/common/http';
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix
 export class AuditBuilderContainer implements OnInit, AfterViewInit {
+  readonly dialogRef = inject(MatDialog);
+
   auditForm = viewChild.required(AuditBuilderComponent);
   private modifyingAudit = true;
   protected readonly submitting = new BehaviorSubject<boolean>(false);
 
-  private http = inject(HttpClient);
+  private readonly api = inject(ApiService);
+
+  private requestAudit() {
+    this.api.requestAudit(this.auditForm().formGroup.getRawValue()).subscribe((value: any) => {
+      const dialog = this.dialogRef.open(ErrorDialogComponent, {
+        data: { title: 'Parser Error', message: value.message['errorMessage'] },
+        role: 'alertdialog',
+        maxWidth: '90vw',
+        maxHeight: '90vh',
+      });
+      dialog.afterClosed().subscribe(() => {
+        this.auditForm().formGroup.enable();
+        this.submitting.next(false);
+        this.auditForm().accordion().openAll();
+      });
+    });
+  }
 
   submitAudit() {
     this.modifyingAudit = false;
     this.auditForm().formGroup.disable({ onlySelf: true });
     this.auditForm().accordion().closeAll();
     this.submitting.next(true);
-    this.http.post('api/conductor/requestAudit', this.auditForm().formGroup.getRawValue()).subscribe((value) => {
-      console.log('WOLOLO', value);
-    });
+    this.requestAudit();
   }
 
   private readonly route = inject(ActivatedRoute);

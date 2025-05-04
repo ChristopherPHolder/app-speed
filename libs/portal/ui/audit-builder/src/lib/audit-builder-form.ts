@@ -174,12 +174,12 @@ const stepPropertyFactories = {
   key: (step?: { key?: string }) => stringFormControlFactory(step?.key ?? ''),
   url: (step?: { url?: string }) =>
     new FormControl<string>(step?.url ?? '', {
-      validators: [
-        Validators.required,
-        Validators.pattern(
-          /^https:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9()@:%_+.~#?&/=]*$/,
-        ),
-      ],
+      // validators: [
+      //   Validators.required,
+      //   Validators.pattern(
+      //     /^https:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9()@:%_+.~#?&/=]*$/,
+      //   ),
+      // ],
       nonNullable: true,
     }),
   x: (step?: { x: number }) => numberFormControlFactory(step?.x ?? 1),
