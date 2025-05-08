@@ -18,7 +18,7 @@ import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 @Component({
   selector: 'ui-audit-builder',
   template: `
-    <form class="grid-container" [formGroup]="formGroup" (ngSubmit)="submitAudit.emit()">
+    <form class="grid-container" [formGroup]="formGroup" (ngSubmit)="submitAudit.emit(this.formGroup.value)">
       <mat-card>
         <mat-card-content>
           <div class="row">
@@ -113,7 +113,7 @@ import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuditBuilderComponent implements OnInit {
-  public submitAudit = output();
+  public submitAudit = output<any>();
   initialAudit = input.required<AuditDetails>();
   protected readonly DEVICE_TYPES: readonly string[] = DEVICE_OPTIONS;
 

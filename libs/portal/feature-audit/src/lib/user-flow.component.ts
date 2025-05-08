@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { AuditBuilderContainer } from '@app-speed/portal-feature-audit/builder';
+import AuditBuilderContainer from '@app-speed/portal-feature-audit/builder';
 import { RxIf } from '@rx-angular/template/if';
 import { RxPush } from '@rx-angular/template/push';
 import { SchedulerService } from '@app-speed/portal-data-access';
