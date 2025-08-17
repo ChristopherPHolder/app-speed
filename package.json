@@ -32,6 +32,8 @@
     "@nestjs/platform-express": "^10.0.2",
     "@nestjs/platform-ws": "^10.4.15",
     "@nestjs/websockets": "^10.4.15",
+    "@ngrx/effects": "^19.2.1",
+    "@ngrx/store": "^19.2.1",
     "@nx/devkit": "20.7.1",
     "@puppeteer/replay": "^3.1.1",
     "@rx-angular/cdk": "19.0.0",

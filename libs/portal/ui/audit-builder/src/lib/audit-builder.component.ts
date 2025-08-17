@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, input, OnInit, output, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  input,
+  OnInit,
+  output,
+  viewChild,
+  inject,
+} from '@angular/core';
 import { MatCard, MatCardContent } from '@angular/material/card';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatFabButton, MatIconButton } from '@angular/material/button';
@@ -14,6 +23,8 @@ import { ToTitleCasePipe } from './utils/toTitleCase.pipe';
 import { AuditDetails, DEVICE_OPTIONS } from '@app-speed/shared-user-flow-replay';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
+import { tap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'ui-audit-builder',
@@ -114,11 +125,19 @@ import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 })
 export class AuditBuilderComponent implements OnInit {
   public submitAudit = output<any>();
+  public readonly modified = output<any>();
   initialAudit = input.required<AuditDetails>();
   protected readonly DEVICE_TYPES: readonly string[] = DEVICE_OPTIONS;
+  private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
     this.formGroup = new AuditFormGroup(this.initialAudit());
+    this.formGroup.valueChanges
+      .pipe(
+        tap(() => this.modified.emit(this.formGroup.value)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
   }
   public formGroup!: AuditFormGroup;
   public accordion = viewChild.required(MatAccordion);

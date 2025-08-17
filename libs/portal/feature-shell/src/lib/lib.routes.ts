@@ -11,13 +11,21 @@ export const shellRoutes: Route[] = [
         children: [
           {
             path: '',
+            loadChildren: () => import('@app-speed/portal-feature-audit').then((m) => m.auditRoutes),
+          },
+          {
+            path: 'flow',
             loadComponent: () => import('@app-speed/portal-feature-audit'),
           },
-          { path: 'builder', loadComponent: () => import('@app-speed/portal-feature-audit') },
+          {
+            path: 'builder',
+            loadComponent: () => import('@app-speed/portal-feature-audit/builder'),
+          },
           {
             path: 'viewer',
             loadComponent: () => import('@app-speed/portal-feature-audit/viewer'),
           },
+          // { path: '', redirectTo: 'builder', pathMatch: 'full' },
         ],
       },
       { path: '', redirectTo: 'user-flow', pathMatch: 'full' },
