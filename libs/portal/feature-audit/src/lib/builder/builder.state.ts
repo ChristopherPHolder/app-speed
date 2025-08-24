@@ -12,13 +12,13 @@ const AUDIT_BUILDER_STATUS = {
 } as const;
 
 export interface AuditBuilderState {
-  audit: AuditDetails;
+  audit: AuditDetails | null;
   error: string | null;
   status: (typeof AUDIT_BUILDER_STATUS)[keyof typeof AUDIT_BUILDER_STATUS];
 }
 
 export const initialState: AuditBuilderState = {
-  audit: DEFAULT_AUDIT_DETAILS,
+  audit: null,
   error: null,
   status: 'pending',
 };
@@ -29,8 +29,9 @@ export const auditBuilderReducer = createReducer(
     ...state,
     audit: audit,
   })),
-  on(updateAuditDetails, (state) => ({
+  on(updateAuditDetails, (state, { audit }) => ({
     ...state,
+    audit: audit,
   })),
   on(loadAuditDetails, (state) => ({
     ...state,

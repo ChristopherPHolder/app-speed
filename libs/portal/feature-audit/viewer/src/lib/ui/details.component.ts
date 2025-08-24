@@ -20,7 +20,8 @@ import { TableComponent } from './table.component';
       }
       @case ('list') {
         @for (item of listDetails().items; track $index) {
-          <viewer-details [details]="item" />
+          <!-- TODO fix change after type change in lighthouse -->
+          <viewer-details [details]="$any(item)" />
         }
       }
       @case ('opportunity') {
@@ -38,7 +39,8 @@ import { TableComponent } from './table.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DetailsComponent {
-  details = input.required<Details | Details.Table | Details.List>();
+  // TODO fix after type change in lighthouse
+  details = input.required<Details | Details.Table | Details.List | Details.DebugData>();
   tableDetails = computed(() => this.details() as Details.Table);
   listDetails = computed<Details.List>(() => this.details() as Details.List);
 }

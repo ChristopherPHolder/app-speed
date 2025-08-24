@@ -1,13 +1,10 @@
 import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'audit',
   standalone: true,
-  imports: [],
-  template: ``,
-
+  imports: [RouterOutlet],
+  template: `<router-outlet />`,
 })
-export class AuditComponent {
-  title = 'Audit! Component';
-}
-
+export class AuditComponent {}
