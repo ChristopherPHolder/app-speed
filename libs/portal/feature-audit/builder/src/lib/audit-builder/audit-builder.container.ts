@@ -21,7 +21,7 @@ import { RxPush } from '@rx-angular/template/push';
   // TODO rename to builder-container
   selector: 'builder-form',
   template: `
-    <ui-audit-builder [initialAudit]="initialAudit" (submitAudit)="this.handleSubmit($event)" />
+    <ui-audit-builder [initialAudit]="initialAudit" (submitAudit)="this.handleSubmit($event)" [modifing]="true" />
     @let requestStatus = requestStatus$ | push;
     @if (requestStatus) {
       {{ requestStatus }}      

@@ -4,6 +4,7 @@ import {
   loadAuditDetails,
   loadAuditDetailsFailed,
   loadAuditDetailsSuccess,
+  submitAuditRequest,
   updateAuditDetails,
 } from './builder.actions';
 import { debounceTime, map, tap } from 'rxjs';
@@ -64,9 +65,19 @@ const loadAuditDetailsFailedEffect = createEffect(
   { functional: true },
 );
 
+const submitAuditRequestEffect = createEffect(
+  (actions$ = inject(Actions)) =>
+    actions$.pipe(
+      ofType(submitAuditRequest),
+      map(({ audit }) => console.log('WOLOLO', audit)),
+    ),
+  { functional: true, dispatch: false },
+);
+
 export const provideBuilderEffects = () =>
   provideEffects({
     updateAuditDetailsEffect,
+    submitAuditRequestEffect,
     loadAuditDetailsEffect,
     loadAuditDetailsSuccessEffect,
     loadAuditDetailsFailedEffect,

@@ -5,12 +5,14 @@ import { AuditDetails } from '@app-speed/shared-user-flow-replay';
 import { AsyncPipe } from '@angular/common';
 import { auditBuilderFeature } from './builder.state';
 import { AuditBuilderComponent } from '@app-speed/portal-ui/audit-builder';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'audit',
   template: `
     @if (auditDetails$ | async; as auditDetails) {
       <ui-audit-builder
+        [modifing]="modifying()"
         (modified)="updateAuditDetails($event)"
         [initialAudit]="auditDetails"
         (submitAudit)="submitAudit($event)"
@@ -23,6 +25,8 @@ export class BuilderComponent implements OnInit {
   private readonly store = inject(Store);
   public readonly auditDetails$ = this.store.select(auditBuilderFeature.selectAudit);
   public readonly auditBuilderStatus$ = this.store.select(auditBuilderFeature.selectStatus);
+  public readonly modifying$ = this.store.select(auditBuilderFeature.selectModifying);
+  public readonly modifying = toSignal(this.modifying$, { initialValue: true });
 
   ngOnInit() {
     this.store.dispatch(loadAuditDetails());

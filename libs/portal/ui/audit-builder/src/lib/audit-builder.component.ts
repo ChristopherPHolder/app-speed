@@ -7,6 +7,7 @@ import {
   output,
   viewChild,
   inject,
+  effect,
 } from '@angular/core';
 import { MatCard, MatCardContent } from '@angular/material/card';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -129,9 +130,21 @@ export class AuditBuilderComponent implements OnInit {
   initialAudit = input.required<AuditDetails>();
   protected readonly DEVICE_TYPES: readonly string[] = DEVICE_OPTIONS;
   private readonly destroyRef = inject(DestroyRef);
+  public readonly modifing = input.required<boolean>();
+
+  constructor() {
+    effect(() => {
+      if (this.modifing()) {
+        this.formGroup.enable();
+      } else {
+        this.formGroup.disable();
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.formGroup = new AuditFormGroup(this.initialAudit());
+    
     this.formGroup.valueChanges
       .pipe(
         tap(() => this.modified.emit(this.formGroup.value)),

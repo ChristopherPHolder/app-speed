@@ -7,6 +7,13 @@ export const submitAuditRequest = createAction(
   props<{ audit: AuditDetails }>(),
 );
 
+export const submitAuditRequestSuccess = createAction('[Builder Page] Submitting Audit Request Success');
+
+export const submitAuditRequestFailed = createAction(
+  '[Builder Page] Submitting Audit Request Failed',
+  props<{ auditRequestError: string }>(),
+);
+
 export const updateAuditDetails = createAction('[Builder Page] Update Audit Details', props<{ audit: AuditDetails }>());
 
 export const loadAuditDetails = createAction('[Builder Page] Load Audit Details');
