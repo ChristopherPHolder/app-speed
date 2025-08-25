@@ -17,6 +17,7 @@ export class ConductorController {
 
   @Post('requestAudit')
   requestAudit(@Body() body: unknown): RequestAuditResponse {
+    this.#logger.debug('POST requestAudit', body);
     const eitherAuditDetails = Schema.decodeUnknownEither(ReplayUserflowAuditSchema)(body);
 
     if (Either.isLeft(eitherAuditDetails)) {
@@ -26,7 +27,7 @@ export class ConductorController {
     }
 
     const auditId = randomUUID();
-    // TODO initilize process
+    // TODO initialize process
     return { status: 'success', message: { auditId } };
   }
 

@@ -18,6 +18,7 @@ export interface AuditBuilderState {
   submittingRequest: boolean;
   auditRequestError: string | null;
   modifying: boolean;
+  requestId: string | null;
 }
 
 export const initialState: AuditBuilderState = {
@@ -27,6 +28,7 @@ export const initialState: AuditBuilderState = {
   submittingRequest: false,
   auditRequestError: null,
   modifying: true,
+  requestId: null,
 };
 
 export const auditBuilderReducer = createReducer(
@@ -37,20 +39,22 @@ export const auditBuilderReducer = createReducer(
     submittingRequest: true,
     modifying: false,
   })),
-  on(submitAuditRequestSuccess, (state) => ({
+  on(submitAuditRequestSuccess, (state, { requestId }) => ({
     ...state,
-    submittingRequest: false,
+    submittingRequest: true,
     modifying: false,
+    requestId: requestId,
   })),
   on(submitAuditRequestFailed, (state, { auditRequestError }) => ({
     ...state,
     submittingRequest: false,
     auditRequestError: auditRequestError,
-    modifying: false,
+    modifying: true,  
   })),
   on(updateAuditDetails, (state, { audit }) => ({
     ...state,
     audit: audit,
+    auditRequestError: null,
   })),
   on(loadAuditDetails, (state) => ({
     ...state,

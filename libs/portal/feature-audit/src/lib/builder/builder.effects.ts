@@ -5,11 +5,14 @@ import {
   loadAuditDetailsFailed,
   loadAuditDetailsSuccess,
   submitAuditRequest,
+  submitAuditRequestFailed,
+  submitAuditRequestSuccess,
   updateAuditDetails,
 } from './builder.actions';
-import { debounceTime, map, tap } from 'rxjs';
+import { debounceTime, map, exhaustMap, tap, catchError, of, switchMap } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DEFAULT_AUDIT_DETAILS } from '@app-speed/shared-user-flow-replay';
+import { ApiService } from '@app-speed/portal-data-access';
 
 const loadAuditDetailsEffect = createEffect(
   (actions$ = inject(Actions), activatedRoute = inject(ActivatedRoute)) => {
@@ -66,13 +69,22 @@ const loadAuditDetailsFailedEffect = createEffect(
 );
 
 const submitAuditRequestEffect = createEffect(
-  (actions$ = inject(Actions)) =>
+  (actions$ = inject(Actions), api = inject(ApiService)) =>
     actions$.pipe(
       ofType(submitAuditRequest),
-      map(({ audit }) => console.log('WOLOLO', audit)),
+      switchMap(({ audit }) => api.requestAudit(audit).pipe(
+        map(response => {
+          if (response.status === 'success') {
+            return submitAuditRequestSuccess({ requestId: response.message.auditId });
+          }
+          return submitAuditRequestFailed({ auditRequestError: response.message.errorMessage });
+        }),
+        catchError((error) => of(submitAuditRequestFailed({ auditRequestError: error.message }))),
+      )),
     ),
-  { functional: true, dispatch: false },
+  { functional: true },
 );
+
 
 export const provideBuilderEffects = () =>
   provideEffects({

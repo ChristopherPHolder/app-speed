@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import {
   MatCard,
   MatCardContent,
@@ -7,6 +7,7 @@ import {
   MatCardSubtitle,
   MatCardTitle,
 } from '@angular/material/card';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @Component({
@@ -14,7 +15,7 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
   template: `
     <mat-card class="loading-card">
       <mat-card-header>
-        <mat-card-title>title</mat-card-title>
+        <mat-card-title>{{ data.title }}</mat-card-title>
         <mat-card-subtitle>subtitle</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content [style.padding-top]="'16px'">
@@ -38,7 +39,8 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
   `,
 })
 export class LoadingStatusComponent {
-  // title = input.required<string>();
+  readonly data = inject<{ title: string }>(MAT_DIALOG_DATA);
+  title = input<string>('');
   // subtitle = input.required<string>();
   // footer = input.required<string>();
 }

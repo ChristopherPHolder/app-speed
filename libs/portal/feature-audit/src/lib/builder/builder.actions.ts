@@ -7,7 +7,7 @@ export const submitAuditRequest = createAction(
   props<{ audit: AuditDetails }>(),
 );
 
-export const submitAuditRequestSuccess = createAction('[Builder Page] Submitting Audit Request Success');
+export const submitAuditRequestSuccess = createAction('[Builder Page] Submitting Audit Request Success', props<{ requestId: string }>());
 
 export const submitAuditRequestFailed = createAction(
   '[Builder Page] Submitting Audit Request Failed',

@@ -34,7 +34,7 @@ import { RxPush } from '@rx-angular/template/push';
 // eslint-disable-next-line @angular-eslint/component-class-suffix
 export class AuditBuilderContainer implements OnInit {
   auditForm = viewChild.required(AuditBuilderComponent);
-  private modifying = signal(true);
+  private modifying = signal(true); // TODO remove this
   private readonly submitting$ = new BehaviorSubject<boolean>(false);
 
   private api = inject(ApiService);
