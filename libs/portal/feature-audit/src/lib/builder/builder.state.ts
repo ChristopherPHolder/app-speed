@@ -1,6 +1,13 @@
-import { AuditDetails, DEFAULT_AUDIT_DETAILS } from '@app-speed/shared-user-flow-replay';
+import { AuditDetails } from '@app-speed/shared-user-flow-replay';
 import { createFeature, createReducer, on } from '@ngrx/store';
-import { loadAuditDetails, loadAuditDetailsSuccess, submitAuditRequest, submitAuditRequestFailed, submitAuditRequestSuccess, updateAuditDetails } from './builder.actions';
+import {
+  loadAuditDetails,
+  loadAuditDetailsSuccess,
+  submitAuditRequest,
+  submitAuditRequestFailed,
+  submitAuditRequestSuccess,
+  updateAuditDetails,
+} from './builder.actions';
 
 export const auditBuilderFeatureKey = 'auditBuilder';
 
@@ -19,6 +26,7 @@ export interface AuditBuilderState {
   auditRequestError: string | null;
   modifying: boolean;
   requestId: string | null;
+  loadingDialog: { title: string; subtitle: string } | null;
 }
 
 export const initialState: AuditBuilderState = {
@@ -29,6 +37,7 @@ export const initialState: AuditBuilderState = {
   auditRequestError: null,
   modifying: true,
   requestId: null,
+  loadingDialog: null,
 };
 
 export const auditBuilderReducer = createReducer(
@@ -38,18 +47,27 @@ export const auditBuilderReducer = createReducer(
     audit: audit,
     submittingRequest: true,
     modifying: false,
+    loadingDialog: {
+      title: `Submitting Audit`,
+      subtitle: `Submitting a an audit request to server`,
+    }
   })),
   on(submitAuditRequestSuccess, (state, { requestId }) => ({
     ...state,
     submittingRequest: true,
     modifying: false,
     requestId: requestId,
+    loadingDialog: {
+      title: `Audit pending`,
+      subtitle: `Audit request pending ${requestId}`,
+    }
   })),
   on(submitAuditRequestFailed, (state, { auditRequestError }) => ({
     ...state,
     submittingRequest: false,
     auditRequestError: auditRequestError,
-    modifying: true,  
+    modifying: true,
+    loadingDialog: null,
   })),
   on(updateAuditDetails, (state, { audit }) => ({
     ...state,

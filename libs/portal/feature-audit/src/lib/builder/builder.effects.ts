@@ -9,7 +9,7 @@ import {
   submitAuditRequestSuccess,
   updateAuditDetails,
 } from './builder.actions';
-import { debounceTime, map, exhaustMap, tap, catchError, of, switchMap } from 'rxjs';
+import { catchError, debounceTime, map, of, switchMap, tap } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DEFAULT_AUDIT_DETAILS } from '@app-speed/shared-user-flow-replay';
 import { ApiService } from '@app-speed/portal-data-access';

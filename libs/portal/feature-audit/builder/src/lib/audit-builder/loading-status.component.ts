@@ -1,4 +1,4 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, Signal } from '@angular/core';
 import {
   MatCard,
   MatCardContent,
@@ -15,13 +15,15 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
   template: `
     <mat-card class="loading-card">
       <mat-card-header>
-        <mat-card-title>{{ data.title }}</mat-card-title>
-        <mat-card-subtitle>subtitle</mat-card-subtitle>
+        <mat-card-title>{{ data().title || 'loading...' }}</mat-card-title>
+        @if (data().subtitle) {
+          <mat-card-subtitle>{{ data().subtitle }}</mat-card-subtitle>
+        }
       </mat-card-header>
       <mat-card-content [style.padding-top]="'16px'">
         <mat-spinner [diameter]="64" />
       </mat-card-content>
-      <mat-card-footer>
+      <mat-card-footer [style.padding]="'0 16px 0 16px'">
         <p><small>If this loader is confusing please opening a ticket with suggestions!</small></p>
       </mat-card-footer>
     </mat-card>
@@ -39,8 +41,5 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
   `,
 })
 export class LoadingStatusComponent {
-  readonly data = inject<{ title: string }>(MAT_DIALOG_DATA);
-  title = input<string>('');
-  // subtitle = input.required<string>();
-  // footer = input.required<string>();
+  readonly data = inject<Signal<{ title?: string; subtitle?: string }>>(MAT_DIALOG_DATA);
 }

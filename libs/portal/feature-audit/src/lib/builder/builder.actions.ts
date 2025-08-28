@@ -23,4 +23,6 @@ export const loadAuditDetailsSuccess = createAction(
   props<{ audit: AuditDetails }>(),
 );
 
+export const updateLoadingDialog = createAction('[Builder Page] Update Loading Dialog', props<{ loadingDialog: null | { title: string, subtitle: string } }>());
+
 export const loadAuditDetailsFailed = createAction('[Builder Page] Load Audit Details Failed');
