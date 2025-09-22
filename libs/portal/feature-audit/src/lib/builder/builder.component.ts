@@ -7,8 +7,8 @@ import { auditBuilderFeature } from './builder.state';
 import { AuditBuilderComponent } from '@app-speed/portal-ui/audit-builder';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { ErrorDialogComponent } from 'libs/portal/feature-audit/builder/src/lib/audit-builder/error-dialog.component';
-import { LoadingStatusComponent } from 'libs/portal/feature-audit/builder/src/lib/audit-builder/loading-status.component';
+import { ErrorDialogComponent } from '../audit-builder/error-dialog.component';
+import { LoadingStatusComponent } from '../audit-builder/loading-status.component';
 import { scan } from 'rxjs';
 
 @Component({

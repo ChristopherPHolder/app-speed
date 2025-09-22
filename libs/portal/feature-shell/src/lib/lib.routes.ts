@@ -15,15 +15,15 @@ export const shellRoutes: Route[] = [
           },
           {
             path: 'flow',
-            loadComponent: () => import('@app-speed/portal-feature-audit'),
+            loadComponent: () => import('@app-speed/portal-feature-audit').then((m) => m.UserFlowComponent),
           },
           {
             path: 'builder',
-            loadComponent: () => import('@app-speed/portal-feature-audit/builder'),
+            loadComponent: () => import('@app-speed/portal-feature-audit').then((m) => m.AuditBuilderContainer),
           },
           {
             path: 'viewer',
-            loadComponent: () => import('@app-speed/portal-feature-audit/viewer'),
+            loadComponent: () => import('@app-speed/portal-feature-audit').then((m) => m.AuditViewerContainer),
           },
           // { path: '', redirectTo: 'builder', pathMatch: 'full' },
         ],

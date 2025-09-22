@@ -12,7 +12,7 @@ import {
   MatRowDef,
   MatTable,
 } from '@angular/material/table';
-import { NgFor } from '@angular/common';
+
 import { ScrollContainerComponent } from '@app-speed/portal-ui/scroll-container';
 import { RoundPipe } from '../utils/round.pipe';
 import { KibibytesPipe } from '../utils/kibibytes.pipe';
@@ -24,29 +24,31 @@ import { KibibytesPipe } from '../utils/kibibytes.pipe';
       <table mat-table [dataSource]="dataSource()">
         <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns()"></tr>
-
-        <ng-container *ngFor="let heading of headings()" [matColumnDef]="$any(heading.key)">
-          <th mat-header-cell *matHeaderCellDef>{{ heading.label }}</th>
-          <td mat-cell *matCellDef="let item">
-            @switch (heading.valueType) {
-              @case ('ms') {
-                {{ item[$any(heading.key)] | round }}
+    
+        @for (heading of headings(); track heading) {
+          <ng-container [matColumnDef]="$any(heading.key)">
+            <th mat-header-cell *matHeaderCellDef>{{ heading.label }}</th>
+            <td mat-cell *matCellDef="let item">
+              @switch (heading.valueType) {
+                @case ('ms') {
+                  {{ item[$any(heading.key)] | round }}
+                }
+                @case ('bytes') {
+                  {{ item[$any(heading.key)] | kibibytes }}
+                }
+                @case ('node') {
+                  -> TODO
+                }
+                @default {
+                  {{ item[$any(heading.key)] }}
+                }
               }
-              @case ('bytes') {
-                {{ item[$any(heading.key)] | kibibytes }}
-              }
-              @case ('node') {
-                -> TODO
-              }
-              @default {
-                {{ item[$any(heading.key)] }}
-              }
-            }
-          </td>
-        </ng-container>
+            </td>
+          </ng-container>
+        }
       </table>
     </ui-scroll-container>
-  `,
+    `,
   styles: `
     table {
       border: 1px solid var(--mat-table-row-item-outline-color);
@@ -68,15 +70,14 @@ import { KibibytesPipe } from '../utils/kibibytes.pipe';
     MatHeaderRowDef,
     MatColumnDef,
     MatRowDef,
-    NgFor,
     MatHeaderCell,
     MatHeaderCellDef,
     MatCell,
     MatCellDef,
     RoundPipe,
     KibibytesPipe,
-    ScrollContainerComponent,
-  ],
+    ScrollContainerComponent
+],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TableComponent {

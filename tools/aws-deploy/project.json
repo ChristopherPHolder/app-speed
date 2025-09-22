@@ -1,7 +1,6 @@
 {
   "name": "aws-deploy",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "root": "tools/aws-deploy",
   "sourceRoot": "tools/aws-deploy/src",
   "projectType": "library",
   "tags": [],

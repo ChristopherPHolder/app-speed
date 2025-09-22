@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { SafeResourceUrl } from '@angular/platform-browser';
 import { LoadingSpinnerComponent } from '@app-speed/portal-ui/loading-spinner';
 import { map, Observable } from 'rxjs';
@@ -17,7 +17,7 @@ type ComponentState = {
 @Component({
   selector: 'ui-results-display',
   standalone: true,
-  imports: [CommonModule, LoadingSpinnerComponent, ProgressToasterComponent, RxPush, RxIf],
+  imports: [LoadingSpinnerComponent, ProgressToasterComponent, RxPush, RxIf],
   template: `
     <div class="audit-results-box">
       <ui-progress-toaster *rxIf="toasterTextVisible$" [progress]="state.select('progress')"></ui-progress-toaster>

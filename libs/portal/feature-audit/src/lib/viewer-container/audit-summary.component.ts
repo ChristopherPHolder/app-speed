@@ -103,7 +103,7 @@ export type AuditSummary = {
         cursor: pointer;
       }
       .mat-mdc-row:hover .mat-mdc-cell {
-        background-color: var(--mdc-switch-selected-track-color);
+        background-color: var(--mat-slide-toggle-selected-track-color);
       }
     `,
   ],

@@ -9,7 +9,7 @@ import {
   ViewChild,
   ViewEncapsulation,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import type { AppSpeedUserFlowStep } from '@app-speed/shared-user-flow-replay';
 import { KebabMenuComponent } from '../../component/icons/kebab-menu.component';
@@ -17,7 +17,7 @@ import { KebabMenuComponent } from '../../component/icons/kebab-menu.component';
 @Component({
   selector: 'ui-audit-step',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, KebabMenuComponent],
+  imports: [ReactiveFormsModule, KebabMenuComponent],
   templateUrl: './audit-step.component.html',
   styleUrls: ['./audit-step.component.scss', './../../component/input/input.scss', '../../component/box/box.scss'],
   encapsulation: ViewEncapsulation.None,
