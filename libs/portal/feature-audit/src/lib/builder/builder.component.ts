@@ -29,7 +29,6 @@ export class BuilderComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly store = inject(Store);
   public readonly auditDetails$ = this.store.select(auditBuilderFeature.selectAudit);
-  public readonly auditBuilderStatus$ = this.store.select(auditBuilderFeature.selectStatus);
   public readonly modifying$ = this.store.select(auditBuilderFeature.selectModifying);
   public readonly modifying = toSignal(this.modifying$, { initialValue: true });
   private readonly auditLoadingDialog$ = this.store.select(auditBuilderFeature.selectLoadingDialog);

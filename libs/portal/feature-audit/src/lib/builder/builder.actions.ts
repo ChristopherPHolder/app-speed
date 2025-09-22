@@ -14,6 +14,12 @@ export const submitAuditRequestFailed = createAction(
   props<{ auditRequestError: string }>(),
 );
 
+export const listenToAuditProgress = createAction('[Builder Page] Request audits to audit progress', props<{ requestId: string }>());
+
+export const auditCompletedSuccessfully = createAction('[Builder Page] Audit Completed successfully', props<{ requestId: string }>());
+
+export const auditCompletedWithErrors = createAction('[Builder Page] Audit Completed With Errors');
+
 export const updateAuditDetails = createAction('[Builder Page] Update Audit Details', props<{ audit: AuditDetails }>());
 
 export const loadAuditDetails = createAction('[Builder Page] Load Audit Details');

@@ -1,6 +1,7 @@
 import { inject } from '@angular/core';
 import { Actions, createEffect, ofType, provideEffects } from '@ngrx/effects';
 import {
+  listenToAuditProgress,
   loadAuditDetails,
   loadAuditDetailsFailed,
   loadAuditDetailsSuccess,
@@ -72,19 +73,39 @@ const submitAuditRequestEffect = createEffect(
   (actions$ = inject(Actions), api = inject(ApiService)) =>
     actions$.pipe(
       ofType(submitAuditRequest),
-      switchMap(({ audit }) => api.requestAudit(audit).pipe(
-        map(response => {
-          if (response.status === 'success') {
-            return submitAuditRequestSuccess({ requestId: response.message.auditId });
-          }
-          return submitAuditRequestFailed({ auditRequestError: response.message.errorMessage });
-        }),
-        catchError((error) => of(submitAuditRequestFailed({ auditRequestError: error.message }))),
-      )),
+      switchMap(({ audit }) =>
+        api.requestAudit(audit).pipe(
+          map((response) => {
+            if (response.status === 'success') {
+              return submitAuditRequestSuccess({ requestId: response.message.auditId });
+            }
+            return submitAuditRequestFailed({ auditRequestError: response.message.errorMessage });
+          }),
+          catchError((error) => of(submitAuditRequestFailed({ auditRequestError: error.message }))),
+        ),
+      ),
     ),
   { functional: true },
 );
 
+const submitAuditRequestSuccessEffect = createEffect(
+  (action$ = inject(Actions)) =>
+    action$.pipe(
+      ofType(submitAuditRequestSuccess),
+      map(({ requestId }) => listenToAuditProgress({ requestId })),
+    ),
+  { functional: true },
+);
+
+const listenToAuditProgressEffect = createEffect(
+  (action$ = inject(Actions)) =>
+    action$.pipe(
+      ofType(listenToAuditProgress),
+      tap((i) => console.log('Listening to Audit', i)),
+    ),
+  // TODO remove dispatch false after chain is matched
+  { functional: true, dispatch: false },
+);
 
 export const provideBuilderEffects = () =>
   provideEffects({
@@ -93,4 +114,6 @@ export const provideBuilderEffects = () =>
     loadAuditDetailsEffect,
     loadAuditDetailsSuccessEffect,
     loadAuditDetailsFailedEffect,
+    submitAuditRequestSuccessEffect,
+    listenToAuditProgressEffect,
   });

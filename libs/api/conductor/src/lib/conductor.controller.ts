@@ -17,7 +17,7 @@ export class ConductorController {
 
   @Post('requestAudit')
   requestAudit(@Body() body: unknown): RequestAuditResponse {
-    this.#logger.debug('POST requestAudit', body);
+    // this.#logger.debug('POST requestAudit', body);
     const eitherAuditDetails = Schema.decodeUnknownEither(ReplayUserflowAuditSchema)(body);
 
     if (Either.isLeft(eitherAuditDetails)) {

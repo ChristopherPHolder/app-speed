@@ -27,6 +27,7 @@ export interface AuditBuilderState {
   modifying: boolean;
   requestId: string | null;
   loadingDialog: { title: string; subtitle: string } | null;
+  listeningToAuditProgress: boolean | null;
 }
 
 export const initialState: AuditBuilderState = {
@@ -38,6 +39,7 @@ export const initialState: AuditBuilderState = {
   modifying: true,
   requestId: null,
   loadingDialog: null,
+  listeningToAuditProgress: null,
 };
 
 export const auditBuilderReducer = createReducer(
