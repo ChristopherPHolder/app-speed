@@ -59,7 +59,8 @@
       "options": {
         "proxyConfig": "apps/portal/proxy.conf.json"
       },
-      "continuous": true
+      "continuous": true,
+      "dependsOn": ["server:serve"]
     },
     "extract-i18n": {
       "executor": "@angular-devkit/build-angular:extract-i18n",
