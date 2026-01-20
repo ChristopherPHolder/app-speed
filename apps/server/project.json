@@ -11,9 +11,10 @@
       "defaultConfiguration": "production",
       "options": {
         "platform": "node",
+        "target": "node22",
         "outputPath": "dist/apps/server",
         "format": ["esm"],
-        "bundle": false,
+        "bundle": true,
         "main": "apps/server/src/main.ts",
         "tsConfig": "apps/server/tsconfig.app.json",
         "assets": ["apps/server/src/assets"],
@@ -78,6 +79,27 @@
         "production": {
           "buildTarget": "server:build:production"
         }
+      }
+    },
+    "db:generate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx prisma generate",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "db:migrate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx prisma migrate dev",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "db:studio": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx prisma studio",
+        "cwd": "{workspaceRoot}"
       }
     }
   }
