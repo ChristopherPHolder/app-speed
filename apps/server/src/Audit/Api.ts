@@ -1,20 +1,25 @@
-import { HttpApiEndpoint, HttpApiGroup } from '@effect/platform';
+import { HttpApiEndpoint, HttpApiError, HttpApiGroup } from '@effect/platform';
 import { Schema } from 'effect';
 import { ReplayUserflowAuditSchema } from '@app-speed/shared-user-flow-replay/schema';
-import { AuditNotFoundError, AuditId } from './Audit';
-import { QueryErrorApi } from '../Db';
+import { AuditId } from './Audit';
+
+const ScheduleAuditResponseSchema = Schema.Struct({
+  auditId: AuditId,
+  auditQueuePosition: Schema.NonNegativeInt,
+});
 
 export class AuditGroup extends HttpApiGroup.make('audit')
   .add(
-    HttpApiEndpoint.post('schedule', '/audit/schedule')
+    HttpApiEndpoint.post('schedule', '/schedule')
       .setPayload(ReplayUserflowAuditSchema)
-      .addSuccess(Schema.String)
-      .addError(QueryErrorApi),
+      .addSuccess(ScheduleAuditResponseSchema)
+      .addError(HttpApiError.BadRequest),
   )
   .add(
-    HttpApiEndpoint.get('findById', '/audit/:id')
+    HttpApiEndpoint.get('findById', '/:id')
       .setPath(Schema.Struct({ id: AuditId }))
       .addSuccess(Schema.String)
-      .addError(AuditNotFoundError)
-      .addError(QueryErrorApi),
-  ) {}
+      .addError(HttpApiError.BadRequest)
+      .addError(HttpApiError.NotFound),
+  )
+  .prefix('/audit') {}
