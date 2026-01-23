@@ -1,7 +1,7 @@
 import { HttpApiEndpoint, HttpApiError, HttpApiGroup } from '@effect/platform';
 import { Schema } from 'effect';
 import { ReplayUserflowAuditSchema } from '@app-speed/shared-user-flow-replay/schema';
-import { AuditId } from './Audit';
+import { AuditId, AuditNotFoundError } from './Audit';
 
 const ScheduleAuditResponseSchema = Schema.Struct({
   auditId: AuditId,
@@ -20,6 +20,6 @@ export class AuditGroup extends HttpApiGroup.make('audit')
       .setPath(Schema.Struct({ id: AuditId }))
       .addSuccess(Schema.String)
       .addError(HttpApiError.BadRequest)
-      .addError(HttpApiError.NotFound),
+      .addError(AuditNotFoundError),
   )
   .prefix('/audit') {}
