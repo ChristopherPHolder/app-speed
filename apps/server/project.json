@@ -101,6 +101,13 @@
         "command": "npx prisma studio",
         "cwd": "{workspaceRoot}"
       }
+    },
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "../../coverage/apps/server"
+      }
     }
   }
 }
