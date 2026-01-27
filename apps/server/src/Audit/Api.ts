@@ -8,7 +8,7 @@ const ScheduleAuditResponseSchema = Schema.Struct({
   auditQueuePosition: Schema.NonNegativeInt,
 });
 
-export class AuditGroup extends HttpApiGroup.make('audit')
+export class AuditApiGroup extends HttpApiGroup.make('audit')
   .add(
     HttpApiEndpoint.post('schedule', '/schedule')
       .setPayload(ReplayUserflowAuditSchema)

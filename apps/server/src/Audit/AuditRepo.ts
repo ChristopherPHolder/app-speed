@@ -20,6 +20,6 @@ export class AuditRepo extends Effect.Service<AuditRepo>()('Audit', {
       findById: Effect.fn((auditId: AuditIdType) =>
         db.run((c) => c.audit.findUnique({ where: { id: auditId } })).pipe(Effect.map((r) => (r === null ? r : r.id))),
       ),
-    } as const;
+    };
   }),
 }) {}
