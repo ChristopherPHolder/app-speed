@@ -24,11 +24,7 @@ export const AuditQueueLive = Layer.effect(
           if (xs.includes(id)) {
             return xs.indexOf(id);
           }
-
-          const next = yield* Ref.updateAndGet(snapshotRef, (xs) => {
-            const idx = xs.indexOf(id);
-            return idx < 0 ? xs : [...xs.slice(0, idx), ...xs.slice(idx + 1)];
-          });
+          const next = yield* Ref.updateAndGet(snapshotRef, (xs) => [...xs, id]);
           yield* Queue.offer(workQueue, id);
 
           return next.indexOf(id);
@@ -47,7 +43,9 @@ export const AuditQueueLive = Layer.effect(
       }),
       watch: (id: AuditIdType) => {
         return Stream.concat(Stream.fromEffect(Ref.get(snapshotRef)), Stream.fromPubSub(snapshotPubSub)).pipe(
-          Stream.map((xs) => xs.indexOf(id)),
+          Stream.map((xs) => {
+            return xs.indexOf(id);
+          }),
           Stream.takeUntil((idx) => idx <= 0),
         );
       },

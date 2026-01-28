@@ -24,7 +24,7 @@ import { RxPush } from '@rx-angular/template/push';
     <ui-audit-builder [initialAudit]="initialAudit" (submitAudit)="this.handleSubmit($event)" [modifing]="true" />
     @let requestStatus = requestStatus$ | push;
     @if (requestStatus) {
-      {{ requestStatus }}      
+      {{ requestStatus }}
     }
   `,
   styleUrl: './audit-builder.styles.scss',
@@ -76,7 +76,8 @@ export class AuditBuilderContainer implements OnInit {
     console.log(auditDetails);
   }
 
-  constructor(destroyRef: DestroyRef) {
+  constructor() {
+    const destroyRef = inject(DestroyRef);
     afterNextRender(() => {
       this.auditForm()
         .formGroup.valueChanges.pipe(

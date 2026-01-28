@@ -5,38 +5,6 @@
   "projectType": "library",
   "tags": [],
   "targets": {
-    "build": {
-      "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "outputPath": "dist/{projectRoot}",
-        "main": "{projectRoot}/src/index.ts",
-        "tsConfig": "{projectRoot}/tsconfig.lib.json",
-        "assets": [
-          "{projectRoot}/*.md",
-          {
-            "input": "./{projectRoot}/src",
-            "glob": "**/!(*.ts)",
-            "output": "./src"
-          },
-          {
-            "input": "{projectRoot}/src",
-            "glob": "**/*.d.ts",
-            "output": "./src"
-          },
-          {
-            "input": "{projectRoot}",
-            "glob": "generators.json",
-            "output": "."
-          },
-          {
-            "input": "{projectRoot}",
-            "glob": "executors.json",
-            "output": "."
-          }
-        ]
-      }
-    },
     "lint": {
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"]

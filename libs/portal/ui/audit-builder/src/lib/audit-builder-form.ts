@@ -140,7 +140,7 @@ const stepPropertyFactories = {
       (step?.selectors ?? ['']).map((selector) => stringFormControlFactory(selector)),
       { validators: [Validators.required, Validators.minLength(1)] },
     ),
-  attributes: (...args: any) => {
+  attributes: (..._args: never) => {
     console.warn('Warning Attribute step property is not yet implemented');
     return new FormRecord({}); // TODO
   },
@@ -148,9 +148,9 @@ const stepPropertyFactories = {
   visible: (step?: { visible?: boolean }) => booleanFormControlFactory(step?.visible ?? true),
   operator: (step?: { operator?: string }) =>
     stringFormControlFactory(step?.operator ?? STEP_PROPERTY.operator.defaultValue),
-  assertedEvents: (...args: any) => {
+  assertedEvents: (..._args: never) => {
     console.warn('Warning assertedEvents step property is not yet implemented');
-    return new FormArray([]);
+    return new FormArray([]); // TODO
   },
   frame: (step?: { frame?: number[] }) =>
     new FormArray<FormControl<number>>(
@@ -159,9 +159,9 @@ const stepPropertyFactories = {
     ),
   expression: (step?: { expression?: string }) => stringFormControlFactory(step?.expression ?? ''),
   target: (step?: { target?: string }) => stringFormControlFactory(step?.target ?? ''),
-  properties: (step?: { property?: any }) => {
+  properties: (_step?: { property?: never }) => {
     console.warn('Warning properties step property is not yet implemented');
-    return new FormArray([]);
+    return new FormArray([]); // TODO
   },
   button: (step?: { button?: string }) => stringFormControlFactory(step?.button ?? 'primary'),
   deviceType: (step?: { deviceType?: string }) => stringFormControlFactory(step?.deviceType ?? 'mouse'),

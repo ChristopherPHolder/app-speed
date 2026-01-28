@@ -12,7 +12,7 @@ export class SocketService<I, O> {
 
   private connection = this.webSocket$.pipe(
     tap((e) => {
-      // @ts-ignore
+      // @ts-expect-error Deprecated
       if (e.event === 'connected') {
         console.log('Connected', e);
         this.connected = true;

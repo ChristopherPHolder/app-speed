@@ -1,7 +1,5 @@
 import { TaskHasher, HasherContext } from '@nx/devkit';
-
 import { lambdaDeplyHasher } from './hasher';
-
 describe('lambdaDeplyHasher', () => {
   it('should generate hash', async () => {
     const mockHasher: TaskHasher = {

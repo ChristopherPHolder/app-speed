@@ -4,7 +4,8 @@
     "outDir": "../../../dist/out-tsc",
     "target": "es2016",
     "types": ["vitest/globals", "vitest/importMeta", "vite/client", "node", "vitest"],
-    "moduleResolution": "bundler"
+    "moduleResolution": "bundler",
+    "isolatedModules": true
   },
   "files": ["src/test-setup.ts"],
   "include": [
