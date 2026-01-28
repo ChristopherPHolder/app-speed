@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { Context, Data, Effect, Layer, Schema } from 'effect';
-import { HttpApiSchema } from '@effect/platform';
+import { Context, Data, Effect, Layer } from 'effect';
 
 import { PrismaLibSql } from '@prisma/adapter-libsql';
 
@@ -10,13 +9,6 @@ class QueryError extends Data.TaggedError(QUERY_ERROR_TAG)<{
   message: string;
   cause?: unknown;
 }> {}
-
-// HTTP API version of QueryError for use in API definitions
-export class QueryErrorApi extends Schema.TaggedError<QueryErrorApi>()(
-  QUERY_ERROR_TAG,
-  { message: Schema.String },
-  HttpApiSchema.annotations({ status: 500 }),
-) {}
 
 interface DbClient {
   readonly run: <A>(f: (prisma: PrismaClient) => Promise<A>) => Effect.Effect<A, QueryError>;

@@ -4,7 +4,7 @@ import { AuditIdType } from './Audit';
 export class AuditQueue extends Context.Tag('AuditQueue')<
   AuditQueue,
   {
-    readonly enqueue: (id: AuditIdType) => Effect.Effect<void>;
+    readonly enqueue: (id: AuditIdType) => Effect.Effect<number>;
     readonly dequeue: Effect.Effect<AuditIdType>;
     readonly watch: (id: AuditIdType) => Stream.Stream<number>;
   }
@@ -22,11 +22,16 @@ export const AuditQueueLive = Layer.effect(
         Effect.gen(function* () {
           const xs = yield* Ref.get(snapshotRef);
           if (xs.includes(id)) {
-            return;
+            return xs.indexOf(id);
           }
 
-          yield* Ref.update(snapshotRef, (xs) => [...xs, id]);
+          const next = yield* Ref.updateAndGet(snapshotRef, (xs) => {
+            const idx = xs.indexOf(id);
+            return idx < 0 ? xs : [...xs.slice(0, idx), ...xs.slice(idx + 1)];
+          });
           yield* Queue.offer(workQueue, id);
+
+          return next.indexOf(id);
         }),
       dequeue: Effect.gen(function* () {
         const id = yield* Queue.take(workQueue);

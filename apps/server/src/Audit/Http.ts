@@ -1,6 +1,6 @@
-import { HttpApiBuilder, HttpApiError } from '@effect/platform';
+import { HttpApiBuilder, HttpApiError, HttpServerResponse } from '@effect/platform';
 import { Api } from '../Api.js';
-import { Effect } from 'effect';
+import { Effect, Stream } from 'effect';
 import { AuditRepo } from './AuditRepo.js';
 import { AuditNotFoundError } from './Audit';
 
@@ -21,6 +21,10 @@ export const AuditGroupLive = HttpApiBuilder.group(Api, 'audit', (handlers) =>
       )
       .handle('schedule', (request) =>
         repo.schedule(request.payload).pipe(Effect.mapError(() => new HttpApiError.BadRequest())),
-      );
+      )
+      .handle('watchById', (request) => {
+        const stream = repo.watchById(request.path.id);
+        return HttpServerResponse.stream(stream.pipe(Stream.map((p) => new TextEncoder().encode(`${p}`))));
+      });
   }),
 );
