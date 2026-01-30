@@ -5,7 +5,7 @@ import { PrismaLibSql } from '@prisma/adapter-libsql';
 
 export const QUERY_ERROR_TAG = 'QueryError';
 
-class QueryError extends Data.TaggedError(QUERY_ERROR_TAG)<{
+export class QueryError extends Data.TaggedError(QUERY_ERROR_TAG)<{
   message: string;
   cause?: unknown;
 }> {}
@@ -18,7 +18,7 @@ export const DbClientService = Context.GenericTag<DbClient>('Db');
 
 const makeDbClient = (): DbClient => {
   const adapter = new PrismaLibSql({ url: `file:tmp/dev.db` });
-  const client = new PrismaClient({ adapter, log: ['query', 'info', 'warn', 'error'] });
+  const client = new PrismaClient({ adapter, log: ['info', 'warn', 'error'] });
 
   return {
     run: <A>(f: (p: PrismaClient) => Promise<A>) => withDatabaseError(() => f(client)),

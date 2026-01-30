@@ -16,7 +16,8 @@ export const AuditGroupLive = HttpApiBuilder.group(Api, 'audit', (handlers) =>
             (r) => r !== null,
             () => new AuditNotFoundError({ id: request.path.id }),
           ),
-          Effect.mapError(() => new HttpApiError.BadRequest()),
+          Effect.map((audit) => ({ status: audit.status })),
+          Effect.catchTag('QueryError', () => new HttpApiError.BadRequest()),
         ),
       )
       .handle('schedule', (request) =>

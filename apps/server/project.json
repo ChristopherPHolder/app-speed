@@ -108,6 +108,14 @@
       "options": {
         "reportsDirectory": "../../coverage/apps/server"
       }
+    },
+    "e2e": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "configFile": "{projectRoot}/vitest.config.e2e.mts",
+        "reportsDirectory": "../../coverage/apps/server"
+      }
     }
   }
 }

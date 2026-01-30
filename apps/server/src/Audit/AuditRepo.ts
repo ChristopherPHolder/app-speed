@@ -21,9 +21,9 @@ export class AuditRepo extends Effect.Service<AuditRepo>()('Audit', {
           return { auditId, auditQueuePosition };
         });
       }),
-      findById: Effect.fn((auditId: AuditIdType) =>
-        db.run((c) => c.audit.findUnique({ where: { id: auditId } })).pipe(Effect.map((r) => (r === null ? r : r.id))),
-      ),
+      findById: Effect.fn((auditId: AuditIdType) => {
+        return db.run((c) => c.audit.findUnique({ where: { id: auditId } }));
+      }),
       watchById: (auditId: AuditIdType) => queue.watch(auditId),
     };
   }),
