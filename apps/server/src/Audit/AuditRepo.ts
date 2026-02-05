@@ -1,12 +1,12 @@
 import { Effect } from 'effect';
 import { AuditIdType } from './Audit.js';
-import { DbClientService } from '../Db.js';
 import { ReplayUserflowAudit } from '@app-speed/shared-user-flow-replay/schema';
 import { AuditQueue } from './AuditQueue';
+import { DbClient } from '@app-speed/server/db';
 
 export class AuditRepo extends Effect.Service<AuditRepo>()('Audit', {
   effect: Effect.gen(function* () {
-    const db = yield* DbClientService;
+    const db = yield* DbClient;
     const queue = yield* AuditQueue;
 
     return {

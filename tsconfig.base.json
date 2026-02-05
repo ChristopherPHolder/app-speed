@@ -33,7 +33,8 @@
       "@app-speed/shared-user-flow-replay/schema": ["libs/shared/user-flow-replay/schema/src/index.ts"],
       "@app-speed/shared-utils": ["libs/shared/utils/src/public-api.ts"],
       "@app-speed/userflow-conductor/shared-util-lib": ["packages/userflow-conductor/shared-util-lib/src/index.ts"],
-      "@app-speed/userflow-conductor/socket-io-ser": ["packages/userflow-conductor/socket-io-ser/src/index.ts"]
+      "@app-speed/userflow-conductor/socket-io-ser": ["packages/userflow-conductor/socket-io-ser/src/index.ts"],
+      "@app-speed/server/db": ["libs/server/db/src/index.ts"]
     },
     "plugins": [
       {

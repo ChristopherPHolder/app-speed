@@ -1,0 +1,21 @@
+{
+  "name": "db",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/server/db/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/server/db",
+        "main": "libs/server/db/src/index.ts",
+        "tsConfig": "libs/server/db/tsconfig.lib.json",
+        "assets": ["libs/server/db/*.md"],
+        "format": ["esm"],
+        "generatePackageJson": true
+      }
+    }
+  }
+}

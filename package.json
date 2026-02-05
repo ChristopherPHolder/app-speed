@@ -1,7 +1,6 @@
 {
   "name": "app-speed",
   "scripts": {
-    "start": "nx serve user-flow-manager",
     "lint:affected": "nx run-many --all --t lint",
     "build:affected": "nx run-many --all -t build",
     "test:affected": "nx run-many --all -t test",
@@ -138,7 +137,7 @@
     "jsonc-eslint-parser": "2.4.0",
     "ng-packagr": "21.1.0",
     "nx": "22.4.2",
-    "nx-release": "3.3.0",
+    "nx-release": "^3.4.0",
     "postcss": "^8.4.5",
     "postcss-import": "~14.1.0",
     "postcss-preset-env": "~7.5.0",
