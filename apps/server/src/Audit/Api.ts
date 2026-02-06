@@ -5,11 +5,20 @@ import { AuditId, AuditNotFoundError } from './Audit';
 
 const AuditRunStatusSchema = Schema.Literal('SCHEDULED', 'IN_PROGRESS', 'COMPLETE');
 const AuditResultStatusSchema = Schema.Literal('SUCCESS', 'FAILURE');
-const AuditResultSchema = Schema.Struct({
-  status: AuditResultStatusSchema,
-  result: Schema.Unknown,
-  error: Schema.optional(Schema.Unknown),
+const AuditErrorSchema = Schema.Struct({
+  name: Schema.String,
+  message: Schema.String,
+  stack: Schema.String,
 });
+const AuditResultSuccessSchema = Schema.Struct({
+  status: Schema.Literal('SUCCESS'),
+  result: Schema.Unknown,
+});
+const AuditResultFailureSchema = Schema.Struct({
+  status: Schema.Literal('FAILURE'),
+  error: AuditErrorSchema,
+});
+const AuditResultSchema = Schema.Union(AuditResultSuccessSchema, AuditResultFailureSchema);
 
 export class AuditApiGroup extends HttpApiGroup.make('audit')
   .add(

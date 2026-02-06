@@ -20,6 +20,25 @@ const encoder = new TextEncoder();
 const encodeSse = (event: AuditSseEvent) =>
   encoder.encode(`event: ${event.event}\ndata: ${JSON.stringify(event.data)}\n\n`);
 
+const normalizeError = (error: unknown) => {
+  if (error && typeof error === 'object') {
+    const record = error as Record<string, unknown>;
+    return {
+      name: typeof record.name === 'string' ? record.name : 'Error',
+      message: typeof record.message === 'string' ? record.message : 'Unknown error',
+      stack: typeof record.stack === 'string' ? record.stack : '',
+    };
+  }
+  if (typeof error === 'string') {
+    return { name: 'Error', message: error, stack: '' };
+  }
+  return { name: 'Error', message: 'Unknown error', stack: '' };
+};
+
+const toSuccessResult = (result: unknown) => ({ status: 'SUCCESS', result } as const);
+const toFailureResult = (error: { name: string; message: string; stack: string }) =>
+  ({ status: 'FAILURE', error } as const);
+
 export const AuditGroupLive = HttpApiBuilder.group(Api, 'audit', (handlers) =>
   Effect.gen(function* () {
     yield* Effect.logDebug('AuditGroupLive');
@@ -48,11 +67,11 @@ export const AuditGroupLive = HttpApiBuilder.group(Api, 'audit', (handlers) =>
             (r) => r !== null,
             () => new HttpApiError.NotFound(),
           ),
-          Effect.map((result) => ({
-            status: result.status,
-            result: result.data,
-            error: result.error ?? undefined,
-          })),
+          Effect.map((result) =>
+            result.status === 'SUCCESS'
+              ? toSuccessResult(result.data)
+              : toFailureResult(normalizeError(result.error)),
+          ),
           Effect.catchTag('QueryError', () => new HttpApiError.BadRequest()),
           Effect.catchTag('ParseError', () => new HttpApiError.BadRequest()),
         ),
@@ -115,7 +134,13 @@ export const AuditGroupLive = HttpApiBuilder.group(Api, 'audit', (handlers) =>
             Stream.map(encodeSse),
           );
 
-          return HttpServerResponse.stream(stream);
+          return HttpServerResponse.stream(stream, {
+            contentType: 'text/event-stream',
+            headers: {
+              'Cache-Control': 'no-cache',
+              Connection: 'keep-alive',
+            },
+          });
         }).pipe(
           Effect.catchTag('QueryError', () => new HttpApiError.BadRequest()),
           Effect.catchTag('ParseError', () => new HttpApiError.BadRequest()),

@@ -1,5 +1,10 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, filter, fromEvent, map, Subject, takeUntil } from 'rxjs';
+
+type AuditResultResponse =
+  | { status: 'SUCCESS'; result: unknown }
+  | { status: 'FAILURE'; error: { name: string; message: string; stack: string } };
 
 type AuditStage = 'scheduling' | 'scheduled' | 'running' | 'done' | 'failed';
 
@@ -9,6 +14,7 @@ const NO_DISPLAY_STAGES: AuditStage[] = ['done'];
 export class SchedulerService {
   private eventSource: EventSource | null = null;
   private readonly disconnect$ = new Subject<void>();
+  private readonly http = inject(HttpClient);
 
   private readonly stage$ = new BehaviorSubject<AuditStage>('scheduling');
   private readonly queuePosition$ = new BehaviorSubject<number | null>(null);
@@ -17,6 +23,23 @@ export class SchedulerService {
   readonly stageName$ = this.stage$.asObservable();
   readonly shouldDisplayIndicator$ = this.stageName$.pipe(map((stage) => !NO_DISPLAY_STAGES.includes(stage)));
   readonly key$ = this.resultKey$.pipe(filter((key): key is string => key !== null));
+
+  private finalizeWithStatus(auditId: string, status: 'SUCCESS' | 'FAILURE') {
+    this.stage$.next(status === 'SUCCESS' ? 'done' : 'failed');
+    this.resultKey$.next(auditId);
+    this.eventSource?.close();
+  }
+
+  private fetchResultAndFinalize(auditId: string) {
+    this.http.get<AuditResultResponse>(`/api/audit/${auditId}/result`).subscribe({
+      next: (result) => this.finalizeWithStatus(auditId, result.status),
+      error: () => {
+        this.stage$.next('failed');
+        this.resultKey$.next(auditId);
+        this.eventSource?.close();
+      },
+    });
+  }
 
   watchAudit(auditId: string) {
     this.stage$.next('scheduling');
@@ -44,7 +67,7 @@ export class SchedulerService {
       .subscribe(({ status }) => {
         if (status === 'SCHEDULED') this.stage$.next('scheduled');
         if (status === 'IN_PROGRESS') this.stage$.next('running');
-        if (status === 'COMPLETE') this.stage$.next('done');
+        if (status === 'COMPLETE') this.fetchResultAndFinalize(auditId);
       });
 
     fromEvent<MessageEvent>(source, 'result')
@@ -53,9 +76,7 @@ export class SchedulerService {
         takeUntil(this.disconnect$),
       )
       .subscribe(({ status }) => {
-        this.stage$.next(status === 'SUCCESS' ? 'done' : 'failed');
-        if (status === 'SUCCESS') this.resultKey$.next(auditId);
-        source.close();
+        this.finalizeWithStatus(auditId, status);
       });
 
     fromEvent<Event>(source, 'error')

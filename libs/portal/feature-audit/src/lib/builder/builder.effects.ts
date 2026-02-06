@@ -10,10 +10,15 @@ import {
   submitAuditRequestSuccess,
   updateAuditDetails,
 } from './builder.actions';
-import { catchError, debounceTime, map, of, switchMap, tap } from 'rxjs';
+import { catchError, debounceTime, filter, map, of, switchMap, take, tap } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DEFAULT_AUDIT_DETAILS } from '@app-speed/shared-user-flow-replay';
-import { ApiService } from '@app-speed/portal-data-access';
+import { ApiService, SchedulerService } from '@app-speed/portal-data-access';
+import { HttpClient } from '@angular/common/http';
+
+type AuditResultResponse =
+  | { status: 'SUCCESS'; result: unknown }
+  | { status: 'FAILURE'; error: { name: string; message: string; stack: string } };
 
 const loadAuditDetailsEffect = createEffect(
   (actions$ = inject(Actions), activatedRoute = inject(ActivatedRoute)) => {
@@ -102,6 +107,39 @@ const listenToAuditProgressEffect = createEffect(
   { functional: true, dispatch: false },
 );
 
+const auditFailedEffect = createEffect(
+  (actions$ = inject(Actions), scheduler = inject(SchedulerService), http = inject(HttpClient)) =>
+    actions$.pipe(
+      ofType(listenToAuditProgress),
+      switchMap(({ requestId }) =>
+        scheduler.stageName$.pipe(
+          filter((stage) => stage === 'failed'),
+          take(1),
+          switchMap(() => http.get<AuditResultResponse>(`/api/audit/${requestId}/result`)),
+          map((result) => {
+            if (result.status === 'FAILURE') {
+              const { name, message, stack } = result.error;
+              const title = name ? `${name}: ${message}` : message;
+              const fullMessage = stack ? `${title}\n${stack}` : title;
+              return submitAuditRequestFailed({ auditRequestError: fullMessage });
+            }
+            return submitAuditRequestFailed({
+              auditRequestError: 'Audit failed but no error details were returned.',
+            });
+          }),
+          catchError((error) =>
+            of(
+              submitAuditRequestFailed({
+                auditRequestError: error?.message ?? 'Audit failed and error details could not be loaded.',
+              }),
+            ),
+          ),
+        ),
+      ),
+    ),
+  { functional: true },
+);
+
 export const provideBuilderEffects = () =>
   provideEffects({
     updateAuditDetailsEffect,
@@ -111,4 +149,5 @@ export const provideBuilderEffects = () =>
     loadAuditDetailsFailedEffect,
     submitAuditRequestSuccessEffect,
     listenToAuditProgressEffect,
+    auditFailedEffect,
   });

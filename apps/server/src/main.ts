@@ -15,4 +15,4 @@ const AppLayer = Layer.provideMerge(RunnerServiceLive, WithAuditRepo);
 
 const MainLayer = Layer.provide(HttpLive, AppLayer);
 
-Layer.launch(MainLayer).pipe(NodeRuntime.runMain);
+NodeRuntime.runMain(Layer.launch(MainLayer));
