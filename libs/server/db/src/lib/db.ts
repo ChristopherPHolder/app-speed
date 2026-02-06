@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { Context, Data, Effect, Layer } from 'effect';
+import { Config, Context, Data, Effect, Layer } from 'effect';
 
 import { PrismaLibSql } from '@prisma/adapter-libsql';
 
@@ -16,8 +16,9 @@ export class DbClient extends Context.Tag('DbClient')<
 >() {
   static live = Layer.effect(
     DbClient,
-    Effect.sync(() => {
-      const adapter = new PrismaLibSql({ url: `file:tmp/dev.db` });
+    Effect.gen(function* () {
+      const filePath = yield* Config.string('DB_FILE').pipe(Config.withDefault('tmp/dev.db'));
+      const adapter = new PrismaLibSql({ url: normalizeDbUrl(filePath) });
       const client = new PrismaClient({ adapter, log: ['info', 'warn', 'error'] });
 
       const withDatabaseError = <A>(operation: () => Promise<A>): Effect.Effect<A, QueryError> =>
@@ -32,3 +33,5 @@ export class DbClient extends Context.Tag('DbClient')<
     }),
   );
 }
+
+const normalizeDbUrl = (filePath: string) => (filePath.startsWith('file:') ? filePath : `file:${filePath}`);

@@ -1,5 +1,10 @@
-import { Effect, Layer } from 'effect';
-import { it, expect, layer } from '@effect/vitest';
+import { ConfigProvider, Effect, Layer } from 'effect';
+import { expect, layer } from '@effect/vitest';
+import { afterAll, beforeAll } from 'vitest';
+import { execFileSync } from 'node:child_process';
+import { randomUUID } from 'node:crypto';
+import fs from 'node:fs';
+import path from 'node:path';
 
 import { AuditRepo, AuditRepoLive } from './audit-repo';
 import { ReplayUserflowAudit } from '@app-speed/shared-user-flow-replay/schema';
@@ -11,7 +16,28 @@ const sampleAudit: ReplayUserflowAudit = {
   steps: [{ type: 'snapshot' }],
 };
 
-const TestLayer = Layer.provide(AuditRepoLive, DbClient.live);
+const testDbDir = path.join(process.cwd(), 'tmp');
+const testDbPath = path.join(testDbDir, `audit-repo-${randomUUID()}.db`);
+const prismaConfigPath = path.join(process.cwd(), 'prisma.config.ts');
+const ConfigLayer = Layer.setConfigProvider(ConfigProvider.fromMap(new Map([['DB_FILE', testDbPath]])));
+const DbLayer = Layer.provideMerge(ConfigLayer)(DbClient.live);
+const TestLayer = Layer.provideMerge(DbLayer)(AuditRepoLive);
+
+beforeAll(async () => {
+  fs.mkdirSync(testDbDir, { recursive: true });
+  execFileSync(
+    'npx',
+    ['prisma', 'migrate', 'deploy', '--config', prismaConfigPath],
+    {
+      env: { ...process.env, DB_FILE: testDbPath, RUST_LOG: 'info' },
+      stdio: 'inherit',
+    },
+  );
+});
+
+afterAll(() => {
+  fs.rmSync(testDbPath, { force: true });
+});
 
 const resetDb = Effect.gen(function* () {
   const db = yield* DbClient;
