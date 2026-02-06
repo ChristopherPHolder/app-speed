@@ -1,4 +1,4 @@
-import { Duration, Effect } from 'effect';
+import { Effect } from 'effect';
 import { Browser, launch } from 'puppeteer';
 import { createRunner, parse as puppeteerReplayParse } from '@puppeteer/replay';
 import { Config, defaultConfig, desktopConfig, startFlow } from 'lighthouse';
@@ -47,12 +47,10 @@ export const processAudit = Effect.fn((auditRequest: typeof AuditRequestSchema.T
   return Effect.gen(function* () {
     yield* Effect.log(`Starting processing ${auditRequest.auditId}`);
 
-    const [duration, result] = yield* Effect.timed(runAudit(auditRequest.auditDetails));
+    const result = yield* runAudit(auditRequest.auditDetails);
 
-    const auditDuration = Duration.format(duration);
+    yield* Effect.log(`Completed processing ${auditRequest.auditId}`);
 
-    yield* Effect.log(`Completed processing ${auditRequest.auditId} in ${auditDuration}`);
-
-    return { result, duration: auditDuration };
+    return result;
   });
 });

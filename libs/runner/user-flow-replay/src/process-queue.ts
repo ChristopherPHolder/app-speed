@@ -1,26 +1,31 @@
-import { Effect } from 'effect';
-import { dequeueAudit, submitAuditResults } from './data-access/queue.effect';
+import { Cause, Duration, Effect, Exit } from 'effect';
+import { claimNextAudit, completeAuditRun } from './data-access/queue.effect';
 import { processAudit } from './process-audit';
-import { FetchHttpClient } from '@effect/platform';
 
 export const processQueue = Effect.gen(function* () {
-  yield* Effect.iterate(yield* dequeueAudit, {
+  yield* Effect.iterate(yield* claimNextAudit, {
     while: (auditRequest) => auditRequest !== null,
     body: (auditRequest) =>
       Effect.gen(function* () {
-        yield* processAudit(auditRequest).pipe(
-          Effect.flatMap((auditResult) =>
-            submitAuditResults({
-              data: {
-                auditId: auditRequest.auditId,
-                auditResult: { status: 'success', result: auditResult.result },
-              },
-            }),
-          ),
-        );
+        const [duration, exit] = yield* Effect.timed(Effect.exit(processAudit(auditRequest)));
+        const durationMs = Duration.toMillis(duration);
+
+        if (Exit.isSuccess(exit)) {
+          yield* completeAuditRun(
+            auditRequest.auditId,
+            { status: 'SUCCESS', data: exit.value },
+            durationMs,
+          );
+        } else {
+          yield* completeAuditRun(
+            auditRequest.auditId,
+            { status: 'FAILURE', data: null, error: Cause.pretty(exit.cause) },
+            durationMs,
+          );
+        }
 
         yield* Effect.log(`Completed processing ${auditRequest.auditId}`);
-        return yield* dequeueAudit;
+        return yield* claimNextAudit;
       }),
   });
-}).pipe(Effect.scoped, Effect.provide(FetchHttpClient.layer));
+}).pipe(Effect.scoped);

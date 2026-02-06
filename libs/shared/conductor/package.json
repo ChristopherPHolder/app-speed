@@ -1,8 +1,0 @@
-{
-  "name": "@app-speed/shared-conductor",
-  "version": "0.0.1",
-  "sideEffects": false,
-  "peerDependencies": {
-    "lighthouse": "^12.3.0"
-  }
-}
