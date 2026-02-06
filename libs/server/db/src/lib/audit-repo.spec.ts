@@ -1,6 +1,5 @@
 import { ConfigProvider, Effect, Layer } from 'effect';
 import { expect, layer } from '@effect/vitest';
-import { afterAll, beforeAll } from 'vitest';
 import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
@@ -17,27 +16,34 @@ const sampleAudit: ReplayUserflowAudit = {
 };
 
 const testDbDir = path.join(process.cwd(), 'tmp');
-const testDbPath = path.join(testDbDir, `audit-repo-${randomUUID()}.db`);
-const prismaConfigPath = path.join(process.cwd(), 'prisma.config.ts');
-const ConfigLayer = Layer.setConfigProvider(ConfigProvider.fromMap(new Map([['DB_FILE', testDbPath]])));
-const DbLayer = Layer.provideMerge(ConfigLayer)(DbClient.live);
-const TestLayer = Layer.provideMerge(DbLayer)(AuditRepoLive);
+const localPrismaConfigPath = path.join(process.cwd(), 'prisma.config.ts');
+const workspacePrismaConfigPath = path.join(process.cwd(), 'libs/server/db/prisma.config.ts');
+const prismaConfigPath = fs.existsSync(localPrismaConfigPath) ? localPrismaConfigPath : workspacePrismaConfigPath;
 
-beforeAll(async () => {
-  fs.mkdirSync(testDbDir, { recursive: true });
-  execFileSync(
-    'npx',
-    ['prisma', 'migrate', 'deploy', '--config', prismaConfigPath],
-    {
-      env: { ...process.env, DB_FILE: testDbPath, RUST_LOG: 'info' },
-      stdio: 'inherit',
-    },
-  );
-});
+const TestDbLayer = Layer.unwrapEffect(
+  Effect.gen(function* () {
+    yield* Effect.sync(() => fs.mkdirSync(testDbDir, { recursive: true }));
+    const testDbPath = path.join(testDbDir, `audit-repo-${randomUUID()}.db`);
 
-afterAll(() => {
-  fs.rmSync(testDbPath, { force: true });
-});
+    const ConfigLayer = Layer.setConfigProvider(ConfigProvider.fromMap(new Map([['DB_FILE', testDbPath]])));
+    const DbLayer = Layer.provideMerge(ConfigLayer)(DbClient.live);
+    const MigrationsLayer = Layer.scopedDiscard(
+      Effect.gen(function* () {
+        yield* Effect.sync(() =>
+          execFileSync('npx', ['prisma', 'migrate', 'deploy', '--config', prismaConfigPath], {
+            env: { ...process.env, DB_FILE: testDbPath, RUST_LOG: 'info' },
+            stdio: 'inherit',
+          }),
+        );
+        yield* Effect.addFinalizer(() => Effect.sync(() => fs.rmSync(testDbPath, { force: true })));
+      }),
+    );
+
+    return Layer.provideMerge(MigrationsLayer)(DbLayer);
+  }),
+);
+
+const TestLayer = Layer.provideMerge(TestDbLayer)(AuditRepoLive);
 
 const resetDb = Effect.gen(function* () {
   const db = yield* DbClient;

@@ -1,4 +1,4 @@
-import { Context, Effect, Layer, ParseResult, Schema } from 'effect';
+import { Clock, Context, Effect, Layer, ParseResult, Schema } from 'effect';
 import { ReplayUserflowAudit, ReplayUserflowAuditSchema } from '@app-speed/shared-user-flow-replay/schema';
 import { DbClient, QueryError } from './db';
 import { Prisma, type AuditResultStatus } from '@prisma/client';
@@ -130,57 +130,62 @@ export const AuditRepoLive = Layer.effect(
       db.run((c) => c.auditRun.create({ data: { templateId } })).pipe(Effect.map((record) => record.id as AuditRunId));
 
     const claimNextRun = () =>
-      db.run((c) =>
-        c.$transaction(async (tx) => {
-          const next = await tx.auditRun.findFirst({
-            where: { status: 'SCHEDULED' },
-            orderBy: { createdAt: 'asc' },
-            include: { template: true },
-          });
+      Effect.gen(function* () {
+        const now = new Date(yield* Clock.currentTimeMillis);
+        const claimed = yield* db.run((c) =>
+          c.$transaction(async (tx) => {
+            const next = await tx.auditRun.findFirst({
+              where: { status: 'SCHEDULED' },
+              orderBy: { createdAt: 'asc' },
+              include: { template: true },
+            });
 
-          if (!next) return null;
+            if (!next) return null;
 
-          const updated = await tx.auditRun.updateMany({
-            where: { id: next.id, status: 'SCHEDULED' },
-            data: { status: 'IN_PROGRESS', startedAt: new Date() },
-          });
+            const updated = await tx.auditRun.updateMany({
+              where: { id: next.id, status: 'SCHEDULED' },
+              data: { status: 'IN_PROGRESS', startedAt: now },
+            });
 
-          if (updated.count === 0) return null;
+            if (updated.count === 0) return null;
 
-          const claimed = await tx.auditRun.findUnique({
-            where: { id: next.id },
-            include: { template: true },
-          });
+            const claimed = await tx.auditRun.findUnique({
+              where: { id: next.id },
+              include: { template: true },
+            });
 
-          return claimed ?? null;
-        }),
-      ).pipe(
-        Effect.flatMap((claimed) => (claimed ? decodeAuditRunRecord(claimed) : Effect.succeed(null))),
-      );
+            return claimed ?? null;
+          }),
+        );
+
+        return claimed ? yield* decodeAuditRunRecord(claimed) : null;
+      });
 
     const markRunInProgress = (id: AuditRunId) =>
-      db
-        .run((c) =>
+      Effect.gen(function* () {
+        const now = new Date(yield* Clock.currentTimeMillis);
+        yield* db.run((c) =>
           c.auditRun.update({
             where: { id },
-            data: { status: 'IN_PROGRESS', startedAt: new Date() },
+            data: { status: 'IN_PROGRESS', startedAt: now },
           }),
-        )
-        .pipe(Effect.asVoid);
+        );
+      }).pipe(Effect.asVoid);
 
     const completeRun = (
       id: AuditRunId,
       result: { status: 'SUCCESS' | 'FAILURE'; data: unknown; error?: unknown },
       durationMs: number,
     ) =>
-      db
-        .run((c) =>
+      Effect.gen(function* () {
+        const now = new Date(yield* Clock.currentTimeMillis);
+        yield* db.run((c) =>
           c.$transaction(async (tx) => {
             await tx.auditRun.update({
               where: { id },
               data: {
                 status: 'COMPLETE',
-                completedAt: new Date(),
+                completedAt: now,
                 durationMs,
               },
             });
@@ -194,8 +199,8 @@ export const AuditRepoLive = Layer.effect(
               },
             });
           }),
-        )
-        .pipe(Effect.asVoid);
+        );
+      }).pipe(Effect.asVoid);
 
     const getRunById = (id: AuditRunId) =>
       db
