@@ -75,12 +75,7 @@ const submitAuditRequestEffect = createEffect(
       ofType(submitAuditRequest),
       switchMap(({ audit }) =>
         api.requestAudit(audit).pipe(
-          map((response) => {
-            if (response.status === 'success') {
-              return submitAuditRequestSuccess({ requestId: response.message.auditId });
-            }
-            return submitAuditRequestFailed({ auditRequestError: response.message.errorMessage });
-          }),
+          map((response) => submitAuditRequestSuccess({ requestId: response.auditId })),
           catchError((error) => of(submitAuditRequestFailed({ auditRequestError: error.message }))),
         ),
       ),

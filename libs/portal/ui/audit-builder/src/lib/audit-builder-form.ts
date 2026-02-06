@@ -140,7 +140,7 @@ const stepPropertyFactories = {
       (step?.selectors ?? ['']).map((selector) => stringFormControlFactory(selector)),
       { validators: [Validators.required, Validators.minLength(1)] },
     ),
-  attributes: (..._args: never) => {
+  attributes: (..._args: any) => {
     console.warn('Warning Attribute step property is not yet implemented');
     return new FormRecord({}); // TODO
   },
@@ -148,7 +148,7 @@ const stepPropertyFactories = {
   visible: (step?: { visible?: boolean }) => booleanFormControlFactory(step?.visible ?? true),
   operator: (step?: { operator?: string }) =>
     stringFormControlFactory(step?.operator ?? STEP_PROPERTY.operator.defaultValue),
-  assertedEvents: (..._args: never) => {
+  assertedEvents: (..._args: any) => {
     console.warn('Warning assertedEvents step property is not yet implemented');
     return new FormArray([]); // TODO
   },
@@ -159,7 +159,7 @@ const stepPropertyFactories = {
     ),
   expression: (step?: { expression?: string }) => stringFormControlFactory(step?.expression ?? ''),
   target: (step?: { target?: string }) => stringFormControlFactory(step?.target ?? ''),
-  properties: (_step?: { property?: never }) => {
+  properties: (_step?: { property?: any }) => {
     console.warn('Warning properties step property is not yet implemented');
     return new FormArray([]); // TODO
   },

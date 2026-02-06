@@ -1,8 +1,9 @@
 import { HttpApiSchema } from '@effect/platform';
-
 import { Schema } from 'effect';
 
-export const AuditId = Schema.String.pipe(Schema.brand('AuditId'));
+import { AuditRunIdSchema } from '@app-speed/server/db';
+
+export const AuditId = AuditRunIdSchema;
 
 export type AuditIdType = typeof AuditId.Type;
 

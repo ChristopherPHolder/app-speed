@@ -1,32 +1,25 @@
-import { FlowResult } from 'lighthouse';
-import { Effect, Schema, } from 'effect';
-import { HttpClient, HttpClientRequest, HttpClientResponse } from '@effect/platform';
+import { Effect, Schema } from 'effect';
 import { ReplayUserflowAuditSchema } from '@app-speed/shared-user-flow-replay/schema';
-import { UploadAuditResultsRequestBody } from '@app-speed/shared-conductor';
+import { AuditRepo, type AuditRunId } from '@app-speed/server/db';
 
 export const AuditRequestSchema = Schema.Struct({
   auditId: Schema.String,
   auditDetails: ReplayUserflowAuditSchema,
 });
 
-const DequeueAuditSchema = Schema.Struct({ data: Schema.NullOr(AuditRequestSchema) });
-
-export const dequeueAudit = Effect.gen(function* () {
-  const client = (yield* HttpClient.HttpClient).pipe(HttpClient.filterStatusOk);
-  return yield* HttpClientRequest.post('http://localhost:3000/api/conductor/dequeueAudits').pipe(
-    client.execute,
-    Effect.flatMap(HttpClientResponse.schemaBodyJson(DequeueAuditSchema)),
-    Effect.map((response) => response.data),
-  );
+export const claimNextAudit = Effect.gen(function* () {
+  const repo = yield* AuditRepo;
+  const next = yield* repo.claimNextRun();
+  if (!next) return null;
+  return { auditId: next.id, auditDetails: next.data } as typeof AuditRequestSchema.Type;
 });
 
-export const submitAuditResults = (results: UploadAuditResultsRequestBody) =>
+export const completeAuditRun = (
+  auditId: string,
+  result: { status: 'SUCCESS' | 'FAILURE'; data: unknown; error?: unknown },
+  durationMs: number,
+) =>
   Effect.gen(function* () {
-    const client = yield* HttpClient.HttpClient;
-    return yield* HttpClientRequest.post('http://localhost:3000/api/conductor/uploadResults').pipe(
-      HttpClientRequest.bodyJson(results),
-      Effect.flatMap(client.execute),
-      Effect.flatMap(HttpClientResponse.filterStatusOk),
-      Effect.map((data) => data),
-    );
+    const repo = yield* AuditRepo;
+    yield* repo.completeRun(auditId as AuditRunId, result, durationMs);
   });

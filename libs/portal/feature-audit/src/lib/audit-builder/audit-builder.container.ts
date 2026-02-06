@@ -48,14 +48,7 @@ export class AuditBuilderContainer implements OnInit {
       }
       return this.api.requestAudit(this.auditForm().formGroup.value).pipe(
         tap((response) => {
-          if (response.status === 'failed') {
-            console.log(response);
-            // Handle request error
-          }
-          if (response.status === 'success') {
-            console.log(response);
-            // Handle success
-          }
+          console.log('Scheduled audit', response);
         }),
         startWith({ status: 'requesting' }),
       );

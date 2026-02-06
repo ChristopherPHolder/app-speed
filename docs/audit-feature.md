@@ -1,165 +1,166 @@
-#  Design System Document | User Flow Audit Feature
+# Design Document: User Flow Audit Feature
 
-## Overview 
+Status: Draft
+Owner: Christopher Holder
+Last Updated: 2026-02-06
 
-This document describes the User Flow Audit feature and how it is implemented across the monorepo. It covers both
-high-level and low-level aspects of the feature and outlines the architectural choices involved.
+## Summary
+This document defines the architecture for scheduling user flow audits, executing them on runners, and streaming progress back to the client. It targets a local-first developer experience while supporting production runners hosted on EC2 that can be started and stopped on demand. This is the primary design doc for the User Flow Audit feature.
 
-**Feature Name:** User Flow Audit
-**Author:** Christopher Holder
+## Goals
+- Allow a user to submit an audit and receive a unique audit/run id.
+- Provide real-time progress updates that include queue position and run status.
+- Execute audits in a separate runner process locally and on EC2 in production.
+- Store audit inputs, status, and results in the database.
+- Keep the client insulated from direct runner communication.
 
-## Purpose & Goals
+## Non-Goals
+- Multi-tenant authorization, billing, or quota policies.
+- UI design details beyond API contracts and event shapes.
+- Full autoscaling policies across multiple EC2 instance pools.
 
-**Problem Statement**
+## Current State
+- `apps/server` is an Effect-based API server with a basic audit queue and SSE endpoint.
+- `libs/server/db` provides audit templates, runs, results, and a `claimNextRun` DB transaction.
+- `apps/runner` runs a loop to claim audits from the DB queue and write results back to the DB.
+- The NestJS conductor has been removed in favor of the Effect server API.
 
-There are many tools available that measure the performance of an application, such as PageSpeed Insights. Most of these
-tools use Lighthouse under the hood to evaluate performance. However, Lighthouse has an additional API called UserFlow, 
-which can be used to test not only the initial navigation but also interactions within the application. Despite its 
-usefulness, none of the existing tools seem to leverage this API.
-
-Currently, developers can run UserFlow tests locally, but the results are unreliable due to inconsistencies between 
-runs. This fluctuation in values reduces the usefulness of the test results, making it difficult to derive meaningful 
-insights from them.
-
-**Objectives**
-
-TODO explain that the objective is to be able to do page-speed insights but for user-flows
-
-**Success Metrics**
-
-TODO figure this one out!
-
-## Requirements
-
-**Functional Requirements**
-
-Users should be able to schedule an audit within the web application, receive results, and subscribe to notifications or
-updates on the audit process. This includes tracking how many audits are queued before their audit is processed. This 
-feature ensures that audits are processed efficiently while maintaining a clear separation of concerns between different
-system components.
-
-**Non-Functional Requirements**
-
-**Constraints & Assumptions**
-
-## High-level Design
-
-This monorepo follows the NX apps and libs structure.
-```
-├──└──│
-
-├── apps
-│   ├── api
-│   ├── portal
-│   └── runner
-```
-
-
-TODO 
+## Proposed Architecture
+The system is split into a control plane (server) and one or more runners. The server owns scheduling, progress reporting, and the API contract. Runners execute audits and report results. A queueing/orchestration layer coordinates work and supports queue-position updates.
 
 ```mermaid
-stateDiagram-v2
-    [*] --> Still
-    Still --> [*]
-    Still --> Moving
-    Moving --> Still
-    Moving --> Crash
-    Crash --> [*]
+flowchart LR
+  Client["Client (Angular)"] -->|"HTTP: schedule/status/result"| Server["Server API"]
+  Client -->|"SSE or WebSocket"| Server
+  Server --> DB[(Database)]
+  Server --> Orchestrator["Workflow/Queue"]
+  Orchestrator --> Runner["Runner Process(es)"]
+  Runner -->|"results + heartbeat"| Server
+  Runner --> DB
 ```
 
-## Low-level Design
+## Orchestration Approach
+Effect Workflows + Effect Cluster are the accepted orchestration choice.
 
-TODO
+### Effect Workflows + Effect Cluster
+- The server hosts the workflow runtime and schedules an `AuditRunWorkflow` per audit.
+- Effect Cluster provides worker discovery and task distribution.
+- Runners register as cluster workers and execute workflow tasks.
+- Workflow events are persisted and emitted to clients via SSE or WebSocket.
+- This provides durability, retries, and observability with minimal bespoke queue logic.
 
-## Error handling & logging
+## Core Data Model
+These types already exist in `libs/server/db` and align with the required flow.
 
-TODO
+- `AuditTemplate` stores the audit definition.
+- `AuditRun` tracks status and timestamps.
+- `AuditResult` stores the final output or error.
 
-## Security Considerations
+Supported status values:
+- Run status: `SCHEDULED`, `IN_PROGRESS`, `COMPLETE`.
+- Result status: `SUCCESS`, `FAILURE`.
 
-TODO
+## API Contracts
+All client communication is HTTP, with SSE or WebSocket for progress. This keeps the browser API simple and is easy to use from Angular.
 
-## Performance & Scalability
+### Submit Audit
+- `POST /api/audit/schedule`
+- Request body: `ReplayUserflowAudit`.
+- Response: `{ auditId, auditQueuePosition }`.
 
-TODO
+### Status + Result
+- `GET /api/audit/:id` returns `{ status }`.
+- `GET /api/audit/:id/result` returns `{ status, result }` when complete.
 
-## Deployment Strategy
+### Progress Stream (SSE)
+- `GET /api/audit/:id/events` returns `text/event-stream`.
+- Events include queue position and lifecycle status.
+- Sample event shape:
 
-## Open Questions and trade-offs
+```text
+event: position
+data: {"runId":"abc","position":2}
 
-## References
+event: status
+data: {"runId":"abc","status":"IN_PROGRESS"}
 
-## Conductor
+event: result
+data: {"runId":"abc","status":"SUCCESS"}
+```
 
-### Requirements
+## Queue Position Semantics
+Queue position should be stable and derived from the durable queue, not in-memory data.
 
-The client needs to be able to request an audit. 
+- The position is the count of `SCHEDULED` audits ahead of the run, ordered by `createdAt`.
+- When a run moves to `IN_PROGRESS`, it is no longer counted in the queue.
+- SSE should emit a new `position` event whenever the count changes.
+- Queue position must remain consistent regardless of the number of active runners.
 
-The client needs to be able to receive updates about the state of the audit
+## Runner Lifecycle
+The runner lifecycle is managed by a `RunnerManager` interface with local and AWS-backed implementations.
+The system must support multiple concurrent runners while still operating correctly with a single runner.
 
-The client needs to be able to view the results
+### Local
+- The server starts a runner process when the first audit is scheduled.
+- The runner exits after it drains the queue or after a 1 minute idle timeout.
+- The runner uses the same API as production to keep behavior aligned.
 
-The server needs to be able to delegate the audit to a runner
+### EC2
+- The server starts a stopped EC2 instance when the queue transitions from empty to non-empty.
+- Runners register with the server and begin processing.
+- When the queue is empty for 1 minute, the runner self-terminates or the server shuts it down via the AWS SDK.
 
-The server needs to be able to update the client when there is a status change on the audit
+## Runner to Server Communication
+The runner needs a controlled interface to claim work and report results.
 
-The server needs to be able to store the results of the audit
+### Recommended (Workflows + Cluster)
+- The runner is a workflow worker and executes tasks assigned by the workflow runtime.
+- The workflow runtime persists state and handles retries.
 
-The server needs to be able to be notified when the status of the audit has changed
+### Direct DB Access (Production)
+- Runners may have direct DB access in production for reading templates and writing results when appropriate.
+- The server remains the control plane for scheduling and status visibility.
 
-The client should never talk to the runner directly
+## Frontend Integration
+The Angular app uses HTTP for submission and SSE for status updates.
 
-### Schedule Audit Request
+- Schedule: HTTP `POST /api/audit/schedule`.
+- Progress: SSE `GET /api/audit/:id/events`.
+- Result: HTTP `GET /api/audit/:id/result`.
 
-The client should be able to schedule an audit. for this we can use an endpoint on the api/conductor feature lib.
+## Failure Handling
+- Runner crash: runs remain `SCHEDULED` or `IN_PROGRESS` and can be reclaimed after a timeout.
+- Duplicate results: `completeRun` should be idempotent for a run id.
+- Workflow retries: when using Effect Workflows, failures and retries are automatic.
 
-This should be a POST request which passes the audit request in the body.
+## Observability
+- Emit structured logs for schedule, claim, start, complete, failure.
+- Track queue depth, average wait time, and runner idle time.
+- Provide trace ids in SSE/WebSocket events.
 
-The post request should validate the audit details uses the correct schema.
+## Security
+- Runner endpoints must be authenticated with a shared secret or mTLS.
+- Server endpoints should validate audit schemas and enforce rate limits.
 
-If it does not contain the correct schema it should return an error message to the use that allows them to fix the error.
+## Implementation Plan
+Phase 1 focuses on stability and local-first flow. Phase 2 introduces EC2 lifecycle and workflow-backed multi-runner operation.
 
-Else it should add the audit to an audit queue and return the ID of the audit generated by the queue.
+### Phase 1
+- Align on a single control-plane API in `apps/server`.
+- Remove NestJS conductor endpoints and migrate portal clients to `apps/server`.
+- Implement SSE progress based on workflow/DB-backed queue position.
+- Wire `apps/runner` as a workflow worker in local-first mode.
 
-### Audit Results Request
+### Phase 2
+- Add `RunnerManager` with AWS EC2 lifecycle support.
+- Add idle-timeout shutdown.
+- Expand Effect Cluster deployment for multiple runners.
+- Support multiple runners and concurrent claims.
 
-The client can request the results of an audit using an audit ID.
-
-The server should check if the audit is still in the queue
-    - If the audit is in the queue it should return a response stating it's still queued and its status.
-    - The client should then subscribe for updates on the audit status.
-
-If the audit is not in the queue the server should check the audit results exist and respond with the results
-    - If the audit results do not exist it would respond with the appropriate http code.
-
-### Audit QUEUE
-
-The queue contains the following functionality
-
-#### Queue audit
-Assigns a unique ID to the audit
-Marks the audit as queue.
-Adding an item into the queue should notify a runner manager that it's been added.
-Return a unique ID for the audit.
-
-#### Next Queued Audit
-It should get the next audit that should be process.
-It should make the audit status as processing.
-It should notify any listeners that the audit is being processed.
-it should return the audit details.
-
-#### Dequeue Audit
-It should get the audit from an ID.
-It should validate that it has a processing status.
-It should remove the audit details.
-It should return true.
-
-#### Notify changes
-It should register a callback run any time there are changes
-
-#### Audits queued before audit by ID
-It should return the number of audits queued before an audit from an ID.
-
-### Audit Status Update
-
-The client can subscribe to updates on an audit and its status this is done via a websocket connection.
+## Decisions
+- This is the primary design doc for the User Flow Audit feature; additional docs may be created for deep dives.
+- We will fully migrate away from NestJS and move portal clients to `apps/server` endpoints.
+- Runners can have direct DB access in production.
+- Idle timeout is 1 minute.
+- The system must support multiple runners and still work with a single runner.
+- SSE is the only client progress channel.

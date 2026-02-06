@@ -3,6 +3,14 @@ import { Schema } from 'effect';
 import { ReplayUserflowAuditSchema } from '@app-speed/shared-user-flow-replay/schema';
 import { AuditId, AuditNotFoundError } from './Audit';
 
+const AuditRunStatusSchema = Schema.Literal('SCHEDULED', 'IN_PROGRESS', 'COMPLETE');
+const AuditResultStatusSchema = Schema.Literal('SUCCESS', 'FAILURE');
+const AuditResultSchema = Schema.Struct({
+  status: AuditResultStatusSchema,
+  result: Schema.Unknown,
+  error: Schema.optional(Schema.Unknown),
+});
+
 const ScheduleAuditApiEndpoint = HttpApiEndpoint.post('schedule', '/schedule')
   .setPayload(ReplayUserflowAuditSchema)
   .addSuccess(Schema.Struct({ auditId: AuditId, auditQueuePosition: Schema.NonNegativeInt }))
@@ -13,8 +21,16 @@ export class AuditApiGroup extends HttpApiGroup.make('audit')
   .add(
     HttpApiEndpoint.get('findById', '/:id')
       .setPath(Schema.Struct({ id: AuditId }))
-      .addSuccess(Schema.Struct({ status: Schema.String }))
+      .addSuccess(Schema.Struct({ status: AuditRunStatusSchema }))
       .addError(HttpApiError.BadRequest)
+      .addError(AuditNotFoundError),
+  )
+  .add(
+    HttpApiEndpoint.get('resultById', '/:id/result')
+      .setPath(Schema.Struct({ id: AuditId }))
+      .addSuccess(AuditResultSchema)
+      .addError(HttpApiError.BadRequest)
+      .addError(HttpApiError.NotFound)
       .addError(AuditNotFoundError),
   )
   .add(
@@ -25,6 +41,7 @@ export class AuditApiGroup extends HttpApiGroup.make('audit')
           HttpApiSchema.withEncoding({ kind: 'Uint8Array', contentType: 'text/event-stream' }),
         ),
       )
-      .addError(HttpApiError.BadRequest),
+      .addError(HttpApiError.BadRequest)
+      .addError(AuditNotFoundError),
   )
   .prefix('/audit') {}

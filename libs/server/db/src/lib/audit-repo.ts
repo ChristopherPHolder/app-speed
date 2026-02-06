@@ -3,11 +3,11 @@ import { ReplayUserflowAudit, ReplayUserflowAuditSchema } from '@app-speed/share
 import { DbClient, QueryError } from './db';
 import { Prisma, type AuditResultStatus } from '@prisma/client';
 
-const AuditTemplateIdSchema = Schema.NonEmptyString.pipe(Schema.brand('AuditTemplateId'));
-type AuditTemplateId = typeof AuditTemplateIdSchema.Type;
+export const AuditTemplateIdSchema = Schema.NonEmptyString.pipe(Schema.brand('AuditTemplateId'));
+export type AuditTemplateId = typeof AuditTemplateIdSchema.Type;
 
-const AuditRunIdSchema = Schema.NonEmptyString.pipe(Schema.brand('AuditRunId'));
-type AuditRunId = typeof AuditRunIdSchema.Type;
+export const AuditRunIdSchema = Schema.NonEmptyString.pipe(Schema.brand('AuditRunId'));
+export type AuditRunId = typeof AuditRunIdSchema.Type;
 
 const AuditStatusSchema = Schema.Literal('SCHEDULED', 'IN_PROGRESS', 'COMPLETE');
 export type AuditStatus = typeof AuditStatusSchema.Type;
@@ -53,6 +53,7 @@ export class AuditRepo extends Context.Tag('AuditRepo')<
     createRun: (templateId: AuditTemplateId) => Effect.Effect<AuditRunId, QueryError>;
     claimNextRun: () => Effect.Effect<AuditRunRecord | null, QueryError | ParseResult.ParseError>;
     markRunInProgress: (id: AuditRunId) => Effect.Effect<void, QueryError>;
+    getQueuePosition: (id: AuditRunId) => Effect.Effect<number | null, QueryError | ParseResult.ParseError>;
     completeRun: (
       id: AuditRunId,
       result: { status: 'SUCCESS' | 'FAILURE'; data: unknown; error?: unknown },
@@ -172,6 +173,32 @@ export const AuditRepoLive = Layer.effect(
         );
       }).pipe(Effect.asVoid);
 
+    const getQueuePosition = (id: AuditRunId) =>
+      Effect.gen(function* () {
+        const run = yield* db.run((c) =>
+          c.auditRun.findUnique({
+            where: { id },
+            select: { id: true, createdAt: true, status: true },
+          }),
+        );
+        if (!run) return null;
+        if (run.status !== 'SCHEDULED') return 0;
+
+        const count = yield* db.run((c) =>
+          c.auditRun.count({
+            where: {
+              status: 'SCHEDULED',
+              OR: [
+                { createdAt: { lt: run.createdAt } },
+                { createdAt: run.createdAt, id: { lt: run.id } },
+              ],
+            },
+          }),
+        );
+
+        return count;
+      });
+
     const completeRun = (
       id: AuditRunId,
       result: { status: 'SUCCESS' | 'FAILURE'; data: unknown; error?: unknown },
@@ -218,6 +245,7 @@ export const AuditRepoLive = Layer.effect(
       createRun,
       claimNextRun,
       markRunInProgress,
+      getQueuePosition,
       completeRun,
       getRunById,
       getResultByRunId,
