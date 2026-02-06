@@ -31,8 +31,11 @@ export class AuditViewerContainer {
   flowResult$: Observable<FlowResult> = toObservable(this.auditId).pipe(
     filter((audit) => audit !== undefined),
     filter((audit) => audit !== ''),
-    map((auditKey: string) => `https://deepblue-userflow-records.s3.eu-central-1.amazonaws.com/${auditKey}.uf.json`),
-    switchMap((auditKey) => this.#api.get<FlowResult>(auditKey)),
+    switchMap((auditKey) =>
+      this.#api.get<{ status: 'SUCCESS' | 'FAILURE'; result: FlowResult }>(`/api/audit/${auditKey}/result`),
+    ),
+    filter((response) => response.status === 'SUCCESS'),
+    map((response) => response.result),
   );
 
   auditSummary = toSignal<AuditSummary>(

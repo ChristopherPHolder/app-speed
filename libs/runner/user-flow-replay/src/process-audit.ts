@@ -1,7 +1,7 @@
-import { Effect } from 'effect';
+import { Config, Effect } from 'effect';
 import { Browser, launch } from 'puppeteer';
 import { createRunner, parse as puppeteerReplayParse } from '@puppeteer/replay';
-import { Config, defaultConfig, desktopConfig, startFlow } from 'lighthouse';
+import { Config as LighthouseConfig, defaultConfig, desktopConfig, startFlow } from 'lighthouse';
 
 import { ReplayUserflowAudit } from '@app-speed/shared-user-flow-replay/schema';
 
@@ -12,11 +12,14 @@ import { DEVICE_TYPE, DeviceSchema } from '@app-speed/shared-user-flow-replay';
 const configOptions = {
   [DEVICE_TYPE.MOBILE]: defaultConfig,
   [DEVICE_TYPE.DESKTOP]: desktopConfig,
-} as const satisfies Record<typeof DeviceSchema.Type, Config>;
+} as const satisfies Record<typeof DeviceSchema.Type, LighthouseConfig>;
 
 const RunnerContext = Effect.gen(function* () {
+  const headless = yield* Config.boolean('RUNNER_HEADLESS').pipe(Config.withDefault(false));
   const browser = yield* Effect.acquireRelease(
-    Effect.promise(() => launch({ headless: false, args: ['--no-sandbox', '--disable-setuid-sandbox'] })),
+    Effect.promise(() =>
+      launch({ headless, args: ['--no-sandbox', '--disable-setuid-sandbox'] }),
+    ),
     (browser: Browser) => Effect.promise(() => browser.close()),
   );
   const page = yield* Effect.promise(() => browser.newPage());

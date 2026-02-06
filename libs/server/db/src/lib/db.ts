@@ -18,9 +18,11 @@ export class DbClient extends Context.Tag('DbClient')<
     DbClient,
     Effect.acquireRelease(
       Effect.gen(function* () {
-        const filePath = yield* Config.string('DB_FILE').pipe(Config.withDefault('tmp/dev.db'));
-        const adapter = new PrismaLibSql({ url: normalizeDbUrl(filePath) });
+        const databaseUrl = yield* Config.string('DATABASE_URL').pipe(Config.withDefault('file:./tmp/dev.db'));
+        const adapter = new PrismaLibSql({ url: databaseUrl });
         const client = new PrismaClient({ adapter, log: ['info', 'warn', 'error'] });
+
+        yield* Effect.logInfo(`Initialize DB from ${databaseUrl} resolved too`);
 
         const withDatabaseError = <A>(operation: () => Promise<A>): Effect.Effect<A, QueryError> =>
           Effect.tryPromise({
@@ -36,5 +38,3 @@ export class DbClient extends Context.Tag('DbClient')<
     ).pipe(Effect.map(({ run }) => ({ run }))),
   );
 }
-
-const normalizeDbUrl = (filePath: string) => (filePath.startsWith('file:') ? filePath : `file:${filePath}`);

@@ -16,6 +16,27 @@
         "format": ["esm"],
         "generatePackageJson": true
       }
+    },
+    "prisma-generate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx prisma generate --config libs/server/db/prisma.config.ts",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "prisma-migrate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx prisma migrate dev --config libs/server/db/prisma.config.ts",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "prisma-studio": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx prisma studio --config libs/server/db/prisma.config.ts",
+        "cwd": "{workspaceRoot}"
+      }
     }
   }
 }

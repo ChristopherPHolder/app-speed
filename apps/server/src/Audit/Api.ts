@@ -11,13 +11,13 @@ const AuditResultSchema = Schema.Struct({
   error: Schema.optional(Schema.Unknown),
 });
 
-const ScheduleAuditApiEndpoint = HttpApiEndpoint.post('schedule', '/schedule')
-  .setPayload(ReplayUserflowAuditSchema)
-  .addSuccess(Schema.Struct({ auditId: AuditId, auditQueuePosition: Schema.NonNegativeInt }))
-  .addError(HttpApiError.BadRequest);
-
 export class AuditApiGroup extends HttpApiGroup.make('audit')
-  .add(ScheduleAuditApiEndpoint)
+  .add(
+    HttpApiEndpoint.post('schedule', '/schedule')
+      .setPayload(ReplayUserflowAuditSchema)
+      .addSuccess(Schema.Struct({ auditId: AuditId, auditQueuePosition: Schema.NonNegativeInt }))
+      .addError(HttpApiError.BadRequest),
+  )
   .add(
     HttpApiEndpoint.get('findById', '/:id')
       .setPath(Schema.Struct({ id: AuditId }))

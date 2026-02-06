@@ -24,14 +24,18 @@ const TestDbLayer = Layer.unwrapEffect(
   Effect.gen(function* () {
     yield* Effect.sync(() => fs.mkdirSync(testDbDir, { recursive: true }));
     const testDbPath = path.join(testDbDir, `audit-repo-${randomUUID()}.db`);
+    const relativeTestDbPath = path.relative(process.cwd(), testDbPath);
+    yield* Effect.sync(() => fs.writeFileSync(testDbPath, ''));
 
-    const ConfigLayer = Layer.setConfigProvider(ConfigProvider.fromMap(new Map([['DB_FILE', testDbPath]])));
+    const ConfigLayer = Layer.setConfigProvider(
+      ConfigProvider.fromMap(new Map([['DATABASE_URL', relativeTestDbPath]])),
+    );
     const DbLayer = Layer.provideMerge(ConfigLayer)(DbClient.live);
     const MigrationsLayer = Layer.scopedDiscard(
       Effect.gen(function* () {
         yield* Effect.sync(() =>
           execFileSync('npx', ['prisma', 'migrate', 'deploy', '--config', prismaConfigPath], {
-            env: { ...process.env, DB_FILE: testDbPath, RUST_LOG: 'info' },
+            env: { ...process.env, DATABASE_URL: relativeTestDbPath, RUST_LOG: 'info' },
             stdio: 'inherit',
           }),
         );

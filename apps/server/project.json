@@ -81,27 +81,6 @@
         }
       }
     },
-    "db:generate": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "npx prisma generate",
-        "cwd": "{workspaceRoot}"
-      }
-    },
-    "db:migrate": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "npx prisma migrate dev",
-        "cwd": "{workspaceRoot}"
-      }
-    },
-    "db:studio": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "npx prisma studio",
-        "cwd": "{workspaceRoot}"
-      }
-    },
     "test": {
       "executor": "@nx/vitest:test",
       "outputs": ["{options.reportsDirectory}"],
