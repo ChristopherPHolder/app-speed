@@ -5,9 +5,10 @@ import { createServer } from 'node:http';
 import { Api } from './Api.js';
 import { HealthGroupLive } from './Health/Http.js';
 import { AuditGroupLive } from './Audit/Http.js';
+import { RunnerGroupLive } from './Runner/Http.js';
 
 const ApiLive = HttpApiBuilder.api(Api).pipe(
-  Layer.provide([HealthGroupLive, AuditGroupLive])
+  Layer.provide([HealthGroupLive, AuditGroupLive, RunnerGroupLive])
 );
 
 export const HttpLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(

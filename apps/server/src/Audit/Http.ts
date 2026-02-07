@@ -3,7 +3,7 @@ import { Api } from '../Api.js';
 import { Duration, Effect, Schedule, Stream } from 'effect';
 import { AuditRepo } from '@app-speed/server/db';
 import { AuditNotFoundError } from './Audit';
-import { RunnerService } from '../Runner/RunnerService.js';
+import { RunnerManager } from '../Runner/RunnerManager.js';
 
 type AuditSnapshot = {
   status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETE';
@@ -79,10 +79,10 @@ export const AuditGroupLive = HttpApiBuilder.group(Api, 'audit', (handlers) =>
       .handle('schedule', (request) =>
         Effect.gen(function* () {
           const templateId = yield* repo.createTemplate(request.payload);
-          const runner = yield* RunnerService;
+          const runnerManager = yield* RunnerManager;
           const auditId = yield* repo.createRun(templateId);
           const auditQueuePosition = yield* repo.getQueuePosition(auditId);
-          yield* runner.kick;
+          yield* runnerManager.ensureRunnerActive;
           return { auditId, auditQueuePosition: auditQueuePosition ?? 0 };
         }).pipe(
           Effect.catchTag('QueryError', () => new HttpApiError.BadRequest()),

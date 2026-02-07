@@ -4,14 +4,14 @@ import { HttpLive } from './Http.js';
 import { DevTools } from '@effect/experimental';
 
 import { AuditRepoLive, DbClient } from '@app-speed/server/db';
-import { RunnerServiceLive } from './Runner/RunnerService.js';
+import { RunnerManagerLive } from './Runner/RunnerManager.js';
 
 const devToolsUrl = process.env.DEVTOOLS_URL;
 const DevToolsLive = devToolsUrl ? DevTools.layer(devToolsUrl) : Layer.empty;
 
 const BaseLayer = Layer.mergeAll(DevToolsLive, DbClient.live);
 const WithAuditRepo = Layer.provideMerge(AuditRepoLive, BaseLayer);
-const AppLayer = Layer.provideMerge(RunnerServiceLive, WithAuditRepo);
+const AppLayer = Layer.provideMerge(RunnerManagerLive, WithAuditRepo);
 
 const MainLayer = Layer.provide(HttpLive, AppLayer);
 

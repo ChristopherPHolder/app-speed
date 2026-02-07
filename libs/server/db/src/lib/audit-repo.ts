@@ -1,7 +1,7 @@
 import { Clock, Context, Effect, Layer, ParseResult, Schema } from 'effect';
 import { ReplayUserflowAudit, ReplayUserflowAuditSchema } from '@app-speed/shared-user-flow-replay/schema';
 import { DbClient, QueryError } from './db';
-import { Prisma, type AuditResultStatus } from '@prisma/client';
+import { type AuditResultStatus, Prisma } from '@prisma/client';
 
 export const AuditTemplateIdSchema = Schema.NonEmptyString.pipe(Schema.brand('AuditTemplateId'));
 export type AuditTemplateId = typeof AuditTemplateIdSchema.Type;
@@ -31,7 +31,7 @@ const AuditRunRecordSchema = Schema.Struct({
   completedAt: Schema.NullOr(Schema.DateFromSelf),
   durationMs: Schema.NullOr(Schema.Number),
 });
-type AuditRunRecord = typeof AuditRunRecordSchema.Type;
+export type AuditRunRecord = typeof AuditRunRecordSchema.Type;
 
 const AuditResultStatusSchema = Schema.Literal('SUCCESS', 'FAILURE');
 const AuditResultRecordSchema = Schema.Struct({
@@ -184,19 +184,14 @@ export const AuditRepoLive = Layer.effect(
         if (!run) return null;
         if (run.status !== 'SCHEDULED') return 0;
 
-        const count = yield* db.run((c) =>
+        return yield* db.run((c) =>
           c.auditRun.count({
             where: {
               status: 'SCHEDULED',
-              OR: [
-                { createdAt: { lt: run.createdAt } },
-                { createdAt: run.createdAt, id: { lt: run.id } },
-              ],
+              OR: [{ createdAt: { lt: run.createdAt } }, { createdAt: run.createdAt, id: { lt: run.id } }],
             },
           }),
         );
-
-        return count;
       });
 
     const completeRun = (
