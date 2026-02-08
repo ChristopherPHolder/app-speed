@@ -1,13 +1,13 @@
-import { Context, Effect, Layer, Schema } from 'effect';
+import { Context, Effect, Schema } from 'effect';
 
-const RunnerIdSchema = Schema.NonEmptyString.pipe(Schema.brand('RunnerId'));
-const ActiveRunnerListSchema = Schema.Array(
+export const RunnerIdSchema = Schema.NonEmptyString.pipe(Schema.brand('RunnerId'));
+export const ActiveRunnerListSchema = Schema.Array(
   Schema.Struct({
     id: RunnerIdSchema,
     lastHeartbeatAt: Schema.DateFromSelf,
   }),
 );
-type ActiveRunnerList = typeof ActiveRunnerListSchema.Type;
+export type ActiveRunnerList = typeof ActiveRunnerListSchema.Type;
 
 export class RunnerManager extends Context.Tag('RunnerManager')<
   RunnerManager,
@@ -17,9 +17,3 @@ export class RunnerManager extends Context.Tag('RunnerManager')<
     terminateRunner: (runnerId: string) => Effect.Effect<void, never>;
   }
 >() {}
-
-export const RunnerManagerLive = Layer.succeed(RunnerManager, {
-  ensureRunnerActive: Effect.void,
-  listActiveRunners: Effect.succeed([]),
-  terminateRunner: () => Effect.void,
-});
