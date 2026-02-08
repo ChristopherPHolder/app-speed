@@ -25,8 +25,8 @@ const toErrorPayload = (cause: Cause.Cause<unknown>) => {
   return { name: 'Error', message: Cause.pretty(cause), stack: '' };
 };
 
-export const processQueue = Effect.gen(function* () {
-  yield* Effect.iterate(yield* claimNextAudit, {
+export const processQueue = Effect.flatMap(claimNextAudit, (firstAudit) =>
+  Effect.iterate(firstAudit, {
     while: (auditRequest) => auditRequest !== null,
     body: (auditRequest) =>
       Effect.gen(function* () {
@@ -43,5 +43,5 @@ export const processQueue = Effect.gen(function* () {
         yield* Effect.log(`Completed processing ${auditRequest.auditId}`);
         return yield* claimNextAudit;
       }),
-  });
-}).pipe(Effect.scoped);
+  }),
+).pipe(Effect.scoped);
