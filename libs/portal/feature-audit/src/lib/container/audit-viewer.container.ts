@@ -24,18 +24,15 @@ import { ReportUtils } from 'lighthouse/report/renderer/report-utils';
 export class AuditViewerContainer {
   auditId = input.required<string>();
   activeIndex = model<number>(0);
-  // 2024-08-18T05_160t0WjP64yCyRK0xVadug
-  // 2024-12-02T06_16YXXBTvY4WgTBfMoih8mo
   readonly #api = inject(HttpClient);
 
   flowResult$: Observable<FlowResult> = toObservable(this.auditId).pipe(
-    filter((audit) => audit !== undefined),
-    filter((audit) => audit !== ''),
-    switchMap((auditKey) =>
-      this.#api.get<{ status: 'SUCCESS' | 'FAILURE'; result: FlowResult }>(`/api/audit/${auditKey}/result`),
-    ),
-    filter((response) => response.status === 'SUCCESS'),
-    map((response) => response.result),
+    switchMap((auditId) => {
+      return this.#api.get<{ status: 'SUCCESS' | 'FAILURE'; result: FlowResult }>(`/api/audit/${auditId}/result`).pipe(
+        filter((response) => response.status === 'SUCCESS'),
+        map((response) => response.result),
+      );
+    }),
   );
 
   auditSummary = toSignal<AuditSummary>(

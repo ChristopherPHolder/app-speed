@@ -8,8 +8,7 @@
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "module": "preserve",
-    "moduleResolution": "node10"
+    "module": "preserve"
   },
   "files": [],
   "include": [],

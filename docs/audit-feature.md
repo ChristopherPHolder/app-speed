@@ -114,6 +114,8 @@ Motivation: Lighthouse warns against concurrent runs on the same machine due to 
 - The server starts a runner process when the first audit is scheduled.
 - The runner exits after it drains the queue or after a 1 minute idle timeout.
 - The runner uses the same API as production to keep behavior aligned.
+- The local `RunnerManager` uses Effect `Command` + `CommandExecutor` to spawn the runner process.
+- Accepted dev spawn: `npx nx execute runner-app`.
 
 ### EC2
 - The server starts a stopped EC2 instance when the queue transitions from empty to non-empty.
@@ -138,6 +140,13 @@ The server exposes a `RunnerManager` service as a `Context.Tag` to control runne
 - `terminateRunner`: stop a runner (idle shutdown or manual control).
 
 The interface must support both local process management and AWS EC2 lifecycle management.
+
+### Local RunnerManager Implementation
+Local process management is implemented using the `Command` API and a `CommandExecutor` layer (Node). This avoids `child_process` usage and keeps the implementation typed and effect-native.
+
+- Spawn command (dev): `npx nx execute runner-app`.
+- Keep a handle to the running process so we can detect exit and prevent duplicate spawns.
+- Use the process handle to terminate the runner on idle timeout.
 
 ## Frontend Integration
 The Angular app uses HTTP for submission and SSE for status updates.
@@ -167,7 +176,7 @@ Phase 1 focuses on stability and local-first flow. Phase 2 introduces EC2 lifecy
 - Align on a single control-plane API in `apps/server`.
 - Implement SSE progress based on DB-backed queue position.
 - Define `RunnerManager` as a `Context.Tag` interface.
-- Implement the local `RunnerManager` to spawn a separate runner process.
+- Implement the local `RunnerManager` to spawn a separate runner process via Effect `Command` (dev spawn).
 - Update `apps/runner` to pull audits and report results through the server API.
 
 ### Phase 2
@@ -182,5 +191,6 @@ Phase 1 focuses on stability and local-first flow. Phase 2 introduces EC2 lifecy
 - Idle timeout is 1 minute.
 - The system must support multiple runners and still work with a single runner.
 - Each runner processes one audit at a time.
+- Local runner spawn uses `Command` + `CommandExecutor` and starts `npx nx execute runner-app`.
 - Runner endpoints require authentication with a shared secret (or mTLS in production).
 - SSE is the only client progress channel.

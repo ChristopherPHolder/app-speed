@@ -1,4 +1,10 @@
-export { ReplayUserflowAuditSchema, AuditStep, AuditStepSchema, ReplayUserflowAudit } from './lib/audit.schema';
+export {
+  ReplayUserflowAuditSchema,
+  AuditStep,
+  AuditStepSchema,
+  ReplayUserflowAudit,
+  PuppeteerReplayUserflowRunnerSchema,
+} from './lib/audit.schema';
 export {
   decodeReplayUserflowStepSchema,
   isReplayUserflowStepWithFlags,

@@ -1,6 +1,9 @@
 import { createAction, props } from '@ngrx/store';
 
 import { AuditDetails } from '@app-speed/shared-user-flow-replay';
+import type { FlowResult } from 'lighthouse';
+
+export type AuditStage = 'scheduling' | 'scheduled' | 'running' | 'done' | 'failed';
 
 export const submitAuditRequest = createAction(
   '[Builder Page] Submitting Audit Request',
@@ -16,7 +19,30 @@ export const submitAuditRequestFailed = createAction(
 
 export const listenToAuditProgress = createAction('[Builder Page] Request audits to audit progress', props<{ requestId: string }>());
 
-export const auditCompletedSuccessfully = createAction('[Builder Page] Audit Completed successfully', props<{ requestId: string }>());
+export const auditStageUpdated = createAction(
+  '[Builder Page] Audit Stage Updated',
+  props<{ stage: AuditStage }>(),
+);
+
+export const auditResultRequested = createAction(
+  '[Builder Page] Audit Result Requested',
+  props<{ requestId: string }>(),
+);
+
+export const auditResultSuccess = createAction(
+  '[Builder Page] Audit Result Success',
+  props<{ requestId: string; result: FlowResult }>(),
+);
+
+export const auditResultFailure = createAction(
+  '[Builder Page] Audit Result Failure',
+  props<{ requestId: string; error: string }>(),
+);
+
+export const auditCompletedSuccessfully = createAction(
+  '[Builder Page] Audit Completed successfully',
+  props<{ requestId: string }>(),
+);
 
 export const auditCompletedWithErrors = createAction('[Builder Page] Audit Completed With Errors');
 

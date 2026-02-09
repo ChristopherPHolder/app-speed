@@ -1,6 +1,10 @@
 import { AuditDetails } from '@app-speed/shared-user-flow-replay';
 import { createFeature, createReducer, on } from '@ngrx/store';
 import {
+  auditResultFailure,
+  auditResultRequested,
+  auditResultSuccess,
+  auditStageUpdated,
   loadAuditDetails,
   loadAuditDetailsSuccess,
   submitAuditRequest,
@@ -8,6 +12,8 @@ import {
   submitAuditRequestSuccess,
   updateAuditDetails,
 } from './builder.actions';
+import type { FlowResult } from 'lighthouse';
+import type { AuditStage } from './builder.actions';
 
 export const auditBuilderFeatureKey = 'auditBuilder';
 
@@ -28,6 +34,10 @@ export interface AuditBuilderState {
   requestId: string | null;
   loadingDialog: { title: string; subtitle: string } | null;
   listeningToAuditProgress: boolean | null;
+  auditStage: AuditStage | null;
+  auditResult: FlowResult | null;
+  auditResultStatus: 'SUCCESS' | 'FAILURE' | null;
+  auditResultError: string | null;
 }
 
 export const initialState: AuditBuilderState = {
@@ -40,6 +50,10 @@ export const initialState: AuditBuilderState = {
   requestId: null,
   loadingDialog: null,
   listeningToAuditProgress: null,
+  auditStage: null,
+  auditResult: null,
+  auditResultStatus: null,
+  auditResultError: null,
 };
 
 export const auditBuilderReducer = createReducer(
@@ -49,6 +63,10 @@ export const auditBuilderReducer = createReducer(
     audit: audit,
     submittingRequest: true,
     modifying: false,
+    auditStage: 'scheduling',
+    auditResult: null,
+    auditResultStatus: null,
+    auditResultError: null,
     loadingDialog: {
       title: `Submitting Audit`,
       subtitle: `Submitting a an audit request to server`,
@@ -59,6 +77,7 @@ export const auditBuilderReducer = createReducer(
     submittingRequest: true,
     modifying: false,
     requestId: requestId,
+    listeningToAuditProgress: true,
     loadingDialog: {
       title: `Audit pending`,
       subtitle: `Audit request pending ${requestId}`,
@@ -68,6 +87,38 @@ export const auditBuilderReducer = createReducer(
     ...state,
     submittingRequest: false,
     auditRequestError: auditRequestError,
+    modifying: true,
+    listeningToAuditProgress: false,
+    auditResult: null,
+    auditResultStatus: 'FAILURE',
+    auditResultError: auditRequestError,
+    loadingDialog: null,
+  })),
+  on(auditStageUpdated, (state, { stage }) => ({
+    ...state,
+    auditStage: stage,
+  })),
+  on(auditResultRequested, (state, { requestId }) => ({
+    ...state,
+    requestId,
+  })),
+  on(auditResultSuccess, (state, { result }) => ({
+    ...state,
+    submittingRequest: false,
+    listeningToAuditProgress: false,
+    auditResult: result,
+    auditResultStatus: 'SUCCESS',
+    auditResultError: null,
+    loadingDialog: null,
+  })),
+  on(auditResultFailure, (state, { error }) => ({
+    ...state,
+    submittingRequest: false,
+    listeningToAuditProgress: false,
+    auditResult: null,
+    auditResultStatus: 'FAILURE',
+    auditResultError: error,
+    auditRequestError: error,
     modifying: true,
     loadingDialog: null,
   })),

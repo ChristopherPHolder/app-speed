@@ -1,6 +1,36 @@
 import { Schema } from 'effect';
-import { describe, it } from 'vitest';
-import { ReplayUserflowAuditSchema } from './audit.schema';
+import { describe } from 'vitest';
+import { it } from '@effect/vitest';
+import { ReplayUserflowAuditSchema, PuppeteerReplayUserflowRunnerSchema } from './audit.schema';
+import { StepType } from '@puppeteer/replay';
+import { LIGHTHOUSE_AUDIT_STEP_TYPE } from '@app-speed/shared-user-flow-replay';
+
+describe.only('ReplayRunnerSchema', () => {
+  it('should decode to replay schema', () => {
+    const recording = {
+      title: 'Stub audit title',
+      device: 'mobile',
+      steps: [
+        {
+          type: LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
+          name: 'Home Page',
+        },
+      ],
+    };
+    const decoded = Schema.decodeUnknownSync(PuppeteerReplayUserflowRunnerSchema)(recording);
+    expect(decoded).toEqual({
+      title: 'Stub audit title',
+      device: 'mobile',
+      steps: [
+        {
+          type: StepType.CustomStep,
+          name: LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
+          parameters: { name: 'Home Page' },
+        },
+      ],
+    });
+  });
+});
 
 describe('ReplayUserflowAuditSchema', () => {
   it('should accept valid audit', async () => {

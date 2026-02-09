@@ -28,12 +28,6 @@ export class UserFlowRunnerExtension extends PuppeteerRunnerExtension {
       return this.flow[step.name](step.parameters);
     }
 
-    try {
-      await this.page.waitForNetworkIdle({ timeout: 10_000 });
-    } catch (e) {
-      console.log(e);
-    }
-
     return this.flow[step.name]();
   }
 }

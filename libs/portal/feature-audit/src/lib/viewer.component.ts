@@ -1,4 +1,4 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, effect, inject, input } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatCard, MatCardContent } from '@angular/material/card';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
@@ -84,6 +84,17 @@ export class ViewerComponent {
   public readonly lookupForm = new FormGroup({
     key: new FormControl<string>('2024-12-02T07_53rXKtKL8qHKowNXltrZwp'),
   });
+
+  constructor() {
+    effect(() => {
+      const auditId = this.auditId();
+      if (!auditId) {
+        return;
+      }
+      this.lookupForm.controls.key.setValue(auditId);
+      this.lookupForm.disable();
+    });
+  }
 
   onSubmit() {
     this.lookupForm.disable();
