@@ -2,7 +2,7 @@
 
 Status: Draft
 Owner: Christopher Holder
-Last Updated: 2026-02-06
+Last Updated: 2026-02-10
 
 The feature we are designing is the User Flow Audit feature.
 This document is the main design doc for the feature.
@@ -164,6 +164,7 @@ The Angular app uses HTTP for submission and SSE for status updates.
 - Emit structured logs for schedule, claim, start, complete, failure.
 - Track queue depth, average wait time, and runner idle time.
 - Provide trace ids in SSE events.
+- See `docs/observability-backend.md` for the backend tracing plan and local setup.
 
 ## Security
 - Runner endpoints must be authenticated with a shared secret or mTLS.

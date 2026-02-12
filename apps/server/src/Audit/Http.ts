@@ -35,9 +35,9 @@ const normalizeError = (error: unknown) => {
   return { name: 'Error', message: 'Unknown error', stack: '' };
 };
 
-const toSuccessResult = (result: unknown) => ({ status: 'SUCCESS', result } as const);
+const toSuccessResult = (result: unknown) => ({ status: 'SUCCESS', result }) as const;
 const toFailureResult = (error: { name: string; message: string; stack: string }) =>
-  ({ status: 'FAILURE', error } as const);
+  ({ status: 'FAILURE', error }) as const;
 
 export const AuditGroupLive = HttpApiBuilder.group(Api, 'audit', (handlers) =>
   Effect.gen(function* () {
@@ -45,105 +45,118 @@ export const AuditGroupLive = HttpApiBuilder.group(Api, 'audit', (handlers) =>
     const repo = yield* AuditRepo;
 
     return handlers
-      .handle('findById', (request) =>
-        repo.getRunById(request.path.id).pipe(
-          Effect.filterOrFail(
-            (r) => r !== null,
-            () => new AuditNotFoundError({ id: request.path.id }),
-          ),
-          Effect.map((audit) => ({ status: audit.status })),
-          Effect.catchTag('QueryError', () => new HttpApiError.BadRequest()),
-          Effect.catchTag('ParseError', () => new HttpApiError.BadRequest()),
-        ),
-      )
-      .handle('resultById', (request) =>
-        repo.getRunById(request.path.id).pipe(
-          Effect.filterOrFail(
-            (r) => r !== null,
-            () => new AuditNotFoundError({ id: request.path.id }),
-          ),
-          Effect.flatMap(() => repo.getResultByRunId(request.path.id)),
-          Effect.filterOrFail(
-            (r) => r !== null,
-            () => new HttpApiError.NotFound(),
-          ),
-          Effect.map((result) =>
-            result.status === 'SUCCESS'
-              ? toSuccessResult(result.data)
-              : toFailureResult(normalizeError(result.error)),
-          ),
-          Effect.catchTag('QueryError', () => new HttpApiError.BadRequest()),
-          Effect.catchTag('ParseError', () => new HttpApiError.BadRequest()),
-        ),
-      )
-      .handle('schedule', (request) =>
-        Effect.gen(function* () {
-          const templateId = yield* repo.createTemplate(request.payload);
-          const runnerManager = yield* RunnerManager;
-          const auditId = yield* repo.createRun(templateId);
-          const auditQueuePosition = yield* repo.getQueuePosition(auditId);
-          yield* runnerManager.ensureRunnerActive;
-          return { auditId, auditQueuePosition: auditQueuePosition ?? 0 };
-        }).pipe(
-          Effect.catchTag('QueryError', () => new HttpApiError.BadRequest()),
-          Effect.catchTag('ParseError', () => new HttpApiError.BadRequest()),
-        ),
-      )
-      .handle('watchById', (request) =>
-        Effect.gen(function* () {
-          const auditId = request.path.id;
-          yield* repo.getRunById(auditId).pipe(
+      .handle(
+        'findById',
+        Effect.fn('findById')((request) =>
+          repo.getRunById(request.path.id).pipe(
             Effect.filterOrFail(
               (r) => r !== null,
-              () => new AuditNotFoundError({ id: auditId }),
+              () => new AuditNotFoundError({ id: request.path.id }),
             ),
-          );
+            Effect.map((audit) => ({ status: audit.status })),
+            Effect.catchTag('QueryError', () => new HttpApiError.BadRequest()),
+            Effect.catchTag('ParseError', () => new HttpApiError.BadRequest()),
+          ),
+        ),
+      )
+      .handle(
+        'resultById',
+        Effect.fn('resultById')((request) =>
+          repo.getRunById(request.path.id).pipe(
+            Effect.filterOrFail(
+              (r) => r !== null,
+              () => new AuditNotFoundError({ id: request.path.id }),
+            ),
+            Effect.flatMap(() => repo.getResultByRunId(request.path.id)),
+            Effect.filterOrFail(
+              (r) => r !== null,
+              () => new HttpApiError.NotFound(),
+            ),
 
-          const snapshot = Effect.gen(function* () {
-            const run = yield* repo.getRunById(auditId).pipe(
+            Effect.map((result) =>
+              result.status === 'SUCCESS'
+                ? toSuccessResult(result.data)
+                : toFailureResult(normalizeError(result.error)),
+            ),
+            Effect.catchTag('QueryError', () => new HttpApiError.BadRequest()),
+            Effect.catchTag('ParseError', () => new HttpApiError.BadRequest()),
+          ),
+        ),
+      )
+      .handle(
+        'schedule',
+        Effect.fn('schedule')((request) =>
+          Effect.gen(function* () {
+            const templateId = yield* repo.createTemplate(request.payload);
+            const runnerManager = yield* RunnerManager;
+            const auditId = yield* repo.createRun(templateId);
+            const auditQueuePosition = yield* repo.getQueuePosition(auditId);
+            yield* runnerManager.ensureRunnerActive;
+            return { auditId, auditQueuePosition: auditQueuePosition ?? 0 };
+          }).pipe(
+            Effect.catchTag('QueryError', () => new HttpApiError.BadRequest()),
+            Effect.catchTag('ParseError', () => new HttpApiError.BadRequest()),
+          ),
+        ),
+      )
+      .handle(
+        'watchById',
+        Effect.fn('watchById')((request) =>
+          Effect.gen(function* () {
+            const auditId = request.path.id;
+            yield* repo.getRunById(auditId).pipe(
               Effect.filterOrFail(
                 (r) => r !== null,
                 () => new AuditNotFoundError({ id: auditId }),
               ),
             );
-            const position = yield* repo.getQueuePosition(auditId);
-            const result = run.status === 'COMPLETE' ? yield* repo.getResultByRunId(auditId) : null;
-            return {
-              status: run.status,
-              position: position ?? 0,
-              resultStatus: result?.status ?? null,
-            } satisfies AuditSnapshot;
-          });
 
-          const stream = Stream.repeatEffectWithSchedule(snapshot, Schedule.fixed(Duration.seconds(1))).pipe(
-            Stream.mapAccum(null as AuditSnapshot | null, (prev, next) => {
-              const events: AuditSseEvent[] = [];
-              if (!prev || next.position !== prev.position) {
-                events.push({ event: 'position', data: { auditId, position: next.position } });
-              }
-              if (!prev || next.status !== prev.status) {
-                events.push({ event: 'status', data: { auditId, status: next.status } });
-              }
-              if (next.resultStatus && (!prev || next.resultStatus !== prev.resultStatus)) {
-                events.push({ event: 'result', data: { auditId, status: next.resultStatus } });
-              }
-              return [next, events];
-            }),
-            Stream.mapConcat((events) => events),
-            Stream.takeUntil((event) => event.event === 'result'),
-            Stream.map(encodeSse),
-          );
+            const snapshot = Effect.gen(function* () {
+              const run = yield* repo.getRunById(auditId).pipe(
+                Effect.filterOrFail(
+                  (r) => r !== null,
+                  () => new AuditNotFoundError({ id: auditId }),
+                ),
+              );
+              const position = yield* repo.getQueuePosition(auditId);
+              const result = run.status === 'COMPLETE' ? yield* repo.getResultByRunId(auditId) : null;
+              return {
+                status: run.status,
+                position: position ?? 0,
+                resultStatus: result?.status ?? null,
+              } satisfies AuditSnapshot;
+            });
 
-          return HttpServerResponse.stream(stream, {
-            contentType: 'text/event-stream',
-            headers: {
-              'Cache-Control': 'no-cache',
-              Connection: 'keep-alive',
-            },
-          });
-        }).pipe(
-          Effect.catchTag('QueryError', () => new HttpApiError.BadRequest()),
-          Effect.catchTag('ParseError', () => new HttpApiError.BadRequest()),
+            const stream = Stream.repeatEffectWithSchedule(snapshot, Schedule.fixed(Duration.seconds(1))).pipe(
+              Stream.mapAccum(null as AuditSnapshot | null, (prev, next) => {
+                const events: AuditSseEvent[] = [];
+                if (!prev || next.position !== prev.position) {
+                  events.push({ event: 'position', data: { auditId, position: next.position } });
+                }
+                if (!prev || next.status !== prev.status) {
+                  events.push({ event: 'status', data: { auditId, status: next.status } });
+                }
+                if (next.resultStatus && (!prev || next.resultStatus !== prev.resultStatus)) {
+                  events.push({ event: 'result', data: { auditId, status: next.resultStatus } });
+                }
+                return [next, events];
+              }),
+              Stream.mapConcat((events) => events),
+              Stream.takeUntil((event) => event.event === 'result'),
+              Stream.map(encodeSse),
+            );
+
+            return HttpServerResponse.stream(stream, {
+              contentType: 'text/event-stream',
+              headers: {
+                'Cache-Control': 'no-cache',
+                Connection: 'keep-alive',
+              },
+            });
+          }).pipe(
+            Effect.catchTag('QueryError', () => new HttpApiError.BadRequest()),
+            Effect.catchTag('ParseError', () => new HttpApiError.BadRequest()),
+          ),
         ),
       );
   }),

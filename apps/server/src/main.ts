@@ -5,11 +5,12 @@ import { DevTools } from '@effect/experimental';
 
 import { AuditRepoLive, DbClient } from '@app-speed/server/db';
 import { LocalRunnerManagerLive } from './Runner/LocalRunnerManager.js';
+import { ObservabilityLive } from './Observability.js';
 
 const devToolsUrl = process.env.DEVTOOLS_URL;
 const DevToolsLive = devToolsUrl ? DevTools.layer(devToolsUrl) : Layer.empty;
 
-const BaseLayer = Layer.mergeAll(DevToolsLive, DbClient.live);
+const BaseLayer = Layer.mergeAll(DevToolsLive, DbClient.live, ObservabilityLive);
 const WithAuditRepo = Layer.provideMerge(AuditRepoLive, BaseLayer);
 const AppLayer = Layer.provideMerge(LocalRunnerManagerLive, WithAuditRepo);
 

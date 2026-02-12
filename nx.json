@@ -183,6 +183,19 @@
         "componentTestingTargetName": "component-test",
         "ciTargetName": "e2e-ci"
       }
+    },
+    {
+      "plugin": "@nx/docker",
+      "options": {
+        "buildTarget": {
+          "name": "docker:build",
+          "cwd": ".",
+          "args": ["--file", "{projectRoot}/Dockerfile"]
+        },
+        "runTarget": {
+          "name": "docker:run"
+        }
+      }
     }
   ],
   "nxCloudId": "67b1e61a2185ed22a4099d4a"
