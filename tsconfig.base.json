@@ -26,6 +26,7 @@
       "@app-speed/portal-ui/scroll-container": ["libs/portal/ui/scroll-container/public-api.ts"],
       "@app-speed/portal-ui/status-badge": ["libs/portal/ui/status-badge/public-api.ts"],
       "@app-speed/runner-user-flow-replay": ["libs/runner/user-flow-replay/src/public-api.ts"],
+      "@app-speed/shared-observability": ["libs/shared/observability/src/public-api.ts"],
       "@app-speed/shared-environments": ["libs/shared/environments/src/public-api.ts"],
       "@app-speed/shared-user-flow-replay": ["libs/shared/user-flow-replay/src/index.ts"],
       "@app-speed/shared-user-flow-replay/schema": ["libs/shared/user-flow-replay/schema/src/index.ts"],

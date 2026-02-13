@@ -47,13 +47,16 @@ export const AuditGroupLive = HttpApiBuilder.group(Api, 'audit', (handlers) =>
     return handlers
       .handle(
         'findById',
-        Effect.fn('findById')((request) =>
+        Effect.fn('api.audit.findById')((request) =>
           repo.getRunById(request.path.id).pipe(
+            Effect.tap(() => Effect.annotateCurrentSpan({ 'audit.id': request.path.id })),
             Effect.filterOrFail(
               (r) => r !== null,
               () => new AuditNotFoundError({ id: request.path.id }),
             ),
+            Effect.tap((audit) => Effect.annotateCurrentSpan({ 'audit.status': audit.status })),
             Effect.map((audit) => ({ status: audit.status })),
+            Effect.withSpan('api.audit.findById'),
             Effect.catchTag('QueryError', () => new HttpApiError.BadRequest()),
             Effect.catchTag('ParseError', () => new HttpApiError.BadRequest()),
           ),
@@ -61,8 +64,9 @@ export const AuditGroupLive = HttpApiBuilder.group(Api, 'audit', (handlers) =>
       )
       .handle(
         'resultById',
-        Effect.fn('resultById')((request) =>
+        Effect.fn('api.audit.resultById')((request) =>
           repo.getRunById(request.path.id).pipe(
+            Effect.tap(() => Effect.annotateCurrentSpan({ 'audit.id': request.path.id })),
             Effect.filterOrFail(
               (r) => r !== null,
               () => new AuditNotFoundError({ id: request.path.id }),
@@ -78,6 +82,8 @@ export const AuditGroupLive = HttpApiBuilder.group(Api, 'audit', (handlers) =>
                 ? toSuccessResult(result.data)
                 : toFailureResult(normalizeError(result.error)),
             ),
+            Effect.tap((result) => Effect.annotateCurrentSpan({ 'audit.result_status': result.status })),
+            Effect.withSpan('api.audit.resultById'),
             Effect.catchTag('QueryError', () => new HttpApiError.BadRequest()),
             Effect.catchTag('ParseError', () => new HttpApiError.BadRequest()),
           ),
@@ -85,15 +91,24 @@ export const AuditGroupLive = HttpApiBuilder.group(Api, 'audit', (handlers) =>
       )
       .handle(
         'schedule',
-        Effect.fn('schedule')((request) =>
+        Effect.fn('api.audit.schedule')((request) =>
           Effect.gen(function* () {
+            yield* Effect.annotateCurrentSpan({
+              'audit.title': request.payload.title,
+              'audit.device': request.payload.device,
+            });
             const templateId = yield* repo.createTemplate(request.payload);
             const runnerManager = yield* RunnerManager;
             const auditId = yield* repo.createRun(templateId);
             const auditQueuePosition = yield* repo.getQueuePosition(auditId);
             yield* runnerManager.ensureRunnerActive;
+            yield* Effect.annotateCurrentSpan({
+              'audit.id': auditId,
+              'queue.position': auditQueuePosition ?? 0,
+            });
             return { auditId, auditQueuePosition: auditQueuePosition ?? 0 };
           }).pipe(
+            Effect.withSpan('api.audit.schedule'),
             Effect.catchTag('QueryError', () => new HttpApiError.BadRequest()),
             Effect.catchTag('ParseError', () => new HttpApiError.BadRequest()),
           ),
@@ -101,9 +116,13 @@ export const AuditGroupLive = HttpApiBuilder.group(Api, 'audit', (handlers) =>
       )
       .handle(
         'watchById',
-        Effect.fn('watchById')((request) =>
+        Effect.fn('api.audit.watchById')((request) =>
           Effect.gen(function* () {
             const auditId = request.path.id;
+            yield* Effect.annotateCurrentSpan({
+              'audit.id': auditId,
+              'poll.interval_ms': Duration.toMillis(Duration.seconds(1)),
+            });
             yield* repo.getRunById(auditId).pipe(
               Effect.filterOrFail(
                 (r) => r !== null,
@@ -120,12 +139,18 @@ export const AuditGroupLive = HttpApiBuilder.group(Api, 'audit', (handlers) =>
               );
               const position = yield* repo.getQueuePosition(auditId);
               const result = run.status === 'COMPLETE' ? yield* repo.getResultByRunId(auditId) : null;
+              yield* Effect.annotateCurrentSpan({
+                'audit.id': auditId,
+                'audit.status': run.status,
+                'queue.position': position ?? 0,
+                'audit.result_status': result?.status ?? null,
+              });
               return {
                 status: run.status,
                 position: position ?? 0,
                 resultStatus: result?.status ?? null,
               } satisfies AuditSnapshot;
-            });
+            }).pipe(Effect.withSpan('api.audit.watchById.tick'));
 
             const stream = Stream.repeatEffectWithSchedule(snapshot, Schedule.fixed(Duration.seconds(1))).pipe(
               Stream.mapAccum(null as AuditSnapshot | null, (prev, next) => {
@@ -154,6 +179,7 @@ export const AuditGroupLive = HttpApiBuilder.group(Api, 'audit', (handlers) =>
               },
             });
           }).pipe(
+            Effect.withSpan('api.audit.watchById'),
             Effect.catchTag('QueryError', () => new HttpApiError.BadRequest()),
             Effect.catchTag('ParseError', () => new HttpApiError.BadRequest()),
           ),

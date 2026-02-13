@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 import { argv } from 'node:process';
-import { Effect } from 'effect';
+import { Effect, Layer } from 'effect';
 import { NodeContext, NodeHttpClient, NodeRuntime } from '@effect/platform-node';
+import { makeNodeObservabilityLayer } from '@app-speed/shared-observability';
 import { cli } from './cli';
-import { ObservabilityLive } from './Observability.js';
+
+const ObservabilityLive = makeNodeObservabilityLayer({ serviceName: 'runner' });
+const RunnerRuntimeLayer = Layer.mergeAll(NodeContext.layer, NodeHttpClient.layer, ObservabilityLive);
 
 cli(argv).pipe(
-  Effect.provide(NodeContext.layer),
-  Effect.provide(NodeHttpClient.layer),
-  Effect.provide(ObservabilityLive),
+  Effect.provide(RunnerRuntimeLayer),
   NodeRuntime.runMain,
 );

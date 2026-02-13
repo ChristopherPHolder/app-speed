@@ -11,14 +11,22 @@ export const RunnerGroupLive = HttpApiBuilder.group(Api, 'runner', (handlers) =>
     return handlers
       .handle(
         'claim',
-        Effect.fn('claim')(() =>
+        Effect.fn('api.runner.claim')((request) =>
           repo.claimNextRun().pipe(
+            Effect.tap(() => Effect.annotateCurrentSpan({ 'runner.id': request.payload.runnerId })),
             Effect.map((run) =>
               Match.value(run).pipe(
                 Match.when(null, () => ({ available: false as const })),
                 Match.orElse((run) => ({ available: true as const, auditId: run.id, auditDetails: run.data })),
               ),
             ),
+            Effect.tap((response) =>
+              Effect.annotateCurrentSpan({
+                'runner.claim_available': response.available,
+                'audit.id': response.available ? response.auditId : null,
+              }),
+            ),
+            Effect.withSpan('api.runner.claim'),
             Effect.catchTag('QueryError', () => new HttpApiError.BadRequest()),
             Effect.catchTag('ParseError', () => new HttpApiError.BadRequest()),
           ),
@@ -26,7 +34,7 @@ export const RunnerGroupLive = HttpApiBuilder.group(Api, 'runner', (handlers) =>
       )
       .handle(
         'complete',
-        Effect.fn('complete')((request) =>
+        Effect.fn('api.runner.complete')((request) =>
           Effect.gen(function* () {
             const result = Match.value(request.payload).pipe(
               Match.when({ status: 'SUCCESS' }, (payload) => ({ status: payload.status, data: payload.result })),
@@ -37,6 +45,12 @@ export const RunnerGroupLive = HttpApiBuilder.group(Api, 'runner', (handlers) =>
               })),
               Match.exhaustive,
             );
+            yield* Effect.annotateCurrentSpan({
+              'runner.id': request.payload.runnerId,
+              'audit.id': request.payload.auditId,
+              'audit.status': request.payload.status,
+              'audit.duration_ms': request.payload.durationMs,
+            });
 
             yield* Effect.logInfo(
               `Runner ${request.payload.runnerId} completed ${request.payload.auditId} in ${request.payload.durationMs} with status ${request.payload.status}`,
@@ -47,12 +61,22 @@ export const RunnerGroupLive = HttpApiBuilder.group(Api, 'runner', (handlers) =>
               .pipe(Effect.catchTag('QueryError', () => new HttpApiError.BadRequest()));
 
             return { ok: true as const };
-          }),
+          }).pipe(Effect.withSpan('api.runner.complete')),
         ),
       )
       .handle(
         'heartbeat',
-        Effect.fn('heartbeat')(() => Effect.succeed({ ok: true as const })),
+        Effect.fn('api.runner.heartbeat')((request) =>
+          Effect.succeed({ ok: true as const }).pipe(
+            Effect.tap(() =>
+              Effect.annotateCurrentSpan({
+                'runner.id': request.payload.runnerId,
+                'runner.heartbeat_timestamp': request.payload.timestamp ?? null,
+              }),
+            ),
+            Effect.withSpan('api.runner.heartbeat'),
+          ),
+        ),
       );
   }),
 );

@@ -31,6 +31,10 @@ export const claimNextAudit = Effect.gen(function* () {
   const baseUrl = yield* baseUrlConfig;
   const apiBaseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
   const runnerId = yield* getRunnerId;
+  yield* Effect.annotateCurrentSpan({
+    'runner.id': runnerId,
+    'runner.api_base_url': apiBaseUrl,
+  });
   const client = (yield* HttpClient.HttpClient).pipe(HttpClient.filterStatusOk);
 
   const request = yield* HttpClientRequest.bodyJson({ runnerId })(
@@ -40,9 +44,16 @@ export const claimNextAudit = Effect.gen(function* () {
     .execute(request)
     .pipe(Effect.flatMap(HttpClientResponse.schemaBodyJson(RunnerClaimResponseSchema)));
 
-  if (!response.available) return null;
+  if (!response.available) {
+    yield* Effect.annotateCurrentSpan({ 'runner.claim_available': false });
+    return null;
+  }
+  yield* Effect.annotateCurrentSpan({
+    'runner.claim_available': true,
+    'audit.id': response.auditId,
+  });
   return { auditId: response.auditId, auditDetails: response.auditDetails } as typeof AuditRequestSchema.Type;
-});
+}).pipe(Effect.withSpan('runner.queue.claimNext'));
 
 export const completeAuditRun = (
   auditId: string,
@@ -53,6 +64,13 @@ export const completeAuditRun = (
     const baseUrl = yield* baseUrlConfig;
     const apiBaseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
     const runnerId = yield* getRunnerId;
+    yield* Effect.annotateCurrentSpan({
+      'runner.id': runnerId,
+      'audit.id': auditId,
+      'audit.status': result.status,
+      'audit.duration_ms': durationMs,
+      'runner.api_base_url': apiBaseUrl,
+    });
     const client = (yield* HttpClient.HttpClient).pipe(HttpClient.filterStatusOk);
     const payload = Match.value(result).pipe(
       Match.when({ status: 'SUCCESS' }, (success) => ({
@@ -78,4 +96,4 @@ export const completeAuditRun = (
     yield* client
       .execute(request)
       .pipe(Effect.flatMap(HttpClientResponse.schemaBodyJson(RunnerCompleteResponseSchema)));
-  });
+  }).pipe(Effect.withSpan('runner.queue.completeRun'));

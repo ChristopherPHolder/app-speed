@@ -7,7 +7,7 @@ export const HealthGroupLive = HttpApiBuilder.group(Api, 'health', (handlers) =>
     yield* Effect.logDebug('HealthGroupLive');
     return handlers.handle(
       'get',
-      Effect.fn('health check')(() => Effect.succeed('OK')),
+      Effect.fn('api.health.get')(() => Effect.succeed('OK').pipe(Effect.withSpan('api.health.get'))),
     );
   }),
 );

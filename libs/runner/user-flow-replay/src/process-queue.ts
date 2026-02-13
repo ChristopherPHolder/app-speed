@@ -30,18 +30,25 @@ export const processQueue = Effect.flatMap(claimNextAudit, (firstAudit) =>
     while: (auditRequest) => auditRequest !== null,
     body: (auditRequest) =>
       Effect.gen(function* () {
+        yield* Effect.annotateCurrentSpan({ 'audit.id': auditRequest.auditId });
         const [duration, exit] = yield* Effect.timed(Effect.exit(processAudit(auditRequest)));
         const durationMs = Duration.toMillis(duration);
+        yield* Effect.annotateCurrentSpan({ 'audit.duration_ms': durationMs });
 
         if (Exit.isSuccess(exit)) {
+          yield* Effect.annotateCurrentSpan({ 'audit.status': 'SUCCESS' });
           yield* completeAuditRun(auditRequest.auditId, { status: 'SUCCESS', data: exit.value }, durationMs);
         } else {
           const error = toErrorPayload(exit.cause);
+          yield* Effect.annotateCurrentSpan({
+            'audit.status': 'FAILURE',
+            'error.name': error.name,
+          });
           yield* completeAuditRun(auditRequest.auditId, { status: 'FAILURE', data: null, error }, durationMs);
         }
 
         yield* Effect.log(`Completed processing ${auditRequest.auditId}`);
         return yield* claimNextAudit;
-      }),
+      }).pipe(Effect.withSpan('runner.queue.processItem')),
   }),
-).pipe(Effect.scoped);
+).pipe(Effect.withSpan('runner.queue.loop'), Effect.scoped);

@@ -22,7 +22,7 @@ const RunnerContext = Effect.gen(function* () {
   );
   const page = yield* Effect.promise(() => browser.newPage());
   return { browser, page };
-});
+}).pipe(Effect.withSpan('runner.audit.acquireContext'));
 
 class RunnerError extends Data.TaggedError('RunnerFailed')<{
   message: string;
@@ -31,8 +31,17 @@ class RunnerError extends Data.TaggedError('RunnerFailed')<{
 
 export const runAudit = Effect.fn((audit: ReplayUserflowAudit) =>
   Effect.gen(function* () {
-    const runnerScript = yield* Schema.decode(PuppeteerReplayUserflowRunnerSchema)(audit);
-    const replayScript = puppeteerReplayParse(runnerScript);
+    yield* Effect.annotateCurrentSpan({
+      'audit.title': audit.title,
+      'audit.device': audit.device,
+    });
+
+    const runnerScript = yield* Schema.decode(PuppeteerReplayUserflowRunnerSchema)(audit).pipe(
+      Effect.withSpan('runner.audit.decodeScript'),
+    );
+    const replayScript = yield* Effect.sync(() => puppeteerReplayParse(runnerScript)).pipe(
+      Effect.withSpan('runner.audit.decodeScript'),
+    );
 
     const { browser, page } = yield* RunnerContext;
 
@@ -43,7 +52,7 @@ export const runAudit = Effect.fn((audit: ReplayUserflowAudit) =>
           ...configOptions[audit.device],
         },
       }),
-    );
+    ).pipe(Effect.withSpan('runner.audit.startFlow'));
 
     const runnerExtension = new UserFlowRunnerExtension(browser, page, flow);
 
@@ -51,18 +60,19 @@ export const runAudit = Effect.fn((audit: ReplayUserflowAudit) =>
       try: () => createRunner(replayScript, runnerExtension).then((runner) => runner.run()),
       catch: (error) => {
         if (error instanceof Error) {
-          new RunnerError({ message: error.message, cause: error.cause });
+          return new RunnerError({ message: error.message, cause: error.cause });
         }
         return new RunnerError({ message: 'Audit failed during while running' });
       },
-    });
+    }).pipe(Effect.withSpan('runner.audit.executeReplay'));
 
-    return yield* Effect.promise(() => flow.createFlowResult());
-  }).pipe(Effect.scoped),
+    return yield* Effect.promise(() => flow.createFlowResult()).pipe(Effect.withSpan('runner.audit.createFlowResult'));
+  }).pipe(Effect.withSpan('runner.audit.process'), Effect.scoped),
 );
 
 export const processAudit = Effect.fn((auditRequest: typeof AuditRequestSchema.Type) => {
   return Effect.gen(function* () {
+    yield* Effect.annotateCurrentSpan({ 'audit.id': auditRequest.auditId });
     yield* Effect.log(`Starting processing ${auditRequest.auditId}`);
 
     const result = yield* runAudit(auditRequest.auditDetails);

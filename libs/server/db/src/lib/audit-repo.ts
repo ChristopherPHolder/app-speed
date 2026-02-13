@@ -108,27 +108,36 @@ export const AuditRepoLive = Layer.effect(
     const db = yield* DbClient;
 
     const createTemplate = (audit: ReplayUserflowAudit) =>
-      db
-        .run((c) => c.auditTemplate.create({ data: { data: audit as Prisma.InputJsonValue } }))
-        .pipe(Effect.map((record) => record.id as AuditTemplateId));
+      Effect.gen(function* () {
+        yield* Effect.annotateCurrentSpan({
+          'audit.title': audit.title,
+          'audit.device': audit.device,
+        });
+        const record = yield* db.run((c) => c.auditTemplate.create({ data: { data: audit as Prisma.InputJsonValue } }));
+        yield* Effect.annotateCurrentSpan({ 'audit.template_id': record.id });
+        return record.id as AuditTemplateId;
+      }).pipe(Effect.withSpan('db.auditTemplate.create'));
 
     const getTemplateById = (id: AuditTemplateId) =>
-      db
-        .run((c) => c.auditTemplate.findUnique({ where: { id } }))
-        .pipe(
-          Effect.flatMap((record) => {
-            if (!record) return Effect.succeed(null);
-            return Schema.decodeUnknown(AuditTemplateRecordSchema, { errors: 'all' })({
-              id: record.id,
-              data: record.data,
-              createAt: record.createdAt,
-              updatedAt: record.updatedAt,
-            });
-          }),
-        );
+      Effect.gen(function* () {
+        yield* Effect.annotateCurrentSpan({ 'audit.template_id': id });
+        const record = yield* db.run((c) => c.auditTemplate.findUnique({ where: { id } }));
+        if (!record) return null;
+        return yield* Schema.decodeUnknown(AuditTemplateRecordSchema, { errors: 'all' })({
+          id: record.id,
+          data: record.data,
+          createAt: record.createdAt,
+          updatedAt: record.updatedAt,
+        });
+      }).pipe(Effect.withSpan('db.auditTemplate.getById'));
 
     const createRun = (templateId: AuditTemplateId) =>
-      db.run((c) => c.auditRun.create({ data: { templateId } })).pipe(Effect.map((record) => record.id as AuditRunId));
+      Effect.gen(function* () {
+        yield* Effect.annotateCurrentSpan({ 'audit.template_id': templateId });
+        const record = yield* db.run((c) => c.auditRun.create({ data: { templateId } }));
+        yield* Effect.annotateCurrentSpan({ 'audit.id': record.id });
+        return record.id as AuditRunId;
+      }).pipe(Effect.withSpan('db.auditRun.create'));
 
     const claimNextRun = () =>
       Effect.gen(function* () {
@@ -159,11 +168,23 @@ export const AuditRepoLive = Layer.effect(
           }),
         );
 
-        return claimed ? yield* decodeAuditRunRecord(claimed) : null;
-      });
+        if (!claimed) {
+          yield* Effect.annotateCurrentSpan({ 'audit.claimed': false });
+          return null;
+        }
+
+        const decoded = yield* decodeAuditRunRecord(claimed);
+        yield* Effect.annotateCurrentSpan({
+          'audit.claimed': true,
+          'audit.id': decoded.id,
+          'audit.status': decoded.status,
+        });
+        return decoded;
+      }).pipe(Effect.withSpan('db.auditRun.claimNext'));
 
     const markRunInProgress = (id: AuditRunId) =>
       Effect.gen(function* () {
+        yield* Effect.annotateCurrentSpan({ 'audit.id': id });
         const now = new Date(yield* Clock.currentTimeMillis);
         yield* db.run((c) =>
           c.auditRun.update({
@@ -171,20 +192,30 @@ export const AuditRepoLive = Layer.effect(
             data: { status: 'IN_PROGRESS', startedAt: now },
           }),
         );
-      }).pipe(Effect.asVoid);
+      }).pipe(Effect.withSpan('db.auditRun.markInProgress'), Effect.asVoid);
 
     const getQueuePosition = (id: AuditRunId) =>
       Effect.gen(function* () {
+        yield* Effect.annotateCurrentSpan({ 'audit.id': id });
         const run = yield* db.run((c) =>
           c.auditRun.findUnique({
             where: { id },
             select: { id: true, createdAt: true, status: true },
           }),
         );
-        if (!run) return null;
-        if (run.status !== 'SCHEDULED') return 0;
+        if (!run) {
+          yield* Effect.annotateCurrentSpan({ 'queue.position': null });
+          return null;
+        }
+        if (run.status !== 'SCHEDULED') {
+          yield* Effect.annotateCurrentSpan({
+            'audit.status': run.status,
+            'queue.position': 0,
+          });
+          return 0;
+        }
 
-        return yield* db.run((c) =>
+        const position = yield* db.run((c) =>
           c.auditRun.count({
             where: {
               status: 'SCHEDULED',
@@ -192,7 +223,12 @@ export const AuditRepoLive = Layer.effect(
             },
           }),
         );
-      });
+        yield* Effect.annotateCurrentSpan({
+          'audit.status': run.status,
+          'queue.position': position,
+        });
+        return position;
+      }).pipe(Effect.withSpan('db.auditRun.getQueuePosition'));
 
     const completeRun = (
       id: AuditRunId,
@@ -200,6 +236,11 @@ export const AuditRepoLive = Layer.effect(
       durationMs: number,
     ) =>
       Effect.gen(function* () {
+        yield* Effect.annotateCurrentSpan({
+          'audit.id': id,
+          'audit.status': result.status,
+          'audit.duration_ms': durationMs,
+        });
         const now = new Date(yield* Clock.currentTimeMillis);
         yield* db.run((c) =>
           c.$transaction(async (tx) => {
@@ -222,17 +263,27 @@ export const AuditRepoLive = Layer.effect(
             });
           }),
         );
-      }).pipe(Effect.asVoid);
+      }).pipe(Effect.withSpan('db.auditRun.complete'), Effect.asVoid);
 
     const getRunById = (id: AuditRunId) =>
-      db
-        .run((c) => c.auditRun.findUnique({ where: { id }, include: { template: true } }))
-        .pipe(Effect.flatMap((record) => (record ? decodeAuditRunRecord(record) : Effect.succeed(null))));
+      Effect.gen(function* () {
+        yield* Effect.annotateCurrentSpan({ 'audit.id': id });
+        const record = yield* db.run((c) => c.auditRun.findUnique({ where: { id }, include: { template: true } }));
+        if (!record) return null;
+        const decoded = yield* decodeAuditRunRecord(record);
+        yield* Effect.annotateCurrentSpan({ 'audit.status': decoded.status });
+        return decoded;
+      }).pipe(Effect.withSpan('db.auditRun.getById'));
 
     const getResultByRunId = (id: AuditRunId) =>
-      db
-        .run((c) => c.auditResult.findUnique({ where: { runId: id } }))
-        .pipe(Effect.flatMap((record) => (record ? decodeAuditResultRecord(record) : Effect.succeed(null))));
+      Effect.gen(function* () {
+        yield* Effect.annotateCurrentSpan({ 'audit.id': id });
+        const record = yield* db.run((c) => c.auditResult.findUnique({ where: { runId: id } }));
+        if (!record) return null;
+        const decoded = yield* decodeAuditResultRecord(record);
+        yield* Effect.annotateCurrentSpan({ 'audit.result_status': decoded.status });
+        return decoded;
+      }).pipe(Effect.withSpan('db.auditResult.getByRunId'));
 
     return {
       createTemplate,
