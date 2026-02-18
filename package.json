@@ -164,18 +164,6 @@
     "webpack": "5.101.3",
     "webpack-cli": "^5.1.4"
   },
-  "optionalDependencies": {
-    "@nx/nx-darwin-arm64": "20.7.1",
-    "@nx/nx-darwin-x64": "20.7.1",
-    "@nx/nx-freebsd-x64": "20.7.1",
-    "@nx/nx-linux-arm-gnueabihf": "20.7.1",
-    "@nx/nx-linux-arm64-gnu": "20.7.1",
-    "@nx/nx-linux-arm64-musl": "20.7.1",
-    "@nx/nx-linux-x64-gnu": "20.7.1",
-    "@nx/nx-linux-x64-musl": "20.7.1",
-    "@nx/nx-win32-arm64-msvc": "20.7.1",
-    "@nx/nx-win32-x64-msvc": "20.7.1"
-  },
   "overrides": {
     "chokidar": "4.0.0",
     "typescript": "5.9.2"
