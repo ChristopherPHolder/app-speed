@@ -59,26 +59,23 @@ describe('audit builder navigation (mock backend)', () => {
       },
     });
 
-    cy.get('input[placeholder="Audit Title"]').clear().type('Smoke Audit');
+    cy.get('input[placeholder="Audit Title"]').clear();
+    cy.get('input[placeholder="Audit Title"]').type('Smoke Audit');
 
     cy.get('ui-audit-builder-step')
       .first()
       .within(() => {
-        cy.contains('mat-label', 'Name')
-          .closest('mat-form-field')
-          .find('input')
-          .clear()
-          .type('Initial Navigation');
+        cy.contains('mat-label', 'Name').closest('mat-form-field').find('input').as('nameInput');
+        cy.get('@nameInput').clear();
+        cy.get('@nameInput').type('Initial Navigation');
       });
 
     cy.get('ui-audit-builder-step')
       .eq(1)
       .within(() => {
-        cy.contains('mat-label', 'Url')
-          .closest('mat-form-field')
-          .find('input')
-          .clear()
-          .type('https://example.com');
+        cy.contains('mat-label', 'Url').closest('mat-form-field').find('input').as('urlInput');
+        cy.get('@urlInput').clear();
+        cy.get('@urlInput').type('https://example.com');
       });
 
     cy.get('button.submit-btn').should('be.enabled').click();
