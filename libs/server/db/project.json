@@ -17,25 +17,24 @@
         "generatePackageJson": true
       }
     },
-    "prisma-generate": {
-      "executor": "nx:run-commands",
+    "migrate": {
+      "executor": "@app-speed/db-tools:sqlite-migrate",
       "options": {
-        "command": "npx prisma generate --config libs/server/db/prisma.config.ts",
-        "cwd": "{workspaceRoot}"
+        "migrationsDir": "libs/server/db/migrations"
       }
     },
-    "prisma-migrate": {
-      "executor": "nx:run-commands",
+    "migrate-generate": {
+      "executor": "@app-speed/db-tools:drizzle-kit",
       "options": {
-        "command": "npx prisma migrate dev --config libs/server/db/prisma.config.ts",
-        "cwd": "{workspaceRoot}"
+        "command": "generate",
+        "config": "libs/server/db/drizzle.config.ts"
       }
     },
-    "prisma-studio": {
-      "executor": "nx:run-commands",
+    "studio": {
+      "executor": "@app-speed/db-tools:drizzle-kit",
       "options": {
-        "command": "npx prisma studio --config libs/server/db/prisma.config.ts",
-        "cwd": "{workspaceRoot}"
+        "command": "studio",
+        "config": "libs/server/db/drizzle.config.ts"
       }
     }
   }

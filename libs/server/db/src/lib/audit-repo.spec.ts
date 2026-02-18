@@ -1,9 +1,10 @@
 import { ConfigProvider, Effect, Layer } from 'effect';
 import { expect, layer } from '@effect/vitest';
-import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
+import Database from 'better-sqlite3';
 import fs from 'node:fs';
 import path from 'node:path';
+import { auditResultTable, auditRunTable, auditTemplateTable } from './schema';
 
 import { AuditRepo, AuditRepoLive } from './audit-repo';
 import { ReplayUserflowAudit } from '@app-speed/shared-user-flow-replay/schema';
@@ -16,9 +17,29 @@ const sampleAudit: ReplayUserflowAudit = {
 };
 
 const testDbDir = path.join(process.cwd(), 'tmp');
-const localPrismaConfigPath = path.join(process.cwd(), 'prisma.config.ts');
-const workspacePrismaConfigPath = path.join(process.cwd(), 'libs/server/db/prisma.config.ts');
-const prismaConfigPath = fs.existsSync(localPrismaConfigPath) ? localPrismaConfigPath : workspacePrismaConfigPath;
+const localMigrationsPath = path.join(process.cwd(), 'migrations');
+const workspaceMigrationsPath = path.join(process.cwd(), 'libs/server/db/migrations');
+const migrationsPath = fs.existsSync(localMigrationsPath) ? localMigrationsPath : workspaceMigrationsPath;
+
+const applyMigrations = (dbPath: string) => {
+  const migrationFiles = fs
+    .readdirSync(migrationsPath, { withFileTypes: true })
+    .filter((entry) => entry.isFile() && entry.name.endsWith('.sql'))
+    .map((entry) => entry.name)
+    .sort((left, right) => left.localeCompare(right));
+
+  const sqlite = new Database(dbPath);
+
+  try {
+    sqlite.pragma('foreign_keys = ON');
+    for (const migrationFile of migrationFiles) {
+      const migrationSql = fs.readFileSync(path.join(migrationsPath, migrationFile), 'utf8');
+      sqlite.exec(migrationSql);
+    }
+  } finally {
+    sqlite.close();
+  }
+};
 
 const TestDbLayer = Layer.unwrapEffect(
   Effect.gen(function* () {
@@ -33,12 +54,7 @@ const TestDbLayer = Layer.unwrapEffect(
     const DbLayer = Layer.provideMerge(ConfigLayer)(DbClient.live);
     const MigrationsLayer = Layer.scopedDiscard(
       Effect.gen(function* () {
-        yield* Effect.sync(() =>
-          execFileSync('npx', ['prisma', 'migrate', 'deploy', '--config', prismaConfigPath], {
-            env: { ...process.env, DATABASE_URL: relativeTestDbPath, RUST_LOG: 'info' },
-            stdio: 'inherit',
-          }),
-        );
+        yield* Effect.sync(() => applyMigrations(testDbPath));
         yield* Effect.addFinalizer(() => Effect.sync(() => fs.rmSync(testDbPath, { force: true })));
       }),
     );
@@ -51,9 +67,13 @@ const TestLayer = Layer.provideMerge(TestDbLayer)(AuditRepoLive);
 
 const resetDb = Effect.gen(function* () {
   const db = yield* DbClient;
-  yield* db.run((c) => c.auditResult.deleteMany({}));
-  yield* db.run((c) => c.auditRun.deleteMany({}));
-  yield* db.run((c) => c.auditTemplate.deleteMany({}));
+  yield* db.run((c) =>
+    c.transaction((tx) => {
+      tx.delete(auditResultTable).run();
+      tx.delete(auditRunTable).run();
+      tx.delete(auditTemplateTable).run();
+    }),
+  );
 });
 
 layer(TestLayer)('AuditRepo (contract)', (it) => {

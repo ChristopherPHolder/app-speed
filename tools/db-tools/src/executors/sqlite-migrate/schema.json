@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "version": 2,
+  "title": "SQLite migrate executor",
+  "description": "Apply SQL migrations against a SQLite database",
+  "type": "object",
+  "properties": {
+    "migrationsDir": {
+      "type": "string",
+      "description": "Directory containing .sql migration files, relative to workspace root"
+    },
+    "databaseUrl": {
+      "type": "string",
+      "description": "DATABASE_URL override (defaults to env DATABASE_URL or file:./tmp/dev.db)"
+    }
+  },
+  "required": ["migrationsDir"]
+}

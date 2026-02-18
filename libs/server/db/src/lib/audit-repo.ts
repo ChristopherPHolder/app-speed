@@ -1,7 +1,9 @@
+import { randomUUID } from 'node:crypto';
+import { and, asc, eq, lt, or, sql } from 'drizzle-orm';
 import { Clock, Context, Effect, Layer, ParseResult, Schema } from 'effect';
 import { ReplayUserflowAudit, ReplayUserflowAuditSchema } from '@app-speed/shared-user-flow-replay/schema';
 import { DbClient, QueryError } from './db';
-import { type AuditResultStatus, Prisma } from '@prisma/client';
+import { auditResultTable, auditRunTable, auditTemplateTable, type AuditResultStatus } from './schema';
 
 export const AuditTemplateIdSchema = Schema.NonEmptyString.pipe(Schema.brand('AuditTemplateId'));
 export type AuditTemplateId = typeof AuditTemplateIdSchema.Type;
@@ -73,12 +75,12 @@ const decodeAuditRunRecord = (run: {
   startedAt: Date | null;
   completedAt: Date | null;
   durationMs: number | null;
-  template: { data: Prisma.JsonValue };
+  templateData: unknown;
 }) =>
   Schema.decodeUnknown(AuditRunRecordSchema, { errors: 'all' })({
     id: run.id,
     templateId: run.templateId,
-    data: run.template.data,
+    data: run.templateData,
     status: run.status,
     createdAt: run.createdAt,
     updatedAt: run.updatedAt,
@@ -90,8 +92,8 @@ const decodeAuditRunRecord = (run: {
 const decodeAuditResultRecord = (result: {
   runId: string;
   status: AuditResultStatus;
-  data: Prisma.JsonValue | null;
-  error: Prisma.JsonValue | null;
+  data: unknown;
+  error: unknown;
   createdAt: Date;
 }) =>
   Schema.decodeUnknown(AuditResultRecordSchema, { errors: 'all' })({
@@ -109,20 +111,41 @@ export const AuditRepoLive = Layer.effect(
 
     const createTemplate = (audit: ReplayUserflowAudit) =>
       Effect.gen(function* () {
+        const now = new Date(yield* Clock.currentTimeMillis);
+        const id = randomUUID() as AuditTemplateId;
+
         yield* Effect.annotateCurrentSpan({
           'audit.title': audit.title,
           'audit.device': audit.device,
         });
-        const record = yield* db.run((c) => c.auditTemplate.create({ data: { data: audit as Prisma.InputJsonValue } }));
-        yield* Effect.annotateCurrentSpan({ 'audit.template_id': record.id });
-        return record.id as AuditTemplateId;
+
+        yield* db.run((client) =>
+          client
+            .insert(auditTemplateTable)
+            .values({
+              id,
+              data: audit,
+              createdAt: now,
+              updatedAt: now,
+            })
+            .run(),
+        );
+
+        yield* Effect.annotateCurrentSpan({ 'audit.template_id': id });
+        return id;
       }).pipe(Effect.withSpan('db.auditTemplate.create'));
 
     const getTemplateById = (id: AuditTemplateId) =>
       Effect.gen(function* () {
         yield* Effect.annotateCurrentSpan({ 'audit.template_id': id });
-        const record = yield* db.run((c) => c.auditTemplate.findUnique({ where: { id } }));
-        if (!record) return null;
+        const record = yield* db.run((client) =>
+          client.select().from(auditTemplateTable).where(eq(auditTemplateTable.id, id)).get(),
+        );
+
+        if (!record) {
+          return null;
+        }
+
         return yield* Schema.decodeUnknown(AuditTemplateRecordSchema, { errors: 'all' })({
           id: record.id,
           data: record.data,
@@ -133,38 +156,75 @@ export const AuditRepoLive = Layer.effect(
 
     const createRun = (templateId: AuditTemplateId) =>
       Effect.gen(function* () {
+        const now = new Date(yield* Clock.currentTimeMillis);
+        const id = randomUUID() as AuditRunId;
+
         yield* Effect.annotateCurrentSpan({ 'audit.template_id': templateId });
-        const record = yield* db.run((c) => c.auditRun.create({ data: { templateId } }));
-        yield* Effect.annotateCurrentSpan({ 'audit.id': record.id });
-        return record.id as AuditRunId;
+
+        yield* db.run((client) =>
+          client
+            .insert(auditRunTable)
+            .values({
+              id,
+              templateId,
+              status: 'SCHEDULED',
+              createdAt: now,
+              updatedAt: now,
+            })
+            .run(),
+        );
+
+        yield* Effect.annotateCurrentSpan({ 'audit.id': id });
+        return id;
       }).pipe(Effect.withSpan('db.auditRun.create'));
 
     const claimNextRun = () =>
       Effect.gen(function* () {
         const now = new Date(yield* Clock.currentTimeMillis);
-        const claimed = yield* db.run((c) =>
-          c.$transaction(async (tx) => {
-            const next = await tx.auditRun.findFirst({
-              where: { status: 'SCHEDULED' },
-              orderBy: { createdAt: 'asc' },
-              include: { template: true },
-            });
 
-            if (!next) return null;
+        const claimed = yield* db.run((client) =>
+          client.transaction((tx) => {
+            const next = tx
+              .select({ id: auditRunTable.id })
+              .from(auditRunTable)
+              .where(eq(auditRunTable.status, 'SCHEDULED'))
+              .orderBy(asc(auditRunTable.createdAt), asc(auditRunTable.id))
+              .get();
 
-            const updated = await tx.auditRun.updateMany({
-              where: { id: next.id, status: 'SCHEDULED' },
-              data: { status: 'IN_PROGRESS', startedAt: now },
-            });
+            if (!next) {
+              return null;
+            }
 
-            if (updated.count === 0) return null;
+            const updated = tx
+              .update(auditRunTable)
+              .set({
+                status: 'IN_PROGRESS',
+                startedAt: now,
+                updatedAt: now,
+              })
+              .where(and(eq(auditRunTable.id, next.id), eq(auditRunTable.status, 'SCHEDULED')))
+              .run();
 
-            const claimed = await tx.auditRun.findUnique({
-              where: { id: next.id },
-              include: { template: true },
-            });
+            if (updated.changes === 0) {
+              return null;
+            }
 
-            return claimed ?? null;
+            return tx
+              .select({
+                id: auditRunTable.id,
+                templateId: auditRunTable.templateId,
+                status: auditRunTable.status,
+                createdAt: auditRunTable.createdAt,
+                updatedAt: auditRunTable.updatedAt,
+                startedAt: auditRunTable.startedAt,
+                completedAt: auditRunTable.completedAt,
+                durationMs: auditRunTable.durationMs,
+                templateData: auditTemplateTable.data,
+              })
+              .from(auditRunTable)
+              .innerJoin(auditTemplateTable, eq(auditTemplateTable.id, auditRunTable.templateId))
+              .where(eq(auditRunTable.id, next.id))
+              .get();
           }),
         );
 
@@ -184,29 +244,39 @@ export const AuditRepoLive = Layer.effect(
 
     const markRunInProgress = (id: AuditRunId) =>
       Effect.gen(function* () {
-        yield* Effect.annotateCurrentSpan({ 'audit.id': id });
         const now = new Date(yield* Clock.currentTimeMillis);
-        yield* db.run((c) =>
-          c.auditRun.update({
-            where: { id },
-            data: { status: 'IN_PROGRESS', startedAt: now },
-          }),
+        yield* Effect.annotateCurrentSpan({ 'audit.id': id });
+
+        yield* db.run((client) =>
+          client
+            .update(auditRunTable)
+            .set({ status: 'IN_PROGRESS', startedAt: now, updatedAt: now })
+            .where(eq(auditRunTable.id, id))
+            .run(),
         );
       }).pipe(Effect.withSpan('db.auditRun.markInProgress'), Effect.asVoid);
 
     const getQueuePosition = (id: AuditRunId) =>
       Effect.gen(function* () {
         yield* Effect.annotateCurrentSpan({ 'audit.id': id });
-        const run = yield* db.run((c) =>
-          c.auditRun.findUnique({
-            where: { id },
-            select: { id: true, createdAt: true, status: true },
-          }),
+
+        const run = yield* db.run((client) =>
+          client
+            .select({
+              id: auditRunTable.id,
+              createdAt: auditRunTable.createdAt,
+              status: auditRunTable.status,
+            })
+            .from(auditRunTable)
+            .where(eq(auditRunTable.id, id))
+            .get(),
         );
+
         if (!run) {
           yield* Effect.annotateCurrentSpan({ 'queue.position': null });
           return null;
         }
+
         if (run.status !== 'SCHEDULED') {
           yield* Effect.annotateCurrentSpan({
             'audit.status': run.status,
@@ -215,18 +285,28 @@ export const AuditRepoLive = Layer.effect(
           return 0;
         }
 
-        const position = yield* db.run((c) =>
-          c.auditRun.count({
-            where: {
-              status: 'SCHEDULED',
-              OR: [{ createdAt: { lt: run.createdAt } }, { createdAt: run.createdAt, id: { lt: run.id } }],
-            },
-          }),
+        const queued = yield* db.run((client) =>
+          client
+            .select({ count: sql<number>`count(*)` })
+            .from(auditRunTable)
+            .where(
+              and(
+                eq(auditRunTable.status, 'SCHEDULED'),
+                or(
+                  lt(auditRunTable.createdAt, run.createdAt),
+                  and(eq(auditRunTable.createdAt, run.createdAt), lt(auditRunTable.id, run.id)),
+                ),
+              ),
+            )
+            .get(),
         );
+
+        const position = Number(queued?.count ?? 0);
         yield* Effect.annotateCurrentSpan({
           'audit.status': run.status,
           'queue.position': position,
         });
+
         return position;
       }).pipe(Effect.withSpan('db.auditRun.getQueuePosition'));
 
@@ -236,31 +316,35 @@ export const AuditRepoLive = Layer.effect(
       durationMs: number,
     ) =>
       Effect.gen(function* () {
+        const now = new Date(yield* Clock.currentTimeMillis);
         yield* Effect.annotateCurrentSpan({
           'audit.id': id,
           'audit.status': result.status,
           'audit.duration_ms': durationMs,
         });
-        const now = new Date(yield* Clock.currentTimeMillis);
-        yield* db.run((c) =>
-          c.$transaction(async (tx) => {
-            await tx.auditRun.update({
-              where: { id },
-              data: {
+
+        yield* db.run((client) =>
+          client.transaction((tx) => {
+            tx.update(auditRunTable)
+              .set({
                 status: 'COMPLETE',
                 completedAt: now,
                 durationMs,
-              },
-            });
+                updatedAt: now,
+              })
+              .where(eq(auditRunTable.id, id))
+              .run();
 
-            await tx.auditResult.create({
-              data: {
+            tx.insert(auditResultTable)
+              .values({
+                id: randomUUID(),
                 runId: id,
                 status: result.status,
-                data: result.data == null ? Prisma.JsonNull : (result.data as Prisma.InputJsonValue),
-                error: result.error == null ? Prisma.JsonNull : (result.error as Prisma.InputJsonValue),
-              },
-            });
+                data: result.data ?? null,
+                error: result.error ?? null,
+                createdAt: now,
+              })
+              .run();
           }),
         );
       }).pipe(Effect.withSpan('db.auditRun.complete'), Effect.asVoid);
@@ -268,8 +352,30 @@ export const AuditRepoLive = Layer.effect(
     const getRunById = (id: AuditRunId) =>
       Effect.gen(function* () {
         yield* Effect.annotateCurrentSpan({ 'audit.id': id });
-        const record = yield* db.run((c) => c.auditRun.findUnique({ where: { id }, include: { template: true } }));
-        if (!record) return null;
+
+        const record = yield* db.run((client) =>
+          client
+            .select({
+              id: auditRunTable.id,
+              templateId: auditRunTable.templateId,
+              status: auditRunTable.status,
+              createdAt: auditRunTable.createdAt,
+              updatedAt: auditRunTable.updatedAt,
+              startedAt: auditRunTable.startedAt,
+              completedAt: auditRunTable.completedAt,
+              durationMs: auditRunTable.durationMs,
+              templateData: auditTemplateTable.data,
+            })
+            .from(auditRunTable)
+            .innerJoin(auditTemplateTable, eq(auditTemplateTable.id, auditRunTable.templateId))
+            .where(eq(auditRunTable.id, id))
+            .get(),
+        );
+
+        if (!record) {
+          return null;
+        }
+
         const decoded = yield* decodeAuditRunRecord(record);
         yield* Effect.annotateCurrentSpan({ 'audit.status': decoded.status });
         return decoded;
@@ -278,8 +384,25 @@ export const AuditRepoLive = Layer.effect(
     const getResultByRunId = (id: AuditRunId) =>
       Effect.gen(function* () {
         yield* Effect.annotateCurrentSpan({ 'audit.id': id });
-        const record = yield* db.run((c) => c.auditResult.findUnique({ where: { runId: id } }));
-        if (!record) return null;
+
+        const record = yield* db.run((client) =>
+          client
+            .select({
+              runId: auditResultTable.runId,
+              status: auditResultTable.status,
+              data: auditResultTable.data,
+              error: auditResultTable.error,
+              createdAt: auditResultTable.createdAt,
+            })
+            .from(auditResultTable)
+            .where(eq(auditResultTable.runId, id))
+            .get(),
+        );
+
+        if (!record) {
+          return null;
+        }
+
         const decoded = yield* decodeAuditResultRecord(record);
         yield* Effect.annotateCurrentSpan({ 'audit.result_status': decoded.status });
         return decoded;

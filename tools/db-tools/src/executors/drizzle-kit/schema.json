@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "version": 2,
+  "title": "Drizzle Kit executor",
+  "description": "Execute drizzle-kit commands",
+  "type": "object",
+  "properties": {
+    "command": {
+      "type": "string",
+      "description": "drizzle-kit command to run (generate, studio, migrate, push, pull, check, etc.)"
+    },
+    "config": {
+      "type": "string",
+      "description": "Optional path to drizzle config file, relative to workspace root"
+    },
+    "cwd": {
+      "type": "string",
+      "description": "Optional working directory, relative to workspace root"
+    },
+    "args": {
+      "type": "array",
+      "description": "Additional drizzle-kit args",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": ["command"]
+}
