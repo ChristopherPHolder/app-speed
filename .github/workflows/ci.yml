@@ -1,7 +1,7 @@
 name: CI
 
 env:
-  NODE_VERSION: 22
+  NODE_VERSION: 24
   is-main-branch: ${{ github.ref == 'refs/heads/main' }}
   is-pull-request: ${{ github.event_name == 'pull_request' }}
 
@@ -39,7 +39,7 @@ jobs:
             node_modules
             ~/.cache
             dist
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          key: &npm_cache_key ${{ runner.os }}-node-${{ env.NODE_VERSION }}-${{ hashFiles('package-lock.json') }}
 
       - name: Clean Install Dependencies
         if: steps.cache-primes.outputs.cache-hit != 'true'
@@ -69,7 +69,7 @@ jobs:
             node_modules
             ~/.cache
             dist
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          key: *npm_cache_key
 
       - name: Lint Affected
         run: npx nx affected --target=lint --parallel=3
@@ -98,7 +98,7 @@ jobs:
             node_modules
             ~/.cache
             dist
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          key: *npm_cache_key
 
       - name: Test Affected
         run: npx nx affected --target=test --parallel=3
@@ -127,7 +127,7 @@ jobs:
             node_modules
             ~/.cache
             dist
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          key: *npm_cache_key
 
       - name: Build Affected
         run: npx nx affected -t build build-storybook --parallel=3
@@ -154,7 +154,7 @@ jobs:
 #            node_modules
 #            ~/.cache
 #            dist
-#          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+#          key: *npm_cache_key
 #
 #      - name: E2E Affected
 #        run: npx nx affected --target=e2e --parallel=3
@@ -181,7 +181,7 @@ jobs:
 #            node_modules
 #            ~/.cache
 #            dist
-#          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+#          key: *npm_cache_key
 #
 #      - name: Publish Storybook Affected
 #        run: npx nx affected --target=publish-storybook --parallel=3 --project-token=${{ secrets.CHROMATIC_PROJECT_TOKEN }}
@@ -210,7 +210,7 @@ jobs:
             node_modules
             ~/.cache
             dist
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          key: *npm_cache_key
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -250,7 +250,7 @@ jobs:
             node_modules
             ~/.cache
             dist
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          key: *npm_cache_key
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
