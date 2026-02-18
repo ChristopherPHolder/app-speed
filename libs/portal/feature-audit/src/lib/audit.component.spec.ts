@@ -20,32 +20,8 @@ describe('AuditComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should have the correct title', () => {
-    expect(component.title).toBe('Audit Component');
-  });
-
-  it('should display the audit feature heading', () => {
+  it('should render a router outlet container', () => {
     const compiled = fixture.debugElement.nativeElement;
-    const heading = compiled.querySelector('h2');
-    expect(heading.textContent).toBe('Audit Feature');
-  });
-
-  it('should display the welcome message', () => {
-    const compiled = fixture.debugElement.nativeElement;
-    const paragraph = compiled.querySelector('p');
-    expect(paragraph.textContent).toBe('Welcome to the audit feature!');
-  });
-
-  it('should have the correct container class', () => {
-    const compiled = fixture.debugElement.nativeElement;
-    const container = compiled.querySelector('.audit-container');
-    expect(container).toBeTruthy();
-  });
-
-  it('should render the component with the correct structure', () => {
-    const compiled = fixture.debugElement.nativeElement;
-    expect(compiled.querySelector('.audit-container')).toBeTruthy();
-    expect(compiled.querySelector('h2')).toBeTruthy();
-    expect(compiled.querySelector('p')).toBeTruthy();
+    expect(compiled.querySelector('router-outlet')).toBeTruthy();
   });
 });
