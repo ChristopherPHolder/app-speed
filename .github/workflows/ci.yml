@@ -1,6 +1,7 @@
 name: CI
 
 env:
+  NODE_VERSION: 22
   is-main-branch: ${{ github.ref == 'refs/heads/main' }}
   is-pull-request: ${{ github.event_name == 'pull_request' }}
 
@@ -25,7 +26,7 @@ jobs:
       - uses: nrwl/nx-set-shas@v3
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       # Aggressive NPM dependency caching
@@ -58,7 +59,7 @@ jobs:
       - uses: nrwl/nx-set-shas@v3
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Cache NPM Dependencies
@@ -116,7 +117,7 @@ jobs:
       - uses: nrwl/nx-set-shas@v3
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Cache NPM Dependencies
@@ -170,7 +171,7 @@ jobs:
 #      - uses: nrwl/nx-set-shas@v3
 #      - uses: actions/setup-node@v4
 #        with:
-#          node-version: 20
+#          node-version: ${{ env.NODE_VERSION }}
 #          cache: 'npm'
 #
 #      - name: Cache NPM Dependencies
@@ -199,7 +200,7 @@ jobs:
       - uses: nrwl/nx-set-shas@v3
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Cache NPM Dependencies
@@ -239,7 +240,7 @@ jobs:
       - uses: nrwl/nx-set-shas@v3
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Cache NPM Dependencies
