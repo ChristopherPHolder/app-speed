@@ -2,13 +2,10 @@ import type { StorybookConfig } from '@storybook/angular';
 const config: StorybookConfig = {
   core: {},
   stories: ['../**/*.stories.mdx', '../**/*.stories.@(js|jsx|ts|tsx)'],
-  addons: ['storybook-design-token', '@storybook/addon-essentials', '@storybook/addon-mdx-gfm'],
+  addons: ['storybook-design-token', '@storybook/addon-docs'],
   framework: {
     name: '@storybook/angular',
     options: {},
-  },
-  docs: {
-    autodocs: true,
   },
 };
 module.exports = config;
