@@ -5,7 +5,7 @@ import { ReplayUserflowAuditSchema, PuppeteerReplayUserflowRunnerSchema } from '
 import { StepType } from '@puppeteer/replay';
 import { LIGHTHOUSE_AUDIT_STEP_TYPE } from '@app-speed/shared-user-flow-replay';
 
-describe.only('ReplayRunnerSchema', () => {
+describe('ReplayRunnerSchema', () => {
   it('should decode to replay schema', () => {
     const recording = {
       title: 'Stub audit title',
