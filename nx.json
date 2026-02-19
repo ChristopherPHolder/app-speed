@@ -198,5 +198,27 @@
       }
     }
   ],
+  "release": {
+    "groups": {
+      "server": {
+        "projects": ["server"],
+        "projectsRelationship": "fixed",
+        "changelog": false,
+        "docker": {
+          "repositoryName": "app-speed/server",
+          "skipVersionActions": true
+        }
+      }
+    },
+    "changelog": {
+      "workspaceChangelog": false,
+      "projectChangelogs": false
+    },
+    "version": {
+      "git": {
+        "stageChanges": false
+      }
+    }
+  },
   "nxCloudId": "67b1e61a2185ed22a4099d4a"
 }

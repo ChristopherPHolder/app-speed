@@ -259,10 +259,24 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-central-1
 
-      - name: Deploy Dev Server
-        if: ${{ env.is-main-branch != 'true' }}
-        run: npx nx affected --target=deploy  --exclude='*,!tag:backend' --configuration=development
+      - name: Login to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Deploy Prod Server
+      - name: Publish Dev Server Image
+        if: ${{ env.is-main-branch != 'true' }}
+        env:
+          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+        run: |
+          IMAGE_REF="${ECR_REGISTRY}/app-speed/server:dev-${GITHUB_SHA::12}"
+          NX_DOCKER_IMAGE_REF="${IMAGE_REF}" npx nx release version --group=server
+          npx nx release publish --group=server --yes --outputStyle=static
+
+      - name: Publish Prod Server Image
         if: ${{ env.is-main-branch == 'true' }}
-        run: npx nx affected --target=deploy  --exclude='*,!tag:backend' --configuration=production
+        env:
+          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+        run: |
+          IMAGE_REF="${ECR_REGISTRY}/app-speed/server:${GITHUB_SHA::12}"
+          NX_DOCKER_IMAGE_REF="${IMAGE_REF}" npx nx release version --group=server
+          npx nx release publish --group=server --yes --outputStyle=static
