@@ -206,6 +206,7 @@
         "changelog": false,
         "docker": {
           "repositoryName": "app-speed/server",
+          "groupPreVersionCommand": "npx nx run server:docker:build",
           "skipVersionActions": true
         }
       }
