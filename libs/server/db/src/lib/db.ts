@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import path from 'node:path';
 import SqliteDatabase from 'better-sqlite3';
 import { drizzle, type BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
@@ -36,6 +37,7 @@ export class DbClient extends Context.Tag('DbClient')<
       Effect.gen(function* () {
         const databaseUrl = yield* Config.string('DATABASE_URL').pipe(Config.withDefault('file:./tmp/dev.db'));
         const sqliteFile = resolveSqliteFile(databaseUrl);
+        fs.mkdirSync(path.dirname(sqliteFile), { recursive: true });
         const client = new SqliteDatabase(sqliteFile);
         client.pragma('foreign_keys = ON');
         client.pragma('journal_mode = WAL');
