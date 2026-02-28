@@ -38,12 +38,14 @@ const parseInstanceIds = (value?: string): string[] =>
 
 const shellQuote = (value: string): string => `'${value.replace(/'/g, `'"'"'`)}'`;
 
-const isSuccessful = (status: string): boolean => status === 'success';
+const normalizeStatus = (value?: string): string => (value ?? '').trim().toLowerCase().replace(/[\s-_]+/g, '');
 
-const isInProgress = (status: string): boolean =>
-  status === '' || status === 'pending' || status === 'in progress' || status === 'delayed';
+const isSuccessful = (status: string): boolean => normalizeStatus(status) === 'success';
 
-const normalizeStatus = (value?: string): string => (value ?? '').trim().toLowerCase();
+const isInProgress = (status: string): boolean => {
+  const normalized = normalizeStatus(status);
+  return normalized === '' || normalized === 'pending' || normalized === 'inprogress' || normalized === 'delayed';
+};
 
 const formatStatuses = (statusesByInstance: Record<string, string>): string =>
   Object.entries(statusesByInstance)
