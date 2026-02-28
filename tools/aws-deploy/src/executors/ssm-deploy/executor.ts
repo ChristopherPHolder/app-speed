@@ -25,7 +25,7 @@ const parseInstanceIds = (value?: string): string[] =>
     .map((instanceId) => instanceId.trim())
     .filter(Boolean);
 
-const shellQuote = (value: string): string => `'${value.replace(/'/g, `'\"'\"'`)}'`;
+const shellQuote = (value: string): string => `'${value.replace(/'/g, `'"'"'`)}'`;
 
 const isSuccessful = (status: string): boolean => status === 'success';
 
@@ -151,7 +151,8 @@ const runExecutor: PromiseExecutor<SsmDeployExecutorSchema> = async (options): P
 
   const imageRef = options.imageRef?.trim() || env.SERVER_IMAGE_REF?.trim();
   const hasCustomCommands = (options.commands ?? []).some((command) => command.trim().length > 0);
-  if (!hasCustomCommands && !imageRef) {
+  const defaultImageRef = imageRef ?? '';
+  if (!hasCustomCommands && defaultImageRef.length === 0) {
     return {
       success: false,
       message: 'Missing image reference. Set options.imageRef or SERVER_IMAGE_REF',
@@ -165,7 +166,7 @@ const runExecutor: PromiseExecutor<SsmDeployExecutorSchema> = async (options): P
 
   const commands = hasCustomCommands
     ? (options.commands ?? []).map((command) => command.trim()).filter(Boolean)
-    : buildDefaultCommands(imageRef!, region, containerName, hostPort, containerPort, additionalRunArgs);
+    : buildDefaultCommands(defaultImageRef, region, containerName, hostPort, containerPort, additionalRunArgs);
 
   const parameters: Record<string, string[]> = {
     commands,
