@@ -95,6 +95,25 @@
         "configFile": "{projectRoot}/vitest.config.e2e.mts",
         "reportsDirectory": "../../coverage/apps/server"
       }
+    },
+    "deploy": {
+      "executor": "@app-speed/aws-deploy:ssm-deploy",
+      "defaultConfiguration": "development",
+      "options": {
+        "region": "eu-central-1",
+        "documentName": "AWS-RunShellScript",
+        "instanceIds": ["i-016827500a47a80ef"],
+        "containerName": "app-speed-server",
+        "hostPort": 3000,
+        "containerPort": 3000,
+        "waitForCompletion": true,
+        "pollIntervalMs": 5000,
+        "timeoutMs": 900000
+      },
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
     }
   }
 }

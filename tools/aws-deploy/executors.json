@@ -10,6 +10,11 @@
       "schema": "./src/executors/lambda-deploy/schema.json",
       "description": "Deploy Lambda Function",
       "hasher": "./src/executors/lambda-deploy/hasher"
+    },
+    "ssm-deploy": {
+      "implementation": "./src/executors/ssm-deploy/executor",
+      "schema": "./src/executors/ssm-deploy/schema.json",
+      "description": "Deploy server image to EC2 instances via AWS SSM document"
     }
   }
 }
