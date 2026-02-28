@@ -17,6 +17,17 @@ type ExecutorExit = {
   commandId?: string;
 };
 
+const formatError = (error: unknown): string => {
+  if (error instanceof Error) {
+    return `${error.name}: ${error.message}`;
+  }
+  return String(error);
+};
+
+const fail = (message: string): never => {
+  throw new Error(message);
+};
+
 const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
 const parseInstanceIds = (value?: string): string[] =>
@@ -125,38 +136,26 @@ const waitForCompletion = async (
 const runExecutor: PromiseExecutor<SsmDeployExecutorSchema> = async (options): Promise<ExecutorExit> => {
   const region = options.region?.trim();
   if (!region) {
-    return {
-      success: false,
-      message: 'Missing required option: region',
-    };
+    fail('Missing required option: region');
   }
 
   const documentName = options.documentName?.trim() || DEFAULT_DOCUMENT_NAME;
   if (!documentName) {
-    return {
-      success: false,
-      message: 'Missing SSM document name',
-    };
+    fail('Missing SSM document name');
   }
 
   const optionInstanceIds = (options.instanceIds ?? []).map((instanceId) => instanceId.trim()).filter(Boolean);
   const envInstanceIds = parseInstanceIds(env.SERVER_SSM_INSTANCE_IDS);
   const instanceIds = optionInstanceIds.length > 0 ? optionInstanceIds : envInstanceIds;
   if (instanceIds.length === 0) {
-    return {
-      success: false,
-      message: 'Missing EC2 instance ids. Set options.instanceIds or SERVER_SSM_INSTANCE_IDS',
-    };
+    fail('Missing EC2 instance ids. Set options.instanceIds or SERVER_SSM_INSTANCE_IDS');
   }
 
   const imageRef = options.imageRef?.trim() || env.SERVER_IMAGE_REF?.trim();
   const hasCustomCommands = (options.commands ?? []).some((command) => command.trim().length > 0);
   const defaultImageRef = imageRef ?? '';
   if (!hasCustomCommands && defaultImageRef.length === 0) {
-    return {
-      success: false,
-      message: 'Missing image reference. Set options.imageRef or SERVER_IMAGE_REF',
-    };
+    fail('Missing image reference. Set options.imageRef or SERVER_IMAGE_REF');
   }
 
   const containerName = options.containerName?.trim() || DEFAULT_CONTAINER_NAME;
@@ -174,21 +173,23 @@ const runExecutor: PromiseExecutor<SsmDeployExecutorSchema> = async (options): P
   };
 
   const client = new SSMClient({ region });
-  const sendResponse = await client.send(
-    new SendCommandCommand({
-      DocumentName: documentName,
-      InstanceIds: instanceIds,
-      Parameters: parameters,
-      Comment: options.comment,
-    }),
-  );
+  const sendCommand = new SendCommandCommand({
+    DocumentName: documentName,
+    InstanceIds: instanceIds,
+    Parameters: parameters,
+    Comment: options.comment,
+  });
+  const sendResponse = await client
+    .send(sendCommand)
+    .catch((error: unknown) =>
+      fail(
+        `Failed to submit SSM command in ${region} for instances ${instanceIds.join(', ')}: ${formatError(error)}`,
+      ),
+    );
 
   const commandId = sendResponse.Command?.CommandId;
   if (!commandId) {
-    return {
-      success: false,
-      message: 'SSM send command did not return commandId',
-    };
+    fail('SSM send command did not return commandId');
   }
 
   if (options.waitForCompletion === false) {
@@ -202,7 +203,11 @@ const runExecutor: PromiseExecutor<SsmDeployExecutorSchema> = async (options): P
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const pollIntervalMs = options.pollIntervalMs ?? DEFAULT_POLL_INTERVAL_MS;
 
-  return waitForCompletion(client, commandId, instanceIds, timeoutMs, pollIntervalMs);
+  const result = await waitForCompletion(client, commandId, instanceIds, timeoutMs, pollIntervalMs);
+  if (!result.success) {
+    fail(result.message);
+  }
+  return result;
 };
 
 export default runExecutor;
