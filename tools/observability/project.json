@@ -1,0 +1,44 @@
+{
+  "name": "observability",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "tools/observability",
+  "tags": ["infra", "observability"],
+  "targets": {
+    "up": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "tools/observability/signoz/deploy/docker",
+        "command": "docker compose up -d"
+      }
+    },
+    "down": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "tools/observability/signoz/deploy/docker",
+        "command": "docker compose down --remove-orphans"
+      }
+    },
+    "status": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "tools/observability/signoz/deploy/docker",
+        "command": "docker compose ps"
+      }
+    },
+    "logs": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "tools/observability/signoz/deploy/docker",
+        "command": "docker compose logs -f signoz otel-collector"
+      }
+    },
+    "reset": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "tools/observability/signoz/deploy/docker",
+        "command": "docker compose down --volumes --remove-orphans"
+      }
+    }
+  }
+}

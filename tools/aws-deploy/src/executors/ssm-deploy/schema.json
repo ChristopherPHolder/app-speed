@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "version": 2,
+  "title": "SsmDeploy executor",
+  "description": "Deploy a server image to EC2 instances by running an SSM document.",
+  "type": "object",
+  "properties": {
+    "region": {
+      "type": "string",
+      "description": "AWS region where SSM command should run"
+    },
+    "documentName": {
+      "type": "string",
+      "description": "SSM document name. Defaults to AWS-RunShellScript."
+    },
+    "instanceIds": {
+      "type": "array",
+      "description": "Target EC2 instance ids. Falls back to SERVER_SSM_INSTANCE_IDS (comma-separated) when omitted.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "imageRef": {
+      "type": "string",
+      "description": "Container image reference to deploy. Falls back to SERVER_IMAGE_REF env var when omitted."
+    },
+    "commands": {
+      "type": "array",
+      "description": "Explicit shell commands. When omitted, Docker deploy commands are generated.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "containerName": {
+      "type": "string",
+      "description": "Container name used by generated deploy commands",
+      "default": "app-speed-server"
+    },
+    "hostPort": {
+      "type": "number",
+      "description": "Host port used by generated deploy commands",
+      "default": 3000
+    },
+    "containerPort": {
+      "type": "number",
+      "description": "Container port used by generated deploy commands",
+      "default": 3000
+    },
+    "additionalRunArgs": {
+      "type": "array",
+      "description": "Additional Docker run arguments used by generated deploy commands",
+      "items": {
+        "type": "string"
+      }
+    },
+    "parameters": {
+      "type": "object",
+      "description": "Additional SSM document parameters",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "waitForCompletion": {
+      "type": "boolean",
+      "description": "Wait for SSM command completion",
+      "default": true
+    },
+    "pollIntervalMs": {
+      "type": "number",
+      "description": "Polling interval while waiting for command completion",
+      "default": 5000
+    },
+    "timeoutMs": {
+      "type": "number",
+      "description": "Timeout for command completion wait",
+      "default": 900000
+    },
+    "comment": {
+      "type": "string",
+      "description": "Optional SSM command comment"
+    }
+  },
+  "required": ["region"],
+  "additionalProperties": false
+}

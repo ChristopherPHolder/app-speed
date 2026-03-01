@@ -1,0 +1,65 @@
+name: Deploy Server
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Deployment environment
+        required: true
+        type: choice
+        options:
+          - development
+          - production
+        default: development
+
+env:
+  NODE_VERSION: 24.14.0
+  PNPM_VERSION: 10.11.0
+
+jobs:
+  deploy-server:
+    name: Deploy Server
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
+
+      - name: Login to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Publish and Deploy Server
+        env:
+          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+          DEPLOY_ENV: ${{ github.event.inputs.environment }}
+        run: |
+          if [ "$DEPLOY_ENV" = "production" ]; then
+            IMAGE_REF="${ECR_REGISTRY}/app-speed/server:${GITHUB_SHA::12}"
+          else
+            IMAGE_REF="${ECR_REGISTRY}/app-speed/server:dev-${GITHUB_SHA::12}"
+          fi
+
+          NX_DOCKER_IMAGE_REF="${IMAGE_REF}" pnpm exec nx release version --group=server
+          pnpm exec nx release publish --group=server --yes --outputStyle=static
+          SERVER_IMAGE_REF="${IMAGE_REF}" pnpm exec nx run server:deploy --configuration="${DEPLOY_ENV}" --outputStyle=static

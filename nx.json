@@ -16,20 +16,61 @@
     "sharedGlobals": []
   },
   "targetDefaults": {
-    "build": { "dependsOn": ["^build"], "inputs": ["default", "^default"], "cache": true },
-    "build-storybook": { "cache": true },
-    "e2e": { "cache": true },
-    "@nx/eslint:lint": { "inputs": ["default", "{workspaceRoot}/.eslintrc.json"], "cache": true },
-    "@nx/vite:test": { "cache": true, "inputs": ["default", "^default"] },
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["default", "^default"],
+      "cache": true
+    },
+    "build-storybook": {
+      "cache": true
+    },
+    "e2e": {
+      "cache": true
+    },
+    "@nx/eslint:lint": {
+      "inputs": ["default", "{workspaceRoot}/.eslintrc.json"],
+      "cache": true
+    },
     "@nx/jest:jest": {
       "inputs": ["default", "^default", "{workspaceRoot}/jest.preset.js"],
       "cache": true,
-      "options": { "passWithNoTests": true },
-      "configurations": { "ci": { "ci": true, "codeCoverage": true } }
+      "options": {
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
     },
-    "@nx/esbuild:esbuild": { "cache": true, "dependsOn": ["^build"], "inputs": ["production", "^production"] },
-    "@nx/angular:browser-esbuild": { "cache": true, "dependsOn": ["^build"], "inputs": ["production", "^production"] },
-    "@nx/angular:ng-packagr-lite": { "cache": true, "dependsOn": ["^build"], "inputs": ["production", "^production"] }
+    "@nx/esbuild:esbuild": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
+    },
+    "@nx/angular:browser-esbuild": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
+    },
+    "@nx/angular:ng-packagr-lite": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
+    },
+    "@nx/js:tsc": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
+    },
+    "@nx/vitest:test": {
+      "cache": true,
+      "inputs": ["default", "^production"]
+    }
+  },
+  "sync": {
+    "disabledTaskSyncGenerators": ["@nx/js:typescript-sync"]
   },
   "generators": {
     "@nx/angular:application": {
@@ -52,27 +93,156 @@
       "compilationMode": "partial",
       "style": "scss"
     },
-    "@nx/angular:component": { "style": "scss" }
+    "@nx/angular:component": {
+      "style": "scss",
+      "type": "component"
+    },
+    "@schematics/angular:component": {
+      "type": "component"
+    },
+    "@nx/angular:directive": {
+      "type": "directive"
+    },
+    "@schematics/angular:directive": {
+      "type": "directive"
+    },
+    "@nx/angular:service": {
+      "type": "service"
+    },
+    "@schematics/angular:service": {
+      "type": "service"
+    },
+    "@nx/angular:scam": {
+      "type": "component"
+    },
+    "@nx/angular:scam-directive": {
+      "type": "directive"
+    },
+    "@nx/angular:guard": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:guard": {
+      "typeSeparator": "."
+    },
+    "@nx/angular:interceptor": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:interceptor": {
+      "typeSeparator": "."
+    },
+    "@nx/angular:module": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:module": {
+      "typeSeparator": "."
+    },
+    "@nx/angular:pipe": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:pipe": {
+      "typeSeparator": "."
+    },
+    "@nx/angular:resolver": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:resolver": {
+      "typeSeparator": "."
+    }
   },
   "plugins": [
-    { "plugin": "@nx/eslint/plugin", "options": { "targetName": "eslint:lint" } },
+    {
+      "plugin": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "eslint:lint"
+      }
+    },
+    {
+      "plugin": "@nx/js/typescript",
+      "include": ["tools/aws-deploy/**/tsconfig*.json"],
+      "options": {
+        "typecheck": {
+          "targetName": "typecheck"
+        },
+        "build": false
+      }
+    },
+    {
+      "plugin": "@nx/webpack/plugin",
+      "options": {
+        "buildTargetName": "build",
+        "serveTargetName": "serve",
+        "previewTargetName": "preview"
+      }
+    },
     {
       "plugin": "@nx/vite/plugin",
       "options": {
         "buildTargetName": "build",
-        "serveTargetName": "serve",
-        "previewTargetName": "preview",
         "testTargetName": "test",
-        "serveStaticTargetName": "serve-static"
-      },
-      "include": [
-        "packages/runner-app/**/*",
-        "packages/audit-queue/**/*",
-        "packages/audit-store/**/*",
-        "packages/cli-middleware/**/*",
-        "packages/user-flow-replay/**/*"
-      ]
+        "serveTargetName": "serve",
+        "devTargetName": "dev",
+        "previewTargetName": "preview",
+        "serveStaticTargetName": "serve-static",
+        "typecheckTargetName": "typecheck",
+        "buildDepsTargetName": "build-deps",
+        "watchDepsTargetName": "watch-deps"
+      }
+    },
+    {
+      "plugin": "@nx/cypress/plugin",
+      "options": {
+        "targetName": "e2e",
+        "openTargetName": "open-cypress",
+        "componentTestingTargetName": "component-test",
+        "ciTargetName": "e2e-ci"
+      }
+    },
+    {
+      "plugin": "@nx/docker",
+      "options": {
+        "buildTarget": {
+          "name": "docker:build",
+          "cwd": ".",
+          "args": ["--file", "{projectRoot}/Dockerfile"]
+        },
+        "runTarget": {
+          "name": "docker:run"
+        }
+      }
     }
   ],
+  "release": {
+    "groups": {
+      "server": {
+        "projects": ["server"],
+        "projectsRelationship": "fixed",
+        "changelog": false,
+        "docker": {
+          "repositoryName": "app-speed/server",
+          "groupPreVersionCommand": "pnpm exec nx run server:docker:build",
+          "skipVersionActions": true
+        }
+      },
+      "runner": {
+        "projects": ["runner-app"],
+        "projectsRelationship": "fixed",
+        "changelog": false,
+        "docker": {
+          "repositoryName": "app-speed/runner",
+          "groupPreVersionCommand": "pnpm exec nx run runner-app:docker:build",
+          "skipVersionActions": true
+        }
+      }
+    },
+    "changelog": {
+      "workspaceChangelog": false,
+      "projectChangelogs": false
+    },
+    "version": {
+      "git": {
+        "stageChanges": false
+      }
+    }
+  },
   "nxCloudId": "67b1e61a2185ed22a4099d4a"
 }

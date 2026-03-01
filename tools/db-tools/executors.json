@@ -1,0 +1,14 @@
+{
+  "executors": {
+    "sqlite-migrate": {
+      "implementation": "./src/executors/sqlite-migrate/executor",
+      "schema": "./src/executors/sqlite-migrate/schema.json",
+      "description": "Apply SQLite SQL migration files"
+    },
+    "drizzle-kit": {
+      "implementation": "./src/executors/drizzle-kit/executor",
+      "schema": "./src/executors/drizzle-kit/schema.json",
+      "description": "Run drizzle-kit commands"
+    }
+  }
+}

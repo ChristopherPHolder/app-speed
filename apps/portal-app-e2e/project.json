@@ -1,0 +1,26 @@
+{
+  "name": "portal-app-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/portal-app-e2e",
+  "tags": ["e2e"],
+  "implicitDependencies": ["portal-app"],
+  "targets": {
+    "e2e": {
+      "executor": "@nx/cypress:cypress",
+      "options": {
+        "cypressConfig": "apps/portal-app-e2e/cypress.config.ts",
+        "devServerTarget": "portal-app:serve:development"
+      },
+      "configurations": {
+        "production": {
+          "devServerTarget": "portal-app:serve:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
+    }
+  }
+}

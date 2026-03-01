@@ -15,7 +15,7 @@
         "outputPath": "dist/{projectRoot}",
         "format": ["esm"],
         "bundle": true,
-        "main": "{projectRoot}/src/main.ts",
+        "main": "{projectRoot}/src/bin.ts",
         "tsConfig": "{projectRoot}/tsconfig.app.json",
         "assets": ["{projectRoot}/src/assets"],
         "generatePackageJson": true,
@@ -50,27 +50,13 @@
         }
       }
     },
+    "execute": {
+      "command": "node dist/{projectRoot}",
+      "dependsOn": ["build"]
+    },
     "lint": {
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"]
-    },
-    "test": {
-      "inputs": [
-        "default",
-        "^default",
-        {
-          "externalDependencies": ["vitest"]
-        }
-      ],
-      "options": {
-        "passWithNoTests": true
-      },
-      "configurations": {
-        "ci": {
-          "ci": true,
-          "codeCoverage": true
-        }
-      }
     },
     "s3-upload": {
       "executor": "@app-speed/aws-deploy:s3-upload",
@@ -81,10 +67,16 @@
       }
     },
     "deploy": {
-      "executor": "nx:run-commands",
-      "dependsOn": ["s3-upload"],
+      "executor": "@app-speed/aws-deploy:ec2-ssm-cycle",
       "options": {
-        "command": "node ./scripts/deploy-runner.js"
+        "region": "eu-central-1",
+        "instanceId": "i-049287bf43503d01e",
+        "documentName": "AWS-RunShellScript",
+        "containerName": "app-speed-runner",
+        "stopAfterCompletion": true,
+        "stopOnlyIfStarted": true,
+        "pollIntervalMs": 5000,
+        "timeoutMs": 900000
       }
     }
   }
