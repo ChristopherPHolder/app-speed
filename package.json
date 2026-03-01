@@ -171,5 +171,8 @@
   "overrides": {
     "chokidar": "4.0.0",
     "typescript": "5.9.2"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["better-sqlite3"]
   }
 }
