@@ -13,8 +13,7 @@ on:
         default: development
 
 env:
-  NODE_VERSION: 24
-  NPM_VERSION: 11.11.0
+  NODE_VERSION: 24.14.0
 
 jobs:
   deploy-runner:
@@ -30,8 +29,6 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-      - name: Setup npm
-        run: npm i -g npm@${{ env.NPM_VERSION }}
 
       - name: Cache NPM Dependencies
         uses: actions/cache@v4
