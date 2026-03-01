@@ -1,0 +1,65 @@
+name: Deploy Frontend
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Deployment environment
+        required: true
+        type: choice
+        options:
+          - development
+          - production
+        default: development
+
+env:
+  NODE_VERSION: 24
+
+jobs:
+  deploy-frontend:
+    name: Deploy Frontend
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Cache NPM Dependencies
+        uses: actions/cache@v4
+        id: cache-primes
+        with:
+          path: |
+            node_modules
+            ~/.cache
+            dist
+          key: ${{ runner.os }}-node-${{ env.NODE_VERSION }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Clean Install Dependencies
+        if: steps.cache-primes.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
+
+      - name: Deploy Frontend (Auto Main)
+        if: ${{ github.event_name == 'push' }}
+        run: npx nx run-many --target=deploy --projects=portal --configuration=production --outputStyle=static
+
+      - name: Deploy Frontend (Manual)
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        env:
+          DEPLOY_ENV: ${{ github.event.inputs.environment }}
+        run: npx nx run-many --target=deploy --projects=portal --configuration="${DEPLOY_ENV}" --outputStyle=static
