@@ -13,7 +13,7 @@
     "baseUrl": ".",
     "rootDir": ".",
     "paths": {
-      "@app-speed/aws-deploy": ["packages/aws-deploy/src/index.ts"],
+      "@app-speed/aws-deploy": ["tools/aws-deploy/src/index.ts"],
       "@app-speed/portal-data-access": ["libs/portal/data-access/src/index.ts"],
       "@app-speed/portal-feature-audit": ["libs/portal/feature-audit/src/index.ts"],
       "@app-speed/portal-feature-shell": ["libs/portal/feature-shell/src/index.ts"],
