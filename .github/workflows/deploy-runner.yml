@@ -1,0 +1,71 @@
+name: Deploy Runner
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Deployment environment
+        required: true
+        type: choice
+        options:
+          - development
+          - production
+        default: development
+
+env:
+  NODE_VERSION: 24
+
+jobs:
+  deploy-runner:
+    name: Deploy Runner
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Cache NPM Dependencies
+        uses: actions/cache@v4
+        id: cache-primes
+        with:
+          path: |
+            node_modules
+            ~/.cache
+            dist
+          key: ${{ runner.os }}-node-${{ env.NODE_VERSION }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Clean Install Dependencies
+        if: steps.cache-primes.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
+
+      - name: Login to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Publish and Deploy Runner
+        env:
+          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+          DEPLOY_ENV: ${{ github.event.inputs.environment }}
+        run: |
+          if [ "$DEPLOY_ENV" = "production" ]; then
+            IMAGE_REF="${ECR_REGISTRY}/app-speed/runner:${GITHUB_SHA::12}"
+          else
+            IMAGE_REF="${ECR_REGISTRY}/app-speed/runner:dev-${GITHUB_SHA::12}"
+          fi
+
+          NX_DOCKER_IMAGE_REF="${IMAGE_REF}" npx nx release version --group=runner
+          npx nx release publish --group=runner --yes --outputStyle=static
+          RUNNER_IMAGE_REF="${IMAGE_REF}" npx nx run runner-app:deploy --outputStyle=static --verbose

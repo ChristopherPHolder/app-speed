@@ -1,7 +1,13 @@
 export interface Ec2SsmCycleExecutorSchema {
   region: string;
   instanceId: string;
-  documentName: string;
+  documentName?: string;
+  imageRef?: string;
+  commands?: string[];
+  containerName?: string;
+  hostPort?: number;
+  containerPort?: number;
+  additionalRunArgs?: string[];
   parameters?: Record<string, string[]>;
   comment?: string;
   timeoutMs?: number;

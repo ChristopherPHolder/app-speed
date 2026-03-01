@@ -68,13 +68,15 @@
     },
     "deploy": {
       "executor": "@app-speed/aws-deploy:ec2-ssm-cycle",
-      "dependsOn": ["s3-upload"],
       "options": {
-        "region": "us-east-1",
-        "instanceId": "i-0781d8307e3c9e9f7",
-        "documentName": "ufo-runner-deploy",
+        "region": "eu-central-1",
+        "instanceId": "i-049287bf43503d01e",
+        "documentName": "AWS-RunShellScript",
+        "containerName": "app-speed-runner",
         "stopAfterCompletion": true,
-        "stopOnlyIfStarted": true
+        "stopOnlyIfStarted": true,
+        "pollIntervalMs": 5000,
+        "timeoutMs": 900000
       }
     }
   }

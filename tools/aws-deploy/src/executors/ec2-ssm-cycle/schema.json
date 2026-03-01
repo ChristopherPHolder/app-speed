@@ -15,7 +15,38 @@
     },
     "documentName": {
       "type": "string",
-      "description": "SSM document name."
+      "description": "SSM document name. Defaults to AWS-RunShellScript."
+    },
+    "imageRef": {
+      "type": "string",
+      "description": "Container image reference to deploy. Falls back to RUNNER_IMAGE_REF env var when omitted."
+    },
+    "commands": {
+      "type": "array",
+      "description": "Explicit shell commands. When omitted, Docker deploy commands are generated.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "containerName": {
+      "type": "string",
+      "description": "Container name used by generated deploy commands.",
+      "default": "app-speed-runner"
+    },
+    "hostPort": {
+      "type": "number",
+      "description": "Host port used by generated deploy commands. Must be set together with containerPort."
+    },
+    "containerPort": {
+      "type": "number",
+      "description": "Container port used by generated deploy commands. Must be set together with hostPort."
+    },
+    "additionalRunArgs": {
+      "type": "array",
+      "description": "Additional Docker run arguments used by generated deploy commands.",
+      "items": {
+        "type": "string"
+      }
     },
     "parameters": {
       "type": "object",
@@ -62,6 +93,6 @@
       "default": true
     }
   },
-  "required": ["region", "instanceId", "documentName"],
+  "required": ["region", "instanceId"],
   "additionalProperties": false
 }

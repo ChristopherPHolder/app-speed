@@ -222,6 +222,16 @@
           "groupPreVersionCommand": "npx nx run server:docker:build",
           "skipVersionActions": true
         }
+      },
+      "runner": {
+        "projects": ["runner-app"],
+        "projectsRelationship": "fixed",
+        "changelog": false,
+        "docker": {
+          "repositoryName": "app-speed/runner",
+          "groupPreVersionCommand": "npx nx run runner-app:docker:build",
+          "skipVersionActions": true
+        }
       }
     },
     "changelog": {
