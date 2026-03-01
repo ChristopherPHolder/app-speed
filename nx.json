@@ -69,6 +69,9 @@
       "inputs": ["default", "^production"]
     }
   },
+  "sync": {
+    "disabledTaskSyncGenerators": ["@nx/js:typescript-sync"]
+  },
   "generators": {
     "@nx/angular:application": {
       "style": "scss",
@@ -151,6 +154,16 @@
       "plugin": "@nx/eslint/plugin",
       "options": {
         "targetName": "eslint:lint"
+      }
+    },
+    {
+      "plugin": "@nx/js/typescript",
+      "include": ["tools/aws-deploy/**/tsconfig*.json"],
+      "options": {
+        "typecheck": {
+          "targetName": "typecheck"
+        },
+        "build": false
       }
     },
     {

@@ -1,7 +1,8 @@
 import { PromiseExecutor } from '@nx/devkit';
-import { ListCommandInvocationsCommand, SendCommandCommand, SSMClient } from '@aws-sdk/client-ssm';
+import { SendCommandCommand, SSMClient } from '@aws-sdk/client-ssm';
 import { env } from 'node:process';
 
+import { waitForSsmCommandCompletion } from '../../lib/ssm';
 import { SsmDeployExecutorSchema } from './schema';
 
 const DEFAULT_DOCUMENT_NAME = 'AWS-RunShellScript';
@@ -28,8 +29,6 @@ const fail = (message: string): never => {
   throw new Error(message);
 };
 
-const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
-
 const parseInstanceIds = (value?: string): string[] =>
   (value ?? '')
     .split(',')
@@ -37,20 +36,6 @@ const parseInstanceIds = (value?: string): string[] =>
     .filter(Boolean);
 
 const shellQuote = (value: string): string => `'${value.replace(/'/g, `'"'"'`)}'`;
-
-const normalizeStatus = (value?: string): string => (value ?? '').trim().toLowerCase().replace(/[\s-_]+/g, '');
-
-const isSuccessful = (status: string): boolean => normalizeStatus(status) === 'success';
-
-const isInProgress = (status: string): boolean => {
-  const normalized = normalizeStatus(status);
-  return normalized === '' || normalized === 'pending' || normalized === 'inprogress' || normalized === 'delayed';
-};
-
-const formatStatuses = (statusesByInstance: Record<string, string>): string =>
-  Object.entries(statusesByInstance)
-    .map(([instanceId, status]) => `${instanceId}=${status || 'pending'}`)
-    .join(', ');
 
 const buildDefaultCommands = (
   imageRef: string,
@@ -75,64 +60,6 @@ const buildDefaultCommands = (
     `docker run -d --name ${shellQuote(containerName)} --restart unless-stopped -p ` +
       `${hostPort}:${containerPort}${runArgsSuffix} "$IMAGE_REF"`,
   ];
-};
-
-const waitForCompletion = async (
-  client: SSMClient,
-  commandId: string,
-  instanceIds: string[],
-  timeoutMs: number,
-  pollIntervalMs: number,
-): Promise<ExecutorExit> => {
-  const deadline = Date.now() + timeoutMs;
-
-  while (Date.now() < deadline) {
-    const response = await client.send(
-      new ListCommandInvocationsCommand({
-        CommandId: commandId,
-        Details: false,
-      }),
-    );
-
-    const statusesByInstance: Record<string, string> = Object.fromEntries(
-      instanceIds.map((instanceId) => [instanceId, 'pending']),
-    );
-
-    for (const invocation of response.CommandInvocations ?? []) {
-      const instanceId = invocation.InstanceId;
-      if (!instanceId || !instanceIds.includes(instanceId)) {
-        continue;
-      }
-      statusesByInstance[instanceId] = normalizeStatus(invocation.StatusDetails ?? invocation.Status);
-    }
-
-    const statuses = Object.values(statusesByInstance);
-    const allSuccessful = statuses.every(isSuccessful);
-    if (allSuccessful) {
-      return {
-        success: true,
-        commandId,
-        message: `SSM command ${commandId} completed successfully: ${formatStatuses(statusesByInstance)}`,
-      };
-    }
-
-    const failedStatus = statuses.find((status) => !isSuccessful(status) && !isInProgress(status));
-    if (failedStatus) {
-      return {
-        success: false,
-        commandId,
-        message: `SSM command ${commandId} failed: ${formatStatuses(statusesByInstance)}`,
-      };
-    }
-
-    await sleep(pollIntervalMs);
-  }
-
-  return {
-    success: false,
-    commandId,
-    message: `SSM command ${commandId} timed out after ${timeoutMs}ms`,
-  };
 };
 
 const runExecutor: PromiseExecutor<SsmDeployExecutorSchema> = async (options): Promise<ExecutorExit> => {
@@ -189,23 +116,20 @@ const runExecutor: PromiseExecutor<SsmDeployExecutorSchema> = async (options): P
       ),
     );
 
-  const commandId = sendResponse.Command?.CommandId;
-  if (!commandId) {
-    fail('SSM send command did not return commandId');
-  }
+  const resolvedCommandId = sendResponse.Command?.CommandId ?? fail('SSM send command did not return commandId');
 
   if (options.waitForCompletion === false) {
     return {
       success: true,
-      commandId,
-      message: `SSM command submitted: ${commandId}`,
+      commandId: resolvedCommandId,
+      message: `SSM command submitted: ${resolvedCommandId}`,
     };
   }
 
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const pollIntervalMs = options.pollIntervalMs ?? DEFAULT_POLL_INTERVAL_MS;
 
-  const result = await waitForCompletion(client, commandId, instanceIds, timeoutMs, pollIntervalMs);
+  const result = await waitForSsmCommandCompletion(client, resolvedCommandId, instanceIds, timeoutMs, pollIntervalMs);
   if (!result.success) {
     fail(result.message);
   }

@@ -67,10 +67,14 @@
       }
     },
     "deploy": {
-      "executor": "nx:run-commands",
+      "executor": "@app-speed/aws-deploy:ec2-ssm-cycle",
       "dependsOn": ["s3-upload"],
       "options": {
-        "command": "node ./scripts/deploy-runner.js"
+        "region": "us-east-1",
+        "instanceId": "i-0781d8307e3c9e9f7",
+        "documentName": "ufo-runner-deploy",
+        "stopAfterCompletion": true,
+        "stopOnlyIfStarted": true
       }
     }
   }

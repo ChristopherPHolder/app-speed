@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "version": 2,
+  "title": "Ec2SsmCycle executor",
+  "description": "Starts EC2 instances, executes an SSM document, and optionally stops instances when done.",
+  "type": "object",
+  "properties": {
+    "region": {
+      "type": "string",
+      "description": "AWS region where EC2 and SSM commands are executed."
+    },
+    "instanceId": {
+      "type": "string",
+      "description": "Target EC2 instance ID."
+    },
+    "documentName": {
+      "type": "string",
+      "description": "SSM document name."
+    },
+    "parameters": {
+      "type": "object",
+      "description": "Optional SSM document parameters.",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "comment": {
+      "type": "string",
+      "description": "Optional SSM command comment."
+    },
+    "timeoutMs": {
+      "type": "number",
+      "description": "Maximum wait time for SSM command execution completion.",
+      "default": 900000
+    },
+    "pollIntervalMs": {
+      "type": "number",
+      "description": "Polling interval while waiting for SSM command completion.",
+      "default": 5000
+    },
+    "startWaitTimeoutMs": {
+      "type": "number",
+      "description": "Maximum wait time for instances to become running.",
+      "default": 600000
+    },
+    "stopWaitTimeoutMs": {
+      "type": "number",
+      "description": "Maximum wait time for instances to become stopped.",
+      "default": 600000
+    },
+    "stopAfterCompletion": {
+      "type": "boolean",
+      "description": "Stop instances after command completes or fails.",
+      "default": true
+    },
+    "stopOnlyIfStarted": {
+      "type": "boolean",
+      "description": "When true, only stop instances that this executor started.",
+      "default": true
+    }
+  },
+  "required": ["region", "instanceId", "documentName"],
+  "additionalProperties": false
+}

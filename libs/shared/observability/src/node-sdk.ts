@@ -1,4 +1,4 @@
-import * as NodeSdk from '@effect/opentelemetry/NodeSdk';
+import { NodeSdk } from '@effect/opentelemetry';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { AlwaysOnSampler, BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import { Config, Effect } from 'effect';

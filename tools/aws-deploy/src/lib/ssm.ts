@@ -1,12 +1,15 @@
-import { ListCommandInvocationsCommand, SSMClient } from '@aws-sdk/client-ssm';
+import {
+  GetCommandInvocationCommand,
+  SSMClient,
+  waitUntilCommandExecuted,
+  type CommandInvocationStatus,
+} from '@aws-sdk/client-ssm';
 
 export type SsmCommandCompletionResult = {
   success: boolean;
   message: string;
   commandId: string;
 };
-
-const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
 const normalizeStatus = (value?: string): string =>
   (value ?? '')
@@ -26,6 +29,27 @@ const formatStatuses = (statusesByInstance: Record<string, string>): string =>
     .map(([instanceId, status]) => `${instanceId}=${status || 'pending'}`)
     .join(', ');
 
+const toWaitSeconds = (timeoutMs: number): number => Math.max(1, Math.ceil(timeoutMs / 1000));
+const toDelaySeconds = (pollIntervalMs: number): number => Math.max(1, Math.ceil(pollIntervalMs / 1000));
+
+const getInvocationStatus = async (
+  client: SSMClient,
+  commandId: string,
+  instanceId: string,
+): Promise<CommandInvocationStatus | string> => {
+  try {
+    const response = await client.send(
+      new GetCommandInvocationCommand({
+        CommandId: commandId,
+        InstanceId: instanceId,
+      }),
+    );
+    return response.StatusDetails ?? response.Status ?? 'unknown';
+  } catch {
+    return 'unknown';
+  }
+};
+
 export const waitForSsmCommandCompletion = async (
   client: SSMClient,
   commandId: string,
@@ -33,47 +57,50 @@ export const waitForSsmCommandCompletion = async (
   timeoutMs: number,
   pollIntervalMs: number,
 ): Promise<SsmCommandCompletionResult> => {
-  const deadline = Date.now() + timeoutMs;
+  const maxWaitTime = toWaitSeconds(timeoutMs);
+  const delaySeconds = toDelaySeconds(pollIntervalMs);
 
-  while (Date.now() < deadline) {
-    const response = await client.send(
-      new ListCommandInvocationsCommand({
-        CommandId: commandId,
-        Details: false,
-      }),
-    );
-
-    const statusesByInstance: Record<string, string> = Object.fromEntries(
-      instanceIds.map((instanceId) => [instanceId, 'pending']),
-    );
-
-    for (const invocation of response.CommandInvocations ?? []) {
-      const instanceId = invocation.InstanceId;
-      if (!instanceId || !instanceIds.includes(instanceId)) {
-        continue;
+  const statuses = await Promise.all(
+    instanceIds.map(async (instanceId) => {
+      try {
+        await waitUntilCommandExecuted(
+          {
+            client,
+            maxWaitTime,
+            minDelay: delaySeconds,
+            maxDelay: delaySeconds,
+          },
+          {
+            CommandId: commandId,
+            InstanceId: instanceId,
+          },
+        );
+      } catch {
+        // We still fetch the final invocation status below to build a precise message.
       }
-      statusesByInstance[instanceId] = normalizeStatus(invocation.StatusDetails ?? invocation.Status);
-    }
 
-    const statuses = Object.values(statusesByInstance);
-    if (statuses.every(isSuccessful)) {
-      return {
-        success: true,
-        commandId,
-        message: `SSM command ${commandId} completed successfully: ${formatStatuses(statusesByInstance)}`,
-      };
-    }
+      return [instanceId, normalizeStatus(await getInvocationStatus(client, commandId, instanceId))] as const;
+    }),
+  );
 
-    const failedStatus = statuses.find((status) => !isSuccessful(status) && !isInProgress(status));
-    if (failedStatus) {
-      return {
-        success: false,
-        commandId,
-        message: `SSM command ${commandId} failed: ${formatStatuses(statusesByInstance)}`,
-      };
-    }
+  const statusesByInstance = Object.fromEntries(statuses);
+  const values = Object.values(statusesByInstance);
 
-    await sleep(pollIntervalMs);
+  if (values.every(isSuccessful)) {
+    return {
+      success: true,
+      commandId,
+      message: `SSM command ${commandId} completed successfully: ${formatStatuses(statusesByInstance)}`,
+    };
+  }
+
+  const failed = values.find((status) => !isSuccessful(status) && !isInProgress(status));
+  if (failed) {
+    return {
+      success: false,
+      commandId,
+      message: `SSM command ${commandId} failed: ${formatStatuses(statusesByInstance)}`,
+    };
   }
 
   return {
