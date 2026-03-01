@@ -26,7 +26,7 @@ const waitForBackend = async (timeoutMs = 60000) => {
 
 const ensureBackend = async () => {
   if (!backendProcess) {
-    backendProcess = spawn('npx nx run server:serve:development', {
+    backendProcess = spawn('pnpm exec nx run server:serve:development', {
       cwd: workspaceRoot,
       shell: true,
       stdio: 'inherit',

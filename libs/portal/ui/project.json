@@ -71,7 +71,7 @@
       "dependsOn": ["build-storybook"],
       "options": {
         "parallel": false,
-        "commands": ["npx chromatic -d ./dist/storybook/ui --exit-zero-on-changes"]
+        "commands": ["pnpm exec chromatic -d ./dist/storybook/ui --exit-zero-on-changes"]
       }
     }
   }

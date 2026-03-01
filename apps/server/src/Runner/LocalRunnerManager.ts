@@ -16,7 +16,7 @@ type RunnerState = {
   lastHeartbeatAt: Date | null;
 };
 
-const runnerCommand = Command.make('npx', 'nx', 'execute', 'runner-app').pipe(
+const runnerCommand = Command.make('pnpm', 'exec', 'nx', 'execute', 'runner-app').pipe(
   Command.workingDirectory(process.cwd()),
   Command.stdout('inherit'),
   Command.stderr('inherit'),

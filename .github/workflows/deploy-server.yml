@@ -14,6 +14,7 @@ on:
 
 env:
   NODE_VERSION: 24.14.0
+  PNPM_VERSION: 10.11.0
 
 jobs:
   deploy-server:
@@ -28,7 +29,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: 'pnpm'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
 
       - name: Cache NPM Dependencies
         uses: actions/cache@v4
@@ -38,11 +43,16 @@ jobs:
             node_modules
             ~/.cache
             dist
-          key: ${{ runner.os }}-node-${{ env.NODE_VERSION }}-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-node-${{ env.NODE_VERSION }}-${{ hashFiles('pnpm-lock.yaml', 'package.json') }}
 
       - name: Clean Install Dependencies
         if: steps.cache-primes.outputs.cache-hit != 'true'
-        run: npm ci
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            pnpm install --frozen-lockfile
+          else
+            pnpm install --no-frozen-lockfile
+          fi
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -66,6 +76,6 @@ jobs:
             IMAGE_REF="${ECR_REGISTRY}/app-speed/server:dev-${GITHUB_SHA::12}"
           fi
 
-          NX_DOCKER_IMAGE_REF="${IMAGE_REF}" npx nx release version --group=server
-          npx nx release publish --group=server --yes --outputStyle=static
-          SERVER_IMAGE_REF="${IMAGE_REF}" npx nx run server:deploy --configuration="${DEPLOY_ENV}" --outputStyle=static
+          NX_DOCKER_IMAGE_REF="${IMAGE_REF}" pnpm exec nx release version --group=server
+          pnpm exec nx release publish --group=server --yes --outputStyle=static
+          SERVER_IMAGE_REF="${IMAGE_REF}" pnpm exec nx run server:deploy --configuration="${DEPLOY_ENV}" --outputStyle=static

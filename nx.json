@@ -219,7 +219,7 @@
         "changelog": false,
         "docker": {
           "repositoryName": "app-speed/server",
-          "groupPreVersionCommand": "npx nx run server:docker:build",
+          "groupPreVersionCommand": "pnpm exec nx run server:docker:build",
           "skipVersionActions": true
         }
       },
@@ -229,7 +229,7 @@
         "changelog": false,
         "docker": {
           "repositoryName": "app-speed/runner",
-          "groupPreVersionCommand": "npx nx run runner-app:docker:build",
+          "groupPreVersionCommand": "pnpm exec nx run runner-app:docker:build",
           "skipVersionActions": true
         }
       }

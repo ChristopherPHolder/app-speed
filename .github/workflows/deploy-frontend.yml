@@ -17,6 +17,7 @@ on:
 
 env:
   NODE_VERSION: 24.14.0
+  PNPM_VERSION: 10.11.0
 
 jobs:
   deploy-frontend:
@@ -31,7 +32,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: 'pnpm'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
 
       - name: Cache NPM Dependencies
         uses: actions/cache@v4
@@ -41,11 +46,16 @@ jobs:
             node_modules
             ~/.cache
             dist
-          key: ${{ runner.os }}-node-${{ env.NODE_VERSION }}-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-node-${{ env.NODE_VERSION }}-${{ hashFiles('pnpm-lock.yaml', 'package.json') }}
 
       - name: Clean Install Dependencies
         if: steps.cache-primes.outputs.cache-hit != 'true'
-        run: npm ci
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            pnpm install --frozen-lockfile
+          else
+            pnpm install --no-frozen-lockfile
+          fi
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -56,10 +66,10 @@ jobs:
 
       - name: Deploy Frontend (Auto Main)
         if: ${{ github.event_name == 'push' }}
-        run: npx nx run-many --target=deploy --projects=portal --configuration=production --outputStyle=static
+        run: pnpm exec nx run-many --target=deploy --projects=portal --configuration=production --outputStyle=static
 
       - name: Deploy Frontend (Manual)
         if: ${{ github.event_name == 'workflow_dispatch' }}
         env:
           DEPLOY_ENV: ${{ github.event.inputs.environment }}
-        run: npx nx run-many --target=deploy --projects=portal --configuration="${DEPLOY_ENV}" --outputStyle=static
+        run: pnpm exec nx run-many --target=deploy --projects=portal --configuration="${DEPLOY_ENV}" --outputStyle=static

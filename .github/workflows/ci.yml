@@ -2,6 +2,7 @@ name: CI
 
 env:
   NODE_VERSION: 24.14.0
+  PNPM_VERSION: 10.11.0
   is-main-branch: ${{ github.ref == 'refs/heads/main' }}
   is-pull-request: ${{ github.event_name == 'pull_request' }}
 
@@ -27,7 +28,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: 'pnpm'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
 
       # Aggressive NPM dependency caching
       # https://dev.to/drakulavich/aggressive-dependency-caching-in-github-actions-3c64
@@ -39,11 +44,16 @@ jobs:
             node_modules
             ~/.cache
             dist
-          key: &npm_cache_key ${{ runner.os }}-node-${{ env.NODE_VERSION }}-${{ hashFiles('package-lock.json') }}
+          key: &npm_cache_key ${{ runner.os }}-node-${{ env.NODE_VERSION }}-${{ hashFiles('pnpm-lock.yaml', 'package.json') }}
 
       - name: Clean Install Dependencies
         if: steps.cache-primes.outputs.cache-hit != 'true'
-        run: npm ci
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            pnpm install --frozen-lockfile
+          else
+            pnpm install --no-frozen-lockfile
+          fi
 
   lint:
     name: Lint Affected
@@ -60,7 +70,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: 'pnpm'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
 
       - name: Cache NPM Dependencies
         uses: actions/cache@v4
@@ -72,7 +86,7 @@ jobs:
           key: *npm_cache_key
 
       - name: Lint Affected
-        run: npx nx affected --target=lint --parallel=3
+        run: pnpm exec nx affected --target=lint --parallel=3
 
   test:
     name: Test Affected
@@ -89,7 +103,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: 'pnpm'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
 
       - name: Cache NPM Dependencies
         uses: actions/cache@v4
@@ -101,7 +119,7 @@ jobs:
           key: *npm_cache_key
 
       - name: Test Affected
-        run: npx nx affected --target=test --parallel=3
+        run: pnpm exec nx affected --target=test --parallel=3
 
   build:
     name: Build Affected
@@ -118,7 +136,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: 'pnpm'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
 
       - name: Cache NPM Dependencies
         uses: actions/cache@v4
@@ -130,7 +152,7 @@ jobs:
           key: *npm_cache_key
 
       - name: Build Affected
-        run: npx nx affected -t build build-storybook --parallel=3
+        run: pnpm exec nx affected -t build build-storybook --parallel=3
 
 #  e2e:
 #    name: E2E Affected
@@ -145,7 +167,7 @@ jobs:
 #      - uses: actions/setup-node@v4
 #        with:
 #          node-version: ${{ env.NODE_VERSION }}
-#          cache: 'npm'
+#          cache: 'pnpm'
 #
 #      - name: Cache NPM Dependencies
 #        uses: actions/cache@v4
@@ -157,7 +179,7 @@ jobs:
 #          key: *npm_cache_key
 #
 #      - name: E2E Affected
-#        run: npx nx affected --target=e2e --parallel=3
+#        run: pnpm exec nx affected --target=e2e --parallel=3
 
 #  publish-storybook:
 #    name: Publish Storybook
@@ -172,7 +194,7 @@ jobs:
 #      - uses: actions/setup-node@v4
 #        with:
 #          node-version: ${{ env.NODE_VERSION }}
-#          cache: 'npm'
+#          cache: 'pnpm'
 #
 #      - name: Cache NPM Dependencies
 #        uses: actions/cache@v4
@@ -184,4 +206,4 @@ jobs:
 #          key: *npm_cache_key
 #
 #      - name: Publish Storybook Affected
-#        run: npx nx affected --target=publish-storybook --parallel=3 --project-token=${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+#        run: pnpm exec nx affected --target=publish-storybook --parallel=3 --project-token=${{ secrets.CHROMATIC_PROJECT_TOKEN }}

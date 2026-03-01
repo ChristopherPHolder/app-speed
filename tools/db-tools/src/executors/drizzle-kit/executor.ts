@@ -19,7 +19,7 @@ const runProcess = (command: string, args: string[], cwd: string): Promise<numbe
 const runExecutor: PromiseExecutor<DrizzleKitExecutorSchema> = async (options, context: ExecutorContext) => {
   const workspaceRoot = context.root ?? process.cwd();
   const cwd = path.resolve(workspaceRoot, options.cwd ?? '.');
-  const args = ['--no-install', 'drizzle-kit', options.command];
+  const args = ['exec', 'drizzle-kit', options.command];
 
   if (options.config) {
     args.push('--config', path.resolve(workspaceRoot, options.config));
@@ -29,10 +29,10 @@ const runExecutor: PromiseExecutor<DrizzleKitExecutorSchema> = async (options, c
     args.push(...options.args);
   }
 
-  const npxCommand = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+  const pnpmCommand = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
 
   try {
-    const exitCode = await runProcess(npxCommand, args, cwd);
+    const exitCode = await runProcess(pnpmCommand, args, cwd);
 
     if (exitCode !== 0) {
       logger.error(`drizzle-kit ${options.command} failed with exit code ${exitCode}`);

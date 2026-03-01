@@ -1,5 +1,6 @@
 {
   "name": "app-speed",
+  "packageManager": "pnpm@10.11.0",
   "scripts": {
     "build:affected": "nx run-many --all -t build",
     "lint:affected": "nx run-many --all --t lint",

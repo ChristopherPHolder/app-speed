@@ -38,11 +38,11 @@ flowchart LR
 - SigNoz deployment files are vendored in `tools/observability/signoz` from the official SigNoz `deploy` folder.
 
 ### Commands
-- Start SigNoz: `npx nx run observability:up`
-- Check status: `npx nx run observability:status`
-- Stream logs: `npx nx run observability:logs`
-- Stop SigNoz: `npx nx run observability:down`
-- Stop and delete SigNoz volumes: `npx nx run observability:reset`
+- Start SigNoz: `pnpm exec nx run observability:up`
+- Check status: `pnpm exec nx run observability:status`
+- Stream logs: `pnpm exec nx run observability:logs`
+- Stop SigNoz: `pnpm exec nx run observability:down`
+- Stop and delete SigNoz volumes: `pnpm exec nx run observability:reset`
 
 ### Backend Tracer Wiring
 - Shared tracer factory: `libs/shared/observability/src/node-sdk.ts`
