@@ -4,7 +4,6 @@ import { ReplayUserflowAuditSchema } from '@app-speed/shared-user-flow-replay/sc
 import { AuditId, AuditNotFoundError } from './Audit';
 
 const AuditRunStatusSchema = Schema.Literal('SCHEDULED', 'IN_PROGRESS', 'COMPLETE');
-const AuditResultStatusSchema = Schema.Literal('SUCCESS', 'FAILURE');
 const AuditErrorSchema = Schema.Struct({
   name: Schema.String,
   message: Schema.String,

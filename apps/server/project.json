@@ -11,7 +11,7 @@
       "defaultConfiguration": "production",
       "options": {
         "platform": "node",
-        "target": "node22",
+        "target": "node24",
         "outputPath": "dist/apps/server",
         "format": ["esm"],
         "bundle": true,
