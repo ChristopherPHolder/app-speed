@@ -35,24 +35,8 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
 
-      - name: Cache NPM Dependencies
-        uses: actions/cache@v4
-        id: cache-primes
-        with:
-          path: |
-            node_modules
-            ~/.cache
-            dist
-          key: ${{ runner.os }}-node-${{ env.NODE_VERSION }}-${{ hashFiles('pnpm-lock.yaml', 'package.json') }}
-
-      - name: Clean Install Dependencies
-        if: steps.cache-primes.outputs.cache-hit != 'true'
-        run: |
-          if [ -f pnpm-lock.yaml ]; then
-            pnpm install --frozen-lockfile
-          else
-            pnpm install --no-frozen-lockfile
-          fi
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4

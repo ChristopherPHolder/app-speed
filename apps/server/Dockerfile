@@ -9,7 +9,7 @@ WORKDIR /app
 
 COPY dist/apps/server ./
 
-RUN npm install --omit=dev --legacy-peer-deps
+RUN corepack enable && pnpm install --prod --no-frozen-lockfile
 
 EXPOSE 3000
 CMD ["node", "main.js"]

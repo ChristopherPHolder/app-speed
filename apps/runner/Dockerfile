@@ -6,6 +6,6 @@ WORKDIR /app
 
 COPY dist/apps/runner ./
 
-RUN npm install --omit=dev --legacy-peer-deps
+RUN corepack enable && pnpm install --prod --no-frozen-lockfile
 
 CMD ["node", "bin.js"]

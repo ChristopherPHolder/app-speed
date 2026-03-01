@@ -3,8 +3,6 @@ name: CI
 env:
   NODE_VERSION: 24.14.0
   PNPM_VERSION: 10.11.0
-  is-main-branch: ${{ github.ref == 'refs/heads/main' }}
-  is-pull-request: ${{ github.event_name == 'pull_request' }}
 
 on:
   pull_request: {}
@@ -21,9 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # We need to fetch all branches and commits so that Nx affected has a base to compare against.
           fetch-depth: 0
-      # Derive appropriate SHAs for base and head for `nx affected` commands
       - uses: nrwl/nx-set-shas@v3
       - uses: pnpm/action-setup@v4
         with:
@@ -33,27 +29,8 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
-
-      # Aggressive NPM dependency caching
-      # https://dev.to/drakulavich/aggressive-dependency-caching-in-github-actions-3c64
-      - name: Cache NPM dependencies
-        uses: actions/cache@v4
-        id: cache-primes
-        with:
-          path: |
-            node_modules
-            ~/.cache
-            dist
-          key: &npm_cache_key ${{ runner.os }}-node-${{ env.NODE_VERSION }}-${{ hashFiles('pnpm-lock.yaml', 'package.json') }}
-
-      - name: Clean Install Dependencies
-        if: steps.cache-primes.outputs.cache-hit != 'true'
-        run: |
-          if [ -f pnpm-lock.yaml ]; then
-            pnpm install --frozen-lockfile
-          else
-            pnpm install --no-frozen-lockfile
-          fi
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
 
   lint:
     name: Lint Affected
@@ -63,9 +40,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # We need to fetch all branches and commits so that Nx affected has a base to compare against.
           fetch-depth: 0
-      # Derive appropriate SHAs for base and head for `nx affected` commands
       - uses: nrwl/nx-set-shas@v3
       - uses: pnpm/action-setup@v4
         with:
@@ -75,16 +50,8 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
-
-      - name: Cache NPM Dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            ~/.cache
-            dist
-          key: *npm_cache_key
-
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
       - name: Lint Affected
         run: pnpm exec nx affected --target=lint --parallel=3
 
@@ -96,9 +63,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # We need to fetch all branches and commits so that Nx affected has a base to compare against.
           fetch-depth: 0
-      # Derive appropriate SHAs for base and head for `nx affected` commands
       - uses: nrwl/nx-set-shas@v3
       - uses: pnpm/action-setup@v4
         with:
@@ -108,16 +73,8 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
-
-      - name: Cache NPM Dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            ~/.cache
-            dist
-          key: *npm_cache_key
-
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
       - name: Test Affected
         run: pnpm exec nx affected --target=test --parallel=3
 
@@ -129,9 +86,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # We need to fetch all branches and commits so that Nx affected has a base to compare against.
           fetch-depth: 0
-      # Derive appropriate SHAs for base and head for `nx affected` commands
       - uses: nrwl/nx-set-shas@v3
       - uses: pnpm/action-setup@v4
         with:
@@ -141,69 +96,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
-
-      - name: Cache NPM Dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            ~/.cache
-            dist
-          key: *npm_cache_key
-
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
       - name: Build Affected
         run: pnpm exec nx affected -t build build-storybook --parallel=3
-
-#  e2e:
-#    name: E2E Affected
-#    needs: [build]
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#      - uses: actions/checkout@v4
-#        with:
-#          fetch-depth: 0
-#      - uses: nrwl/nx-set-shas@v3
-#      - uses: actions/setup-node@v4
-#        with:
-#          node-version: ${{ env.NODE_VERSION }}
-#          cache: 'pnpm'
-#
-#      - name: Cache NPM Dependencies
-#        uses: actions/cache@v4
-#        with:
-#          path: |
-#            node_modules
-#            ~/.cache
-#            dist
-#          key: *npm_cache_key
-#
-#      - name: E2E Affected
-#        run: pnpm exec nx affected --target=e2e --parallel=3
-
-#  publish-storybook:
-#    name: Publish Storybook
-#    needs: [build, lint]
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#      - uses: actions/checkout@v4
-#        with:
-#          fetch-depth: 0
-#      - uses: nrwl/nx-set-shas@v3
-#      - uses: actions/setup-node@v4
-#        with:
-#          node-version: ${{ env.NODE_VERSION }}
-#          cache: 'pnpm'
-#
-#      - name: Cache NPM Dependencies
-#        uses: actions/cache@v4
-#        with:
-#          path: |
-#            node_modules
-#            ~/.cache
-#            dist
-#          key: *npm_cache_key
-#
-#      - name: Publish Storybook Affected
-#        run: pnpm exec nx affected --target=publish-storybook --parallel=3 --project-token=${{ secrets.CHROMATIC_PROJECT_TOKEN }}
