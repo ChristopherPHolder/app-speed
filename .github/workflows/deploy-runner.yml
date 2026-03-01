@@ -54,10 +54,11 @@ jobs:
           ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
           DEPLOY_ENV: ${{ github.event.inputs.environment }}
         run: |
+          RUN_SUFFIX="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           if [ "$DEPLOY_ENV" = "production" ]; then
-            IMAGE_REF="${ECR_REGISTRY}/app-speed/runner:${GITHUB_SHA::12}"
+            IMAGE_REF="${ECR_REGISTRY}/app-speed/runner:prod-${GITHUB_SHA::12}-${RUN_SUFFIX}"
           else
-            IMAGE_REF="${ECR_REGISTRY}/app-speed/runner:dev-${GITHUB_SHA::12}"
+            IMAGE_REF="${ECR_REGISTRY}/app-speed/runner:dev-${GITHUB_SHA::12}-${RUN_SUFFIX}"
           fi
 
           NX_DOCKER_IMAGE_REF="${IMAGE_REF}" pnpm exec nx release version --group=runner
