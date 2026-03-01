@@ -1,8 +1,8 @@
 {
   "name": "app-speed",
   "scripts": {
-    "lint:affected": "nx run-many --all --t lint",
     "build:affected": "nx run-many --all -t build",
+    "lint:affected": "nx run-many --all --t lint",
     "test:affected": "nx run-many --all -t test",
     "prepare": "husky"
   },
@@ -20,7 +20,6 @@
     "@aws-sdk/client-api-gateway": "^3.990.0",
     "@aws-sdk/client-apigatewaymanagementapi": "^3.990.0",
     "@aws-sdk/client-ec2": "^3.990.0",
-    "@aws-sdk/client-lambda": "^3.990.0",
     "@aws-sdk/client-s3": "^3.990.0",
     "@aws-sdk/client-sqs": "^3.990.0",
     "@aws-sdk/client-ssm": "^3.990.0",
@@ -114,7 +113,6 @@
     "@swc/core": "^1.15.11",
     "@swc/helpers": "~0.5.11",
     "@types/archiver": "^6.0.2",
-    "@types/aws-lambda": "^8.10.140",
     "@types/better-sqlite3": "^7.6.13",
     "@types/jest": "30.0.0",
     "@types/lodash-es": "^4.17.12",
