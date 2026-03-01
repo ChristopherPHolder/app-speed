@@ -99,4 +99,4 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
       - name: Build Affected
-        run: pnpm exec nx affected -t build build-storybook --parallel=3
+        run: pnpm exec nx affected -t build --parallel=3
