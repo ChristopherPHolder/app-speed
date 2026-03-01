@@ -2,6 +2,7 @@ name: CI
 
 env:
   NODE_VERSION: 24
+  NPM_VERSION: 11.11.0
   is-main-branch: ${{ github.ref == 'refs/heads/main' }}
   is-pull-request: ${{ github.event_name == 'pull_request' }}
 
@@ -28,6 +29,8 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
+      - name: Setup npm
+        run: npm i -g npm@${{ env.NPM_VERSION }}
 
       # Aggressive NPM dependency caching
       # https://dev.to/drakulavich/aggressive-dependency-caching-in-github-actions-3c64
@@ -61,6 +64,8 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
+      - name: Setup npm
+        run: npm i -g npm@${{ env.NPM_VERSION }}
 
       - name: Cache NPM Dependencies
         uses: actions/cache@v4
@@ -90,6 +95,8 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
+      - name: Setup npm
+        run: npm i -g npm@${{ env.NPM_VERSION }}
 
       - name: Cache NPM Dependencies
         uses: actions/cache@v4
@@ -119,6 +126,8 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
+      - name: Setup npm
+        run: npm i -g npm@${{ env.NPM_VERSION }}
 
       - name: Cache NPM Dependencies
         uses: actions/cache@v4
