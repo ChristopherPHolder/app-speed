@@ -13,11 +13,8 @@ const DEFAULT_WAIT_TIMEOUT_MS = 10 * 60 * 1000;
 const AWS_RUNNER_REGION = 'eu-central-1';
 const AWS_RUNNER_INSTANCE_IDS = ['i-049287bf43503d01e'] as const;
 
-const Ec2InstanceIdSchema = Schema.NonEmptyString.pipe(
-  Schema.pattern(/^i-[a-z0-9]+$/),
-  Schema.brand('Ec2InstanceId'),
-);
-const Ec2RunnerIdSchema = Schema.TemplateLiteral('ec2-', Ec2InstanceIdSchema).pipe(Schema.brand('Ec2RunnerId'));
+const Ec2InstanceIdSchema = Schema.NonEmptyString.pipe(Schema.pattern(/^i-[a-z0-9]+$/), Schema.brand('Ec2InstanceId'));
+const Ec2RunnerIdSchema = Schema.NonEmptyString.pipe(Schema.pattern(/^ec2-i-[a-z0-9]+$/), Schema.brand('Ec2RunnerId'));
 const Ec2InstanceLifecycleStateSchema = Schema.Literal(
   'pending',
   'running',
@@ -42,7 +39,6 @@ const AwsRunnerManagerConfigSchema = Schema.Struct({
 });
 
 type Ec2InstanceId = typeof Ec2InstanceIdSchema.Type;
-type Ec2RunnerId = typeof Ec2RunnerIdSchema.Type;
 type Ec2InstanceState = typeof Ec2InstanceStateSchema.Type;
 type AwsRunnerManagerConfig = typeof AwsRunnerManagerConfigSchema.Type;
 
@@ -208,13 +204,14 @@ export const AwsRunnerManagerLive = Layer.effect(
     );
 
     const listActiveRunners = describeInstances(client, config.region, config.instanceIds).pipe(
-      Effect.map((instances): ActiveRunnerList =>
-        instances
-          .filter((instance) => isActiveEc2InstanceState(instance.state))
-          .map((instance) => ({
-            id: toManagedRunnerId(instance.instanceId),
-            lastHeartbeatAt: new Date(),
-          })),
+      Effect.map(
+        (instances): ActiveRunnerList =>
+          instances
+            .filter((instance) => isActiveEc2InstanceState(instance.state))
+            .map((instance) => ({
+              id: toManagedRunnerId(instance.instanceId),
+              lastHeartbeatAt: new Date(),
+            })),
       ),
       Effect.tap((runners) =>
         Effect.annotateCurrentSpan({
