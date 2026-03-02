@@ -8,8 +8,10 @@ ENV OTEL_EXPORTER_OTLP_ENDPOINT=http://host.docker.internal:4318
 WORKDIR /app
 
 COPY dist/apps/server ./
+COPY apps/server/.npmrc ./
 
-RUN corepack enable && pnpm install --prod --no-frozen-lockfile
+RUN corepack enable \
+  && pnpm install --prod --no-frozen-lockfile
 
 EXPOSE 3000
 CMD ["node", "main.js"]
