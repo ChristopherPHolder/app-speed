@@ -13,7 +13,8 @@ on:
         default: development
 
 env:
-  NODE_VERSION: 24
+  NODE_VERSION: 24.14.0
+  PNPM_VERSION: 10.11.0
 
 jobs:
   deploy-runner:
@@ -25,24 +26,17 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: 'pnpm'
 
-      - name: Cache NPM Dependencies
-        uses: actions/cache@v4
-        id: cache-primes
-        with:
-          path: |
-            node_modules
-            ~/.cache
-            dist
-          key: ${{ runner.os }}-node-${{ env.NODE_VERSION }}-${{ hashFiles('package-lock.json') }}
-
-      - name: Clean Install Dependencies
-        if: steps.cache-primes.outputs.cache-hit != 'true'
-        run: npm ci
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -60,12 +54,13 @@ jobs:
           ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
           DEPLOY_ENV: ${{ github.event.inputs.environment }}
         run: |
+          RUN_SUFFIX="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           if [ "$DEPLOY_ENV" = "production" ]; then
-            IMAGE_REF="${ECR_REGISTRY}/app-speed/runner:${GITHUB_SHA::12}"
+            IMAGE_REF="${ECR_REGISTRY}/app-speed/runner:prod-${GITHUB_SHA::12}-${RUN_SUFFIX}"
           else
-            IMAGE_REF="${ECR_REGISTRY}/app-speed/runner:dev-${GITHUB_SHA::12}"
+            IMAGE_REF="${ECR_REGISTRY}/app-speed/runner:dev-${GITHUB_SHA::12}-${RUN_SUFFIX}"
           fi
 
-          NX_DOCKER_IMAGE_REF="${IMAGE_REF}" npx nx release version --group=runner
-          npx nx release publish --group=runner --yes --outputStyle=static
-          RUNNER_IMAGE_REF="${IMAGE_REF}" npx nx run runner-app:deploy --outputStyle=static --verbose
+          NX_DOCKER_IMAGE_REF="${IMAGE_REF}" pnpm exec nx release version --group=runner
+          pnpm exec nx release publish --group=runner --yes --outputStyle=static
+          RUNNER_IMAGE_REF="${IMAGE_REF}" pnpm exec nx run runner-app:deploy --outputStyle=static --verbose

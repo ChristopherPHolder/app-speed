@@ -1,4 +1,4 @@
-import { Directive, ElementRef, Input, inject } from '@angular/core';
+import { Directive, ElementRef, inject, Input } from '@angular/core';
 
 // @TODO - Fix linting rule
 @Directive({
@@ -7,8 +7,7 @@ import { Directive, ElementRef, Input, inject } from '@angular/core';
   standalone: true,
 })
 export class BypassSrcDirective {
-  private readonly element = inject<ElementRef<HTMLIFrameElement>>(ElementRef);
-
+  private element = inject(ElementRef);
   @Input() set bypassSrc(src: unknown) {
     if (typeof src === 'string') {
       this.element.nativeElement.src = src;

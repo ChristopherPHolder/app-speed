@@ -1,0 +1,71 @@
+:host {
+  display: block;
+  max-width: 960px;
+  margin: auto;
+}
+
+.grid-container {
+  margin: 20px;
+}
+
+.more-button {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+}
+
+.dashboard-card-content {
+  text-align: center;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.col {
+  flex: 1;
+  margin-right: 20px;
+}
+
+.col:last-child {
+  margin-right: 0;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+}
+
+.card-content {
+  margin: 20px auto;
+}
+
+.card-secondary {
+  margin: 20px auto;
+}
+
+.loading-card {
+  align-items: center;
+  text-align: center;
+}
+
+.submit-btn {
+  margin-left: 8px;
+
+  @media only screen and (width >= 600px) {
+    margin-left: 16px;
+  }
+}
+
+.toggle_menu {
+  position: absolute;
+  top: 48px;
+
+  @media only screen and (width >= 600px) {
+    right: 16px;
+  }
+
+  @media only screen and (width <= 599px) {
+    right: 4px;
+  }
+}

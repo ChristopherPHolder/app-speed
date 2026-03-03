@@ -1,0 +1,17 @@
+node_modules
+dist
+!dist/apps
+!dist/apps/server
+!dist/apps/server/**
+tmp
+coverage
+.nx
+.angular
+.context
+.git
+.github
+.vscode
+.idea
+*.log
+*.tmp
+.env

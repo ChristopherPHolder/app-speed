@@ -1,8 +1,8 @@
 name: CI
 
 env:
-  is-main-branch: ${{ github.ref == 'refs/heads/main' }}
-  is-pull-request: ${{ github.event_name == 'pull_request' }}
+  NODE_VERSION: 24.14.0
+  PNPM_VERSION: 10.11.0
 
 on:
   pull_request: {}
@@ -19,30 +19,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # We need to fetch all branches and commits so that Nx affected has a base to compare against.
           fetch-depth: 0
-      # Derive appropriate SHAs for base and head for `nx affected` commands
       - uses: nrwl/nx-set-shas@v3
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'npm'
-
-      # Aggressive NPM dependency caching
-      # https://dev.to/drakulavich/aggressive-dependency-caching-in-github-actions-3c64
-      - name: Cache NPM dependencies
-        uses: actions/cache@v4
-        id: cache-primes
-        with:
-          path: |
-            node_modules
-            ~/.cache
-            dist
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
-
-      - name: Clean Install Dependencies
-        if: steps.cache-primes.outputs.cache-hit != 'true'
-        run: npm ci
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
 
   lint:
     name: Lint Affected
@@ -52,26 +40,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # We need to fetch all branches and commits so that Nx affected has a base to compare against.
           fetch-depth: 0
-      # Derive appropriate SHAs for base and head for `nx affected` commands
       - uses: nrwl/nx-set-shas@v3
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'npm'
-
-      - name: Cache NPM Dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            ~/.cache
-            dist
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
-
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
       - name: Lint Affected
-        run: npx nx affected --target=lint --parallel=3
+        run: pnpm exec nx affected --target=lint --parallel=3
 
   test:
     name: Test Affected
@@ -81,26 +63,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # We need to fetch all branches and commits so that Nx affected has a base to compare against.
           fetch-depth: 0
-      # Derive appropriate SHAs for base and head for `nx affected` commands
       - uses: nrwl/nx-set-shas@v3
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Cache NPM Dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            ~/.cache
-            dist
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
-
+          cache: 'pnpm'
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
       - name: Test Affected
-        run: npx nx affected --target=test --parallel=3
+        run: pnpm exec nx affected --target=test --parallel=3
 
   build:
     name: Build Affected
@@ -110,158 +86,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # We need to fetch all branches and commits so that Nx affected has a base to compare against.
           fetch-depth: 0
-      # Derive appropriate SHAs for base and head for `nx affected` commands
       - uses: nrwl/nx-set-shas@v3
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'npm'
-
-      - name: Cache NPM Dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            ~/.cache
-            dist
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
-
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
       - name: Build Affected
-        run: npx nx affected -t build build-storybook --parallel=3
-
-#  e2e:
-#    name: E2E Affected
-#    needs: [build]
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#      - uses: actions/checkout@v4
-#        with:
-#          fetch-depth: 0
-#      - uses: nrwl/nx-set-shas@v3
-#      - uses: actions/setup-node@v4
-#        with:
-#          node-version: ${{ env.NODE_VERSION }}
-#          cache: 'npm'
-#
-#      - name: Cache NPM Dependencies
-#        uses: actions/cache@v4
-#        with:
-#          path: |
-#            node_modules
-#            ~/.cache
-#            dist
-#          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
-#
-#      - name: E2E Affected
-#        run: npx nx affected --target=e2e --parallel=3
-
-#  publish-storybook:
-#    name: Publish Storybook
-#    needs: [build, lint]
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#      - uses: actions/checkout@v4
-#        with:
-#          fetch-depth: 0
-#      - uses: nrwl/nx-set-shas@v3
-#      - uses: actions/setup-node@v4
-#        with:
-#          node-version: 20
-#          cache: 'npm'
-#
-#      - name: Cache NPM Dependencies
-#        uses: actions/cache@v4
-#        with:
-#          path: |
-#            node_modules
-#            ~/.cache
-#            dist
-#          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
-#
-#      - name: Publish Storybook Affected
-#        run: npx nx affected --target=publish-storybook --parallel=3 --project-token=${{ secrets.CHROMATIC_PROJECT_TOKEN }}
-
-  deploy-front-end:
-    name: Deploy Front-End
-    needs: [test, build, lint]
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          # We need to fetch all branches and commits so that Nx affected has a base to compare against.
-          fetch-depth: 0
-      # Derive appropriate SHAs for base and head for `nx affected` commands
-      - uses: nrwl/nx-set-shas@v3
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-
-      - name: Cache NPM Dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            ~/.cache
-            dist
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-central-1
-
-      - name: Deploy Dev Client
-        if: ${{ env.is-main-branch != 'true' }}
-        run: npx nx affected --target=deploy  --exclude='*,!tag:frontend' --configuration=development
-
-
-      - name: Deploy Prod Client
-        if: ${{ env.is-main-branch == 'true' }}
-        run: npx nx affected --target=deploy  --exclude='*,!tag:frontend' --configuration=production
-
-  deploy-server:
-    name: Deploy Server
-    needs: [test, build, lint]
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: nrwl/nx-set-shas@v3
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-
-      - name: Cache NPM Dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            ~/.cache
-            dist
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-central-1
-
-      - name: Deploy Dev Server
-        if: ${{ env.is-main-branch != 'true' }}
-        run: npx nx affected --target=deploy  --exclude='*,!tag:backend' --configuration=development
-
-      - name: Deploy Prod Server
-        if: ${{ env.is-main-branch == 'true' }}
-        run: npx nx affected --target=deploy  --exclude='*,!tag:backend' --configuration=production
+        run: pnpm exec nx affected -t build --parallel=3

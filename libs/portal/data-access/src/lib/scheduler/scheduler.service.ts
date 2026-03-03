@@ -1,69 +1,90 @@
-import { Injectable } from '@angular/core';
-import { webSocket } from 'rxjs/webSocket';
-import { BehaviorSubject, filter, map, merge } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, filter, fromEvent, map, Subject, takeUntil } from 'rxjs';
 
-// TODO should consume the type from the service!
-type StageChangeResponse = {
-  type: 'stage-change';
-  stage: string;
-  message?: string;
-  key?: string;
-};
+type AuditResultResponse =
+  | { status: 'SUCCESS'; result: unknown }
+  | { status: 'FAILURE'; error: { name: string; message: string; stack: string } };
 
-function isStageChangeResponse(message: unknown): message is StageChangeResponse {
-  return (
-    typeof message === 'object' &&
-    message !== null &&
-    'type' in message &&
-    'stage' in message &&
-    message.type === 'stage-change'
-  );
-}
+type AuditStage = 'scheduling' | 'scheduled' | 'running' | 'done' | 'failed';
 
-const STAGE = {
-  BUILDING: 'building',
-  PROCESSING: 'processing',
-  SCHEDULING: 'scheduling',
-  SCHEDULED: 'scheduled',
-  RUNNING: 'running',
-  DONE: 'done',
-  FAILED: 'failed',
-} as const satisfies Record<string, string>;
-
-const NO_DISPLAY_STAGES = [STAGE.BUILDING, STAGE.DONE] as string[];
-
-export type Stage = (typeof STAGE)[keyof typeof STAGE];
+const NO_DISPLAY_STAGES: AuditStage[] = ['done'];
 
 @Injectable({ providedIn: 'root' })
 export class SchedulerService {
-  webSocket = webSocket('wss://3b6gqoq7s8.execute-api.us-east-1.amazonaws.com/prod/');
+  private eventSource: EventSource | null = null;
+  private readonly disconnect$ = new Subject<void>();
+  private readonly http = inject(HttpClient);
 
-  readonly #processStage$ = new BehaviorSubject<Stage>(STAGE.BUILDING);
+  private readonly stage$ = new BehaviorSubject<AuditStage>('scheduling');
+  private readonly queuePosition$ = new BehaviorSubject<number | null>(null);
+  private readonly resultKey$ = new BehaviorSubject<string | null>(null);
 
-  stage = this.webSocket.pipe(filter(isStageChangeResponse));
-  readonly stageName$ = merge(this.#processStage$, this.stage.pipe(map((stage) => stage.stage)));
-
+  readonly stageName$ = this.stage$.asObservable();
   readonly shouldDisplayIndicator$ = this.stageName$.pipe(map((stage) => !NO_DISPLAY_STAGES.includes(stage)));
+  readonly key$ = this.resultKey$.pipe(filter((key): key is string => key !== null));
 
-  readonly key$ = this.stage.pipe(
-    filter(
-      (event): event is StageChangeResponse & { key: string } =>
-        event.stage === 'done' && typeof event.key === 'string' && event.key.length > 0,
-    ),
-    map((event) => event.key),
-  );
+  private finalizeWithStatus(auditId: string, status: 'SUCCESS' | 'FAILURE') {
+    this.stage$.next(status === 'SUCCESS' ? 'done' : 'failed');
+    this.resultKey$.next(auditId);
+    this.eventSource?.close();
+  }
 
-  constructor() {
-    this.webSocket.subscribe((event) => {
-      console.log('webSocket event', event);
+  private fetchResultAndFinalize(auditId: string) {
+    this.http.get<AuditResultResponse>(`/api/audit/${auditId}/result`).subscribe({
+      next: (result) => this.finalizeWithStatus(auditId, result.status),
+      error: () => {
+        this.stage$.next('failed');
+        this.resultKey$.next(auditId);
+        this.eventSource?.close();
+      },
     });
   }
 
-  submitAudit(auditDetails: unknown) {
-    this.#processStage$.next(STAGE.SCHEDULING);
-    this.webSocket.next({
-      action: 'schedule-audit',
-      audit: JSON.stringify(auditDetails),
-    });
+  watchAudit(auditId: string) {
+    this.stage$.next('scheduling');
+    this.queuePosition$.next(null);
+    this.resultKey$.next(null);
+
+    this.disconnect$.next();
+    this.eventSource?.close();
+
+    const source = new EventSource(`/api/audit/${auditId}/events`);
+    this.eventSource = source;
+
+    fromEvent<MessageEvent>(source, 'position')
+      .pipe(
+        map((event) => JSON.parse(event.data) as { position: number }),
+        takeUntil(this.disconnect$),
+      )
+      .subscribe(({ position }) => this.queuePosition$.next(position));
+
+    fromEvent<MessageEvent>(source, 'status')
+      .pipe(
+        map((event) => JSON.parse(event.data) as { status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETE' }),
+        takeUntil(this.disconnect$),
+      )
+      .subscribe(({ status }) => {
+        if (status === 'SCHEDULED') this.stage$.next('scheduled');
+        if (status === 'IN_PROGRESS') this.stage$.next('running');
+        if (status === 'COMPLETE') this.fetchResultAndFinalize(auditId);
+      });
+
+    fromEvent<MessageEvent>(source, 'result')
+      .pipe(
+        map((event) => JSON.parse(event.data) as { status: 'SUCCESS' | 'FAILURE' }),
+        takeUntil(this.disconnect$),
+      )
+      .subscribe(({ status }) => {
+        this.finalizeWithStatus(auditId, status);
+      });
+
+    fromEvent<Event>(source, 'error')
+      .pipe(takeUntil(this.disconnect$))
+      .subscribe(() => {
+        if (this.stage$.value !== 'done') {
+          this.stage$.next('failed');
+        }
+      });
   }
 }

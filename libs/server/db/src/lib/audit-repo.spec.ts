@@ -1,0 +1,159 @@
+import { ConfigProvider, Effect, Layer } from 'effect';
+import { expect, layer } from '@effect/vitest';
+import { randomUUID } from 'node:crypto';
+import Database from 'better-sqlite3';
+import fs from 'node:fs';
+import path from 'node:path';
+import { auditResultTable, auditRunTable, auditTemplateTable } from './schema';
+
+import { AuditRepo, AuditRepoLive } from './audit-repo';
+import { ReplayUserflowAudit } from '@app-speed/shared-user-flow-replay/schema';
+import { DbClient } from './db';
+
+const sampleAudit: ReplayUserflowAudit = {
+  title: 'Sample audit',
+  device: 'desktop',
+  steps: [{ type: 'snapshot' }],
+};
+
+const testDbDir = path.join(process.cwd(), 'tmp');
+const localMigrationsPath = path.join(process.cwd(), 'migrations');
+const workspaceMigrationsPath = path.join(process.cwd(), 'libs/server/db/migrations');
+const migrationsPath = fs.existsSync(localMigrationsPath) ? localMigrationsPath : workspaceMigrationsPath;
+
+const applyMigrations = (dbPath: string) => {
+  const migrationFiles = fs
+    .readdirSync(migrationsPath, { withFileTypes: true })
+    .filter((entry) => entry.isFile() && entry.name.endsWith('.sql'))
+    .map((entry) => entry.name)
+    .sort((left, right) => left.localeCompare(right));
+
+  const sqlite = new Database(dbPath);
+
+  try {
+    sqlite.pragma('foreign_keys = ON');
+    for (const migrationFile of migrationFiles) {
+      const migrationSql = fs.readFileSync(path.join(migrationsPath, migrationFile), 'utf8');
+      sqlite.exec(migrationSql);
+    }
+  } finally {
+    sqlite.close();
+  }
+};
+
+const TestDbLayer = Layer.unwrapEffect(
+  Effect.gen(function* () {
+    yield* Effect.sync(() => fs.mkdirSync(testDbDir, { recursive: true }));
+    const testDbPath = path.join(testDbDir, `audit-repo-${randomUUID()}.db`);
+    const relativeTestDbPath = path.relative(process.cwd(), testDbPath);
+    yield* Effect.sync(() => fs.writeFileSync(testDbPath, ''));
+
+    const ConfigLayer = Layer.setConfigProvider(
+      ConfigProvider.fromMap(new Map([['DATABASE_URL', relativeTestDbPath]])),
+    );
+    const DbLayer = Layer.provideMerge(ConfigLayer)(DbClient.live);
+    const MigrationsLayer = Layer.scopedDiscard(
+      Effect.gen(function* () {
+        yield* Effect.sync(() => applyMigrations(testDbPath));
+        yield* Effect.addFinalizer(() => Effect.sync(() => fs.rmSync(testDbPath, { force: true })));
+      }),
+    );
+
+    return Layer.provideMerge(MigrationsLayer)(DbLayer);
+  }),
+);
+
+const TestLayer = Layer.provideMerge(TestDbLayer)(AuditRepoLive);
+
+const resetDb = Effect.gen(function* () {
+  const db = yield* DbClient;
+  yield* db.run((c) =>
+    c.transaction((tx) => {
+      tx.delete(auditResultTable).run();
+      tx.delete(auditRunTable).run();
+      tx.delete(auditTemplateTable).run();
+    }),
+  );
+});
+
+layer(TestLayer)('AuditRepo (contract)', (it) => {
+  it.effect('creates a template and reads it back', () =>
+    Effect.gen(function* () {
+      yield* resetDb;
+
+      const repo = yield* AuditRepo;
+
+      const templateId = yield* repo.createTemplate(sampleAudit);
+      const template = yield* repo.getTemplateById(templateId);
+
+      expect(template).not.toBeNull();
+      expect(template?.id).toBe(templateId);
+      expect(template?.data).toEqual(sampleAudit);
+    }),
+  );
+
+  it.effect('creates a run and reads it back', () =>
+    Effect.gen(function* () {
+      yield* resetDb;
+
+      const repo = yield* AuditRepo;
+
+      const templateId = yield* repo.createTemplate(sampleAudit);
+      const runId = yield* repo.createRun(templateId);
+      const run = yield* repo.getRunById(runId);
+
+      expect(run).not.toBeNull();
+      expect(run?.id).toBe(runId);
+      expect(run?.templateId).toBe(templateId);
+      expect(run?.status).toBe('SCHEDULED');
+    }),
+  );
+
+  it.effect('claims the next scheduled run and marks it in progress', () =>
+    Effect.gen(function* () {
+      yield* resetDb;
+
+      const repo = yield* AuditRepo;
+
+      const templateId = yield* repo.createTemplate(sampleAudit);
+      const runId = yield* repo.createRun(templateId);
+
+      const claimed = yield* repo.claimNextRun();
+      expect(claimed?.id).toBe(runId);
+      expect(claimed?.status).toBe('IN_PROGRESS');
+    }),
+  );
+
+  it.effect('returns null when no scheduled runs exist', () =>
+    Effect.gen(function* () {
+      yield* resetDb;
+
+      const repo = yield* AuditRepo;
+      const claimed = yield* repo.claimNextRun();
+      expect(claimed).toBeNull();
+    }),
+  );
+
+  it.effect('completes a run and stores the result', () =>
+    Effect.gen(function* () {
+      yield* resetDb;
+
+      const repo = yield* AuditRepo;
+
+      const templateId = yield* repo.createTemplate(sampleAudit);
+      const runId = yield* repo.createRun(templateId);
+
+      yield* repo.markRunInProgress(runId);
+      yield* repo.completeRun(runId, { status: 'SUCCESS', data: { score: 0.91 } }, 1234);
+
+      const run = yield* repo.getRunById(runId);
+      const result = yield* repo.getResultByRunId(runId);
+
+      expect(run?.status).toBe('COMPLETE');
+      expect(run?.durationMs).toBe(1234);
+      expect(result?.status).toBe('SUCCESS');
+      expect(result?.data).toEqual({ score: 0.91 });
+      expect(result?.error).toBeNull();
+    }),
+  );
+});

@@ -1,9 +1,9 @@
 import { Component, inject } from '@angular/core';
-import { AuditBuilderContainer } from '@app-speed/portal-feature-audit/builder';
+import { AuditBuilderContainer } from './audit-builder/audit-builder.container';
 import { RxIf } from '@rx-angular/template/if';
 import { RxPush } from '@rx-angular/template/push';
 import { SchedulerService } from '@app-speed/portal-data-access';
-import { AuditViewerContainer } from '@app-speed/portal-feature-audit/viewer';
+import { AuditViewerContainer } from './container/audit-viewer.container';
 import { StageIndicatorComponent } from './stage-indicator.component';
 
 @Component({
@@ -24,13 +24,7 @@ import { StageIndicatorComponent } from './stage-indicator.component';
       margin: auto;
     }
   `,
-  imports: [
-    AuditBuilderContainer,
-    RxIf,
-    AuditViewerContainer,
-    StageIndicatorComponent,
-    RxPush,
-  ],
+  imports: [AuditBuilderContainer, RxIf, AuditViewerContainer, StageIndicatorComponent, RxPush],
 })
 export class UserFlowComponent {
   public readonly scheduler = inject(SchedulerService);

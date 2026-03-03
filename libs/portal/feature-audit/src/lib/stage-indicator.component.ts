@@ -11,15 +11,7 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'stage-indicator-component',
-  imports: [
-    MatCard,
-    MatCardHeader,
-    MatCardTitle,
-    MatCardSubtitle,
-    MatCardContent,
-    MatProgressSpinner,
-    MatCardFooter,
-  ],
+  imports: [MatCard, MatCardHeader, MatCardTitle, MatCardSubtitle, MatCardContent, MatProgressSpinner, MatCardFooter],
   template: `
     <div class="grid-container">
       <mat-card class="loading-card">

@@ -11,7 +11,7 @@ const meta: Meta<RadialChartComponent> = {
     score: {
       description: 'Score of the category displayed in the radial chart',
       control: {
-        type: 'number',
+        TYPE: 'number',
         min: 0,
         max: 100,
       },
@@ -20,7 +20,7 @@ const meta: Meta<RadialChartComponent> = {
     size: {
       description: 'Size of the radial chart with options of small, medium and large',
       options: sizeOptions,
-      control: { type: 'select' },
+      control: { TYPE: 'select' },
     },
   },
 };

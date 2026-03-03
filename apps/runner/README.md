@@ -16,6 +16,12 @@ A cli application used to execute audits and process the results.
 
 The CLI attempts to follow SOLID principles and Object-Oriented Programing.
 
+## Configuration
+
+- `RUNNER_API_BASE_URL` (default `http://localhost:3000/api`)
+- `RUNNER_ID` (default `local-<pid>`)
+- `RUNNER_HEADLESS` (default `false`)
+
 ### Dependency Inversion Principle (DIP)
 
 **Definition:**

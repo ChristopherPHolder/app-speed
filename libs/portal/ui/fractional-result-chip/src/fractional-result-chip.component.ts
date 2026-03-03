@@ -13,13 +13,13 @@ import { StatusBadgeComponent } from '@app-speed/portal-ui/status-badge';
   imports: [MatChip, StatusBadgeComponent, MatChipAvatar],
   styles: `
     .warn {
-      --mdc-chip-elevated-container-color: rgba(255, 170, 51, 0.2);
+      --mat-chip-elevated-container-color: rgba(255, 170, 51, 0.2);
     }
     .pass {
-      --mdc-chip-elevated-container-color: rgba(20, 136, 0, 0.2);
+      --mat-chip-elevated-container-color: rgba(20, 136, 0, 0.2);
     }
     .alert {
-      --mdc-chip-elevated-container-color: rgba(204, 0, 0, 0.2);
+      --mat-chip-elevated-container-color: rgba(204, 0, 0, 0.2);
     }
   `,
 })

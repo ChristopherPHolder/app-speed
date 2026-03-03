@@ -4,33 +4,19 @@
   "projectType": "application",
   "prefix": "app",
   "sourceRoot": "apps/portal/src",
-  "tags": [
-    "frontend"
-  ],
+  "tags": ["frontend"],
   "targets": {
     "build": {
-      "executor": "@nx/angular:application",
-      "outputs": [
-        "{options.outputPath.base}"
-      ],
+      "executor": "@nx/angular:browser-esbuild",
+      "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": {
-          "base": "dist/{projectRoot}",
-          "browser": ""
-        },
+        "outputPath": "dist/{projectRoot}",
         "index": "{projectRoot}/src/index.html",
-        "polyfills": [
-          "zone.js"
-        ],
+        "main": "{projectRoot}/src/main.ts",
+        "polyfills": ["zone.js"],
         "tsConfig": "{projectRoot}/tsconfig.app.json",
-        "assets": [
-          "{projectRoot}/src/favicon.ico",
-          "{projectRoot}/src/assets"
-        ],
-        "styles": [
-          "{workspaceRoot}/libs/portal/ui/theme/styles.scss"
-        ],
-        "browser": "{projectRoot}/src/main.ts"
+        "assets": ["{projectRoot}/src/favicon.ico", "{projectRoot}/src/assets"],
+        "styles": ["{workspaceRoot}/libs/portal/ui/theme/styles.scss"]
       },
       "configurations": {
         "production": {
@@ -42,14 +28,16 @@
             },
             {
               "type": "anyComponentStyle",
-              "maximumWarning": "5kb",
+              "maximumWarning": "2kb",
               "maximumError": "7kb"
             }
           ],
           "outputHashing": "all"
         },
         "development": {
+          "buildOptimizer": false,
           "optimization": false,
+          "vendorChunk": true,
           "extractLicenses": false,
           "sourceMap": true,
           "namedChunks": true
@@ -68,7 +56,11 @@
         }
       },
       "defaultConfiguration": "development",
-      "continuous": true
+      "options": {
+        "proxyConfig": "apps/portal/proxy.conf.json"
+      },
+      "continuous": true,
+      "dependsOn": ["server:serve"]
     },
     "extract-i18n": {
       "executor": "@angular-devkit/build-angular:extract-i18n",
@@ -78,13 +70,13 @@
     },
     "lint": {
       "executor": "@nx/eslint:lint",
-      "outputs": [
-        "{options.outputFile}"
-      ]
+      "outputs": ["{options.outputFile}"]
     },
     "test": {
-      "executor": "@nx/angular:unit-test",
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
+        "jestConfig": "{workspaceRoot}/{projectRoot}/jest.config.ts",
         "tsConfig": "apps/portal/tsconfig.spec.json"
       }
     },
@@ -96,9 +88,7 @@
     },
     "deploy": {
       "executor": "@app-speed/aws-deploy:s3-upload",
-      "dependsOn": [
-        "build"
-      ],
+      "dependsOn": ["build"],
       "options": {
         "upload": "dist/{projectRoot}"
       },

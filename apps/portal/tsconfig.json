@@ -8,9 +8,7 @@
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "moduleResolution": "bundler",
-    "module": "preserve",
-    "esModuleInterop": true
+    "module": "preserve"
   },
   "files": [],
   "include": [],
@@ -23,6 +21,9 @@
     },
     {
       "path": "./tsconfig.editor.json"
+    },
+    {
+      "path": "./../portal-app-e2e/tsconfig.json"
     }
   ],
   "extends": "../../tsconfig.base.json",

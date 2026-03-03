@@ -1,10 +1,10 @@
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, ViewEncapsulation } from '@angular/core';
 
 import { SafeResourceUrl } from '@angular/platform-browser';
 import { LoadingSpinnerComponent } from '@app-speed/portal-ui/loading-spinner';
 import { map, Observable } from 'rxjs';
 import { AuditStatusType } from '@app-speed/shared-utils';
-import { RxState } from '@rx-angular/state';
+import { rxState } from '@rx-angular/state';
 import { RxIf } from '@rx-angular/template/if';
 import { ProgressToasterComponent } from '../progress-toaster/progress-toaster.component';
 
@@ -27,11 +27,9 @@ type ComponentState = {
   styleUrls: ['./results-display.component.scss'],
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [RxState],
 })
 export class ResultsDisplayComponent {
-  readonly state = inject<RxState<ComponentState>>(RxState);
-
+  protected readonly state = rxState<ComponentState>();
   toasterTextVisible$ = this.state.select(map(({ progress }) => progress !== 'done'));
   loadingSpinnerVisible$ = this.state.select(map(({ progress }) => !['idle', 'done', 'failed'].includes(progress)));
 

@@ -1,1 +1,1 @@
-export { shellRoutes as default } from './lib/lib.routes';
+export { shellRoutes } from './lib/lib.routes';

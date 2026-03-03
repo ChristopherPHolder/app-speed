@@ -1,0 +1,37 @@
+{
+  "steps": [
+    {
+      "name": "Mock Step",
+      "lhr": {
+        "gatherMode": "timespan",
+        "fullPageScreenshot": {
+          "screenshot": {
+            "data": ""
+          }
+        },
+        "categories": {
+          "performance": {
+            "title": "Performance",
+            "score": 0.9,
+            "auditRefs": [
+              {
+                "id": "first-contentful-paint",
+                "weight": 1,
+                "group": "metrics"
+              }
+            ]
+          }
+        },
+        "audits": {
+          "first-contentful-paint": {
+            "id": "first-contentful-paint",
+            "title": "First Contentful Paint",
+            "description": "Mock audit",
+            "score": 0.9,
+            "scoreDisplayMode": "numeric"
+          }
+        }
+      }
+    }
+  ]
+}
