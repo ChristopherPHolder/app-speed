@@ -68,6 +68,7 @@
     },
     "deploy": {
       "executor": "@app-speed/aws-deploy:ec2-ssm-cycle",
+      "defaultConfiguration": "development",
       "options": {
         "region": "eu-central-1",
         "instanceId": "i-049287bf43503d01e",
@@ -77,6 +78,20 @@
         "stopOnlyIfStarted": true,
         "pollIntervalMs": 5000,
         "timeoutMs": 900000
+      },
+      "configurations": {
+        "development": {
+          "additionalRunArgs": [
+            "-e RUNNER_API_BASE_URL=https://dev.appspeed.dev/api",
+            "-e RUNNER_HEADLESS=true"
+          ]
+        },
+        "production": {
+          "additionalRunArgs": [
+            "-e RUNNER_API_BASE_URL=https://appspeed.dev/api",
+            "-e RUNNER_HEADLESS=true"
+          ]
+        }
       }
     }
   }
