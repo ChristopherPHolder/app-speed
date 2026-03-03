@@ -13,6 +13,7 @@ const NO_DISPLAY_STAGES: AuditStage[] = ['done'];
 @Injectable({ providedIn: 'root' })
 export class SchedulerService {
   private eventSource: EventSource | null = null;
+  private currentAuditId: string | null = null;
   private readonly disconnect$ = new Subject<void>();
   private readonly http = inject(HttpClient);
 
@@ -28,6 +29,7 @@ export class SchedulerService {
     this.stage$.next(status === 'SUCCESS' ? 'done' : 'failed');
     this.resultKey$.next(auditId);
     this.eventSource?.close();
+    this.currentAuditId = null;
   }
 
   private fetchResultAndFinalize(auditId: string) {
@@ -42,12 +44,21 @@ export class SchedulerService {
   }
 
   watchAudit(auditId: string) {
+    if (
+      this.currentAuditId === auditId &&
+      this.eventSource !== null &&
+      this.eventSource.readyState !== EventSource.CLOSED
+    ) {
+      return;
+    }
+
     this.stage$.next('scheduling');
     this.queuePosition$.next(null);
     this.resultKey$.next(null);
 
     this.disconnect$.next();
     this.eventSource?.close();
+    this.currentAuditId = auditId;
 
     const source = new EventSource(`/api/audit/${auditId}/events`);
     this.eventSource = source;
@@ -82,6 +93,8 @@ export class SchedulerService {
     fromEvent<Event>(source, 'error')
       .pipe(takeUntil(this.disconnect$))
       .subscribe(() => {
+        source.close();
+        this.currentAuditId = null;
         if (this.stage$.value !== 'done') {
           this.stage$.next('failed');
         }
