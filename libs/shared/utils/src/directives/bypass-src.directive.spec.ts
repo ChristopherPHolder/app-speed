@@ -11,19 +11,20 @@ describe('BypassSrcDirective', () => {
   let fixture: ComponentFixture<TestComponent>;
   let iframe: HTMLIFrameElement;
   let input: string;
+  const origin = window.location.origin;
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({ imports: [TestComponent] });
     fixture = TestBed.createComponent(TestComponent);
     iframe = fixture.debugElement.query(By.directive(BypassSrcDirective)).nativeElement;
   }));
   it('should set src attribute on the iframe', () => {
-    expect(iframe.src).toBe('http://localhost/');
+    expect(iframe.src).toBe(`${origin}/`);
   });
   it('should reset if the input binding changes', () => {
     input = 'newInputBinding';
     iframe.src = input;
     fixture.detectChanges();
-    expect(iframe.src).toBe('http://localhost/newInputBinding');
+    expect(iframe.src).toBe(`${origin}/newInputBinding`);
   });
   it('should reset to a complete url if one is given', () => {
     input = 'https://www.example.com/';
@@ -35,14 +36,14 @@ describe('BypassSrcDirective', () => {
     input = 'example.com';
     iframe.src = input;
     fixture.detectChanges();
-    expect(iframe.src).toBe('http://localhost/example.com');
+    expect(iframe.src).toBe(`${origin}/example.com`);
     input = 'www.example.com';
     iframe.src = input;
     fixture.detectChanges();
-    expect(iframe.src).toBe('http://localhost/www.example.com');
+    expect(iframe.src).toBe(`${origin}/www.example.com`);
     input = 'http www.example.com';
     iframe.src = input;
     fixture.detectChanges();
-    expect(iframe.src).toBe('http://localhost/http%20www.example.com');
+    expect(iframe.src).toBe(`${origin}/http%20www.example.com`);
   });
 });

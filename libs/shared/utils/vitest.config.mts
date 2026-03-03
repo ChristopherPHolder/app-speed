@@ -1,13 +1,13 @@
-/// <reference types='vitest' />
 import { defineConfig } from 'vitest/config';
 import angular from '@analogjs/vite-plugin-angular';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 
-export default defineConfig(({ mode }) => ({
+export default defineConfig(() => ({
   root: __dirname,
-  cacheDir: '../../../node_modules/.vite/libs/portal/feature-audit',
+  cacheDir: '../../../node_modules/.vite/libs/shared/utils',
   plugins: [angular(), nxViteTsPaths()],
   test: {
+    name: 'shared-utils',
     watch: false,
     globals: true,
     environment: 'jsdom',
@@ -15,11 +15,8 @@ export default defineConfig(({ mode }) => ({
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     reporters: ['default'],
     coverage: {
-      reportsDirectory: '../../../coverage/libs/portal/feature-audit',
-      provider: 'v8' as const,
+      reportsDirectory: '../../../coverage/libs/shared/utils',
+      provider: 'v8',
     },
   },
-  define: {
-    'import.meta.vitest': mode !== 'production',
-  },
-})); 
+}));
