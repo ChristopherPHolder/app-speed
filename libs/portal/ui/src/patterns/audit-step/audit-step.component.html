@@ -15,24 +15,30 @@
     </dialog>
   </div>
   <div class="box box--gray-dark">
-    <div class="box box--small" *ngFor="let controlName of getKeys(stepForm.controls)">
-      <span>
-        <label> {{ controlName }} </label>
-        <input
-          *ngIf="isInputString(stepForm.controls[controlName])"
-          class="form__input form__input--small"
-          [formControlName]="controlName"
-        />
-        <div *ngIf="!isInputString(stepForm.controls[controlName])" [formGroup]="stepForm.controls[controlName].value">
-          <div
-            class="box box--small"
-            *ngFor="let subControlName of getKeys(stepForm.controls[controlName].value.controls)"
-          >
-            <label> > {{ subControlName }} </label>
-            <input class="form__input form__input--small" [formControlName]="subControlName" />
-          </div>
-        </div>
-      </span>
-    </div>
+    @for (controlName of getKeys(stepForm.controls); track controlName) {
+      <div class="box box--small">
+        <span>
+          <label> {{ controlName }} </label>
+          @if (isInputString(stepForm.controls[controlName])) {
+            <input
+              class="form__input form__input--small"
+              [formControlName]="controlName"
+              />
+          }
+          @if (!isInputString(stepForm.controls[controlName])) {
+            <div [formGroup]="stepForm.controls[controlName].value">
+              @for (subControlName of getKeys(stepForm.controls[controlName].value.controls); track subControlName) {
+                <div
+                  class="box box--small"
+                  >
+                  <label> > {{ subControlName }} </label>
+                  <input class="form__input form__input--small" [formControlName]="subControlName" />
+                </div>
+              }
+            </div>
+          }
+        </span>
+      </div>
+    }
   </div>
 </div>

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '@app-speed/shared-environments';
 import { Observable } from 'rxjs';
@@ -8,7 +8,7 @@ import { ResultModel } from './result.model';
   providedIn: 'root',
 })
 export class ResultResource {
-  constructor(private http: HttpClient) {}
+  private readonly http = inject(HttpClient);
 
   private readonly baseUrl = environment.s3ResultsBucket.url;
 

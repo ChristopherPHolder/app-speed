@@ -11,11 +11,11 @@ export const shellRoutes: Route[] = [
         children: [
           {
             path: '',
-            loadComponent: () => import('@app-speed/portal-feature-audit'),
+            loadComponent: () => import('@app-speed/portal-feature-audit').then((m) => m.UserFlowComponent),
           },
           {
             path: 'viewer',
-            loadComponent: () => import('@app-speed/portal-feature-audit/viewer'),
+            loadComponent: () => import('@app-speed/portal-feature-audit/viewer').then((m) => m.ViewerComponent),
           },
         ],
       },

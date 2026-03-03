@@ -1,5 +1,4 @@
 import { Component, inject, Input } from '@angular/core';
-import { KeyValuePipe } from '@angular/common';
 import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
 
 import { ToTitleCasePipe } from '../utils/toTitleCase.pipe';
@@ -14,7 +13,6 @@ import { MatFabButton } from '@angular/material/button';
     ToTitleCasePipe,
     StepActionDialogComponent,
     StepPropertyComponent,
-    KeyValuePipe,
     MatExpansionPanel,
     MatExpansionPanelHeader,
     MatExpansionPanelTitle,

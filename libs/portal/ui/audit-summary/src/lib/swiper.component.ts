@@ -1,5 +1,4 @@
 import {
-  afterNextRender,
   AfterViewInit,
   Component,
   ElementRef,

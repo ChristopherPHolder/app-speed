@@ -46,8 +46,11 @@ export class SchedulerService {
   readonly shouldDisplayIndicator$ = this.stageName$.pipe(map((stage) => !NO_DISPLAY_STAGES.includes(stage)));
 
   readonly key$ = this.stage.pipe(
-    filter((event) => event.stage === 'done' && !!event.key),
-    map((event) => event.key!),
+    filter(
+      (event): event is StageChangeResponse & { key: string } =>
+        event.stage === 'done' && typeof event.key === 'string' && event.key.length > 0,
+    ),
+    map((event) => event.key),
   );
 
   constructor() {
@@ -56,7 +59,7 @@ export class SchedulerService {
     });
   }
 
-  submitAudit(auditDetails: any) {
+  submitAudit(auditDetails: unknown) {
     this.#processStage$.next(STAGE.SCHEDULING);
     this.webSocket.next({
       action: 'schedule-audit',

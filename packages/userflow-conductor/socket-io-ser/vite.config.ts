@@ -17,7 +17,7 @@ export default defineConfig({
     passWithNoTests: true,
     watch: false,
     globals: true,
-    cache: { dir: '../../../node_modules/.vitest/packages/userflow-conductor/socket-io-ser' },
+    cacheDir: '../../../node_modules/.vitest/packages/userflow-conductor/socket-io-ser',
     environment: 'node',
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     reporters: ['default'],

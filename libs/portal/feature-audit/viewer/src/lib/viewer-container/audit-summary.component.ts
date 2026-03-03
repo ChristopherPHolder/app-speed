@@ -16,7 +16,6 @@ import {
 import { MatIcon } from '@angular/material/icon';
 import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
 import { ScrollContainerComponent } from '@app-speed/portal-ui/scroll-container';
-import { RadialChartComponent } from '@app-speed/portal-ui/radial-chart';
 import { ViewerScoreComponent } from './viewer-score.component';
 
 export type StepSummary = {
@@ -125,7 +124,6 @@ export type AuditSummary = {
     MatCardContent,
     MatCardHeader,
     MatCardTitle,
-    RadialChartComponent,
     ViewerScoreComponent,
     ScrollContainerComponent,
   ],

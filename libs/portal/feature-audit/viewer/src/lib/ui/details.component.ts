@@ -20,7 +20,13 @@ import { TableComponent } from './table.component';
       }
       @case ('list') {
         @for (item of listDetails().items; track $index) {
-          <viewer-details [details]="item" />
+          @if ($any(item).type === 'list-section') {
+            @for (sectionItem of $any(item).items; track $index) {
+              <viewer-details [details]="$any(sectionItem)" />
+            }
+          } @else {
+            <viewer-details [details]="$any(item)" />
+          }
         }
       }
       @case ('opportunity') {

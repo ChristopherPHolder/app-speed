@@ -1,17 +1,17 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ProgressToasterComponent } from './progress-toaster.component';
-import { of } from 'rxjs';
-import { AUDIT_STATUS } from '@app-speed/shared-utils';
+import { firstValueFrom, of } from 'rxjs';
+import { AUDIT_STATUS, type AuditStatusType } from '@app-speed/shared-utils';
 
 describe('ProgressToasterComponent', () => {
   let component: ProgressToasterComponent;
   let fixture: ComponentFixture<ProgressToasterComponent>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       imports: [ProgressToasterComponent],
     }).compileComponents();
-  }));
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(ProgressToasterComponent);
@@ -19,54 +19,18 @@ describe('ProgressToasterComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should display the correct text based on progress status', () => {
-    component.progress = of(AUDIT_STATUS.IDLE);
-    fixture.detectChanges();
+  it('should display the correct text based on progress status', async () => {
+    const assertText = async (status: AuditStatusType, expectedText: string) => {
+      component.progress = of(status);
+      expect(await firstValueFrom(component.toasterText$)).toBe(expectedText);
+    };
 
-    fixture.whenStable().then(() => {
-      const compiled = fixture.debugElement.nativeElement;
-      expect(compiled.querySelector('.toast-text').textContent).toBe('');
-    });
-
-    component.progress = of(AUDIT_STATUS.SCHEDULING);
-    fixture.detectChanges();
-
-    fixture.whenStable().then(() => {
-      const compiled = fixture.debugElement.nativeElement;
-      expect(compiled.querySelector('.toast-text').textContent).toBe('Audit is being scheduled');
-    });
-
-    component.progress = of(AUDIT_STATUS.QUEUED);
-    fixture.detectChanges();
-
-    fixture.whenStable().then(() => {
-      const compiled = fixture.debugElement.nativeElement;
-      expect(compiled.querySelector('.toast-text').textContent).toBe('The audit has been scheduled');
-    });
-
-    component.progress = of(AUDIT_STATUS.LOADING);
-    fixture.detectChanges();
-
-    fixture.whenStable().then(() => {
-      const compiled = fixture.debugElement.nativeElement;
-      expect(compiled.querySelector('.toast-text').textContent).toBe('Downloading results from storage');
-    });
-
-    component.progress = of(AUDIT_STATUS.DONE);
-    fixture.detectChanges();
-
-    fixture.whenStable().then(() => {
-      const compiled = fixture.debugElement.nativeElement;
-      expect(compiled.querySelector('.toast-text').textContent).toBe('');
-    });
-
-    component.progress = of(AUDIT_STATUS.FAILED);
-    fixture.detectChanges();
-
-    fixture.whenStable().then(() => {
-      const compiled = fixture.debugElement.nativeElement;
-      expect(compiled.querySelector('.toast-text').textContent).toBe('Sorry there was an error running the audit');
-    });
+    await assertText(AUDIT_STATUS.IDLE, '');
+    await assertText(AUDIT_STATUS.SCHEDULING, 'Audit is being scheduled');
+    await assertText(AUDIT_STATUS.QUEUED, 'The audit has been scheduled');
+    await assertText(AUDIT_STATUS.LOADING, 'Downloading results from storage');
+    await assertText(AUDIT_STATUS.DONE, '');
+    await assertText(AUDIT_STATUS.FAILED, 'Sorry there was an error running the audit');
   });
 
   // @ TODO - add test to check that error is thrown on incorrect input

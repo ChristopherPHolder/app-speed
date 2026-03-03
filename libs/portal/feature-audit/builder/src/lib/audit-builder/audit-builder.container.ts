@@ -5,18 +5,10 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { filter, first, map, Observable, tap, withLatestFrom } from 'rxjs';
-import { RxLet } from '@rx-angular/template/let';
 import { rxActions } from '@rx-angular/state/actions';
 import { RxIf } from '@rx-angular/template/if';
 import { RxFor } from '@rx-angular/template/for';
-import {
-  MatCard,
-  MatCardContent,
-  MatCardFooter,
-  MatCardHeader,
-  MatCardSubtitle,
-  MatCardTitle,
-} from '@angular/material/card';
+import { MatCard, MatCardContent } from '@angular/material/card';
 import { MatAccordion } from '@angular/material/expansion';
 
 import { AuditStepComponent } from './audit-step.component';
@@ -26,7 +18,6 @@ import { AuditGlobalsComponent } from './audit-globals.component';
 import { DEFAULT_AUDIT_DETAILS } from '../schema/audit.constants';
 import { AuditDetails } from '../schema/types';
 import { rxEffects } from '@rx-angular/state/effects';
-import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { SchedulerService } from '@app-speed/portal-data-access';
 
 @Component({
@@ -51,21 +42,14 @@ import { SchedulerService } from '@app-speed/portal-data-access';
   `,
   styleUrl: './audit-builder.styles.scss',
   imports: [
-    RxLet,
     RxIf,
     RxFor,
     ReactiveFormsModule,
     AuditGlobalsComponent,
     AuditStepComponent,
-    AuditGlobalsComponent,
     MatCard,
     MatCardContent,
     MatAccordion,
-    MatProgressSpinner,
-    MatCardHeader,
-    MatCardTitle,
-    MatCardFooter,
-    MatCardSubtitle,
   ],
 })
 // eslint-disable-next-line @angular-eslint/component-class-suffix
@@ -103,7 +87,7 @@ export class AuditBuilderContainer {
     takeUntilDestroyed(),
   );
 
-  private initializeQueryParams(auditDetails: any): void {
+  private initializeQueryParams(auditDetails: unknown): void {
     if (auditDetails) {
       return;
     }

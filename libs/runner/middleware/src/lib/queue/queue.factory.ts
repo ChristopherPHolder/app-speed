@@ -17,5 +17,5 @@ export function createAuditQueue(queue: string, config?: object): AuditQueue {
     throw new Error('Invalid queue option passed, passed ' + queue + 'but only accepts' + Object.keys(queueMap));
   }
   const Queue = queueMap[queue];
-  return new Queue(config as any) satisfies AuditQueue;
+  return new Queue(config as never) satisfies AuditQueue;
 }

@@ -42,10 +42,10 @@
       "outputs": ["{options.outputFile}"]
     },
     "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "executor": "@nx/vitest:test",
+      "outputs": ["{options.reportsDirectory}"],
       "options": {
-        "jestConfig": "packages/aws-deploy/jest.config.ts"
+        "reportsDirectory": "../../coverage/packages/aws-deploy"
       }
     }
   }

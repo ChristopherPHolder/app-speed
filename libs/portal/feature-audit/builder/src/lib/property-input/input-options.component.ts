@@ -4,14 +4,13 @@ import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatOption } from '@angular/material/core';
 import { MatSelect } from '@angular/material/select';
-import { RxFor } from '@rx-angular/template/for';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 import { StepProperty } from '../schema/types';
 
 @Component({
   selector: 'builder-input-options',
-  imports: [RxFor, ReactiveFormsModule, MatLabel, MatFormField, MatSelect, MatOption, MatIcon, MatIconButton],
+  imports: [ReactiveFormsModule, MatLabel, MatFormField, MatSelect, MatOption, MatIcon, MatIconButton],
   template: `
     <div>
       <mat-form-field>

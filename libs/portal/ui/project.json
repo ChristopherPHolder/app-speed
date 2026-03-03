@@ -2,7 +2,6 @@
   "name": "portal-ui",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
-  "root": "libs/portal/ui",
   "sourceRoot": "libs/portal/ui",
   "prefix": "ui",
   "tags": ["frontend"],
@@ -11,23 +10,21 @@
       "executor": "@nx/angular:ng-packagr-lite",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
-        "project": "{workspaceRoot}/{projectRoot}/ng-package.json"
+        "project": "{workspaceRoot}/{projectRoot}/ng-package.json",
+        "tsConfig": "{workspaceRoot}/{projectRoot}/tsconfig.lib.json"
       },
       "configurations": {
         "production": {
           "tsConfig": "{workspaceRoot}/{projectRoot}/tsconfig.lib.prod.json"
         },
-        "development": {
-          "tsConfig": "{workspaceRoot}/{projectRoot}/tsconfig.lib.json"
-        }
+        "development": {}
       },
       "defaultConfiguration": "production"
     },
     "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "executor": "@nx/angular:unit-test",
       "options": {
-        "jestConfig": "{workspaceRoot}/{projectRoot}/jest.config.ts"
+        "tsConfig": "libs/portal/ui/tsconfig.spec.json"
       }
     },
     "lint": {

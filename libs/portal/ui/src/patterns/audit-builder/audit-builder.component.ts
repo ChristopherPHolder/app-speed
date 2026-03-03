@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, Input, Output, ViewEncapsulation } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { preventDefault, RxActionFactory, RxActions } from '@rx-angular/state/actions';
@@ -39,7 +39,7 @@ const defaultAudit: AppSpeedUserFlow = {
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'app-audit-builder',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, AuditStepComponent],
+  imports: [ReactiveFormsModule, AuditStepComponent],
   templateUrl: './audit-builder.component.html',
   styleUrls: ['./audit-builder.component.scss', './../../component/input/input.scss', '../../component/box/box.scss'],
   encapsulation: ViewEncapsulation.None,

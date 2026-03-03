@@ -29,7 +29,9 @@ export function stringify(enrichedRecordingJson: { title: string; steps: AppSpee
 }
 
 function userFlowStepToCustomStep(step: AppSpeedUserFlowStep): Step {
-  const { type: name, parameters } = step as any;
+  const name = step.type;
+  const parameters =
+    typeof step === 'object' && step !== null && 'parameters' in step ? (step.parameters as unknown) : undefined;
   const stdStp: CustomStep = {
     type: StepType.CustomStep,
     name,

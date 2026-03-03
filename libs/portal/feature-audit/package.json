@@ -2,18 +2,18 @@
   "name": "@app-speed/portal-feature-audit",
   "version": "0.0.1",
   "peerDependencies": {
-    "@angular/common": "19.0.4",
-    "@angular/core": "19.0.4",
-    "@angular/material": "19.0.3",
-    "@angular/router": "19.0.4",
-    "@angular/forms": "19.0.4",
-    "rxjs": "~7.5.0",
-    "@rx-angular/template": "19.0.0",
-    "@rx-angular/state": "19.0.0",
+    "@angular/common": "21.2.0",
+    "@angular/core": "21.2.0",
+    "@angular/material": "21.2.0",
+    "@angular/router": "21.2.0",
+    "@angular/forms": "21.2.0",
+    "rxjs": "~7.8.2",
+    "@rx-angular/template": "21.0.0",
+    "@rx-angular/state": "21.0.0",
     "@app-speed/portal-data-access": "0.0.1",
-    "lighthouse": "^12.2.0",
+    "lighthouse": "^13.0.3",
     "@app-speed/portal-ui": "0.0.0",
-    "@angular/platform-browser": "19.0.4"
+    "@angular/platform-browser": "21.2.0"
   },
   "sideEffects": false
 }

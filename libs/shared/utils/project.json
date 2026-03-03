@@ -2,7 +2,6 @@
   "name": "shared-utils",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
-  "root": "libs/shared/utils",
   "sourceRoot": "libs/shared/utils/src",
   "tags": [],
   "targets": {
@@ -10,23 +9,21 @@
       "executor": "@nx/angular:ng-packagr-lite",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
-        "project": "{projectRoot}/ng-package.json"
+        "project": "{projectRoot}/ng-package.json",
+        "tsConfig": "{projectRoot}/tsconfig.lib.json"
       },
       "configurations": {
         "production": {
           "tsConfig": "{projectRoot}/tsconfig.lib.prod.json"
         },
-        "development": {
-          "tsConfig": "{projectRoot}/tsconfig.lib.json"
-        }
+        "development": {}
       },
       "defaultConfiguration": "production"
     },
     "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "executor": "@nx/angular:unit-test",
       "options": {
-        "jestConfig": "{projectRoot}/jest.config.ts"
+        "tsConfig": "libs/shared/utils/tsconfig.spec.json"
       }
     },
     "lint": {

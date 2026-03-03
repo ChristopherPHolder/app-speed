@@ -1,7 +1,5 @@
 import { Component, inject } from '@angular/core';
 import { AuditBuilderContainer } from '@app-speed/portal-feature-audit/builder';
-import { MatCard, MatCardContent, MatCardHeader, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
-import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { RxIf } from '@rx-angular/template/if';
 import { RxPush } from '@rx-angular/template/push';
 import { SchedulerService } from '@app-speed/portal-data-access';
@@ -28,12 +26,6 @@ import { StageIndicatorComponent } from './stage-indicator.component';
   `,
   imports: [
     AuditBuilderContainer,
-    MatCard,
-    MatCardContent,
-    MatCardHeader,
-    MatCardSubtitle,
-    MatCardTitle,
-    MatProgressSpinner,
     RxIf,
     AuditViewerContainer,
     StageIndicatorComponent,

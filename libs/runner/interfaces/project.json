@@ -12,8 +12,7 @@
         "outputPath": "dist/libs/runner/interfaces",
         "main": "libs/runner/interfaces/src/index.ts",
         "tsConfig": "libs/runner/interfaces/tsconfig.json",
-        "assets": ["libs/runner/interfaces/*.md"],
-        "generatePackageJson": true
+        "assets": ["libs/runner/interfaces/*.md"]
       }
     },
     "lint": {

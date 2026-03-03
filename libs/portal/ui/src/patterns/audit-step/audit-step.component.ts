@@ -9,7 +9,7 @@ import {
   ViewChild,
   ViewEncapsulation,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import type { AppSpeedUserFlowStep } from '@app-speed/shared-utils';
 import { KebabMenuComponent } from '../../component/icons/kebab-menu.component';
@@ -17,7 +17,7 @@ import { KebabMenuComponent } from '../../component/icons/kebab-menu.component';
 @Component({
   selector: 'ui-audit-step',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, KebabMenuComponent],
+  imports: [ReactiveFormsModule, KebabMenuComponent],
   templateUrl: './audit-step.component.html',
   styleUrls: ['./audit-step.component.scss', './../../component/input/input.scss', '../../component/box/box.scss'],
   encapsulation: ViewEncapsulation.None,
@@ -38,7 +38,11 @@ export class AuditStepComponent {
     const buttonRect: DOMRect = this.editStepRef.nativeElement.getBoundingClientRect();
     const dialog: HTMLDialogElement = this.editDialogRef.nativeElement;
     dialog.style.visibility = 'hidden';
-    !dialog.open ? dialog.show() : dialog.close();
+    if (!dialog.open) {
+      dialog.show();
+    } else {
+      dialog.close();
+    }
     dialog.style.top = `${buttonRect.bottom + 4}px`;
     dialog.style.left = `${buttonRect.right - dialog.offsetWidth}px`;
     dialog.style.visibility = 'visible';
@@ -64,12 +68,12 @@ export class AuditStepComponent {
     );
   }
 
-  getKeys(obj: any): string[] {
+  getKeys(obj: Record<string, unknown>): string[] {
     return Object.keys(obj);
   }
 
-  isInputString(obj: any): boolean {
-    return typeof obj['value'] === 'string';
+  isInputString(obj: unknown): boolean {
+    return typeof obj === 'object' && obj !== null && 'value' in obj && typeof obj.value === 'string';
   }
 
   get stepType() {

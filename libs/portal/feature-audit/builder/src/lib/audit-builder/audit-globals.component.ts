@@ -4,8 +4,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 
 import { MatLabel } from '@angular/material/form-field';
 import { MatOption, MatSelect } from '@angular/material/select';
-import { MatCardActions } from '@angular/material/card';
-import { MatButton, MatFabButton } from '@angular/material/button';
+import { MatFabButton } from '@angular/material/button';
 import { RxIf } from '@rx-angular/template/if';
 import { RxFor } from '@rx-angular/template/for';
 
@@ -22,8 +21,6 @@ import { DEVICE_TYPE } from '../schema/audit.constants';
     ToTitleCasePipe,
     MatFormField,
     MatInput,
-    MatCardActions,
-    MatButton,
     MatSelect,
     MatOption,
     MatError,

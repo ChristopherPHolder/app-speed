@@ -123,8 +123,12 @@ export class AuditBuilderService {
 
   getStepOptionalProperties(index: number): PropertyName[] {
     const stepControl = this.formGroup.controls.steps.at(index);
+    const stepTypeControl = stepControl.controls.type;
+    if (!stepTypeControl) {
+      return [];
+    }
     const stepProps = this.typedKeys(stepControl.controls);
-    return this.getStepSchema(stepControl.controls.type!.value)
+    return this.getStepSchema(stepTypeControl.value as StepType)
       .properties.filter(({ name }) => !stepProps.includes(name))
       .map(({ name }) => name);
   }
@@ -134,8 +138,20 @@ export class AuditBuilderService {
   }
 
   getStepPropertySchema(index: number, name: PropertyName): StepProperty {
-    const stepType = this.formGroup.controls.steps.at(index).controls.type!.value!;
-    return this.getStepSchema(stepType).properties.find((schema) => schema.name === name)!;
+    const stepTypeControl = this.formGroup.controls.steps.at(index).controls.type;
+    if (!stepTypeControl || !stepTypeControl.value) {
+      throw new Error('Step type is required before requesting step property schema');
+    }
+
+    const propertySchema = this.getStepSchema(stepTypeControl.value as StepType).properties.find(
+      (schema) => schema.name === name,
+    );
+
+    if (!propertySchema) {
+      throw new Error(`Property schema for "${name}" was not found`);
+    }
+
+    return propertySchema;
   }
 
   removeStep(index: number): void {

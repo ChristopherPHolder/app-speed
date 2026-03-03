@@ -8,12 +8,10 @@ import {
   MatCardTitle,
 } from '@angular/material/card';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
-import { RxIf } from '@rx-angular/template/if';
 
 @Component({
   selector: 'stage-indicator-component',
   imports: [
-    RxIf,
     MatCard,
     MatCardHeader,
     MatCardTitle,

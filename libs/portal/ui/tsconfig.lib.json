@@ -5,8 +5,9 @@
     "declaration": true,
     "declarationMap": true,
     "inlineSources": true,
-    "types": []
+    "types": [],
+    "moduleResolution": "bundler"
   },
-  "exclude": ["test-setup.ts", "**/*.spec.ts", "jest.config.ts", "**/*.test.ts", "**/*.stories.ts", "**/*.stories.js"],
+  "exclude": ["**/*.spec.ts", "**/*.test.ts", "**/*.stories.ts", "**/*.stories.js"],
   "include": ["**/*.ts"]
 }

@@ -13,12 +13,11 @@
         "main": "libs/runner/data-access-store/src/index.ts",
         "tsConfig": "libs/runner/data-access-store/tsconfig.lib.json",
         "assets": ["libs/runner/data-access-store/*.md"],
-        "generatePackageJson": true,
         "format": ["esm"]
       }
     },
     "test": {
-      "executor": "@nx/vite:test",
+      "executor": "@nx/vitest:test",
       "outputs": ["{options.reportsDirectory}"],
       "options": {
         "reportsDirectory": "../../../coverage/libs/runner/data-access-store"

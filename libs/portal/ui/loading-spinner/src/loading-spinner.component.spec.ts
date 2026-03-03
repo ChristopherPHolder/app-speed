@@ -1,15 +1,15 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LoadingSpinnerComponent } from './loading-spinner.component';
 
 describe('LoadingSpinnerComponent', () => {
   let component: LoadingSpinnerComponent;
   let fixture: ComponentFixture<LoadingSpinnerComponent>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       imports: [LoadingSpinnerComponent],
     }).compileComponents();
-  }));
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(LoadingSpinnerComponent);

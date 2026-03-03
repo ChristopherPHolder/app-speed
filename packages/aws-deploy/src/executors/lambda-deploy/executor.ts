@@ -3,7 +3,6 @@ import { env } from 'node:process';
 import { PassThrough } from 'node:stream';
 import { PromiseExecutor } from '@nx/devkit';
 import { LambdaClient, UpdateFunctionCodeCommand } from '@aws-sdk/client-lambda';
-import 'dotenv';
 
 import { LambdaDeployExecutorSchema } from './schema';
 import archiver = require('archiver');
@@ -27,11 +26,18 @@ const zip = (sourceDir: string): Promise<Uint8Array> => {
 };
 
 const runExecutor: PromiseExecutor<LambdaDeployExecutorSchema> = async ({ dist, functionName }) => {
+  const accessKeyId = env._AWS_ACCESS_KEY_ID;
+  const secretAccessKey = env._AWS_SECRET_ACCESS_KEY;
+
+  if (!accessKeyId || !secretAccessKey) {
+    throw new Error('Missing AWS credentials: _AWS_ACCESS_KEY_ID and _AWS_SECRET_ACCESS_KEY are required');
+  }
+
   const client = new LambdaClient({
     region: 'us-east-1',
     credentials: {
-      accessKeyId: env._AWS_ACCESS_KEY_ID!,
-      secretAccessKey: env._AWS_SECRET_ACCESS_KEY!,
+      accessKeyId,
+      secretAccessKey,
     },
   });
 

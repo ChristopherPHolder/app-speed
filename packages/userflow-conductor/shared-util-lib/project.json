@@ -13,12 +13,11 @@
         "main": "packages/userflow-conductor/shared-util-lib/src/index.ts",
         "tsConfig": "packages/userflow-conductor/shared-util-lib/tsconfig.lib.json",
         "assets": ["packages/userflow-conductor/shared-util-lib/*.md"],
-        "generatePackageJson": true,
         "format": ["cjs"]
       }
     },
     "test": {
-      "executor": "@nx/vite:test",
+      "executor": "@nx/vitest:test",
       "outputs": ["{options.reportsDirectory}"],
       "options": {
         "reportsDirectory": "../../../coverage/packages/userflow-conductor/shared-util-lib"

@@ -7,7 +7,6 @@ import { MatError, MatInput } from '@angular/material/input';
 
 import { StepProperty } from '../schema/types';
 import { RxIf } from '@rx-angular/template/if';
-import { JsonPipe } from '@angular/common';
 import { ToTitleCasePipe } from '../utils/toTitleCase.pipe';
 
 @Component({
@@ -21,7 +20,6 @@ import { ToTitleCasePipe } from '../utils/toTitleCase.pipe';
     MatIcon,
     MatIconButton,
     RxIf,
-    JsonPipe,
     ToTitleCasePipe,
   ],
   template: `

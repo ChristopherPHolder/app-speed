@@ -10,12 +10,15 @@ const preview: Preview = {
       providers: [provideAnimations()],
     }),
   ],
+
   parameters: {
     layout: 'fullscreen',
     designToken: {
       defaultTab: 'Colors',
     },
   },
+
+  tags: ['autodocs']
 };
 
 export default preview;

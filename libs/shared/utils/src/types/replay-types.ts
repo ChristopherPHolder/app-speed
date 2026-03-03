@@ -62,34 +62,3 @@ export type AppSpeedUserFlow = Modify<
     steps: AppSpeedUserFlowStep[];
   }
 >;
-// It should work with an empty user-flow
-const example0: AppSpeedUserFlow = {
-  title: 'Example Title',
-  steps: [],
-};
-
-// It should work with a puppeteer step
-// const example1: AppSpeedUserFlow = {
-//   title: 'Example Title',
-//   steps: [
-//     {
-//       type: PuppeteerReplayStepType.Navigate,
-//       url: 'https://example.com'
-//     }
-//   ]
-// }
-//
-// const replayStep: PuppeteerReplayStep = {
-//   type: PuppeteerReplayStepType.Navigate,
-//   url: 'https://example.com'
-// }
-
-const example2: AppSpeedUserFlow = {
-  title: 'Example Title',
-  steps: [
-    {
-      type: LighthouseStepType.StartNavigation,
-      name: 'Example Step name',
-    },
-  ],
-};

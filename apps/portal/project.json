@@ -1,23 +1,36 @@
 {
-  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "portal-app",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "prefix": "app",
-  "root": "apps/portal",
   "sourceRoot": "apps/portal/src",
-  "tags": ["frontend"],
+  "tags": [
+    "frontend"
+  ],
   "targets": {
     "build": {
-      "executor": "@nx/angular:browser-esbuild",
-      "outputs": ["{options.outputPath}"],
+      "executor": "@nx/angular:application",
+      "outputs": [
+        "{options.outputPath.base}"
+      ],
       "options": {
-        "outputPath": "dist/{projectRoot}",
+        "outputPath": {
+          "base": "dist/{projectRoot}",
+          "browser": ""
+        },
         "index": "{projectRoot}/src/index.html",
-        "main": "{projectRoot}/src/main.ts",
-        "polyfills": ["zone.js"],
+        "polyfills": [
+          "zone.js"
+        ],
         "tsConfig": "{projectRoot}/tsconfig.app.json",
-        "assets": ["{projectRoot}/src/favicon.ico", "{projectRoot}/src/assets"],
-        "styles": ["{workspaceRoot}/libs/portal/ui/theme/styles.scss"]
+        "assets": [
+          "{projectRoot}/src/favicon.ico",
+          "{projectRoot}/src/assets"
+        ],
+        "styles": [
+          "{workspaceRoot}/libs/portal/ui/theme/styles.scss"
+        ],
+        "browser": "{projectRoot}/src/main.ts"
       },
       "configurations": {
         "production": {
@@ -29,16 +42,14 @@
             },
             {
               "type": "anyComponentStyle",
-              "maximumWarning": "2kb",
+              "maximumWarning": "5kb",
               "maximumError": "7kb"
             }
           ],
           "outputHashing": "all"
         },
         "development": {
-          "buildOptimizer": false,
           "optimization": false,
-          "vendorChunk": true,
           "extractLicenses": false,
           "sourceMap": true,
           "namedChunks": true
@@ -56,7 +67,8 @@
           "buildTarget": "portal-app:build:development"
         }
       },
-      "defaultConfiguration": "development"
+      "defaultConfiguration": "development",
+      "continuous": true
     },
     "extract-i18n": {
       "executor": "@angular-devkit/build-angular:extract-i18n",
@@ -66,13 +78,14 @@
     },
     "lint": {
       "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"]
+      "outputs": [
+        "{options.outputFile}"
+      ]
     },
     "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "executor": "@nx/angular:unit-test",
       "options": {
-        "jestConfig": "{workspaceRoot}/{projectRoot}/jest.config.ts"
+        "tsConfig": "apps/portal/tsconfig.spec.json"
       }
     },
     "serve-static": {
@@ -83,7 +96,9 @@
     },
     "deploy": {
       "executor": "@app-speed/aws-deploy:s3-upload",
-      "dependsOn": ["build"],
+      "dependsOn": [
+        "build"
+      ],
       "options": {
         "upload": "dist/{projectRoot}"
       },

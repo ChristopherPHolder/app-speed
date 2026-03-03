@@ -12,7 +12,9 @@ const userFlowHandler = async (args: ArgumentsCamelCase<UserFlowCommandOptions>)
     const auditQueue: AuditQueue = createAuditQueue(args.queue);
     const auditStore: AuditStore = createAuditStore(args.store);
     const audit: AuditExecutor = new UserFlowExecutor(auditQueue, auditStore);
-    args.dryRun || (await audit.exec());
+    if (!args.dryRun) {
+      await audit.exec();
+    }
   } catch (e) {
     console.error(e);
     console.log('Args from CLI', args);
