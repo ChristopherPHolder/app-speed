@@ -20,3 +20,30 @@ It should have a web interface and allow users store and schedule user-flow audi
 
 [Development URL](http://dev.appspeed.dev.s3-website-us-east-1.amazonaws.com)
 
+## Effect diagnostics (per Nx project)
+
+This workspace provides an Nx target to run `@effect/language-service` diagnostics per project.
+
+Run diagnostics for a single library:
+
+```bash
+pnpm exec nx run <project-name>:effect:diagnostics
+```
+
+Example:
+
+```bash
+pnpm exec nx run shared-observability:effect:diagnostics
+```
+
+Emit JSON (useful for machine processing or sharing with Codex):
+
+```bash
+pnpm exec nx run shared-observability:effect:diagnostics --format=json --outputFile=.tmp/effect/obs.json
+```
+
+Run diagnostics for multiple libraries:
+
+```bash
+pnpm exec nx run-many -t effect:diagnostics --projects=shared-observability,db,runner-user-flow-replay --parallel=3
+```

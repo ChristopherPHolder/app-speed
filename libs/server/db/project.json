@@ -36,6 +36,14 @@
         "command": "studio",
         "config": "libs/server/db/drizzle.config.ts"
       }
+    },
+    "effect:diagnostics": {
+      "executor": "@app-speed/effect-tools:diagnostics",
+      "options": {
+        "tsConfig": "{projectRoot}/tsconfig.lib.json",
+        "format": "text",
+        "severity": "error,warning,message"
+      }
     }
   }
 }

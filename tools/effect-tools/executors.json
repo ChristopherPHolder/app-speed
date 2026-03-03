@@ -1,0 +1,9 @@
+{
+  "executors": {
+    "diagnostics": {
+      "implementation": "./src/executors/diagnostics/executor",
+      "schema": "./src/executors/diagnostics/schema.json",
+      "description": "Run @effect/language-service diagnostics"
+    }
+  }
+}
