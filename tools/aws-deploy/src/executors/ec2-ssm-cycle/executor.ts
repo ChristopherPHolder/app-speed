@@ -7,6 +7,7 @@ import { Effect } from 'effect';
 import { waitForSsmCommandCompletion } from '../../lib/ssm';
 import { Ec2SsmCycleExecutorSchema } from './schema';
 import { StartedInstance, startInstanceIfNeeded, stopInstance } from './ec2';
+import { Ec2SsmCycleError } from './errors';
 
 const DEFAULT_DOCUMENT_NAME = 'AWS-RunShellScript';
 const DEFAULT_CONTAINER_NAME = 'app-speed-runner';
@@ -32,7 +33,9 @@ const buildDefaultCommands = (
   additionalRunArgs: string[],
 ): string[] => {
   if ((hostPort === undefined) !== (containerPort === undefined)) {
-    throw new Error('hostPort and containerPort must both be provided, or both omitted');
+    throw new Ec2SsmCycleError({
+      message: 'hostPort and containerPort must both be provided, or both omitted',
+    });
   }
 
   const registry = imageRef.split('/')[0];
@@ -48,7 +51,10 @@ const buildDefaultCommands = (
     'aws ecr get-login-password --region "$REGION" | docker login --username AWS --password-stdin "$REGISTRY"',
     'docker pull "$IMAGE_REF"',
     `docker rm -f ${shellQuote(containerName)} || true`,
-    `docker run -d --name ${shellQuote(containerName)} --restart unless-stopped${portFlag}${runArgsSuffix} "$IMAGE_REF"`,
+    [
+      `docker run -d --name ${shellQuote(containerName)}`,
+      `--restart unless-stopped${portFlag}${runArgsSuffix} "$IMAGE_REF"`,
+    ].join(' '),
   ];
 };
 
@@ -60,7 +66,9 @@ const resolveCommands = (options: Ec2SsmCycleExecutorSchema, region: string): st
 
   const imageRef = options.imageRef?.trim() || env.RUNNER_IMAGE_REF?.trim() || env.SERVER_IMAGE_REF?.trim();
   if (!imageRef) {
-    throw new Error('Missing image reference. Set options.imageRef or RUNNER_IMAGE_REF');
+    throw new Ec2SsmCycleError({
+      message: 'Missing image reference. Set options.imageRef or RUNNER_IMAGE_REF',
+    });
   }
 
   const containerName = options.containerName?.trim() || DEFAULT_CONTAINER_NAME;
@@ -81,7 +89,8 @@ const prepareInstance = (
   region: string,
   instanceId: string,
   startWaitTimeoutMs: number,
-): Effect.Effect<StartedInstance, Error> => startInstanceIfNeeded(ec2Client, region, instanceId, startWaitTimeoutMs);
+): Effect.Effect<StartedInstance, Ec2SsmCycleError> =>
+  startInstanceIfNeeded(ec2Client, region, instanceId, startWaitTimeoutMs);
 
 const stopInstanceIfConfigured = (
   ec2Client: EC2Client,
@@ -90,7 +99,7 @@ const stopInstanceIfConfigured = (
   stopAfterCompletion: boolean,
   stopOnlyIfStarted: boolean,
   stopWaitTimeoutMs: number,
-): Effect.Effect<void, Error> =>
+): Effect.Effect<void, Ec2SsmCycleError> =>
   Effect.gen(function* () {
     if (!stopAfterCompletion) {
       return;
@@ -109,7 +118,7 @@ const runSsmCommand = (
   comment: string | undefined,
   timeoutMs: number,
   pollIntervalMs: number,
-): Effect.Effect<ExecutorExit, Error> =>
+): Effect.Effect<ExecutorExit, Ec2SsmCycleError> =>
   Effect.gen(function* () {
     const sendResponse = yield* Effect.tryPromise({
       try: () =>
@@ -121,40 +130,57 @@ const runSsmCommand = (
             Comment: comment,
           }),
         ),
-      catch: (error) => new Error(`Failed to send SSM command to ${instanceId}: ${String(error)}`),
+      catch: (error) =>
+        new Ec2SsmCycleError({
+          message: `Failed to send SSM command to ${instanceId}: ${String(error)}`,
+          cause: error,
+        }),
     });
 
     const commandId = yield* Effect.fromNullable(sendResponse.Command?.CommandId).pipe(
-      Effect.mapError(() => new Error('SSM send command did not return commandId')),
+      Effect.mapError(
+        () =>
+          new Ec2SsmCycleError({
+            message: 'SSM send command did not return commandId',
+          }),
+      ),
     );
 
     const result = yield* Effect.tryPromise({
       try: () => waitForSsmCommandCompletion(ssmClient, commandId, [instanceId], timeoutMs, pollIntervalMs),
-      catch: (error) => new Error(`Failed to wait for SSM command ${commandId}: ${String(error)}`),
+      catch: (error) =>
+        new Ec2SsmCycleError({
+          message: `Failed to wait for SSM command ${commandId}: ${String(error)}`,
+          cause: error,
+        }),
     });
 
     if (!result.success) {
-      return yield* Effect.fail(new Error(result.message));
+      return yield* new Ec2SsmCycleError({ message: result.message });
     }
 
     return result;
   });
 
-const program = (options: Ec2SsmCycleExecutorSchema): Effect.Effect<ExecutorExit, Error> =>
+const program = (options: Ec2SsmCycleExecutorSchema): Effect.Effect<ExecutorExit, Ec2SsmCycleError> =>
   Effect.gen(function* () {
     const region = options.region.trim();
     if (!region) {
-      throw new Error('Missing required option: region');
+      return yield* new Ec2SsmCycleError({ message: 'Missing required option: region' });
     }
 
     const instanceId = options.instanceId.trim();
     if (!instanceId) {
-      throw new Error('Missing EC2 instance ID. Set options.instanceId');
+      return yield* new Ec2SsmCycleError({
+        message: 'Missing EC2 instance ID. Set options.instanceId',
+      });
     }
 
     const documentName = options.documentName?.trim() || DEFAULT_DOCUMENT_NAME;
     if (!documentName) {
-      throw new Error('Missing SSM document name. Set options.documentName');
+      return yield* new Ec2SsmCycleError({
+        message: 'Missing SSM document name. Set options.documentName',
+      });
     }
 
     const commands = resolveCommands(options, region);

@@ -67,6 +67,10 @@
     "@nx/vitest:test": {
       "cache": true,
       "inputs": ["default", "^production"]
+    },
+    "@app-speed/effect-tools:diagnostics": {
+      "cache": false,
+      "inputs": ["default", "^default"]
     }
   },
   "sync": {

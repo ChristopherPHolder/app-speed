@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "version": 2,
+  "title": "Effect diagnostics executor",
+  "description": "Execute @effect/language-service diagnostics for a file or a tsconfig project",
+  "type": "object",
+  "properties": {
+    "tsConfig": {
+      "type": "string",
+      "description": "Path to a tsconfig file, relative to workspace root"
+    },
+    "file": {
+      "type": "string",
+      "description": "Path to a file to check, relative to workspace root"
+    },
+    "format": {
+      "type": "string",
+      "enum": ["json", "pretty", "text", "github-actions"],
+      "default": "text",
+      "description": "Output format"
+    },
+    "severity": {
+      "type": "string",
+      "default": "error,warning,message",
+      "description": "Comma-separated severity filter (error,warning,message)"
+    },
+    "strict": {
+      "type": "boolean",
+      "default": false,
+      "description": "Treat warnings as errors in exit code"
+    },
+    "progress": {
+      "type": "boolean",
+      "default": false,
+      "description": "Show progress as files are checked"
+    },
+    "cwd": {
+      "type": "string",
+      "description": "Working directory, relative to workspace root"
+    },
+    "outputFile": {
+      "type": "string",
+      "description": "Optional file path to write stdout diagnostics output"
+    },
+    "args": {
+      "type": "array",
+      "description": "Additional raw CLI args",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "anyOf": [{ "required": ["tsConfig"] }, { "required": ["file"] }]
+}

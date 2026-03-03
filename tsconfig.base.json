@@ -14,6 +14,8 @@
     "rootDir": ".",
     "paths": {
       "@app-speed/aws-deploy": ["tools/aws-deploy/src/index.ts"],
+      "@app-speed/db-tools": ["tools/db-tools/src/index.ts"],
+      "@app-speed/effect-tools": ["tools/effect-tools/src/index.ts"],
       "@app-speed/portal-data-access": ["libs/portal/data-access/src/index.ts"],
       "@app-speed/portal-feature-audit": ["libs/portal/feature-audit/src/index.ts"],
       "@app-speed/portal-feature-shell": ["libs/portal/feature-shell/src/index.ts"],
