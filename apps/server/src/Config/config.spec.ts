@@ -1,13 +1,9 @@
 import { ConfigProvider, Effect } from 'effect';
 import { describe, expect, it } from 'vitest';
-import { resolveRunnerManagerMode } from './runtime-config.js';
+import { resolveRunnerManagerMode } from './config';
 
 const runMode = (entries: ReadonlyArray<readonly [string, string]>) =>
-  Effect.runPromise(
-    resolveRunnerManagerMode.pipe(
-      Effect.withConfigProvider(ConfigProvider.fromMap(new Map(entries))),
-    ),
-  );
+  Effect.runPromise(resolveRunnerManagerMode.pipe(Effect.withConfigProvider(ConfigProvider.fromMap(new Map(entries)))));
 
 describe('resolveRunnerManagerMode', () => {
   it('defaults to aws when mode is not configured', async () => {

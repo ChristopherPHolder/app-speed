@@ -7,19 +7,18 @@ import { AuditRepoLive, DbClient } from '@app-speed/server/db';
 import { makeNodeObservabilityLayer } from '@app-speed/shared-observability';
 import { LocalRunnerManagerLive } from './Runner/LocalRunnerManager.js';
 import { AwsRunnerManagerLive } from './Runner/AwsRunnerManager.js';
-import { resolveServerRuntimeConfig } from './runtime-config.js';
+import { ServerConfig } from './Config/config.js';
 
 const ObservabilityLive = makeNodeObservabilityLayer({ serviceName: 'server' });
 const MainLayer = Layer.unwrapEffect(
   Effect.gen(function* () {
-    const runtimeConfig = yield* resolveServerRuntimeConfig;
+    const runtimeConfig = yield* ServerConfig;
 
     const DevToolsLive = Option.match(runtimeConfig.devToolsUrl, {
       onNone: () => Layer.empty,
       onSome: (url) => DevTools.layer(url),
     });
-    const RunnerManagerLive =
-      runtimeConfig.runnerManagerMode === 'aws' ? AwsRunnerManagerLive : LocalRunnerManagerLive;
+    const RunnerManagerLive = runtimeConfig.runnerManagerMode === 'aws' ? AwsRunnerManagerLive : LocalRunnerManagerLive;
     const BaseLayer = Layer.mergeAll(DevToolsLive, DbClient.live, ObservabilityLive);
     const WithAuditRepo = Layer.provideMerge(AuditRepoLive, BaseLayer);
     const AppLayer = Layer.provideMerge(RunnerManagerLive, WithAuditRepo);

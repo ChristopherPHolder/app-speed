@@ -15,7 +15,7 @@ export const resolveRunnerManagerMode = Effect.gen(function* () {
   return Option.getOrElse(configuredMode, () => 'aws' as const);
 });
 
-export const resolveServerRuntimeConfig = Effect.gen(function* () {
+export const ServerConfig = Effect.gen(function* () {
   const devToolsUrl = yield* DevToolsUrlConfig;
   const runnerManagerMode = yield* resolveRunnerManagerMode;
 
