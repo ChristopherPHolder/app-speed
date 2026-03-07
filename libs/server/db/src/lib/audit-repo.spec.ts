@@ -156,4 +156,109 @@ layer(TestLayer)('AuditRepo (contract)', (it) => {
       expect(result?.error).toBeNull();
     }),
   );
+
+  it.effect('lists runs newest first with stable ordering', () =>
+    Effect.gen(function* () {
+      yield* resetDb;
+      const repo = yield* AuditRepo;
+
+      const templateA = yield* repo.createTemplate({ ...sampleAudit, title: 'Audit A' });
+      const runA = yield* repo.createRun(templateA);
+
+      const templateB = yield* repo.createTemplate({ ...sampleAudit, title: 'Audit B' });
+      const runB = yield* repo.createRun(templateB);
+
+      const templateC = yield* repo.createTemplate({ ...sampleAudit, title: 'Audit C' });
+      const runC = yield* repo.createRun(templateC);
+
+      const page = yield* repo.listRunsPage({
+        limit: 25,
+        cursor: null,
+        status: null,
+      });
+
+      expect(new Set(page.items.map((run) => run.id))).toEqual(new Set([runA, runB, runC]));
+      page.items.slice(1).forEach((run, index) => {
+        const previous = page.items[index];
+        const createdAtIsDescending = previous.createdAt.getTime() > run.createdAt.getTime();
+        const tieBreakIsDescending = previous.createdAt.getTime() === run.createdAt.getTime() && previous.id > run.id;
+        expect(createdAtIsDescending || tieBreakIsDescending).toBe(true);
+      });
+      expect(page.nextCursor).toBeNull();
+    }),
+  );
+
+  it.effect('paginates with cursor without duplicates or gaps', () =>
+    Effect.gen(function* () {
+      yield* resetDb;
+      const repo = yield* AuditRepo;
+
+      const template1 = yield* repo.createTemplate({ ...sampleAudit, title: 'Audit 1' });
+      const run1 = yield* repo.createRun(template1);
+
+      const template2 = yield* repo.createTemplate({ ...sampleAudit, title: 'Audit 2' });
+      const run2 = yield* repo.createRun(template2);
+
+      const template3 = yield* repo.createTemplate({ ...sampleAudit, title: 'Audit 3' });
+      const run3 = yield* repo.createRun(template3);
+
+      const template4 = yield* repo.createTemplate({ ...sampleAudit, title: 'Audit 4' });
+      const run4 = yield* repo.createRun(template4);
+
+      const expectedAll = yield* repo.listRunsPage({
+        limit: 25,
+        cursor: null,
+        status: null,
+      });
+
+      const firstPage = yield* repo.listRunsPage({
+        limit: 2,
+        cursor: null,
+        status: null,
+      });
+      const secondPage = yield* repo.listRunsPage({
+        limit: 2,
+        cursor: firstPage.nextCursor,
+        status: null,
+      });
+
+      const ids = [...firstPage.items.map((item) => item.id), ...secondPage.items.map((item) => item.id)];
+      expect(new Set(ids)).toEqual(new Set([run1, run2, run3, run4]));
+      expect(ids).toEqual(expectedAll.items.slice(0, 4).map((item) => item.id));
+      expect(new Set(ids).size).toBe(4);
+    }),
+  );
+
+  it.effect('supports status filtering when listing runs', () =>
+    Effect.gen(function* () {
+      yield* resetDb;
+      const repo = yield* AuditRepo;
+
+      const scheduledTemplate = yield* repo.createTemplate({ ...sampleAudit, title: 'Scheduled audit' });
+      const scheduledRunId = yield* repo.createRun(scheduledTemplate);
+
+      const inProgressTemplate = yield* repo.createTemplate({ ...sampleAudit, title: 'Running audit' });
+      const inProgressRunId = yield* repo.createRun(inProgressTemplate);
+      yield* repo.markRunInProgress(inProgressRunId);
+
+      const completeTemplate = yield* repo.createTemplate({ ...sampleAudit, title: 'Complete audit' });
+      const completeRunId = yield* repo.createRun(completeTemplate);
+      yield* repo.markRunInProgress(completeRunId);
+      yield* repo.completeRun(completeRunId, { status: 'SUCCESS', data: { score: 0.8 } }, 777);
+
+      const scheduledOnly = yield* repo.listRunsPage({
+        limit: 25,
+        cursor: null,
+        status: ['SCHEDULED'],
+      });
+      const terminalStatuses = yield* repo.listRunsPage({
+        limit: 25,
+        cursor: null,
+        status: ['IN_PROGRESS', 'COMPLETE'],
+      });
+
+      expect(scheduledOnly.items.map((item) => item.id)).toEqual([scheduledRunId]);
+      expect(terminalStatuses.items.map((item) => item.id).sort()).toEqual([completeRunId, inProgressRunId].sort());
+    }),
+  );
 });

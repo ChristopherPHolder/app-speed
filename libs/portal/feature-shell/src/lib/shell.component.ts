@@ -92,5 +92,6 @@ export class ShellComponent {
   readonly sideNavItems = [
     { name: 'Audit Builder', route: 'user-flow' },
     { name: 'Audit Viewer', route: 'user-flow/viewer' },
+    { name: 'Audit Runs', route: 'audit-runs' },
   ];
 }

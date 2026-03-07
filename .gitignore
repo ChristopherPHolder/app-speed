@@ -131,3 +131,6 @@ vitest.config.*.timestamp*
 
 # AI context
 .context
+
+# opensrc - source code for packages
+opensrc/

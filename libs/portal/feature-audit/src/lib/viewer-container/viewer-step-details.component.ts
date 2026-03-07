@@ -3,10 +3,9 @@ import { FlowResult } from 'lighthouse';
 import { Result as AuditResult } from 'lighthouse/types/lhr/audit-result';
 
 import { STATUS, StatusOptions } from '@app-speed/portal-ui/status-badge';
+import { DiagnosticItem, ViewerDiagnosticComponent } from '@app-speed/portal-ui/viewer-diagnostics';
 import { MetricSummary, ViewerStepMetricSummaryComponent } from './viewer-step-metric-summary.component';
 import { ViewerFileStripComponent } from './viewer-file-strip.component';
-import { ViewerDiagnosticComponent } from './viewer-diagnostic.component';
-import { DiagnosticItem } from './viewer-diagnostic-panel.component';
 import { metricAudits, metricResults } from './view-step-details.adaptor';
 
 @Component({
@@ -22,7 +21,7 @@ import { metricAudits, metricResults } from './view-step-details.adaptor';
     }
 
     <div>DIAGNOSTICS</div>
-    <viewer-diagnostic class="pad" [items]="diagnosticItems()" />
+    <ui-viewer-diagnostic class="pad" [items]="diagnosticItems()" />
   `,
   imports: [ViewerStepMetricSummaryComponent, ViewerFileStripComponent, ViewerDiagnosticComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,

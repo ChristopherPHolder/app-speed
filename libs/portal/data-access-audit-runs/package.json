@@ -1,0 +1,10 @@
+{
+  "name": "@app-speed/portal-data-access-audit-runs",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/core": "21.1.1",
+    "rxjs": "^7.8.0",
+    "@angular/common": "21.1.1"
+  },
+  "sideEffects": false
+}
