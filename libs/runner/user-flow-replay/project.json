@@ -12,8 +12,7 @@
         "outputPath": "dist/{projectRoot}",
         "main": "{projectRoot}/src/public-api.ts",
         "tsConfig": "{projectRoot}/tsconfig.lib.json",
-        "assets": ["{projectRoot}/*.md"],
-        "generatePackageJson": true
+        "assets": ["{projectRoot}/*.md"]
       }
     },
     "lint": {

@@ -8,12 +8,15 @@ const preview: Preview = {
     }),
     componentWrapperDecorator((story) => `<div class="mat-typography">${story}</div>`),
   ],
+
   parameters: {
     layout: 'fullscreen',
     designToken: {
       defaultTab: 'Colors',
     },
   },
+
+  tags: ['autodocs']
 };
 
 export default preview;

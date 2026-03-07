@@ -1,7 +1,7 @@
 {
   "name": "portal-feature-audit",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "libs": "libs/portal/feature-audit",
+  "root": "libs/portal/feature-audit",
   "sourceRoot": "libs/portal/feature-audit/src",
   "prefix": "lib",
   "projectType": "library",
@@ -23,12 +23,12 @@
       "defaultConfiguration": "production"
     },
     "test": {
-      "executor": "@nx/vite:test",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "executor": "@nx/vitest:test",
+      "outputs": ["{options.reportsDirectory}"],
       "options": {
-        "passWithNoTests": true,
+        "configFile": "{projectRoot}/vitest.config.mts",
         "reportsDirectory": "../../../coverage/libs/portal/feature-audit",
-        "tsConfig": "{projectRoot}/tsconfig.spec.json"
+        "passWithNoTests": true
       }
     },
     "lint": {

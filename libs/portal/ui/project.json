@@ -22,11 +22,11 @@
       "defaultConfiguration": "production"
     },
     "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "executor": "@nx/vitest:test",
+      "outputs": ["{options.reportsDirectory}"],
       "options": {
-        "jestConfig": "{workspaceRoot}/{projectRoot}/jest.config.ts",
-        "tsConfig": "libs/portal/ui/tsconfig.spec.json",
+        "configFile": "{projectRoot}/vitest.config.mts",
+        "reportsDirectory": "../../../coverage/libs/portal/ui",
         "passWithNoTests": true
       }
     },
