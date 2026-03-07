@@ -16,7 +16,8 @@
     "@app-speed/shared-user-flow-replay": "0.0.1",
     "@ngrx/store": "21.0.1",
     "@ngrx/effects": "21.0.1",
-    "vite": "7.1.6",
+    "vitest": "^3.2.4",
+    "@analogjs/vite-plugin-angular": "2.2.2",
     "@nx/vite": "22.4.2"
   },
   "sideEffects": false

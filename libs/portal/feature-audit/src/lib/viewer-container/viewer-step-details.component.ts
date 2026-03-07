@@ -45,10 +45,14 @@ export class ViewerStepDetailComponent {
     return this.categoriesMetricSummary(this.stepDetails().lhr.categories);
   });
   filmStrip = computed<{ data: string }[] | undefined>(() => {
-    // @ts-expect-error Can't extract valid audit type from lighthouse
-    return this.stepDetails().lhr.audits?.['screenshot-thumbnails']?.['details']?.['items'] as any as
-      | { data: string }[]
-      | undefined;
+    const details = this.stepDetails().lhr.audits?.['screenshot-thumbnails']?.['details'];
+
+    if (typeof details !== 'object' || details === null || !('items' in details)) {
+      return undefined;
+    }
+
+    const items = details.items;
+    return Array.isArray(items) ? (items as { data: string }[]) : undefined;
   });
 
   private categoryAcronyms = computed(() => {

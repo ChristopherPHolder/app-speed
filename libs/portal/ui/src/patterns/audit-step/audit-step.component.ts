@@ -38,7 +38,11 @@ export class AuditStepComponent {
     const buttonRect: DOMRect = this.editStepRef.nativeElement.getBoundingClientRect();
     const dialog: HTMLDialogElement = this.editDialogRef.nativeElement;
     dialog.style.visibility = 'hidden';
-    !dialog.open ? dialog.show() : dialog.close();
+    if (!dialog.open) {
+      dialog.show();
+    } else {
+      dialog.close();
+    }
     dialog.style.top = `${buttonRect.bottom + 4}px`;
     dialog.style.left = `${buttonRect.right - dialog.offsetWidth}px`;
     dialog.style.visibility = 'visible';
@@ -64,12 +68,12 @@ export class AuditStepComponent {
     );
   }
 
-  getKeys(obj: any): string[] {
+  getKeys(obj: Record<string, unknown>): string[] {
     return Object.keys(obj);
   }
 
-  isInputString(obj: any): boolean {
-    return typeof obj['value'] === 'string';
+  isInputString(obj: unknown): boolean {
+    return typeof obj === 'object' && obj !== null && 'value' in obj && typeof obj.value === 'string';
   }
 
   get stepType() {
