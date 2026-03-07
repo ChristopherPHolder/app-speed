@@ -28,6 +28,10 @@ export const shellRoutes: Route[] = [
           // { path: '', redirectTo: 'builder', pathMatch: 'full' },
         ],
       },
+      {
+        path: 'audit-runs',
+        loadChildren: () => import('@app-speed/portal-feature-audit-runs').then((m) => m.auditRunsRoutes),
+      },
       { path: '', redirectTo: 'user-flow', pathMatch: 'full' },
       { path: '**', redirectTo: 'results-viewer' },
     ],

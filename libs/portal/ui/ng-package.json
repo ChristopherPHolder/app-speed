@@ -9,6 +9,6 @@
     }
   ],
   "lib": {
-    "entryFile": "src/index.ts"
+    "entryFile": "src/public-api.ts"
   }
 }

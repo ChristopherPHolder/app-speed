@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { and, asc, eq, lt, or, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, lt, or, sql } from 'drizzle-orm';
 import { Clock, Context, Effect, Layer, ParseResult, Schema } from 'effect';
 import { ReplayUserflowAudit, ReplayUserflowAuditSchema } from '@app-speed/shared-user-flow-replay/schema';
 import { DbClient, QueryError } from './db';
@@ -45,6 +45,25 @@ const AuditResultRecordSchema = Schema.Struct({
 });
 type AuditResultRecord = typeof AuditResultRecordSchema.Type;
 
+const AuditRunSummaryRecordSchema = Schema.Struct({
+  id: AuditRunIdSchema,
+  title: Schema.NonEmptyString,
+  status: AuditStatusSchema,
+  resultStatus: Schema.NullOr(AuditResultStatusSchema),
+  queuePosition: Schema.NullOr(Schema.NonNegativeInt),
+  createdAt: Schema.DateFromSelf,
+  startedAt: Schema.NullOr(Schema.DateFromSelf),
+  completedAt: Schema.NullOr(Schema.DateFromSelf),
+  durationMs: Schema.NullOr(Schema.Number),
+});
+export type AuditRunSummaryRecord = typeof AuditRunSummaryRecordSchema.Type;
+
+const AuditRunListCursorSchema = Schema.Struct({
+  createdAtMs: Schema.NonNegativeInt,
+  id: Schema.String,
+});
+export type AuditRunListCursor = typeof AuditRunListCursorSchema.Type;
+
 export class AuditRepo extends Context.Tag('AuditRepo')<
   AuditRepo,
   {
@@ -56,6 +75,18 @@ export class AuditRepo extends Context.Tag('AuditRepo')<
     claimNextRun: () => Effect.Effect<AuditRunRecord | null, QueryError | ParseResult.ParseError>;
     markRunInProgress: (id: AuditRunId) => Effect.Effect<void, QueryError>;
     getQueuePosition: (id: AuditRunId) => Effect.Effect<number | null, QueryError | ParseResult.ParseError>;
+    getRunSummaryById: (id: AuditRunId) => Effect.Effect<AuditRunSummaryRecord | null, QueryError | ParseResult.ParseError>;
+    listRunsPage: (params: {
+      limit: number;
+      cursor: AuditRunListCursor | null;
+      status: ReadonlyArray<AuditStatus> | null;
+    }) => Effect.Effect<
+      {
+        items: ReadonlyArray<AuditRunSummaryRecord>;
+        nextCursor: AuditRunListCursor | null;
+      },
+      QueryError | ParseResult.ParseError
+    >;
     completeRun: (
       id: AuditRunId,
       result: { status: 'SUCCESS' | 'FAILURE'; data: unknown; error?: unknown },
@@ -103,6 +134,39 @@ const decodeAuditResultRecord = (result: {
     error: result.error ?? null,
     createdAt: result.createdAt,
   });
+
+const decodeAuditRunSummaryRecord = (run: {
+  id: string;
+  title: string;
+  status: AuditStatus;
+  resultStatus: AuditResultStatus | null;
+  queuePosition: number | null;
+  createdAt: Date;
+  startedAt: Date | null;
+  completedAt: Date | null;
+  durationMs: number | null;
+}) =>
+  Schema.decodeUnknown(AuditRunSummaryRecordSchema, { errors: 'all' })({
+    id: run.id,
+    title: run.title,
+    status: run.status,
+    resultStatus: run.resultStatus,
+    queuePosition: run.queuePosition,
+    createdAt: run.createdAt,
+    startedAt: run.startedAt,
+    completedAt: run.completedAt,
+    durationMs: run.durationMs,
+  });
+
+const resolveAuditTitle = (templateData: unknown): string => {
+  if (templateData && typeof templateData === 'object') {
+    const title = (templateData as { title?: unknown }).title;
+    if (typeof title === 'string' && title.trim().length > 0) {
+      return title;
+    }
+  }
+  return 'Untitled audit';
+};
 
 export const AuditRepoLive = Layer.effect(
   AuditRepo,
@@ -310,6 +374,119 @@ export const AuditRepoLive = Layer.effect(
         return position;
       }).pipe(Effect.withSpan('db.auditRun.getQueuePosition'));
 
+    const getRunSummaryById = (id: AuditRunId) =>
+      Effect.gen(function* () {
+        yield* Effect.annotateCurrentSpan({ 'audit.id': id });
+
+        const row = yield* db.run((client) =>
+          client
+            .select({
+              id: auditRunTable.id,
+              status: auditRunTable.status,
+              createdAt: auditRunTable.createdAt,
+              startedAt: auditRunTable.startedAt,
+              completedAt: auditRunTable.completedAt,
+              durationMs: auditRunTable.durationMs,
+              templateData: auditTemplateTable.data,
+              resultStatus: auditResultTable.status,
+            })
+            .from(auditRunTable)
+            .innerJoin(auditTemplateTable, eq(auditTemplateTable.id, auditRunTable.templateId))
+            .leftJoin(auditResultTable, eq(auditResultTable.runId, auditRunTable.id))
+            .where(eq(auditRunTable.id, id))
+            .get(),
+        );
+
+        if (!row) {
+          return null;
+        }
+
+        const queuePosition = row.status === 'SCHEDULED' ? yield* getQueuePosition(row.id as AuditRunId) : null;
+
+        return yield* decodeAuditRunSummaryRecord({
+          id: row.id,
+          title: resolveAuditTitle(row.templateData),
+          status: row.status,
+          resultStatus: row.resultStatus ?? null,
+          queuePosition: row.status === 'SCHEDULED' ? (queuePosition ?? 0) : null,
+          createdAt: row.createdAt,
+          startedAt: row.startedAt,
+          completedAt: row.completedAt,
+          durationMs: row.durationMs,
+        });
+      }).pipe(Effect.withSpan('db.auditRun.getSummaryById'));
+
+    const listRunsPage = (params: {
+      limit: number;
+      cursor: AuditRunListCursor | null;
+      status: ReadonlyArray<AuditStatus> | null;
+    }) =>
+      Effect.gen(function* () {
+        const limit = Math.max(1, Math.min(params.limit, 100));
+        const statusFilter = params.status && params.status.length > 0 ? inArray(auditRunTable.status, params.status) : null;
+        const cursorFilter = params.cursor
+          ? or(
+              lt(auditRunTable.createdAt, new Date(params.cursor.createdAtMs)),
+              and(eq(auditRunTable.createdAt, new Date(params.cursor.createdAtMs)), lt(auditRunTable.id, params.cursor.id)),
+            )
+          : null;
+        const whereClause = statusFilter && cursorFilter ? and(statusFilter, cursorFilter) : (statusFilter ?? cursorFilter);
+
+        const rows = yield* db.run((client) => {
+          const baseQuery = client
+            .select({
+              id: auditRunTable.id,
+              status: auditRunTable.status,
+              createdAt: auditRunTable.createdAt,
+              startedAt: auditRunTable.startedAt,
+              completedAt: auditRunTable.completedAt,
+              durationMs: auditRunTable.durationMs,
+              templateData: auditTemplateTable.data,
+              resultStatus: auditResultTable.status,
+            })
+            .from(auditRunTable)
+            .innerJoin(auditTemplateTable, eq(auditTemplateTable.id, auditRunTable.templateId))
+            .leftJoin(auditResultTable, eq(auditResultTable.runId, auditRunTable.id))
+            .orderBy(desc(auditRunTable.createdAt), desc(auditRunTable.id))
+            .limit(limit + 1);
+
+          return whereClause ? baseQuery.where(whereClause).all() : baseQuery.all();
+        });
+
+        const pageRows = rows.slice(0, limit);
+        const items = yield* Effect.forEach(pageRows, (row) =>
+          Effect.gen(function* () {
+            const queuePosition = row.status === 'SCHEDULED' ? yield* getQueuePosition(row.id as AuditRunId) : null;
+
+            return yield* decodeAuditRunSummaryRecord({
+              id: row.id,
+              title: resolveAuditTitle(row.templateData),
+              status: row.status,
+              resultStatus: row.resultStatus ?? null,
+              queuePosition: row.status === 'SCHEDULED' ? (queuePosition ?? 0) : null,
+              createdAt: row.createdAt,
+              startedAt: row.startedAt,
+              completedAt: row.completedAt,
+              durationMs: row.durationMs,
+            });
+          }),
+        );
+
+        const hasMore = rows.length > limit;
+        const nextCursor =
+          hasMore && pageRows.length > 0
+            ? {
+                createdAtMs: pageRows[pageRows.length - 1].createdAt.getTime(),
+                id: pageRows[pageRows.length - 1].id,
+              }
+            : null;
+
+        return {
+          items,
+          nextCursor,
+        };
+      }).pipe(Effect.withSpan('db.auditRun.listPage'));
+
     const completeRun = (
       id: AuditRunId,
       result: { status: 'SUCCESS' | 'FAILURE'; data: unknown; error?: unknown },
@@ -415,6 +592,8 @@ export const AuditRepoLive = Layer.effect(
       claimNextRun,
       markRunInProgress,
       getQueuePosition,
+      getRunSummaryById,
+      listRunsPage,
       completeRun,
       getRunById,
       getResultByRunId,

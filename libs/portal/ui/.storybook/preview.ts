@@ -1,7 +1,4 @@
-import '!style-loader!css-loader!sass-loader!./../src/token/reset.scss';
-import '!style-loader!css-loader!sass-loader!./../src/token/color.scss';
-import '!style-loader!css-loader!sass-loader!./../src/token/typography.scss';
-import { applicationConfig, Preview } from '@storybook/angular';
+import { applicationConfig, componentWrapperDecorator, Preview } from '@storybook/angular';
 import { provideAnimations } from '@angular/platform-browser/animations';
 
 const preview: Preview = {
@@ -9,6 +6,7 @@ const preview: Preview = {
     applicationConfig({
       providers: [provideAnimations()],
     }),
+    componentWrapperDecorator((story) => `<div class="mat-typography">${story}</div>`),
   ],
 
   parameters: {

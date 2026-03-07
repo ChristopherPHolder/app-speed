@@ -26,7 +26,8 @@
       "outputs": ["{options.reportsDirectory}"],
       "options": {
         "configFile": "{projectRoot}/vitest.config.mts",
-        "reportsDirectory": "../../../coverage/libs/portal/ui"
+        "reportsDirectory": "../../../coverage/libs/portal/ui",
+        "passWithNoTests": true
       }
     },
     "lint": {

@@ -39,7 +39,73 @@ describe('Audit', () => {
 
   it('should watch audit', async () => {
     const scheduleResponse = await ScheduleRequest(MOCK_AUDIT);
-    await subscribeSSE(`${AUDIT_API_ENDPOINT}${scheduleResponse.auditId}/events`, async (r) => console.log(r));
+    let receivedChunk = '';
+    await subscribeSSE(`${AUDIT_API_ENDPOINT}${scheduleResponse.auditId}/events`, (chunk) => {
+      receivedChunk = chunk;
+    });
+    expect(receivedChunk.length).toBeGreaterThan(0);
+  });
+
+  it('should list audit runs with cursor envelope', async () => {
+    await ScheduleRequest(MOCK_AUDIT);
+    await ScheduleRequest({ ...MOCK_AUDIT, title: 'Another audit' });
+
+    const res = await fetch(`${AUDIT_API_ENDPOINT}runs?limit=1`);
+    expect(res.status).toBe(200);
+    const body = await res.json();
+
+    expect(Array.isArray(body.items)).toBe(true);
+    expect(body.limit).toBe(1);
+    expect(body.items[0]).toHaveProperty('auditId');
+    expect(body.items[0]).toHaveProperty('title');
+    expect(body.items[0]).toHaveProperty('status');
+    expect(body).toHaveProperty('nextCursor');
+  });
+
+  it('should return structured invalid query errors for bad list limits', async () => {
+    const res = await fetch(`${AUDIT_API_ENDPOINT}runs?limit=0`);
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body).toMatchObject({
+      _tag: 'AuditRunsInvalidQueryError',
+      code: 'INVALID_QUERY',
+    });
+  });
+
+  it('should return structured invalid cursor errors', async () => {
+    const res = await fetch(`${AUDIT_API_ENDPOINT}runs?cursor=bad-cursor`);
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body).toMatchObject({
+      _tag: 'AuditRunsInvalidCursorError',
+      code: 'INVALID_CURSOR',
+    });
+  });
+
+  it('should return run summary by id', async () => {
+    const scheduleResponse = await ScheduleRequest(MOCK_AUDIT);
+    const res = await fetch(`${AUDIT_API_ENDPOINT}runs/${scheduleResponse.auditId}`);
+    const body = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(body).toMatchObject({
+      auditId: scheduleResponse.auditId,
+      title: MOCK_AUDIT.title,
+      status: 'SCHEDULED',
+    });
+  });
+
+  it('should return run not found for unknown run summary id', async () => {
+    const res = await fetch(`${AUDIT_API_ENDPOINT}runs/STUB_ID`);
+    const body = await res.json();
+
+    expect(res.status).toBe(404);
+    expect(body).toMatchObject({
+      _tag: 'AuditRunSummaryNotFoundError',
+      code: 'RUN_NOT_FOUND',
+    });
   });
 });
 
@@ -61,6 +127,9 @@ export async function subscribeSSE(url: string, onData: (c: string) => void) {
 
   const decoder = new TextDecoder();
   for await (const chunk of res.body) {
-    console.log('WOLOLO response', chunk, decoder.decode(chunk));
+    onData(decoder.decode(chunk));
+    return;
   }
+
+  throw new Error('SSE: no data received');
 }
