@@ -50,10 +50,10 @@ jobs:
 
       - name: Deploy Frontend (Auto Main)
         if: ${{ github.event_name == 'push' }}
-        run: pnpm exec nx run deploy portal-app --configuration=production
+        run: pnpm exec nx deploy portal-app --configuration=production
 
       - name: Deploy Frontend (Manual)
         if: ${{ github.event_name == 'workflow_dispatch' }}
         env:
           DEPLOY_ENV: ${{ github.event.inputs.environment }}
-        run: pnpm exec nx run deploy portal-app --configuration="${DEPLOY_ENV}"
+        run: pnpm exec nx deploy portal-app --configuration="${DEPLOY_ENV}"
