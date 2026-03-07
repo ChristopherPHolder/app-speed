@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "dependencies": {
     "@nx/devkit": "20.7.1",
-    "@aws-sdk/client-ec2": "^3.990.0",
-    "@aws-sdk/client-ssm": "^3.990.0",
+    "@aws-sdk/client-ec2": "^3.1004.0",
+    "@aws-sdk/client-ssm": "^3.1004.0",
     "effect": "^3.19.14",
     "dotenv": "16.4.7",
     "archiver": "^7.0.1"
