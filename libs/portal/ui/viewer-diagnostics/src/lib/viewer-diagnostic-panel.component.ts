@@ -1,20 +1,10 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { MatChip } from '@angular/material/chips';
 import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
-import { StatusBadgeComponent, StatusOptions } from '@app-speed/portal-ui/status-badge';
-import type Details from 'lighthouse/types/lhr/audit-details';
+import { StatusBadgeComponent } from '@app-speed/portal-ui/status-badge';
 import { ViewerDetailsComponent } from './details.component';
-import { MdToAnkerPipe } from './md-to-anker.pipe';
-
-export type DiagnosticItem = {
-  id: string;
-  title: string;
-  displayValue?: string;
-  description: string;
-  details?: Details;
-  status: StatusOptions;
-  affectedMetrics?: string[];
-};
+import { ViewerMarkdownTextComponent } from './markdown-text.component';
+import { DiagnosticItem, ViewerDiagnosticContext } from './viewer-diagnostic.models';
 
 @Component({
   selector: 'ui-viewer-diagnostic-panel',
@@ -32,7 +22,7 @@ export type DiagnosticItem = {
         </mat-panel-title>
       </mat-expansion-panel-header>
       <p>
-        <span [innerHTML]="item().description | mdToAnker"></span>
+        <ui-viewer-markdown-text [text]="item().description" />
         @if (item().affectedMetrics; as metrics) {
           @for (metric of metrics; track metric) {
             <mat-chip [disableRipple]="true">{{ metric }}</mat-chip>
@@ -41,7 +31,7 @@ export type DiagnosticItem = {
       </p>
 
       @if (item().details; as details) {
-        <ui-viewer-details [details]="details" />
+        <ui-viewer-details [details]="details" [auditId]="item().id" [context]="context()" />
       }
     </mat-expansion-panel>
   `,
@@ -66,7 +56,7 @@ export type DiagnosticItem = {
     MatExpansionPanelHeader,
     MatExpansionPanelTitle,
     MatChip,
-    MdToAnkerPipe,
+    ViewerMarkdownTextComponent,
     StatusBadgeComponent,
     ViewerDetailsComponent,
   ],
@@ -77,4 +67,5 @@ export type DiagnosticItem = {
 })
 export class ViewerDiagnosticPanelComponent {
   item = input.required<DiagnosticItem>();
+  context = input<ViewerDiagnosticContext | null>(null);
 }

@@ -3,7 +3,11 @@ import { FlowResult } from 'lighthouse';
 import { Result as AuditResult } from 'lighthouse/types/lhr/audit-result';
 
 import { STATUS, StatusOptions } from '@app-speed/portal-ui/status-badge';
-import { DiagnosticItem, ViewerDiagnosticComponent } from '@app-speed/portal-ui/viewer-diagnostics';
+import {
+  DiagnosticItem,
+  ViewerDiagnosticComponent,
+  ViewerDiagnosticContext,
+} from '@app-speed/portal-ui/viewer-diagnostics';
 import { MetricSummary, ViewerStepMetricSummaryComponent } from './viewer-step-metric-summary.component';
 import { ViewerFileStripComponent } from './viewer-file-strip.component';
 import { metricAudits, metricResults } from './view-step-details.adaptor';
@@ -21,7 +25,7 @@ import { metricAudits, metricResults } from './view-step-details.adaptor';
     }
 
     <div>DIAGNOSTICS</div>
-    <ui-viewer-diagnostic class="pad" [items]="diagnosticItems()" />
+    <ui-viewer-diagnostic class="pad" [items]="diagnosticItems()" [context]="diagnosticContext()" />
   `,
   imports: [ViewerStepMetricSummaryComponent, ViewerFileStripComponent, ViewerDiagnosticComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -97,6 +101,15 @@ export class ViewerStepDetailComponent {
       this.warnItems().map(this.diagnosticItemsMapper(STATUS.WARN)),
       this.informItems().map(this.diagnosticItemsMapper(STATUS.INFO)),
     ].flat();
+  });
+
+  diagnosticContext = computed<ViewerDiagnosticContext>(() => {
+    const lhr = this.stepDetails().lhr;
+    return {
+      finalDisplayedUrl: lhr.finalDisplayedUrl,
+      entities: lhr.entities,
+      fullPageScreenshot: lhr.fullPageScreenshot,
+    };
   });
 
   private affectsMetric(metricSavings: string[]): boolean {
