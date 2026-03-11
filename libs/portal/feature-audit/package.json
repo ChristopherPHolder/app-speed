@@ -10,7 +10,7 @@
     "rxjs": "^7.8.0",
     "@rx-angular/template": "21.0.0",
     "@app-speed/portal-data-access": "0.0.1",
-    "lighthouse": "^12.2.0",
+    "lighthouse": "^13.0.3",
     "@app-speed/portal-ui": "0.0.0",
     "@angular/platform-browser": "21.2.1",
     "@app-speed/shared-user-flow-replay": "0.0.1",

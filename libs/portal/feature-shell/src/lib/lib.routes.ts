@@ -25,7 +25,6 @@ export const shellRoutes: Route[] = [
             path: 'viewer',
             loadComponent: () => import('@app-speed/portal-feature-audit').then((m) => m.AuditViewerContainer),
           },
-          // { path: '', redirectTo: 'builder', pathMatch: 'full' },
         ],
       },
       {
