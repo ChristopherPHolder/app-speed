@@ -21,14 +21,37 @@ import { DiagnosticItem, ViewerDiagnosticContext } from './viewer-diagnostic.mod
           </span>
         </mat-panel-title>
       </mat-expansion-panel-header>
-      <p>
+      <p class="viewer-diagnostic-panel__summary">
         <ui-viewer-markdown-text [text]="item().description" />
-        @if (item().affectedMetrics; as metrics) {
-          @for (metric of metrics; track metric) {
-            <mat-chip [disableRipple]="true">{{ metric }}</mat-chip>
-          }
+        @if (item().affectedMetrics?.length || item().unscored) {
+          <span class="viewer-diagnostic-panel__chips">
+            @if (item().affectedMetrics; as metrics) {
+              @for (metric of metrics; track metric) {
+                <mat-chip [disableRipple]="true">{{ metric }}</mat-chip>
+              }
+            }
+            @if (item().unscored) {
+              <mat-chip [disableRipple]="true" title="This diagnostic does not directly affect the performance score">
+                Unscored
+              </mat-chip>
+            }
+          </span>
         }
       </p>
+
+      @if (item().stackPacks?.length; as stackPackCount) {
+        <div class="viewer-diagnostic-panel__stackpacks" [attr.data-stack-pack-count]="stackPackCount">
+          @for (stackPack of item().stackPacks; track stackPack.title) {
+            <section class="viewer-diagnostic-panel__stackpack">
+              <img class="viewer-diagnostic-panel__stackpack-icon" [src]="stackPack.iconDataURL" [alt]="stackPack.title" />
+              <div class="viewer-diagnostic-panel__stackpack-copy">
+                <div class="viewer-diagnostic-panel__stackpack-title">{{ stackPack.title }}</div>
+                <ui-viewer-markdown-text [text]="stackPack.description" />
+              </div>
+            </section>
+          }
+        </div>
+      }
 
       @if (item().details; as details) {
         <ui-viewer-details [details]="details" [auditId]="item().id" [context]="context()" />
@@ -39,6 +62,52 @@ import { DiagnosticItem, ViewerDiagnosticContext } from './viewer-diagnostic.mod
     .status-badge {
       margin-right: 8px;
       overflow: visible;
+    }
+
+    .viewer-diagnostic-panel__summary {
+      display: grid;
+      gap: 12px;
+    }
+
+    .viewer-diagnostic-panel__chips {
+      display: inline-flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .viewer-diagnostic-panel__stackpacks {
+      display: grid;
+      gap: 12px;
+      margin: 0 0 16px;
+    }
+
+    .viewer-diagnostic-panel__stackpack {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 12px;
+      border: 1px solid color-mix(in srgb, var(--mat-sys-outline) 55%, white);
+      border-radius: 12px;
+      background: color-mix(in srgb, var(--mat-sys-surface-variant) 20%, white);
+    }
+
+    .viewer-diagnostic-panel__stackpack-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    .viewer-diagnostic-panel__stackpack-copy {
+      display: grid;
+      gap: 4px;
+    }
+
+    .viewer-diagnostic-panel__stackpack-title {
+      font-size: 0.875rem;
+      font-weight: 700;
     }
 
     mat-expansion-panel-header {

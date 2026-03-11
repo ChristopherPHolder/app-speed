@@ -1,12 +1,5 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  input,
-  signal,
-  untracked,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, input, signal, untracked } from '@angular/core';
+import { MatTableModule } from '@angular/material/table';
 import { ScrollContainerComponent } from '@app-speed/portal-ui/scroll-container';
 import type Details from 'lighthouse/types/lhr/audit-details';
 import type Result from 'lighthouse/types/lhr/lhr';
@@ -40,23 +33,21 @@ type FilterState = {
   thirdPartyCount: number;
 };
 
+type RenderColumn = {
+  id: string;
+  index: number;
+  heading: Details.TableColumnHeading;
+};
+
 const FILTER_EXCLUDED_AUDITS = new Set([
   'uses-rel-preconnect',
   'third-party-facades',
   'network-dependency-tree-insight',
 ]);
 
-const FILTER_HIDE_BY_DEFAULT_AUDITS = new Set([
-  'legacy-javascript',
-  'legacy-javascript-insight',
-]);
+const FILTER_HIDE_BY_DEFAULT_AUDITS = new Set(['legacy-javascript', 'legacy-javascript-insight']);
 
-const SUMMABLE_VALUE_TYPES = new Set<Details.TableColumnHeading['valueType']>([
-  'bytes',
-  'numeric',
-  'ms',
-  'timespanMs',
-]);
+const SUMMABLE_VALUE_TYPES = new Set<Details.TableColumnHeading['valueType']>(['bytes', 'numeric', 'ms', 'timespanMs']);
 
 @Component({
   selector: 'ui-viewer-table',
@@ -75,66 +66,65 @@ const SUMMABLE_VALUE_TYPES = new Set<Details.TableColumnHeading['valueType']>([
 
     @if (rows().length) {
       <ui-scroll-container>
-        <table class="viewer-table">
-          <thead>
-            <tr>
-              @for (heading of headings(); track $index) {
-                <th [class]="columnClass(heading)">
-                  {{ heading.label }}
-                </th>
-              }
-            </tr>
-          </thead>
+        <table mat-table [dataSource]="rows()" class="viewer-table">
+          @for (column of columns(); track column.id) {
+            <ng-container [matColumnDef]="column.id">
+              <th mat-header-cell *matHeaderCellDef [class]="headerColumnClass(column.heading)" scope="col">
+                {{ column.heading.label }}
+              </th>
 
-          <tbody>
-            @for (row of rows(); track row.key) {
-              <tr
-                class="viewer-table__row"
-                [class.viewer-table__row--subitem]="row.isSubItem"
-                [class.viewer-table__row--group]="row.isGroup"
-                [class.viewer-table__row--entity-child]="row.indentLevel === 1 && !row.isSubItem"
-                [class.viewer-table__row--entity-subitem]="row.indentLevel === 2"
-                [class.viewer-table__row--even]="row.stripe === 'even'"
-                [class.viewer-table__row--odd]="row.stripe === 'odd'"
+              <td
+                mat-cell
+                *matCellDef="let row"
+                [class]="columnClass(cellAt(row, column.index)?.heading ?? null)"
+                [class.viewer-table__cell--empty]="isEmptyCell(cellAt(row, column.index))"
               >
-                @for (cell of row.cells; track $index) {
-                  <td
-                    [class]="columnClass(cell.heading)"
-                    [class.viewer-table__cell--empty]="!cell.heading || cell.value === undefined || cell.value === null"
-                  >
-                    @if (cell.heading && cell.value !== undefined && cell.value !== null) {
-                      <div
-                        class="viewer-table__cell-content"
-                        [class.viewer-table__cell-content--group]="$index === 0 && row.isGroup"
-                      >
-                        <ui-viewer-detail-value [value]="cell.value" [heading]="cell.heading" [context]="context()" />
+                @if (cellAt(row, column.index); as cell) {
+                  @if (cell.heading && cell.value !== undefined && cell.value !== null) {
+                    <div
+                      class="viewer-table__cell-content"
+                      [class.viewer-table__cell-content--group]="column.index === 0 && row.isGroup"
+                    >
+                      <ui-viewer-detail-value [value]="cell.value" [heading]="cell.heading" [context]="context()" />
 
-                        @if ($index === 0 && row.isGroup && row.entityInfo; as entityInfo) {
-                          @if (entityInfo.category) {
-                            <span class="viewer-table__adorn">{{ entityInfo.category }}</span>
-                          }
-                          @if (entityInfo.isFirstParty) {
-                            <span class="viewer-table__adorn viewer-table__adorn--first-party">1st party</span>
-                          }
-                          @if (entityInfo.homepage) {
-                            <a
-                              class="viewer-table__external-link"
-                              [href]="entityInfo.homepage"
-                              target="_blank"
-                              rel="noopener"
-                              title="Open in a new tab"
-                            >
-                              ↗
-                            </a>
-                          }
+                      @if (column.index === 0 && row.isGroup && row.entityInfo; as entityInfo) {
+                        @if (entityInfo.category) {
+                          <span class="viewer-table__adorn">{{ entityInfo.category }}</span>
                         }
-                      </div>
-                    }
-                  </td>
+                        @if (entityInfo.isFirstParty) {
+                          <span class="viewer-table__adorn viewer-table__adorn--first-party">1st party</span>
+                        }
+                        @if (entityInfo.homepage) {
+                          <a
+                            class="viewer-table__external-link"
+                            [href]="entityInfo.homepage"
+                            target="_blank"
+                            rel="noopener"
+                            title="Open in a new tab"
+                          >
+                            ↗
+                          </a>
+                        }
+                      }
+                    </div>
+                  }
                 }
-              </tr>
-            }
-          </tbody>
+              </td>
+            </ng-container>
+          }
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumnIds(); sticky: true"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: displayedColumnIds()"
+            class="viewer-table__row"
+            [class.viewer-table__row--subitem]="row.isSubItem"
+            [class.viewer-table__row--group]="row.isGroup"
+            [class.viewer-table__row--entity-child]="row.indentLevel === 1 && !row.isSubItem"
+            [class.viewer-table__row--entity-subitem]="row.indentLevel === 2"
+            [class.viewer-table__row--even]="row.stripe === 'even'"
+            [class.viewer-table__row--odd]="row.stripe === 'odd'"
+          ></tr>
         </table>
       </ui-scroll-container>
     }
@@ -173,38 +163,49 @@ const SUMMABLE_VALUE_TYPES = new Set<Details.TableColumnHeading['valueType']>([
       background: var(--mat-sys-surface);
     }
 
-    .viewer-table th,
-    .viewer-table td {
+    .viewer-table .mat-mdc-header-row,
+    .viewer-table .mat-mdc-header-cell {
+      background-color: #eef2f7;
+    }
+
+    .viewer-table .mat-mdc-header-cell,
+    .viewer-table .mat-mdc-cell {
       padding: 12px;
       vertical-align: top;
       border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 60%, white);
     }
 
-    .viewer-table thead th {
-      position: sticky;
-      top: 0;
-      z-index: 1;
-      background: var(--mat-sys-surface);
+    .viewer-table .mat-mdc-header-cell {
       color: var(--mat-sys-on-surface-variant);
       font-weight: 500;
       text-align: left;
+      box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--mat-sys-outline-variant) 70%, white);
     }
 
-    .viewer-table tbody tr:last-child td {
+    .viewer-table .mat-mdc-header-row,
+    .viewer-table .mat-mdc-row {
+      height: auto;
+    }
+
+    .viewer-table .mat-mdc-row:last-child .mat-mdc-cell {
       border-bottom: 0;
+    }
+
+    .viewer-table__header-cell--metric {
+      text-align: center;
     }
 
     .viewer-table__row--group {
       background: color-mix(in srgb, var(--mat-sys-surface-variant) 44%, white);
     }
 
-    .viewer-table__row--group td {
+    .viewer-table__row--group .mat-mdc-cell {
       color: var(--mat-sys-on-surface);
       font-size: 1.05em;
       font-weight: 700;
     }
 
-    .viewer-table__row--group td:first-child {
+    .viewer-table__row--group .mat-mdc-cell:first-child {
       min-width: max-content;
       font-weight: 400;
     }
@@ -213,18 +214,18 @@ const SUMMABLE_VALUE_TYPES = new Set<Details.TableColumnHeading['valueType']>([
       background: color-mix(in srgb, var(--mat-sys-surface-variant) 18%, white);
     }
 
-    .viewer-table__row--subitem td {
+    .viewer-table__row--subitem .mat-mdc-cell {
       padding-top: 8px;
       padding-bottom: 8px;
       color: var(--mat-sys-on-surface-variant);
     }
 
-    .viewer-table__row--subitem td:first-child,
-    .viewer-table__row--entity-child td:first-child {
+    .viewer-table__row--subitem .mat-mdc-cell:first-child,
+    .viewer-table__row--entity-child .mat-mdc-cell:first-child {
       padding-left: 24px;
     }
 
-    .viewer-table__row--entity-subitem td:first-child {
+    .viewer-table__row--entity-subitem .mat-mdc-cell:first-child {
       display: block;
       margin-left: 20px;
       padding-left: 10px;
@@ -277,6 +278,15 @@ const SUMMABLE_VALUE_TYPES = new Set<Details.TableColumnHeading['valueType']>([
       white-space: nowrap;
     }
 
+    .viewer-table .viewer-table__cell--url + .viewer-table__header-cell--metric,
+    .viewer-table .viewer-table__cell--url + .viewer-table__header-cell--metric + .viewer-table__header-cell--metric,
+    .viewer-table .viewer-table__cell--url + .viewer-table__cell--ms,
+    .viewer-table .viewer-table__cell--url + .viewer-table__cell--ms + .viewer-table__header-cell--metric,
+    .viewer-table .viewer-table__cell--url + .viewer-table__header-cell--metric + .viewer-table__cell--timespanMs {
+      width: 12%;
+      min-width: 8.5rem;
+    }
+
     .viewer-table__cell--url {
       min-width: 16rem;
     }
@@ -289,7 +299,7 @@ const SUMMABLE_VALUE_TYPES = new Set<Details.TableColumnHeading['valueType']>([
       background: transparent;
     }
   `,
-  imports: [ScrollContainerComponent, ViewerDetailValueComponent],
+  imports: [MatTableModule, ScrollContainerComponent, ViewerDetailValueComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ViewerTableComponent {
@@ -300,6 +310,9 @@ export class ViewerTableComponent {
   readonly showThirdParty = signal(true);
 
   readonly headings = computed(() => this.tableDetails().headings);
+  readonly columns = computed<RenderColumn[]>(() =>
+    this.headings().map((heading, index) => ({ id: `column-${index}`, index, heading })),
+  );
   readonly bundles = computed(() => this.buildBundles());
   readonly filterState = computed<FilterState>(() => {
     const bundles = this.bundles();
@@ -341,12 +354,13 @@ export class ViewerTableComponent {
     });
   });
 
+  readonly displayedColumnIds = computed(() => this.columns().map((column) => column.id));
+
   constructor() {
     effect(() => {
       const filterState = this.filterState();
       const auditId = this.auditId();
-      const showByDefault =
-        !FILTER_HIDE_BY_DEFAULT_AUDITS.has(auditId ?? '') || !filterState.mixed;
+      const showByDefault = !FILTER_HIDE_BY_DEFAULT_AUDITS.has(auditId ?? '') || !filterState.mixed;
 
       untracked(() => this.showThirdParty.set(showByDefault));
     });
@@ -356,8 +370,23 @@ export class ViewerTableComponent {
     return heading ? `viewer-table__cell viewer-table__cell--${heading.valueType}` : 'viewer-table__cell';
   }
 
+  headerColumnClass(heading: Heading): string {
+    const baseClass = `${this.columnClass(heading)} viewer-table__header-cell`;
+    return heading && ['bytes', 'ms', 'numeric', 'timespanMs'].includes(heading.valueType)
+      ? `${baseClass} viewer-table__header-cell--metric`
+      : baseClass;
+  }
+
   onShowThirdPartyChange(checked: boolean): void {
     this.showThirdParty.set(checked);
+  }
+
+  cellAt(row: RenderRow, columnIndex: number): RenderRow['cells'][number] | undefined {
+    return row.cells[columnIndex];
+  }
+
+  isEmptyCell(cell: RenderRow['cells'][number] | undefined): boolean {
+    return !cell?.heading || cell.value === undefined || cell.value === null;
   }
 
   private visibleBundles(): RowBundle[] {
@@ -399,18 +428,13 @@ export class ViewerTableComponent {
           .filter((item) => this.entityNameForItem(item, headings) === entityName)
           .forEach((item, index) => {
             bundles.push(
-              this.bundleFromItem(
-                `group-${entityName ?? 'unattributable'}-item-${index}`,
-                item,
-                headings,
-                {
-                  isGroup: false,
-                  indentLevel: 1,
-                  entityName,
-                  entityInfo,
-                  thirdParty,
-                },
-              ),
+              this.bundleFromItem(`group-${entityName ?? 'unattributable'}-item-${index}`, item, headings, {
+                isGroup: false,
+                indentLevel: 1,
+                entityName,
+                entityInfo,
+                thirdParty,
+              }),
             );
           });
       }
@@ -547,7 +571,9 @@ export class ViewerTableComponent {
 
     const skippedColumns = new Set(details.skipSumming ?? []);
     const summableColumns = headings
-      .filter((heading) => heading.key && !skippedColumns.has(heading.key) && SUMMABLE_VALUE_TYPES.has(heading.valueType))
+      .filter(
+        (heading) => heading.key && !skippedColumns.has(heading.key) && SUMMABLE_VALUE_TYPES.has(heading.valueType),
+      )
       .map((heading) => heading.key as string);
 
     const groupedByEntity = new Map<string | undefined, TableItemWithEntity>();

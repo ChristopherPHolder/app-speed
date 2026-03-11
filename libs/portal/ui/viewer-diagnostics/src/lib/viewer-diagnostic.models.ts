@@ -8,6 +8,12 @@ export type ViewerDiagnosticContext = {
   fullPageScreenshot?: Result.FullPageScreenshot | null;
 };
 
+export type DiagnosticStackPack = {
+  title: string;
+  iconDataURL: string;
+  description: string;
+};
+
 export type DiagnosticItem = {
   id: string;
   title: string;
@@ -16,4 +22,6 @@ export type DiagnosticItem = {
   details?: Details;
   status: StatusOptions;
   affectedMetrics?: string[];
+  unscored?: boolean;
+  stackPacks?: DiagnosticStackPack[];
 };

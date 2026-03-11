@@ -12,6 +12,12 @@ import { MetricSummary, ViewerStepMetricSummaryComponent } from './viewer-step-m
 import { ViewerFileStripComponent } from './viewer-file-strip.component';
 import { metricAudits, metricResults } from './view-step-details.adaptor';
 
+type PerformanceAuditRef = FlowResult.Step['lhr']['categories']['performance']['auditRefs'][number];
+type DiagnosticAuditRef = PerformanceAuditRef & {
+  result: AuditResult;
+  stackPacks?: { title: string; iconDataURL: string; description: string }[];
+};
+
 @Component({
   selector: 'viewer-step-detail',
   template: `
@@ -64,14 +70,25 @@ export class ViewerStepDetailComponent {
       .map((v) => v.acronym);
   });
 
+  private readonly performanceAuditRefs = computed(() => {
+    return this.stepDetails().lhr.categories['performance']['auditRefs'].filter(
+      (v) => v.group !== 'metrics' && v.group !== 'hidden',
+    );
+  });
+
   diagnostics = computed(() => {
     const report = this.stepDetails().lhr;
-    const audits = report.categories['performance']['auditRefs']
-      .filter((v) => v.group !== 'metrics' && v.group !== 'hidden')
-      .map((v) => report.audits[v.id])
-      .filter((v) => !!v.guidanceLevel);
-    const failedAudits = audits.filter((v) => v.score !== 1 && v.score !== null);
-    const passedAudits = audits.filter((v) => v.score === 1 || v.score === null);
+    const audits = this.performanceAuditRefs()
+      .map(
+        (auditRef): DiagnosticAuditRef => ({
+          ...auditRef,
+          result: report.audits[auditRef.id],
+          stackPacks: this.resolveStackPacks(auditRef.id, report.audits[auditRef.id]),
+        }),
+      )
+      .filter((v) => !!v.result.guidanceLevel);
+    const failedAudits = audits.filter((v) => v.result.score !== 1 && v.result.score !== null);
+    const passedAudits = audits.filter((v) => v.result.score === 1 || v.result.score === null);
     return { failed: failedAudits, passed: passedAudits };
   });
 
@@ -79,8 +96,8 @@ export class ViewerStepDetailComponent {
   private readonly alertItems = computed(() =>
     this.failedAudits().filter((v) => {
       return (
-        v.guidanceLevel === 1 &&
-        Object.keys(v.metricSavings || {}).filter((i) => this.categoryAcronyms().includes(i)).length
+        v.result.guidanceLevel === 1 &&
+        Object.keys(v.result.metricSavings || {}).filter((i) => this.categoryAcronyms().includes(i)).length
       );
     }),
   );
@@ -90,14 +107,26 @@ export class ViewerStepDetailComponent {
   });
   informItems = computed(() => {
     return this.diagnostics().passed.filter(
-      ({ metricSavings }) => !!metricSavings && this.affectsMetric(Object.keys(metricSavings || {})),
+      ({ result }) => !!result.metricSavings && this.affectsMetric(Object.keys(result.metricSavings || {})),
     );
   });
 
-  private diagnosticItemsMapper = (status: StatusOptions) => (results: AuditResult) => {
-    const { id, title, displayValue, description, details, metricSavings } = results;
-    return { id, status, title, displayValue, description, details, affectedMetrics: Object.keys(metricSavings || {}) };
-  };
+  private diagnosticItemsMapper =
+    (status: StatusOptions) =>
+    ({ result, weight, stackPacks }: DiagnosticAuditRef) => {
+      const { id, title, displayValue, description, details, metricSavings } = result;
+      return {
+        id,
+        status,
+        title,
+        displayValue,
+        description,
+        details,
+        affectedMetrics: Object.keys(metricSavings || {}),
+        unscored: weight === 0,
+        stackPacks,
+      };
+    };
 
   diagnosticItems = computed<DiagnosticItem[]>(() => {
     return [
@@ -119,6 +148,18 @@ export class ViewerStepDetailComponent {
   private affectsMetric(metricSavings: string[]): boolean {
     return !!metricSavings.filter((i) => this.categoryAcronyms().includes(i)).length;
   }
+
+  private resolveStackPacks(auditId: string, result: AuditResult): DiagnosticAuditRef['stackPacks'] {
+    const stackPacks = this.stepDetails().lhr.stackPacks ?? [];
+    const candidateIds = [auditId, ...(result.replacesAudits ?? [])];
+    const matchedPacks = stackPacks.flatMap((pack) => {
+      const description = candidateIds.map((id) => pack.descriptions[id]).find((value) => typeof value === 'string');
+      return description ? [{ title: pack.title, iconDataURL: pack.iconDataURL, description }] : [];
+    });
+
+    return matchedPacks.length ? matchedPacks : undefined;
+  }
+
   private categoriesMetricSummary(categories: FlowResult.Step['lhr']['categories']): MetricSummary[] {
     return Object.entries(categories).map(([key, value]) => ({
       [key]: metricResults(metricAudits(value.auditRefs), this.stepDetails().lhr.audits),

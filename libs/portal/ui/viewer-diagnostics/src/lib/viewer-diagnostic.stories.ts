@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/angular';
 import { STATUS } from '@app-speed/portal-ui/status-badge';
 import type Details from 'lighthouse/types/lhr/audit-details';
 import { ViewerDiagnosticComponent } from './viewer-diagnostic.component';
-import { DiagnosticItem, ViewerDiagnosticContext } from './viewer-diagnostic.models';
+import { DiagnosticItem, DiagnosticStackPack, ViewerDiagnosticContext } from './viewer-diagnostic.models';
 
 const svgDataUri = (label: string, background: string) =>
   `data:image/svg+xml;utf8,${encodeURIComponent(
@@ -85,6 +85,14 @@ const deepBlueContext: ViewerDiagnosticContext = {
   },
 };
 
+const gatsbyStackPack: DiagnosticStackPack = {
+  title: 'Gatsby',
+  iconDataURL:
+    'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28"><circle cx="14" cy="14" r="14" fill="%23639"/><path fill="%23fff" d="M6.2 21.8C4.1 19.7 3 16.9 3 14.2L13.9 25c-2.8-.1-5.6-1.1-7.7-3.2zm10.2 2.9L3.3 11.6C4.4 6.7 8.8 3 14 3c3.7 0 6.9 1.8 8.9 4.5l-1.5 1.3C19.7 6.5 17 5 14 5c-3.9 0-7.2 2.5-8.5 6L17 22.5c2.9-1 5.1-3.5 5.8-6.5H18v-2h7c0 5.2-3.7 9.6-8.6 10.7z"/></svg>',
+  description:
+    'Use the `PurgeCSS` `Gatsby` plugin to remove unused rules from stylesheets. [Learn more](https://purgecss.com/plugins/gatsby.html).',
+};
+
 const unusedCssDetails: Details.Opportunity = {
   type: 'opportunity',
   headings: [
@@ -99,6 +107,33 @@ const unusedCssDetails: Details.Opportunity = {
     },
   ],
   overallSavingsBytes: 66957,
+};
+
+const reduceUnusedCssAuditDetails: Details.Opportunity = {
+  type: 'opportunity',
+  headings: [
+    { key: 'url', label: 'URL', valueType: 'url' },
+    { key: 'totalBytes', label: 'Transfer Size', valueType: 'bytes' },
+    { key: 'wastedBytes', label: 'Est Savings', valueType: 'bytes' },
+  ],
+  items: [
+    {
+      url: '/*!\n * Bootstrap v4.4.1 (https://getbootstrap.com/)\n * Copyright 2011-2019 The Bootstrap Authors\n * ...',
+      totalBytes: 76303,
+      wastedBytes: 66994,
+      wastedPercent: 87.79956927494615,
+    },
+  ],
+  overallSavingsMs: 0,
+  overallSavingsBytes: 66994,
+  sortedBy: ['wastedBytes'],
+  debugData: {
+    type: 'debugdata',
+    metricSavings: {
+      FCP: 0,
+      LCP: 0,
+    },
+  },
 };
 
 const unusedJavascriptDetails: Details.Opportunity = {
@@ -506,7 +541,8 @@ const listDetails: Details.List = {
     {
       type: 'list-section',
       title: 'Top finding ([guide](https://developer.chrome.com/docs/lighthouse/performance/))',
-      description: 'The largest visible issue comes from the hero asset pipeline and is explained in the [performance docs](https://developer.chrome.com/docs/lighthouse/performance/).',
+      description:
+        'The largest visible issue comes from the hero asset pipeline and is explained in the [performance docs](https://developer.chrome.com/docs/lighthouse/performance/).',
       value: {
         type: 'text',
         value: 'Preloading the LCP image and collapsing duplicate CSS would likely improve both FCP and LCP.',
@@ -555,6 +591,8 @@ const deepBlueOverview: DiagnosticItem[] = [
       'Reduce unused rules from stylesheets and defer CSS not used for above-the-fold content to decrease bytes consumed by network activity.',
     status: STATUS.ALERT,
     affectedMetrics: ['FCP', 'LCP'],
+    unscored: true,
+    stackPacks: [gatsbyStackPack],
     details: unusedCssDetails,
   },
   {
@@ -580,8 +618,7 @@ const deepBlueOverview: DiagnosticItem[] = [
     id: 'total-byte-weight',
     title: 'Avoids enormous network payloads',
     displayValue: '489,013 bytes',
-    description:
-      'Large network payloads cost users real money and are highly correlated with long load times.',
+    description: 'Large network payloads cost users real money and are highly correlated with long load times.',
     status: STATUS.INFO,
     details: totalByteWeightDetails,
   },
@@ -638,7 +675,9 @@ const unknownDetails = {
   },
 } as unknown as Details;
 
-const baseItem = (overrides: Partial<DiagnosticItem> & Pick<DiagnosticItem, 'id' | 'title' | 'description' | 'details'>): DiagnosticItem => ({
+const baseItem = (
+  overrides: Partial<DiagnosticItem> & Pick<DiagnosticItem, 'id' | 'title' | 'description' | 'details'>,
+): DiagnosticItem => ({
   status: STATUS.INFO,
   ...overrides,
 });
@@ -677,6 +716,21 @@ export const OpportunityType: Story = singleItemStory(
     title: 'Opportunity detail type',
     description: 'Matches Lighthouse opportunity tables such as unused CSS and unused JavaScript.',
     details: unusedCssDetails,
+  }),
+);
+
+export const ReduceUnusedCssAudit: Story = singleItemStory(
+  baseItem({
+    id: 'unused-css-rules',
+    title: 'Reduce unused CSS',
+    displayValue: 'Est savings of 65 KiB',
+    description:
+      'Reduce unused rules from stylesheets and defer CSS not used for above-the-fold content to decrease bytes consumed by network activity. [Learn how to reduce unused CSS](https://developer.chrome.com/docs/lighthouse/performance/unused-css-rules/).',
+    status: STATUS.ALERT,
+    affectedMetrics: ['FCP', 'LCP'],
+    unscored: true,
+    stackPacks: [gatsbyStackPack],
+    details: reduceUnusedCssAuditDetails,
   }),
 );
 
@@ -774,7 +828,8 @@ export const NodeScreenshotType: Story = singleItemStory(
   baseItem({
     id: 'node-screenshot',
     title: 'Node screenshot overlay',
-    description: 'Node values can render a clipped preview from the full-page screenshot and open a larger overlay on click.',
+    description:
+      'Node values can render a clipped preview from the full-page screenshot and open a larger overlay on click.',
     details: richTableDetails,
   }),
 );
@@ -801,7 +856,8 @@ export const ScreenshotInternalOnly: Story = singleItemStory(
   baseItem({
     id: 'screenshot-type',
     title: 'Screenshot internal-only type',
-    description: 'The standalone screenshot detail is internal in Lighthouse and intentionally renders no detail body here as well.',
+    description:
+      'The standalone screenshot detail is internal in Lighthouse and intentionally renders no detail body here as well.',
     details: screenshotDetails,
   }),
 );
@@ -810,7 +866,8 @@ export const TreemapDataInternalOnly: Story = singleItemStory(
   baseItem({
     id: 'treemap-type',
     title: 'Treemap internal-only type',
-    description: 'Treemap data is part of the report payload, but not rendered by the standard Lighthouse detail renderer.',
+    description:
+      'Treemap data is part of the report payload, but not rendered by the standard Lighthouse detail renderer.',
     details: treemapDetails,
   }),
 );
