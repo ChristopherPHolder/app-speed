@@ -4,6 +4,8 @@ import { ReplayUserflowAuditSchema } from '@app-speed/shared-user-flow-replay/sc
 import { AuditId } from '../Audit/Audit.js';
 
 const RunnerId = Schema.NonEmptyString.pipe(Schema.brand('RunnerId'));
+const RunnerHeartbeatStateSchema = Schema.Literal('BUSY', 'IDLE');
+const RunnerShutdownReasonSchema = Schema.Literal('IDLE_TIMEOUT');
 
 const AuditResultStatusSchema = Schema.Literal('SUCCESS', 'FAILURE');
 const AuditErrorSchema = Schema.Struct({
@@ -46,6 +48,19 @@ const RunnerCompleteRequestSchema = Schema.Union(RunnerCompleteSuccessSchema, Ru
 const RunnerHeartbeatRequestSchema = Schema.Struct({
   runnerId: RunnerId,
   timestamp: Schema.optional(Schema.Number),
+  state: Schema.optional(RunnerHeartbeatStateSchema),
+  idleSince: Schema.optional(Schema.Number),
+});
+
+const RunnerShutdownRequestSchema = Schema.Struct({
+  runnerId: RunnerId,
+  reason: RunnerShutdownReasonSchema,
+  timestamp: Schema.optional(Schema.Number),
+});
+
+const RunnerShutdownResponseSchema = Schema.Struct({
+  ok: Schema.Literal(true),
+  shouldTerminate: Schema.Boolean,
 });
 
 export class RunnerApiGroup extends HttpApiGroup.make('runner')
@@ -65,6 +80,12 @@ export class RunnerApiGroup extends HttpApiGroup.make('runner')
     HttpApiEndpoint.post('heartbeat', '/heartbeat')
       .setPayload(RunnerHeartbeatRequestSchema)
       .addSuccess(Schema.Struct({ ok: Schema.Literal(true) }))
+      .addError(HttpApiError.BadRequest),
+  )
+  .add(
+    HttpApiEndpoint.post('shutdown', '/shutdown')
+      .setPayload(RunnerShutdownRequestSchema)
+      .addSuccess(RunnerShutdownResponseSchema)
       .addError(HttpApiError.BadRequest),
   )
   .prefix('/runner') {}

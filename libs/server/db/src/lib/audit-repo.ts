@@ -73,9 +73,12 @@ export class AuditRepo extends Context.Tag('AuditRepo')<
     ) => Effect.Effect<AuditTemplateRecord | null, QueryError | ParseResult.ParseError>;
     createRun: (templateId: AuditTemplateId) => Effect.Effect<AuditRunId, QueryError>;
     claimNextRun: () => Effect.Effect<AuditRunRecord | null, QueryError | ParseResult.ParseError>;
+    hasScheduledRuns: () => Effect.Effect<boolean, QueryError>;
     markRunInProgress: (id: AuditRunId) => Effect.Effect<void, QueryError>;
     getQueuePosition: (id: AuditRunId) => Effect.Effect<number | null, QueryError | ParseResult.ParseError>;
-    getRunSummaryById: (id: AuditRunId) => Effect.Effect<AuditRunSummaryRecord | null, QueryError | ParseResult.ParseError>;
+    getRunSummaryById: (
+      id: AuditRunId,
+    ) => Effect.Effect<AuditRunSummaryRecord | null, QueryError | ParseResult.ParseError>;
     listRunsPage: (params: {
       limit: number;
       cursor: AuditRunListCursor | null;
@@ -306,6 +309,22 @@ export const AuditRepoLive = Layer.effect(
         return decoded;
       }).pipe(Effect.withSpan('db.auditRun.claimNext'));
 
+    const hasScheduledRuns = () =>
+      Effect.gen(function* () {
+        const scheduledRun = yield* db.run((client) =>
+          client
+            .select({ id: auditRunTable.id })
+            .from(auditRunTable)
+            .where(eq(auditRunTable.status, 'SCHEDULED'))
+            .limit(1)
+            .get(),
+        );
+
+        const hasQueuedWork = scheduledRun !== undefined;
+        yield* Effect.annotateCurrentSpan({ 'audit.scheduled_exists': hasQueuedWork });
+        return hasQueuedWork;
+      }).pipe(Effect.withSpan('db.auditRun.hasScheduledRuns'));
+
     const markRunInProgress = (id: AuditRunId) =>
       Effect.gen(function* () {
         const now = new Date(yield* Clock.currentTimeMillis);
@@ -423,14 +442,19 @@ export const AuditRepoLive = Layer.effect(
     }) =>
       Effect.gen(function* () {
         const limit = Math.max(1, Math.min(params.limit, 100));
-        const statusFilter = params.status && params.status.length > 0 ? inArray(auditRunTable.status, params.status) : null;
+        const statusFilter =
+          params.status && params.status.length > 0 ? inArray(auditRunTable.status, params.status) : null;
         const cursorFilter = params.cursor
           ? or(
               lt(auditRunTable.createdAt, new Date(params.cursor.createdAtMs)),
-              and(eq(auditRunTable.createdAt, new Date(params.cursor.createdAtMs)), lt(auditRunTable.id, params.cursor.id)),
+              and(
+                eq(auditRunTable.createdAt, new Date(params.cursor.createdAtMs)),
+                lt(auditRunTable.id, params.cursor.id),
+              ),
             )
           : null;
-        const whereClause = statusFilter && cursorFilter ? and(statusFilter, cursorFilter) : (statusFilter ?? cursorFilter);
+        const whereClause =
+          statusFilter && cursorFilter ? and(statusFilter, cursorFilter) : (statusFilter ?? cursorFilter);
 
         const rows = yield* db.run((client) => {
           const baseQuery = client
@@ -590,6 +614,7 @@ export const AuditRepoLive = Layer.effect(
       getTemplateById,
       createRun,
       claimNextRun,
+      hasScheduledRuns,
       markRunInProgress,
       getQueuePosition,
       getRunSummaryById,

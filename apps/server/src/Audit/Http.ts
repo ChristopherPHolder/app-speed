@@ -10,7 +10,7 @@ import {
   AuditRunsInvalidCursorError,
   AuditRunsInvalidQueryError,
 } from './Audit';
-import { RunnerManager } from '../Runner/RunnerManager.js';
+import { RunnerLifecycle } from '../Runner/RunnerLifecycle.js';
 
 type AuditSnapshot = {
   status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETE';
@@ -140,8 +140,7 @@ const decodeCursor = (cursor: string | undefined) => {
   });
 };
 
-const encodeCursor = (cursor: AuditRunsCursor) =>
-  Buffer.from(JSON.stringify(cursor), 'utf8').toString('base64url');
+const encodeCursor = (cursor: AuditRunsCursor) => Buffer.from(JSON.stringify(cursor), 'utf8').toString('base64url');
 
 const normalizeListRunsError = (
   error: unknown,
@@ -271,10 +270,10 @@ export const AuditGroupLive = HttpApiBuilder.group(Api, 'audit', (handlers) =>
               'audit.device': request.payload.device,
             });
             const templateId = yield* repo.createTemplate(request.payload);
-            const runnerManager = yield* RunnerManager;
+            const runnerLifecycle = yield* RunnerLifecycle;
             const auditId = yield* repo.createRun(templateId);
             const auditQueuePosition = yield* repo.getQueuePosition(auditId);
-            yield* runnerManager.ensureRunnerActive;
+            yield* runnerLifecycle.requestActivation;
             yield* Effect.annotateCurrentSpan({
               'audit.id': auditId,
               'queue.position': auditQueuePosition ?? 0,

@@ -8,6 +8,7 @@ import {
 } from '@aws-sdk/client-ec2';
 import { Effect, Either, Layer, Option, Schema } from 'effect';
 import { RunnerIdSchema, RunnerManager, type ActiveRunnerList } from './RunnerManager.js';
+import { RunnerRegistry } from './RunnerRegistry.js';
 
 const DEFAULT_WAIT_TIMEOUT_MS = 10 * 60 * 1000;
 const AWS_RUNNER_REGION = 'eu-central-1';
@@ -173,6 +174,7 @@ export const AwsRunnerManagerLive = Layer.effect(
   Effect.gen(function* () {
     const config: AwsRunnerManagerConfig = awsRunnerManagerConfig;
     const client = new EC2Client({ region: config.region });
+    const runnerRegistry = yield* RunnerRegistry;
 
     const ensureRunnerActive = Effect.gen(function* () {
       const instances = yield* describeInstances(client, config.region, config.instanceIds);
@@ -204,16 +206,14 @@ export const AwsRunnerManagerLive = Layer.effect(
     );
 
     const listActiveRunners = describeInstances(client, config.region, config.instanceIds).pipe(
-      Effect.map(
-        (instances): ActiveRunnerList =>
+      Effect.flatMap((instances) =>
+        runnerRegistry.listActiveRunners(
           instances
             .filter((instance) => isActiveEc2InstanceState(instance.state))
-            .map((instance) => ({
-              id: toManagedRunnerId(instance.instanceId),
-              lastHeartbeatAt: new Date(),
-            })),
+            .map((instance) => String(toManagedRunnerId(instance.instanceId))),
+        ),
       ),
-      Effect.tap((runners) =>
+      Effect.tap((runners: ActiveRunnerList) =>
         Effect.annotateCurrentSpan({
           'runner.manager.mode': 'aws',
           'runner.list_count': runners.length,
@@ -247,6 +247,7 @@ export const AwsRunnerManagerLive = Layer.effect(
         }
 
         yield* stopInstance(client, parsedInstanceId.value, config.stopWaitTimeoutMs);
+        yield* runnerRegistry.markTerminated(runnerId);
       }).pipe(
         Effect.withSpan('runner.manager.terminate'),
         Effect.catchAll((error) =>
