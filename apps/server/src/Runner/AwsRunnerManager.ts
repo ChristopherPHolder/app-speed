@@ -6,7 +6,7 @@ import {
   waitUntilInstanceRunning,
   waitUntilInstanceStopped,
 } from '@aws-sdk/client-ec2';
-import { Effect, Either, Layer, Option, Schema } from 'effect';
+import { Data, Effect, Either, Layer, Option, Schema } from 'effect';
 import { RunnerIdSchema, RunnerManager, type ActiveRunnerList } from './RunnerManager.js';
 import { RunnerRegistry } from './RunnerRegistry.js';
 
@@ -42,6 +42,11 @@ const AwsRunnerManagerConfigSchema = Schema.Struct({
 type Ec2InstanceId = typeof Ec2InstanceIdSchema.Type;
 type Ec2InstanceState = typeof Ec2InstanceStateSchema.Type;
 type AwsRunnerManagerConfig = typeof AwsRunnerManagerConfigSchema.Type;
+
+class AwsRunnerManagerError extends Data.TaggedError('AwsRunnerManagerError')<{
+  readonly message: string;
+  readonly cause?: unknown;
+}> {}
 
 const awsRunnerManagerConfig = Schema.decodeUnknownSync(AwsRunnerManagerConfigSchema)({
   region: AWS_RUNNER_REGION,
@@ -79,12 +84,15 @@ const describeInstances = (
   client: EC2Client,
   region: string,
   instanceIds: ReadonlyArray<Ec2InstanceId>,
-): Effect.Effect<ReadonlyArray<Ec2InstanceState>, Error> =>
+): Effect.Effect<ReadonlyArray<Ec2InstanceState>, AwsRunnerManagerError> =>
   Effect.gen(function* () {
     const response = yield* Effect.tryPromise({
       try: () => client.send(new DescribeInstancesCommand({ InstanceIds: [...instanceIds] })),
       catch: (error) =>
-        new Error(`Failed to describe EC2 instances (${instanceIds.join(', ')}) in ${region}: ${String(error)}`),
+        new AwsRunnerManagerError({
+          message: `Failed to describe EC2 instances (${instanceIds.join(', ')}) in ${region}: ${String(error)}`,
+          cause: error,
+        }),
     });
 
     const instances: Ec2InstanceState[] = [];
@@ -96,9 +104,9 @@ const describeInstances = (
             state: instance.State?.Name ?? 'unknown',
           });
           if (Either.isLeft(decodedState)) {
-            return yield* Effect.fail(
-              new Error(`AWS returned invalid EC2 instance payload for ${instance.InstanceId}`),
-            );
+            return yield* new AwsRunnerManagerError({
+              message: `AWS returned invalid EC2 instance payload for ${instance.InstanceId}`,
+            });
           }
 
           instances.push(decodedState.right);
@@ -113,11 +121,15 @@ const startInstance = (
   client: EC2Client,
   instanceId: Ec2InstanceId,
   startWaitTimeoutMs: number,
-): Effect.Effect<void, Error> =>
+): Effect.Effect<void, AwsRunnerManagerError> =>
   Effect.gen(function* () {
     yield* Effect.tryPromise({
       try: () => client.send(new StartInstancesCommand({ InstanceIds: [instanceId] })),
-      catch: (error) => new Error(`Failed to start instance ${instanceId}: ${String(error)}`),
+      catch: (error) =>
+        new AwsRunnerManagerError({
+          message: `Failed to start instance ${instanceId}: ${String(error)}`,
+          cause: error,
+        }),
     });
 
     const waiter = yield* Effect.tryPromise({
@@ -129,13 +141,17 @@ const startInstance = (
           },
           { InstanceIds: [instanceId] },
         ),
-      catch: (error) => new Error(`Failed while waiting for instance ${instanceId} to start: ${String(error)}`),
+      catch: (error) =>
+        new AwsRunnerManagerError({
+          message: `Failed while waiting for instance ${instanceId} to start: ${String(error)}`,
+          cause: error,
+        }),
     });
 
     if (waiter.state !== 'SUCCESS') {
-      return yield* Effect.fail(
-        new Error(`Instance ${instanceId} did not reach running state in time: waiter state=${waiter.state}`),
-      );
+      return yield* new AwsRunnerManagerError({
+        message: `Instance ${instanceId} did not reach running state in time: waiter state=${waiter.state}`,
+      });
     }
   });
 
@@ -143,11 +159,15 @@ const stopInstance = (
   client: EC2Client,
   instanceId: Ec2InstanceId,
   stopWaitTimeoutMs: number,
-): Effect.Effect<void, Error> =>
+): Effect.Effect<void, AwsRunnerManagerError> =>
   Effect.gen(function* () {
     yield* Effect.tryPromise({
       try: () => client.send(new StopInstancesCommand({ InstanceIds: [instanceId] })),
-      catch: (error) => new Error(`Failed to stop instance ${instanceId}: ${String(error)}`),
+      catch: (error) =>
+        new AwsRunnerManagerError({
+          message: `Failed to stop instance ${instanceId}: ${String(error)}`,
+          cause: error,
+        }),
     });
 
     const waiter = yield* Effect.tryPromise({
@@ -159,13 +179,17 @@ const stopInstance = (
           },
           { InstanceIds: [instanceId] },
         ),
-      catch: (error) => new Error(`Failed while waiting for instance ${instanceId} to stop: ${String(error)}`),
+      catch: (error) =>
+        new AwsRunnerManagerError({
+          message: `Failed while waiting for instance ${instanceId} to stop: ${String(error)}`,
+          cause: error,
+        }),
     });
 
     if (waiter.state !== 'SUCCESS') {
-      return yield* Effect.fail(
-        new Error(`Instance ${instanceId} did not reach stopped state in time: waiter state=${waiter.state}`),
-      );
+      return yield* new AwsRunnerManagerError({
+        message: `Instance ${instanceId} did not reach stopped state in time: waiter state=${waiter.state}`,
+      });
     }
   });
 

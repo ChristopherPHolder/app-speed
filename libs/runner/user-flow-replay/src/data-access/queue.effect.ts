@@ -1,6 +1,6 @@
 import { EC2Client, StopInstancesCommand } from '@aws-sdk/client-ec2';
 import { HttpClient, HttpClientRequest, HttpClientResponse } from '@effect/platform';
-import { Clock, Config, Effect, Match, Option, Schema } from 'effect';
+import { Clock, Config, Data, Effect, Match, Option, Schema } from 'effect';
 import { ReplayUserflowAuditSchema } from '@app-speed/shared-user-flow-replay/schema';
 
 export const AuditRequestSchema = Schema.Struct({
@@ -35,6 +35,11 @@ const awsDefaultRegionConfig = Config.string('AWS_DEFAULT_REGION').pipe(Config.o
 
 type RunnerHeartbeatState = typeof RunnerHeartbeatStateSchema.Type;
 type RunnerShutdownReason = typeof RunnerShutdownReasonSchema.Type;
+
+class RunnerTerminationError extends Data.TaggedError('RunnerTerminationError')<{
+  readonly message: string;
+  readonly cause?: unknown;
+}> {}
 
 let cachedRunnerId: string | undefined;
 
@@ -108,95 +113,93 @@ export const claimNextAudit = Effect.gen(function* () {
   return { auditId: response.auditId, auditDetails: response.auditDetails } as AuditRequest;
 }).pipe(Effect.withSpan('runner.queue.claimNext'));
 
-export const completeAuditRun = (
+export const completeAuditRun = Effect.fn('runner.queue.completeRun')(function* (
   auditId: string,
   result: { status: 'SUCCESS' | 'FAILURE'; data: unknown; error?: unknown },
   durationMs: number,
-) =>
-  Effect.gen(function* () {
-    const apiBaseUrl = yield* getApiBaseUrl;
-    const runnerId = yield* getRunnerId;
-    yield* Effect.annotateCurrentSpan({
-      'runner.id': runnerId,
-      'audit.id': auditId,
-      'audit.status': result.status,
-      'audit.duration_ms': durationMs,
-      'runner.api_base_url': apiBaseUrl,
-    });
-    const client = yield* getHttpClient;
-    const payload = Match.value(result).pipe(
-      Match.when({ status: 'SUCCESS' }, (success) => ({
-        runnerId,
-        auditId,
-        status: 'SUCCESS',
-        result: success.data,
-        durationMs,
-      })),
-      Match.when({ status: 'FAILURE' }, (failure) => ({
-        runnerId,
-        auditId,
-        status: 'FAILURE',
-        error: failure.error,
-        durationMs,
-      })),
-      Match.exhaustive,
-    );
-
-    const request = yield* HttpClientRequest.bodyJson(payload)(
-      HttpClientRequest.post(new URL('runner/complete', apiBaseUrl).toString()),
-    );
-    yield* client
-      .execute(request)
-      .pipe(Effect.flatMap(HttpClientResponse.schemaBodyJson(RunnerCompleteResponseSchema)));
-  }).pipe(Effect.withSpan('runner.queue.completeRun'));
-
-export const sendRunnerHeartbeat = (payload: { state: RunnerHeartbeatState; idleSince?: number | null }) =>
-  Effect.gen(function* () {
-    const apiBaseUrl = yield* getApiBaseUrl;
-    const runnerId = yield* getRunnerId;
-    const timestamp = yield* Clock.currentTimeMillis;
-    const client = yield* getHttpClient;
-
-    yield* Effect.annotateCurrentSpan({
-      'runner.id': runnerId,
-      'runner.heartbeat_state': payload.state,
-      'runner.idle_since': payload.idleSince ?? null,
-    });
-
-    const request = yield* HttpClientRequest.bodyJson({
+) {
+  const apiBaseUrl = yield* getApiBaseUrl;
+  const runnerId = yield* getRunnerId;
+  yield* Effect.annotateCurrentSpan({
+    'runner.id': runnerId,
+    'audit.id': auditId,
+    'audit.status': result.status,
+    'audit.duration_ms': durationMs,
+    'runner.api_base_url': apiBaseUrl,
+  });
+  const client = yield* getHttpClient;
+  const payload = Match.value(result).pipe(
+    Match.when({ status: 'SUCCESS' }, (success) => ({
       runnerId,
-      timestamp,
-      state: payload.state,
-      ...(payload.idleSince !== null && payload.idleSince !== undefined ? { idleSince: payload.idleSince } : {}),
-    })(HttpClientRequest.post(new URL('runner/heartbeat', apiBaseUrl).toString()));
-
-    yield* client
-      .execute(request)
-      .pipe(Effect.flatMap(HttpClientResponse.schemaBodyJson(RunnerHeartbeatResponseSchema)));
-  }).pipe(Effect.withSpan('runner.queue.heartbeat'));
-
-export const requestRunnerShutdown = (reason: RunnerShutdownReason) =>
-  Effect.gen(function* () {
-    const apiBaseUrl = yield* getApiBaseUrl;
-    const runnerId = yield* getRunnerId;
-    const timestamp = yield* Clock.currentTimeMillis;
-    const client = yield* getHttpClient;
-
-    yield* Effect.annotateCurrentSpan({
-      'runner.id': runnerId,
-      'runner.shutdown_reason': reason,
-    });
-
-    const request = yield* HttpClientRequest.bodyJson({
+      auditId,
+      status: 'SUCCESS',
+      result: success.data,
+      durationMs,
+    })),
+    Match.when({ status: 'FAILURE' }, (failure) => ({
       runnerId,
-      reason,
-      timestamp,
-    })(HttpClientRequest.post(new URL('runner/shutdown', apiBaseUrl).toString()));
+      auditId,
+      status: 'FAILURE',
+      error: failure.error,
+      durationMs,
+    })),
+    Match.exhaustive,
+  );
 
-    return yield* client
-      .execute(request)
-      .pipe(Effect.flatMap(HttpClientResponse.schemaBodyJson(RunnerShutdownResponseSchema)));
-  }).pipe(Effect.withSpan('runner.queue.shutdownRequest'));
+  const request = yield* HttpClientRequest.bodyJson(payload)(
+    HttpClientRequest.post(new URL('runner/complete', apiBaseUrl).toString()),
+  );
+  yield* client.execute(request).pipe(Effect.flatMap(HttpClientResponse.schemaBodyJson(RunnerCompleteResponseSchema)));
+});
+
+export const sendRunnerHeartbeat = Effect.fn('runner.queue.heartbeat')(function* (payload: {
+  state: RunnerHeartbeatState;
+  idleSince?: number | null;
+}) {
+  const apiBaseUrl = yield* getApiBaseUrl;
+  const runnerId = yield* getRunnerId;
+  const timestamp = yield* Clock.currentTimeMillis;
+  const client = yield* getHttpClient;
+
+  yield* Effect.annotateCurrentSpan({
+    'runner.id': runnerId,
+    'runner.heartbeat_state': payload.state,
+    'runner.idle_since': payload.idleSince ?? null,
+  });
+
+  const request = yield* HttpClientRequest.bodyJson({
+    runnerId,
+    timestamp,
+    state: payload.state,
+    ...(payload.idleSince !== null && payload.idleSince !== undefined ? { idleSince: payload.idleSince } : {}),
+  })(HttpClientRequest.post(new URL('runner/heartbeat', apiBaseUrl).toString()));
+
+  yield* client.execute(request).pipe(Effect.flatMap(HttpClientResponse.schemaBodyJson(RunnerHeartbeatResponseSchema)));
+});
+
+export const requestRunnerShutdown = Effect.fn('runner.queue.shutdownRequest')(function* (
+  reason: RunnerShutdownReason,
+) {
+  const apiBaseUrl = yield* getApiBaseUrl;
+  const runnerId = yield* getRunnerId;
+  const timestamp = yield* Clock.currentTimeMillis;
+  const client = yield* getHttpClient;
+
+  yield* Effect.annotateCurrentSpan({
+    'runner.id': runnerId,
+    'runner.shutdown_reason': reason,
+  });
+
+  const request = yield* HttpClientRequest.bodyJson({
+    runnerId,
+    reason,
+    timestamp,
+  })(HttpClientRequest.post(new URL('runner/shutdown', apiBaseUrl).toString()));
+
+  return yield* client
+    .execute(request)
+    .pipe(Effect.flatMap(HttpClientResponse.schemaBodyJson(RunnerShutdownResponseSchema)));
+});
 
 const stopSelfEc2Instance = Effect.gen(function* () {
   const runnerId = yield* getRunnerId;
@@ -221,25 +224,28 @@ const stopSelfEc2Instance = Effect.gen(function* () {
   const client = new EC2Client({ region: region.value });
   yield* Effect.tryPromise({
     try: () => client.send(new StopInstancesCommand({ InstanceIds: [maybeInstanceId.value] })),
-    catch: (error) => new Error(`Failed to stop EC2 instance ${maybeInstanceId.value}: ${String(error)}`),
+    catch: (error) =>
+      new RunnerTerminationError({
+        message: `Failed to stop EC2 instance ${maybeInstanceId.value}: ${String(error)}`,
+        cause: error,
+      }),
   });
 }).pipe(Effect.withSpan('runner.queue.selfTerminateEc2'));
 
-export const requestRunnerTermination = (reason: RunnerShutdownReason) =>
-  Effect.gen(function* () {
-    const shutdownDecision = yield* requestRunnerShutdown(reason).pipe(
-      Effect.map((response) => Option.some(response.shouldTerminate)),
-      Effect.catchAll((error) =>
-        Effect.logWarning(`Runner shutdown request failed: ${String(error)}`).pipe(Effect.as(Option.none<boolean>())),
-      ),
-    );
+export const requestRunnerTermination = Effect.fn('runner.queue.terminate')(function* (reason: RunnerShutdownReason) {
+  const shutdownDecision = yield* requestRunnerShutdown(reason).pipe(
+    Effect.map((response) => Option.some(response.shouldTerminate)),
+    Effect.catchAll((error) =>
+      Effect.logWarning(`Runner shutdown request failed: ${String(error)}`).pipe(Effect.as(Option.none<boolean>())),
+    ),
+  );
 
-    if (Option.isSome(shutdownDecision)) {
-      return shutdownDecision.value;
-    }
+  if (Option.isSome(shutdownDecision)) {
+    return shutdownDecision.value;
+  }
 
-    yield* stopSelfEc2Instance.pipe(
-      Effect.catchAll((error) => Effect.logWarning(`Runner EC2 self-termination failed: ${String(error)}`)),
-    );
-    return true;
-  }).pipe(Effect.withSpan('runner.queue.terminate'));
+  yield* stopSelfEc2Instance.pipe(
+    Effect.catchAll((error) => Effect.logWarning(`Runner EC2 self-termination failed: ${String(error)}`)),
+  );
+  return true;
+});

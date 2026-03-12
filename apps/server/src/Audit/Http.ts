@@ -310,13 +310,11 @@ export const AuditGroupLive = HttpApiBuilder.group(Api, 'audit', (handlers) =>
           Effect.gen(function* () {
             const run = yield* repo.getRunSummaryById(request.path.id);
             if (!run) {
-              return yield* Effect.fail(
-                new AuditRunSummaryNotFoundError({
-                  code: 'RUN_NOT_FOUND',
-                  message: `Audit run ${request.path.id} was not found.`,
-                  details: { auditId: request.path.id },
-                }),
-              );
+              return yield* new AuditRunSummaryNotFoundError({
+                code: 'RUN_NOT_FOUND',
+                message: `Audit run ${request.path.id} was not found.`,
+                details: { auditId: request.path.id },
+              });
             }
 
             return toRunSummaryResponse(run);

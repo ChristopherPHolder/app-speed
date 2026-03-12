@@ -18,25 +18,24 @@ type RunnerState = {
   handle: Option.Option<RunnerHandle>;
 };
 
-const closeScope = (scope: CloseableScope) => Scope.close(scope, Exit.void).pipe(Effect.catchAll(() => Effect.void));
+const closeScope = (scope: CloseableScope) => Scope.close(scope, Exit.void);
 
-const startRunner = (runnerId: string) =>
-  Effect.gen(function* () {
-    const scope = yield* Scope.make();
-    const runnerProcess = yield* Command.start(
-      Command.make('pnpm', 'exec', 'nx', 'execute', 'runner-app').pipe(
-        Command.workingDirectory(process.cwd()),
-        Command.stdout('inherit'),
-        Command.stderr('inherit'),
-        Command.env({ RUNNER_ID: runnerId }),
-      ),
-    ).pipe(
-      Scope.extend(scope),
-      Effect.catchAll((error) => closeScope(scope).pipe(Effect.zipRight(Effect.fail(error)))),
-    );
-    yield* Effect.annotateCurrentSpan({ 'runner.id': runnerId, 'runner.process_pid': runnerProcess.pid });
-    return { runnerId, process: runnerProcess, scope } satisfies RunnerHandle;
-  }).pipe(Effect.withSpan('runner.manager.startProcess'));
+const startRunner = Effect.fn('runner.manager.startProcess')(function* (runnerId: string) {
+  const scope = yield* Scope.make();
+  const runnerProcess = yield* Command.start(
+    Command.make('pnpm', 'exec', 'nx', 'execute', 'runner-app').pipe(
+      Command.workingDirectory(process.cwd()),
+      Command.stdout('inherit'),
+      Command.stderr('inherit'),
+      Command.env({ RUNNER_ID: runnerId }),
+    ),
+  ).pipe(
+    Scope.extend(scope),
+    Effect.catchAll((error) => closeScope(scope).pipe(Effect.zipRight(Effect.fail(error)))),
+  );
+  yield* Effect.annotateCurrentSpan({ 'runner.id': runnerId, 'runner.process_pid': runnerProcess.pid });
+  return { runnerId, process: runnerProcess, scope } satisfies RunnerHandle;
+});
 
 export const LocalRunnerManagerLive = Layer.scoped(
   RunnerManager,
