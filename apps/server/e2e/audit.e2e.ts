@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 
 describe('Audit', () => {
-  async function ScheduleRequest(payload: any) {
+  async function ScheduleRequest(payload: unknown) {
     const r = await fetch(`${AUDIT_API_ENDPOINT}schedule`, {
       method: 'POST',
       headers: {

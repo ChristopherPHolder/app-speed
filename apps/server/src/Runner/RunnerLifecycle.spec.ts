@@ -106,7 +106,7 @@ describe('RunnerLifecycle', () => {
     await Effect.runPromise(
       Effect.scoped(
         Effect.gen(function* () {
-          let hasScheduledRuns = true;
+          const hasScheduledRuns = true;
           let runnerActive = false;
 
           const runnerStarted = yield* Deferred.make<void>();
