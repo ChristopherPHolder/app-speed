@@ -5,7 +5,7 @@ import { FlowResult } from 'lighthouse';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { AuditSummary, AuditSummaryComponent } from '@app-speed/portal-ui/audit-summary';
 import { ViewerStepDetailComponent } from '../viewer-container/viewer-step-details.component';
-import { ReportUtils } from 'lighthouse/report/renderer/report-utils';
+import { calculateCategoryFraction, shouldDisplayAsFraction } from '../lighthouse-report-utils';
 
 @Component({
   selector: 'viewer-container',
@@ -43,7 +43,7 @@ export class AuditViewerContainer {
           screenShot: fullPageScreenshot?.screenshot.data || '',
           title: name,
           subTitle: gatherMode,
-          shouldDisplayAsFraction: ReportUtils.shouldDisplayAsFraction(gatherMode),
+          shouldDisplayAsFraction: shouldDisplayAsFraction(gatherMode),
           categoryScores: Object.values(categories).map((category) => {
             const extendedCategory = {
               ...category,
@@ -53,7 +53,7 @@ export class AuditViewerContainer {
             };
             return {
               name: category.title,
-              asFraction: ReportUtils.calculateCategoryFraction(extendedCategory),
+              asFraction: calculateCategoryFraction(extendedCategory),
               score: parseInt(((category.score || 0) * 100).toFixed(0), 10),
             };
           }),

@@ -8,14 +8,29 @@ import {
   ViewerDiagnosticComponent,
   ViewerDiagnosticContext,
 } from '@app-speed/portal-ui/viewer-diagnostics';
+import {
+  passedAuditsGroupTitle,
+  PerformanceMetricAudit,
+  showAsPassed,
+  sortFailedPerformanceAudits,
+} from '../lighthouse-report-utils';
+import { MdToAnkerPipe } from '../utils/md-to-anker.pipe';
 import { MetricSummary, ViewerStepMetricSummaryComponent } from './viewer-step-metric-summary.component';
 import { ViewerFileStripComponent } from './viewer-file-strip.component';
 import { metricAudits, metricResults } from './view-step-details.adaptor';
 
 type PerformanceAuditRef = FlowResult.Step['lhr']['categories']['performance']['auditRefs'][number];
+type SectionKey = 'insights' | 'diagnostics' | 'passed';
+type SectionMetadata = NonNullable<FlowResult.Step['lhr']['categoryGroups']>[string];
 type DiagnosticAuditRef = PerformanceAuditRef & {
   result: AuditResult;
   stackPacks?: { title: string; iconDataURL: string; description: string }[];
+};
+type DiagnosticSection = {
+  key: SectionKey;
+  title: string;
+  description?: string;
+  items: DiagnosticItem[];
 };
 
 @Component({
@@ -30,10 +45,21 @@ type DiagnosticAuditRef = PerformanceAuditRef & {
       <viewer-file-strip [filmStrip]="filmStrip" />
     }
 
-    <div>DIAGNOSTICS</div>
-    <ui-viewer-diagnostic class="pad" [items]="diagnosticItems()" [context]="diagnosticContext()" />
+    @for (section of sections(); track section.key) {
+      @if (section.items.length) {
+        <section class="viewer-step-detail__section">
+          <header class="viewer-step-detail__section-header pad">
+            <h2 class="viewer-step-detail__section-title">{{ section.title }}</h2>
+            @if (section.description) {
+              <div class="viewer-step-detail__section-description" [innerHTML]="section.description | mdToAnker"></div>
+            }
+          </header>
+          <ui-viewer-diagnostic class="pad" [items]="section.items" [context]="diagnosticContext()" />
+        </section>
+      }
+    }
   `,
-  imports: [ViewerStepMetricSummaryComponent, ViewerFileStripComponent, ViewerDiagnosticComponent],
+  imports: [ViewerStepMetricSummaryComponent, ViewerFileStripComponent, ViewerDiagnosticComponent, MdToAnkerPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
     :host {
@@ -44,6 +70,32 @@ type DiagnosticAuditRef = PerformanceAuditRef & {
     }
     .pad {
       padding: 20px;
+    }
+
+    .viewer-step-detail__section {
+      display: grid;
+      gap: 0;
+      margin-top: 12px;
+    }
+
+    .viewer-step-detail__section-header {
+      display: grid;
+      gap: 8px;
+      padding-bottom: 0;
+    }
+
+    .viewer-step-detail__section-title {
+      margin: 0;
+      font-size: 0.875rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .viewer-step-detail__section-description {
+      color: var(--mat-sys-on-surface-variant);
+      font-size: 0.875rem;
+      line-height: 1.5;
     }
   `,
 })
@@ -72,42 +124,34 @@ export class ViewerStepDetailComponent {
 
   private readonly performanceAuditRefs = computed(() => {
     return this.stepDetails().lhr.categories['performance']['auditRefs'].filter(
-      (v) => v.group !== 'metrics' && v.group !== 'hidden',
+      (auditRef) => auditRef.group !== 'metrics',
     );
   });
 
-  diagnostics = computed(() => {
+  private readonly performanceMetricAudits = computed<PerformanceMetricAudit[]>(() => {
     const report = this.stepDetails().lhr;
-    const audits = this.performanceAuditRefs()
-      .map(
-        (auditRef): DiagnosticAuditRef => ({
-          ...auditRef,
-          result: report.audits[auditRef.id],
-          stackPacks: this.resolveStackPacks(auditRef.id, report.audits[auditRef.id]),
-        }),
-      )
-      .filter((v) => !!v.result.guidanceLevel);
-    const failedAudits = audits.filter((v) => v.result.score !== 1 && v.result.score !== null);
-    const passedAudits = audits.filter((v) => v.result.score === 1 || v.result.score === null);
-    return { failed: failedAudits, passed: passedAudits };
+    return this.stepDetails()
+      .lhr.categories['performance']['auditRefs'].filter((auditRef) => auditRef.group === 'metrics')
+      .map((auditRef) => ({
+        ...auditRef,
+        result: report.audits[auditRef.id],
+      }));
   });
 
-  private readonly failedAudits = computed(() => this.diagnostics().failed);
-  private readonly alertItems = computed(() =>
-    this.failedAudits().filter((v) => {
-      return (
-        v.result.guidanceLevel === 1 &&
-        Object.keys(v.result.metricSavings || {}).filter((i) => this.categoryAcronyms().includes(i)).length
-      );
-    }),
-  );
-  warnItems = computed(() => {
-    const alertIds = this.alertItems().map((v) => v.id);
-    return this.failedAudits().filter((v) => !alertIds.includes(v.id));
+  private readonly performanceAudits = computed(() => {
+    const report = this.stepDetails().lhr;
+    return this.performanceAuditRefs().map(
+      (auditRef): DiagnosticAuditRef => ({
+        ...auditRef,
+        result: report.audits[auditRef.id],
+        stackPacks: this.resolveStackPacks(auditRef.id, report.audits[auditRef.id]),
+      }),
+    );
   });
-  informItems = computed(() => {
-    return this.diagnostics().passed.filter(
-      ({ result }) => !!result.metricSavings && this.affectsMetric(Object.keys(result.metricSavings || {})),
+
+  private readonly filterablePerformanceAudits = computed(() => {
+    return this.performanceAudits().filter(
+      (auditRef) => this.isInsightAudit(auditRef) || auditRef.group === 'diagnostics',
     );
   });
 
@@ -128,12 +172,30 @@ export class ViewerStepDetailComponent {
       };
     };
 
+  readonly insightItems = computed<DiagnosticItem[]>(() => {
+    return this.failedDiagnosticItems(
+      this.filterablePerformanceAudits().filter((auditRef) => this.isInsightAudit(auditRef)),
+    );
+  });
+
   diagnosticItems = computed<DiagnosticItem[]>(() => {
+    return this.failedDiagnosticItems(
+      this.filterablePerformanceAudits().filter((auditRef) => auditRef.group === 'diagnostics'),
+    );
+  });
+
+  readonly passedItems = computed<DiagnosticItem[]>(() => {
+    return this.filterablePerformanceAudits()
+      .filter(({ result }) => showAsPassed(result))
+      .map(this.diagnosticItemsMapper(STATUS.PASS));
+  });
+
+  readonly sections = computed<DiagnosticSection[]>(() => {
     return [
-      this.alertItems().map(this.diagnosticItemsMapper(STATUS.ALERT)),
-      this.warnItems().map(this.diagnosticItemsMapper(STATUS.WARN)),
-      this.informItems().map(this.diagnosticItemsMapper(STATUS.INFO)),
-    ].flat();
+      this.buildSection('insights', this.insightItems()),
+      this.buildSection('diagnostics', this.diagnosticItems()),
+      this.buildSection('passed', this.passedItems()),
+    ].filter((section) => section.items.length);
   });
 
   diagnosticContext = computed<ViewerDiagnosticContext>(() => {
@@ -147,6 +209,51 @@ export class ViewerStepDetailComponent {
 
   private affectsMetric(metricSavings: string[]): boolean {
     return !!metricSavings.filter((i) => this.categoryAcronyms().includes(i)).length;
+  }
+
+  private failedDiagnosticItems(audits: DiagnosticAuditRef[]): DiagnosticItem[] {
+    return sortFailedPerformanceAudits(
+      audits.filter(({ result }) => !showAsPassed(result)),
+      this.performanceMetricAudits(),
+    ).map((audit) => this.diagnosticItemsMapper(this.failedDiagnosticStatus(audit))(audit));
+  }
+
+  private failedDiagnosticStatus(audit: DiagnosticAuditRef): StatusOptions {
+    return this.isAlertAudit(audit) ? STATUS.ALERT : STATUS.WARN;
+  }
+
+  private isAlertAudit(audit: DiagnosticAuditRef): boolean {
+    return audit.result.guidanceLevel === 1 && this.affectsMetric(Object.keys(audit.result.metricSavings || {}));
+  }
+
+  private isInsightAudit(auditRef: DiagnosticAuditRef): boolean {
+    return auditRef.group === 'insights' || (auditRef.group === 'hidden' && auditRef.id.endsWith('-insight'));
+  }
+
+  private buildSection(key: SectionKey, items: DiagnosticItem[]): DiagnosticSection {
+    const metadata = key === 'passed' ? undefined : this.sectionMetadata(key);
+
+    return {
+      key,
+      title: metadata?.title || this.defaultSectionTitle(key),
+      description: metadata?.description,
+      items,
+    };
+  }
+
+  private sectionMetadata(key: Exclude<SectionKey, 'passed'>): SectionMetadata | undefined {
+    return this.stepDetails().lhr.categoryGroups?.[key];
+  }
+
+  private defaultSectionTitle(key: SectionKey): string {
+    switch (key) {
+      case 'insights':
+        return 'Insights';
+      case 'diagnostics':
+        return 'Diagnostics';
+      case 'passed':
+        return passedAuditsGroupTitle(this.stepDetails().lhr);
+    }
   }
 
   private resolveStackPacks(auditId: string, result: AuditResult): DiagnosticAuditRef['stackPacks'] {
