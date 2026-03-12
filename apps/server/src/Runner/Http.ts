@@ -2,30 +2,39 @@ import { HttpApiBuilder, HttpApiError } from '@effect/platform';
 import { Effect, Match } from 'effect';
 import { Api } from '../Api.js';
 import { AuditRepo } from '@app-speed/server/db';
+import { RunnerLifecycle } from './RunnerLifecycle.js';
+import { RunnerRegistry } from './RunnerRegistry.js';
 
 export const RunnerGroupLive = HttpApiBuilder.group(Api, 'runner', (handlers) =>
   Effect.gen(function* () {
     yield* Effect.logDebug('RunnerGroupLive');
     const repo = yield* AuditRepo;
+    const runnerLifecycle = yield* RunnerLifecycle;
+    const runnerRegistry = yield* RunnerRegistry;
 
     return handlers
       .handle(
         'claim',
         Effect.fn('api.runner.claim')((request) =>
-          repo.claimNextRun().pipe(
-            Effect.tap(() => Effect.annotateCurrentSpan({ 'runner.id': request.payload.runnerId })),
-            Effect.map((run) =>
-              Match.value(run).pipe(
-                Match.when(null, () => ({ available: false as const })),
-                Match.orElse((run) => ({ available: true as const, auditId: run.id, auditDetails: run.data })),
-              ),
-            ),
-            Effect.tap((response) =>
-              Effect.annotateCurrentSpan({
-                'runner.claim_available': response.available,
-                'audit.id': response.available ? response.auditId : null,
-              }),
-            ),
+          Effect.gen(function* () {
+            yield* Effect.annotateCurrentSpan({ 'runner.id': request.payload.runnerId });
+            const run = yield* repo.claimNextRun();
+            const response = Match.value(run).pipe(
+              Match.when(null, () => ({ available: false as const })),
+              Match.orElse((nextRun) => ({
+                available: true as const,
+                auditId: nextRun.id,
+                auditDetails: nextRun.data,
+              })),
+            );
+
+            yield* runnerRegistry.recordClaimResult(request.payload.runnerId, response.available);
+            yield* Effect.annotateCurrentSpan({
+              'runner.claim_available': response.available,
+              'audit.id': response.available ? response.auditId : null,
+            });
+            return response;
+          }).pipe(
             Effect.withSpan('api.runner.claim'),
             Effect.catchTag('QueryError', () => new HttpApiError.BadRequest()),
             Effect.catchTag('ParseError', () => new HttpApiError.BadRequest()),
@@ -59,6 +68,7 @@ export const RunnerGroupLive = HttpApiBuilder.group(Api, 'runner', (handlers) =>
             yield* repo
               .completeRun(request.payload.auditId, result, request.payload.durationMs)
               .pipe(Effect.catchTag('QueryError', () => new HttpApiError.BadRequest()));
+            yield* runnerRegistry.recordCompletion(request.payload.runnerId);
 
             return { ok: true as const };
           }).pipe(Effect.withSpan('api.runner.complete')),
@@ -67,15 +77,41 @@ export const RunnerGroupLive = HttpApiBuilder.group(Api, 'runner', (handlers) =>
       .handle(
         'heartbeat',
         Effect.fn('api.runner.heartbeat')((request) =>
-          Effect.succeed({ ok: true as const }).pipe(
-            Effect.tap(() =>
-              Effect.annotateCurrentSpan({
-                'runner.id': request.payload.runnerId,
-                'runner.heartbeat_timestamp': request.payload.timestamp ?? null,
-              }),
+          runnerRegistry
+            .recordHeartbeat(request.payload.runnerId, {
+              timestamp: request.payload.timestamp,
+              state: request.payload.state,
+              idleSince: request.payload.idleSince,
+            })
+            .pipe(
+              Effect.tap(() =>
+                Effect.annotateCurrentSpan({
+                  'runner.id': request.payload.runnerId,
+                  'runner.heartbeat_timestamp': request.payload.timestamp ?? null,
+                  'runner.heartbeat_state': request.payload.state ?? null,
+                  'runner.idle_since': request.payload.idleSince ?? null,
+                }),
+              ),
+              Effect.as({ ok: true as const }),
+              Effect.withSpan('api.runner.heartbeat'),
             ),
-            Effect.withSpan('api.runner.heartbeat'),
-          ),
+        ),
+      )
+      .handle(
+        'shutdown',
+        Effect.fn('api.runner.shutdown')((request) =>
+          Effect.gen(function* () {
+            yield* Effect.annotateCurrentSpan({
+              'runner.id': request.payload.runnerId,
+              'runner.shutdown_reason': request.payload.reason,
+              'runner.shutdown_timestamp': request.payload.timestamp ?? null,
+            });
+            yield* Effect.logInfo(
+              `Runner ${request.payload.runnerId} requested shutdown with reason ${request.payload.reason}`,
+            );
+            const decision = yield* runnerLifecycle.requestInactivationIfQueueEmpty('runner-shutdown');
+            return { ok: true as const, shouldTerminate: decision.shouldTerminate };
+          }).pipe(Effect.withSpan('api.runner.shutdown')),
         ),
       );
   }),

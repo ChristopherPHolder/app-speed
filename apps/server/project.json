@@ -96,6 +96,18 @@
         "reportsDirectory": "../../coverage/apps/server"
       }
     },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
+    },
+    "effect:diagnostics": {
+      "executor": "@app-speed/effect-tools:diagnostics",
+      "options": {
+        "tsConfig": "{projectRoot}/tsconfig.app.json",
+        "format": "text",
+        "severity": "error,warning,message"
+      }
+    },
     "deploy": {
       "executor": "@app-speed/aws-deploy:ssm-deploy",
       "defaultConfiguration": "development",

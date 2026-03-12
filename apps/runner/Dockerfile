@@ -1,6 +1,7 @@
 FROM node:24-slim
 
 ENV NODE_ENV=production
+ENV PUPPETEER_CACHE_DIR=/app/.cache/puppeteer
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
   ca-certificates \

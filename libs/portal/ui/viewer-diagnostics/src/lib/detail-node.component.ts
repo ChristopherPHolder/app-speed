@@ -16,7 +16,7 @@ import { ViewerDiagnosticContext } from './viewer-diagnostic.models';
     >
       @let rect = screenshotRect();
       @let screenshotData = screenshot();
-      @if (rect && screenshotData) {
+      @if (hasScreenshotPreview() && rect && screenshotData) {
         <button
           type="button"
           class="node__screenshot-button"
@@ -30,6 +30,8 @@ import { ViewerDiagnosticContext } from './viewer-diagnostic.models';
             [maxHeight]="100"
           />
         </button>
+      } @else if (imagePreviewUrl(); as previewUrl) {
+        <img class="node__asset-thumbnail" [src]="previewUrl" alt="" loading="lazy" />
       }
 
       <div class="node__body">
@@ -47,7 +49,7 @@ import { ViewerDiagnosticContext } from './viewer-diagnostic.models';
       </div>
     </div>
 
-    @if (overlayOpen() && rect && screenshotData) {
+    @if (overlayOpen() && hasScreenshotPreview() && rect && screenshotData) {
       <div class="node__overlay" (click)="closeOverlay()">
         <div class="node__overlay-card" (click)="$event.stopPropagation()">
           <ui-viewer-element-screenshot
@@ -78,6 +80,17 @@ import { ViewerDiagnosticContext } from './viewer-diagnostic.models';
       border: 0;
       background: transparent;
       cursor: zoom-in;
+    }
+
+    .node__asset-thumbnail {
+      display: block;
+      flex: 0 0 auto;
+      width: 147px;
+      height: 100px;
+      border: 1px solid color-mix(in srgb, var(--mat-sys-outline) 60%, white);
+      border-radius: 8px;
+      background: white;
+      object-fit: cover;
     }
 
     .node__body {
@@ -138,6 +151,7 @@ import { ViewerDiagnosticContext } from './viewer-diagnostic.models';
 export class ViewerDetailNodeComponent {
   node = input.required<Details.NodeValue>();
   context = input<ViewerDiagnosticContext | null>(null);
+  previewUrl = input<string | undefined>(undefined);
 
   readonly overlayOpen = signal(false);
 
@@ -155,13 +169,36 @@ export class ViewerDetailNodeComponent {
     return this.context()?.fullPageScreenshot?.nodes[lhId] ?? null;
   });
 
+  readonly hasScreenshotPreview = computed(() => {
+    const screenshot = this.screenshot();
+    const rect = this.screenshotRect();
+
+    return (
+      !!screenshot &&
+      !!rect &&
+      rect.width > 0 &&
+      rect.height > 0 &&
+      this.overlaps(rect, screenshot.width, screenshot.height)
+    );
+  });
+
+  readonly imagePreviewUrl = computed(() => this.previewUrl() ?? null);
+
   openOverlay(): void {
-    if (this.screenshot() && this.screenshotRect()) {
+    if (this.hasScreenshotPreview()) {
       this.overlayOpen.set(true);
     }
   }
 
   closeOverlay(): void {
     this.overlayOpen.set(false);
+  }
+
+  private overlaps(
+    rect: Result.FullPageScreenshot['nodes'][string],
+    screenshotWidth: number,
+    screenshotHeight: number,
+  ): boolean {
+    return rect.bottom > 0 && rect.right > 0 && rect.top < screenshotHeight && rect.left < screenshotWidth;
   }
 }

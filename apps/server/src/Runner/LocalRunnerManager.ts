@@ -1,85 +1,85 @@
+import { randomUUID } from 'node:crypto';
 import { Command } from '@effect/platform';
-import { Effect, Exit, Layer, Option, Schema, Scope, SynchronizedRef } from 'effect';
+import { Effect, Exit, Layer, Option, Scope, SynchronizedRef } from 'effect';
 import type { CloseableScope } from 'effect/Scope';
 import { NodeContext } from '@effect/platform-node';
 import type { Process } from '@effect/platform/CommandExecutor';
 
-import { RunnerIdSchema, RunnerManager, type ActiveRunnerList } from './RunnerManager.js';
+import { RunnerManager, type ActiveRunnerList } from './RunnerManager.js';
+import { RunnerRegistry } from './RunnerRegistry.js';
 
 type RunnerHandle = {
+  runnerId: string;
   process: Process;
   scope: CloseableScope;
 };
 
 type RunnerState = {
   handle: Option.Option<RunnerHandle>;
-  lastHeartbeatAt: Date | null;
 };
 
-const runnerCommand = Command.make('pnpm', 'exec', 'nx', 'execute', 'runner-app').pipe(
-  Command.workingDirectory(process.cwd()),
-  Command.stdout('inherit'),
-  Command.stderr('inherit'),
-);
+const closeScope = (scope: CloseableScope) => Scope.close(scope, Exit.void);
 
-const runnerIdFor = (process: Process) => `local-${process.pid}`;
-
-const closeScope = (scope: CloseableScope) => Scope.close(scope, Exit.void).pipe(Effect.catchAll(() => Effect.void));
-
-const toRunnerId = (value: string) => Schema.decodeSync(RunnerIdSchema)(value);
-
-const startRunner = Effect.gen(function* () {
+const startRunner = Effect.fn('runner.manager.startProcess')(function* (runnerId: string) {
   const scope = yield* Scope.make();
-  const process = yield* Command.start(runnerCommand).pipe(
+  const runnerProcess = yield* Command.start(
+    Command.make('pnpm', 'exec', 'nx', 'execute', 'runner-app').pipe(
+      Command.workingDirectory(process.cwd()),
+      Command.stdout('inherit'),
+      Command.stderr('inherit'),
+      Command.env({ RUNNER_ID: runnerId }),
+    ),
+  ).pipe(
     Scope.extend(scope),
     Effect.catchAll((error) => closeScope(scope).pipe(Effect.zipRight(Effect.fail(error)))),
   );
-  yield* Effect.annotateCurrentSpan({ 'runner.id': runnerIdFor(process) });
-  return { process, scope } satisfies RunnerHandle;
-}).pipe(Effect.withSpan('runner.manager.startProcess'));
+  yield* Effect.annotateCurrentSpan({ 'runner.id': runnerId, 'runner.process_pid': runnerProcess.pid });
+  return { runnerId, process: runnerProcess, scope } satisfies RunnerHandle;
+});
 
 export const LocalRunnerManagerLive = Layer.scoped(
   RunnerManager,
   Effect.gen(function* () {
+    const runnerRegistry = yield* RunnerRegistry;
     const stateRef = yield* SynchronizedRef.make<RunnerState>({
       handle: Option.none(),
-      lastHeartbeatAt: null,
     });
 
     const ensureRunnerActive = SynchronizedRef.modifyEffect(stateRef, (state) =>
       Effect.gen(function* () {
         if (Option.isSome(state.handle)) {
-          yield* Effect.annotateCurrentSpan({ 'runner.id': runnerIdFor(state.handle.value.process) });
+          yield* Effect.annotateCurrentSpan({ 'runner.id': state.handle.value.runnerId });
           const isRunning = yield* state.handle.value.process.isRunning.pipe(
             Effect.catchAll(() => Effect.succeed(false)),
           );
           yield* Effect.annotateCurrentSpan({ 'runner.is_running': isRunning });
           if (isRunning) {
-            return [void 0, { ...state, lastHeartbeatAt: new Date() }] as const;
+            return [void 0, state] as const;
           }
 
           yield* closeScope(state.handle.value.scope);
+          yield* runnerRegistry.markTerminated(state.handle.value.runnerId);
         }
 
-        const handle = yield* startRunner.pipe(
+        const runnerId = `local-${randomUUID()}`;
+        const handle = yield* startRunner(runnerId).pipe(
           Effect.map(Option.some),
           Effect.catchAll((error) => Effect.logError(error).pipe(Effect.as(Option.none<RunnerHandle>()))),
         );
 
         if (Option.isNone(handle)) {
           yield* Effect.annotateCurrentSpan({ 'runner.started': false });
-          return [void 0, { handle: Option.none(), lastHeartbeatAt: null }] as const;
+          return [void 0, { handle: Option.none() }] as const;
         }
 
         yield* Effect.annotateCurrentSpan({
           'runner.started': true,
-          'runner.id': runnerIdFor(handle.value.process),
+          'runner.id': handle.value.runnerId,
         });
         return [
           void 0,
           {
             handle,
-            lastHeartbeatAt: new Date(),
           },
         ] as const;
       }),
@@ -93,23 +93,23 @@ export const LocalRunnerManagerLive = Layer.scoped(
           return [emptyList, state] as const;
         }
 
-        const processHandle = state.handle.value.process;
-        const isRunning = yield* processHandle.isRunning.pipe(Effect.catchAll(() => Effect.succeed(false)));
+        const handle = state.handle.value;
+        const isRunning = yield* handle.process.isRunning.pipe(Effect.catchAll(() => Effect.succeed(false)));
 
         if (!isRunning) {
-          yield* closeScope(state.handle.value.scope);
+          yield* closeScope(handle.scope);
+          yield* runnerRegistry.markTerminated(handle.runnerId);
           yield* Effect.annotateCurrentSpan({ 'runner.list_count': 0, 'runner.is_running': false });
-          return [emptyList, { handle: Option.none(), lastHeartbeatAt: null }] as const;
+          return [emptyList, { handle: Option.none() }] as const;
         }
 
-        const lastHeartbeatAt = state.lastHeartbeatAt ?? new Date();
-        const activeList: ActiveRunnerList = [{ id: toRunnerId(runnerIdFor(processHandle)), lastHeartbeatAt }];
+        const activeList = yield* runnerRegistry.listActiveRunners([handle.runnerId]);
         yield* Effect.annotateCurrentSpan({
           'runner.list_count': activeList.length,
-          'runner.id': runnerIdFor(processHandle),
+          'runner.id': handle.runnerId,
           'runner.is_running': true,
         });
-        return [activeList, { handle: state.handle, lastHeartbeatAt }] as const;
+        return [activeList, state] as const;
       }),
     ).pipe(Effect.withSpan('runner.manager.listActive'));
 
@@ -121,23 +121,24 @@ export const LocalRunnerManagerLive = Layer.scoped(
             return [void 0, state] as const;
           }
 
-          const processHandle = state.handle.value.process;
-          if (runnerIdFor(processHandle) !== runnerId) {
+          const handle = state.handle.value;
+          if (handle.runnerId !== runnerId) {
             yield* Effect.annotateCurrentSpan({
               'runner.terminate_found': false,
-              'runner.id': runnerIdFor(processHandle),
+              'runner.id': handle.runnerId,
               'runner.requested_id': runnerId,
             });
             return [void 0, state] as const;
           }
 
-          yield* closeScope(state.handle.value.scope);
+          yield* closeScope(handle.scope);
+          yield* runnerRegistry.markTerminated(handle.runnerId);
           yield* Effect.annotateCurrentSpan({
             'runner.terminate_found': true,
             'runner.id': runnerId,
           });
 
-          return [void 0, { handle: Option.none(), lastHeartbeatAt: null }] as const;
+          return [void 0, { handle: Option.none() }] as const;
         }),
       ).pipe(Effect.withSpan('runner.manager.terminate'), Effect.provide(NodeContext.layer));
 

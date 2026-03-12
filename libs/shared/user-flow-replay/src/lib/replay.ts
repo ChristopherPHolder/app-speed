@@ -54,12 +54,12 @@ export type AppSpeedUserFlow = Modify<
 //   url: 'https://example.com'
 // }
 
-const example2: AppSpeedUserFlow = {
-  title: 'Example Title',
-  steps: [
-    {
-      type: LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
-      name: 'Example Step name',
-    },
-  ],
-};
+// const example2: AppSpeedUserFlow = {
+//   title: 'Example Title',
+//   steps: [
+//     {
+//       type: LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
+//       name: 'Example Step name',
+//     },
+//   ],
+// };

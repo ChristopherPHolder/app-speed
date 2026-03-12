@@ -15,6 +15,6 @@ export const STATUS_COLOR = {
 export const STATUS_ICON = {
   [STATUS.ALERT]: 'warning',
   [STATUS.WARN]: 'square',
-  [STATUS.INFO]: 'circle',
+  [STATUS.INFO]: 'radio_button_unchecked',
   [STATUS.PASS]: 'circle',
 } as const;

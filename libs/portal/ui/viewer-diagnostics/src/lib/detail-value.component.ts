@@ -33,7 +33,7 @@ type TypedValueType = TypedValue['type'];
       }
       @case ('node') {
         @if (nodeValue(); as node) {
-          <ui-viewer-detail-node [node]="node" [context]="context()" />
+          <ui-viewer-detail-node [node]="node" [context]="context()" [previewUrl]="previewUrl()" />
         }
       }
       @case ('numeric') {
@@ -151,6 +151,7 @@ export class ViewerDetailValueComponent {
   value = input<Details.ItemValue | undefined>();
   heading = input<Details.TableColumnHeading | null>(null);
   context = input<ViewerDiagnosticContext | null>(null);
+  previewUrl = input<string | undefined>(undefined);
 
   readonly resolvedType = computed(() => {
     const value = this.value();

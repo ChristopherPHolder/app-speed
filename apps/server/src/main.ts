@@ -8,6 +8,9 @@ import { makeNodeObservabilityLayer } from '@app-speed/shared-observability';
 import { LocalRunnerManagerLive } from './Runner/LocalRunnerManager.js';
 import { AwsRunnerManagerLive } from './Runner/AwsRunnerManager.js';
 import { ServerConfig } from './Config/config.js';
+import { RunnerRegistryLive } from './Runner/RunnerRegistry.js';
+import { RunnerIdleReaperLive } from './Runner/RunnerIdleReaper.js';
+import { RunnerLifecycleLive } from './Runner/RunnerLifecycle.js';
 
 const ObservabilityLive = makeNodeObservabilityLayer({ serviceName: 'server' });
 const MainLayer = Layer.unwrapEffect(
@@ -19,11 +22,13 @@ const MainLayer = Layer.unwrapEffect(
       onSome: (url) => DevTools.layer(url),
     });
     const RunnerManagerLive = runtimeConfig.runnerManagerMode === 'aws' ? AwsRunnerManagerLive : LocalRunnerManagerLive;
-    const BaseLayer = Layer.mergeAll(DevToolsLive, DbClient.live, ObservabilityLive);
+    const BaseLayer = Layer.mergeAll(DevToolsLive, DbClient.live, ObservabilityLive, RunnerRegistryLive);
     const WithAuditRepo = Layer.provideMerge(AuditRepoLive, BaseLayer);
-    const AppLayer = Layer.provideMerge(RunnerManagerLive, WithAuditRepo);
+    const WithRunnerManager = Layer.provideMerge(RunnerManagerLive, WithAuditRepo);
+    const AppLayer = Layer.provideMerge(RunnerLifecycleLive, WithRunnerManager);
+    const RuntimeLayer = Layer.mergeAll(HttpLive, RunnerIdleReaperLive);
 
-    return Layer.provide(HttpLive, AppLayer);
+    return Layer.provide(RuntimeLayer, AppLayer);
   }),
 );
 

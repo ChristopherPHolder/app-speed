@@ -4,9 +4,11 @@ import type Result from 'lighthouse/types/lhr/lhr';
 type Rect = Result.FullPageScreenshot['nodes'][string];
 
 type ScreenshotViewModel = {
-  backgroundImage: string;
-  backgroundPosition: string;
-  backgroundSize: string;
+  imageSrc: string;
+  imageLeft: number;
+  imageTop: number;
+  imageWidth: number;
+  imageHeight: number;
   previewWidth: number;
   previewHeight: number;
   markerLeft: number;
@@ -27,13 +29,20 @@ type ScreenshotViewModel = {
     @if (viewModel(); as view) {
       <div class="element-screenshot">
         <div
-          class="element-screenshot__image"
+          class="element-screenshot__viewport"
           [style.width.px]="view.previewWidth"
           [style.height.px]="view.previewHeight"
-          [style.background-image]="view.backgroundImage"
-          [style.background-size]="view.backgroundSize"
-          [style.background-position]="view.backgroundPosition"
         >
+          <img
+            class="element-screenshot__image"
+            [src]="view.imageSrc"
+            alt=""
+            draggable="false"
+            [style.left.px]="view.imageLeft"
+            [style.top.px]="view.imageTop"
+            [style.width.px]="view.imageWidth"
+            [style.height.px]="view.imageHeight"
+          />
           <div class="element-screenshot__mask" [style.height.px]="view.maskTopHeight"></div>
           <div
             class="element-screenshot__mask"
@@ -76,12 +85,18 @@ type ScreenshotViewModel = {
       background: var(--mat-sys-surface);
     }
 
-    .element-screenshot__image {
+    .element-screenshot__viewport {
       position: relative;
       background-color: white;
-      background-repeat: no-repeat;
       outline: 1px solid color-mix(in srgb, var(--mat-sys-outline) 60%, white);
       overflow: hidden;
+    }
+
+    .element-screenshot__image {
+      position: absolute;
+      max-width: none;
+      user-select: none;
+      pointer-events: none;
     }
 
     .element-screenshot__mask {
@@ -150,9 +165,11 @@ export class ViewerElementScreenshotComponent {
     const markerHeight = rect.height * zoomFactor;
 
     return {
-      backgroundImage: `url('${screenshot.data}')`,
-      backgroundPosition: `${-screenshotLeft * zoomFactor}px ${-screenshotTop * zoomFactor}px`,
-      backgroundSize: `${screenshot.width * zoomFactor}px ${screenshot.height * zoomFactor}px`,
+      imageSrc: screenshot.data,
+      imageLeft: -screenshotLeft * zoomFactor,
+      imageTop: -screenshotTop * zoomFactor,
+      imageWidth: screenshot.width * zoomFactor,
+      imageHeight: screenshot.height * zoomFactor,
       previewWidth: previewSize.width,
       previewHeight: previewSize.height,
       markerLeft,
