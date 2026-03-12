@@ -155,6 +155,13 @@ export class ViewerStepDetailComponent {
     );
   });
 
+  private readonly failedFilterablePerformanceAudits = computed(() => {
+    return sortFailedPerformanceAudits(
+      this.filterablePerformanceAudits().filter(({ result }) => !showAsPassed(result)),
+      this.performanceMetricAudits(),
+    );
+  });
+
   private diagnosticItemsMapper =
     (status: StatusOptions) =>
     ({ result, weight, stackPacks }: DiagnosticAuditRef) => {
@@ -174,13 +181,13 @@ export class ViewerStepDetailComponent {
 
   readonly insightItems = computed<DiagnosticItem[]>(() => {
     return this.failedDiagnosticItems(
-      this.filterablePerformanceAudits().filter((auditRef) => this.isInsightAudit(auditRef)),
+      this.failedFilterablePerformanceAudits().filter((auditRef) => this.isInsightAudit(auditRef)),
     );
   });
 
   diagnosticItems = computed<DiagnosticItem[]>(() => {
     return this.failedDiagnosticItems(
-      this.filterablePerformanceAudits().filter((auditRef) => auditRef.group === 'diagnostics'),
+      this.failedFilterablePerformanceAudits().filter((auditRef) => auditRef.group === 'diagnostics'),
     );
   });
 
@@ -212,10 +219,7 @@ export class ViewerStepDetailComponent {
   }
 
   private failedDiagnosticItems(audits: DiagnosticAuditRef[]): DiagnosticItem[] {
-    return sortFailedPerformanceAudits(
-      audits.filter(({ result }) => !showAsPassed(result)),
-      this.performanceMetricAudits(),
-    ).map((audit) => this.diagnosticItemsMapper(this.failedDiagnosticStatus(audit))(audit));
+    return audits.map((audit) => this.diagnosticItemsMapper(this.failedDiagnosticStatus(audit))(audit));
   }
 
   private failedDiagnosticStatus(audit: DiagnosticAuditRef): StatusOptions {

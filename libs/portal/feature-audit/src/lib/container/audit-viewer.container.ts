@@ -69,7 +69,6 @@ export class AuditViewerContainer {
     if (!results || activeStep === undefined) {
       return;
     }
-    console.log('activeStep', activeStep, results.steps[activeStep]);
     return results.steps[activeStep];
   });
 }
