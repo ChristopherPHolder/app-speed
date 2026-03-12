@@ -40,7 +40,12 @@ import { ViewerDiagnosticContext } from './viewer-diagnostic.models';
                     class="viewer-table__cell-content"
                     [class.viewer-table__cell-content--group]="column.index === 0 && row.isGroup"
                   >
-                    <ui-viewer-detail-value [value]="cell.value" [heading]="cell.heading" [context]="context()" />
+                    <ui-viewer-detail-value
+                      [value]="cell.value"
+                      [heading]="cell.heading"
+                      [context]="context()"
+                      [previewUrl]="cell.previewUrl"
+                    />
 
                     @if (column.index === 0 && row.entityInfo; as entityInfo) {
                       @if (row.isGroup && entityInfo.category) {

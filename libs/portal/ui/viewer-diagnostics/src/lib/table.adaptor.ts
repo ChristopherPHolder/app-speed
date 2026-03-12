@@ -29,6 +29,7 @@ export type TableRenderColumn = {
 export type TableRenderCell = {
   heading: Heading;
   value: Details.ItemValue | undefined;
+  previewUrl?: string;
   className: string;
   empty: boolean;
 };
@@ -286,16 +287,22 @@ function buildRow(
     indentLevel: options.indentLevel,
     entityName: options.entityName,
     entityInfo: options.entityInfo,
-    cells: headings.map((heading, index) => buildCell(heading, item, columns[index])),
+    cells: headings.map((heading, index) => buildCell(heading, item, headings, columns[index])),
   };
 }
 
-function buildCell(heading: Heading, item: Details.TableItem, column: TableRenderColumn): TableRenderCell {
+function buildCell(
+  heading: Heading,
+  item: Details.TableItem,
+  rowHeadings: Heading[],
+  column: TableRenderColumn,
+): TableRenderCell {
   const value = heading?.key ? item[heading.key] : undefined;
 
   return {
     heading,
     value,
+    previewUrl: resolveNodePreviewUrl(heading, value, item, rowHeadings),
     className: classNames(cellClassName(heading), column.sharedClassName),
     empty: !heading || value === undefined || value === null,
   };
@@ -431,6 +438,49 @@ function locateUrl(item: Details.TableItem, headings: Details.TableColumnHeading
   }
 
   return undefined;
+}
+
+function resolveNodePreviewUrl(
+  heading: Heading,
+  value: Details.ItemValue | undefined,
+  item: Details.TableItem,
+  rowHeadings: Heading[],
+): string | undefined {
+  if (heading?.valueType !== 'node' || !isNodeValue(value) || !isImageNodeValue(value)) {
+    return undefined;
+  }
+
+  const url = locateUrl(item, rowHeadings.filter(isHeading));
+  return url && isLikelyImageUrl(url) ? url : undefined;
+}
+
+function isHeading(heading: Heading): heading is Details.TableColumnHeading {
+  return !!heading;
+}
+
+function isNodeValue(value: Details.ItemValue | undefined): value is Details.NodeValue {
+  return typeof value === 'object' && value !== null && 'type' in value && value.type === 'node';
+}
+
+function isImageNodeValue(value: Details.NodeValue): boolean {
+  const selector = value.selector?.toLowerCase() ?? '';
+  const snippet = value.snippet?.toLowerCase() ?? '';
+  const nodeLabel = value.nodeLabel?.toLowerCase() ?? '';
+
+  return selector.includes('img') || snippet.includes('<img') || nodeLabel.includes('img');
+}
+
+function isLikelyImageUrl(url: string): boolean {
+  if (url.startsWith('data:image/')) {
+    return true;
+  }
+
+  const imagePattern = /\.(?:avif|bmp|gif|ico|jpe?g|png|svg|webp)$/i;
+  try {
+    return imagePattern.test(new URL(url).pathname);
+  } catch {
+    return imagePattern.test(url.split('?')[0] ?? url);
+  }
 }
 
 function findEntityInfo(context: ViewerDiagnosticContext | null, entityName?: string): EntityInfo | undefined {
