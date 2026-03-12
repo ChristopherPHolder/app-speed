@@ -2,13 +2,13 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { FlowResult } from 'lighthouse';
 import { Result as AuditResult } from 'lighthouse/types/lhr/audit-result';
 
-import { STATUS, StatusOptions } from '@app-speed/portal-ui/status-badge';
 import {
   DiagnosticItem,
   ViewerDiagnosticComponent,
   ViewerDiagnosticContext,
 } from '@app-speed/portal-ui/viewer-diagnostics';
 import {
+  auditBadgeStatus,
   passedAuditsGroupTitle,
   PerformanceMetricAudit,
   showAsPassed,
@@ -116,12 +116,6 @@ export class ViewerStepDetailComponent {
     return Array.isArray(items) ? (items as { data: string }[]) : undefined;
   });
 
-  private categoryAcronyms = computed(() => {
-    return this.stepDetails()
-      .lhr.categories['performance']['auditRefs'].filter((v) => v.group === 'metrics')
-      .map((v) => v.acronym);
-  });
-
   private readonly performanceAuditRefs = computed(() => {
     return this.stepDetails().lhr.categories['performance']['auditRefs'].filter(
       (auditRef) => auditRef.group !== 'metrics',
@@ -162,39 +156,35 @@ export class ViewerStepDetailComponent {
     );
   });
 
-  private diagnosticItemsMapper =
-    (status: StatusOptions) =>
-    ({ result, weight, stackPacks }: DiagnosticAuditRef) => {
-      const { id, title, displayValue, description, details, metricSavings } = result;
-      return {
-        id,
-        status,
-        title,
-        displayValue,
-        description,
-        details,
-        affectedMetrics: Object.keys(metricSavings || {}),
-        unscored: weight === 0,
-        stackPacks,
-      };
+  private readonly diagnosticItemsMapper = ({ result, weight, stackPacks }: DiagnosticAuditRef): DiagnosticItem => {
+    const { id, title, displayValue, description, details, metricSavings } = result;
+    return {
+      id,
+      status: auditBadgeStatus(result),
+      title,
+      displayValue,
+      description,
+      details,
+      affectedMetrics: Object.keys(metricSavings || {}),
+      unscored: weight === 0,
+      stackPacks,
     };
+  };
 
   readonly insightItems = computed<DiagnosticItem[]>(() => {
-    return this.failedDiagnosticItems(
-      this.failedFilterablePerformanceAudits().filter((auditRef) => this.isInsightAudit(auditRef)),
-    );
+    return this.failedFilterablePerformanceAudits()
+      .filter((auditRef) => this.isInsightAudit(auditRef))
+      .map(this.diagnosticItemsMapper);
   });
 
   diagnosticItems = computed<DiagnosticItem[]>(() => {
-    return this.failedDiagnosticItems(
-      this.failedFilterablePerformanceAudits().filter((auditRef) => auditRef.group === 'diagnostics'),
-    );
+    return this.failedFilterablePerformanceAudits()
+      .filter((auditRef) => auditRef.group === 'diagnostics')
+      .map(this.diagnosticItemsMapper);
   });
 
   readonly passedItems = computed<DiagnosticItem[]>(() => {
-    return this.filterablePerformanceAudits()
-      .filter(({ result }) => showAsPassed(result))
-      .map(this.diagnosticItemsMapper(STATUS.PASS));
+    return this.filterablePerformanceAudits().filter(({ result }) => showAsPassed(result)).map(this.diagnosticItemsMapper);
   });
 
   readonly sections = computed<DiagnosticSection[]>(() => {
@@ -213,22 +203,6 @@ export class ViewerStepDetailComponent {
       fullPageScreenshot: lhr.fullPageScreenshot,
     };
   });
-
-  private affectsMetric(metricSavings: string[]): boolean {
-    return !!metricSavings.filter((i) => this.categoryAcronyms().includes(i)).length;
-  }
-
-  private failedDiagnosticItems(audits: DiagnosticAuditRef[]): DiagnosticItem[] {
-    return audits.map((audit) => this.diagnosticItemsMapper(this.failedDiagnosticStatus(audit))(audit));
-  }
-
-  private failedDiagnosticStatus(audit: DiagnosticAuditRef): StatusOptions {
-    return this.isAlertAudit(audit) ? STATUS.ALERT : STATUS.WARN;
-  }
-
-  private isAlertAudit(audit: DiagnosticAuditRef): boolean {
-    return audit.result.guidanceLevel === 1 && this.affectsMetric(Object.keys(audit.result.metricSavings || {}));
-  }
 
   private isInsightAudit(auditRef: DiagnosticAuditRef): boolean {
     return auditRef.group === 'insights' || (auditRef.group === 'hidden' && auditRef.id.endsWith('-insight'));

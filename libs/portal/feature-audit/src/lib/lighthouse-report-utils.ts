@@ -1,8 +1,12 @@
 import { Result } from 'lighthouse';
 import { Result as AuditResult } from 'lighthouse/types/lhr/audit-result';
+import { STATUS, StatusOptions } from '@app-speed/portal-ui/status-badge';
 
 const LIGHTHOUSE_PASS_THRESHOLD = 0.9;
+const LIGHTHOUSE_AVERAGE_THRESHOLD = 0.5;
 const PASSED_AUDITS_GROUP_TITLE = 'Passed audits';
+
+type LighthouseRating = 'pass' | 'average' | 'fail' | 'error';
 
 type CategoryAuditRefWithResult = Result.Category['auditRefs'][number] & {
   result: AuditResult;
@@ -28,6 +32,8 @@ export type PerformanceMetricAudit = Pick<Result.Category['auditRefs'][number], 
 export type SortablePerformanceAudit = {
   result: Pick<AuditResult, 'guidanceLevel' | 'metricSavings' | 'score'>;
 };
+
+type AuditBadgeInput = Pick<AuditResult, 'score' | 'scoreDisplayMode'>;
 
 // Mirrors Lighthouse report-utils showAsPassed logic without depending on renderer internals.
 export const showAsPassed = (audit: Pick<AuditResult, 'score' | 'scoreDisplayMode'>): boolean => {
@@ -85,6 +91,57 @@ export const shouldDisplayAsFraction = (gatherMode: Result.GatherMode): boolean 
 
 export const passedAuditsGroupTitle = (lhr: Pick<Result, 'i18n'>): string => {
   return lhr.i18n.rendererFormattedStrings['passedAuditsGroupTitle'] || PASSED_AUDITS_GROUP_TITLE;
+};
+
+// Mirrors Lighthouse report-utils calculateRating logic without depending on renderer internals.
+export const calculateRating = (
+  score: AuditResult['score'],
+  scoreDisplayMode?: AuditResult['scoreDisplayMode'],
+): LighthouseRating => {
+  if (scoreDisplayMode === 'manual' || scoreDisplayMode === 'notApplicable') {
+    return 'pass';
+  }
+
+  if (scoreDisplayMode === 'error') {
+    return 'error';
+  }
+
+  if (score === null) {
+    return 'fail';
+  }
+
+  if (score >= LIGHTHOUSE_PASS_THRESHOLD) {
+    return 'pass';
+  }
+
+  if (score >= LIGHTHOUSE_AVERAGE_THRESHOLD) {
+    return 'average';
+  }
+
+  return 'fail';
+};
+
+// Mirrors Lighthouse audit icon treatment. Informative/manual/N/A stay neutral even when score is 1.
+export const auditBadgeStatus = (audit: AuditBadgeInput): StatusOptions => {
+  switch (audit.scoreDisplayMode) {
+    case 'informative':
+    case 'manual':
+    case 'notApplicable':
+      return STATUS.INFO;
+    case 'error':
+      return STATUS.ALERT;
+    default:
+      switch (calculateRating(audit.score, audit.scoreDisplayMode)) {
+        case 'pass':
+          return STATUS.PASS;
+        case 'average':
+          return STATUS.WARN;
+        case 'error':
+        case 'fail':
+        default:
+          return STATUS.ALERT;
+      }
+  }
 };
 
 const erf = (x: number): number => {
