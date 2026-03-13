@@ -76,6 +76,7 @@
         "containerName": "app-speed-runner",
         "stopAfterCompletion": true,
         "stopOnlyIfStarted": true,
+        "expectBootstrapShutdown": true,
         "pollIntervalMs": 5000,
         "startWaitTimeoutMs": 1800000,
         "timeoutMs": 1800000

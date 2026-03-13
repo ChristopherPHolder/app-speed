@@ -90,8 +90,9 @@ const prepareInstance = (
   region: string,
   instanceId: string,
   startWaitTimeoutMs: number,
+  expectBootstrapShutdown: boolean,
 ): Effect.Effect<StartedInstance, Ec2SsmCycleError> =>
-  startInstanceIfNeeded(ec2Client, region, instanceId, startWaitTimeoutMs);
+  startInstanceIfNeeded(ec2Client, region, instanceId, startWaitTimeoutMs, expectBootstrapShutdown);
 
 const stopInstanceIfConfigured = (
   ec2Client: EC2Client,
@@ -198,6 +199,7 @@ const program = (options: Ec2SsmCycleExecutorSchema): Effect.Effect<ExecutorExit
     const pollIntervalMs = options.pollIntervalMs ?? DEFAULT_POLL_INTERVAL_MS;
     const startWaitTimeoutMs = options.startWaitTimeoutMs ?? DEFAULT_START_WAIT_TIMEOUT_MS;
     const stopWaitTimeoutMs = options.stopWaitTimeoutMs ?? DEFAULT_STOP_WAIT_TIMEOUT_MS;
+    const expectBootstrapShutdown = options.expectBootstrapShutdown === true;
     const stopAfterCompletion = options.stopAfterCompletion !== false;
     const stopOnlyIfStarted = options.stopOnlyIfStarted !== false;
 
@@ -207,7 +209,7 @@ const program = (options: Ec2SsmCycleExecutorSchema): Effect.Effect<ExecutorExit
     yield* Effect.logInfo(`Starting EC2/SSM deploy cycle for instance ${instanceId} in ${region}`);
 
     return yield* Effect.acquireUseRelease(
-      prepareInstance(ec2Client, region, instanceId, startWaitTimeoutMs),
+      prepareInstance(ec2Client, region, instanceId, startWaitTimeoutMs, expectBootstrapShutdown),
       () => runSsmCommand(ssmClient, documentName, instanceId, parameters, options.comment, timeoutMs, pollIntervalMs),
       (started) =>
         stopInstanceIfConfigured(

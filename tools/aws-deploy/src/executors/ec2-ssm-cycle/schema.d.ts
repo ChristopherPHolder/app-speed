@@ -14,6 +14,7 @@ export interface Ec2SsmCycleExecutorSchema {
   pollIntervalMs?: number;
   startWaitTimeoutMs?: number;
   stopWaitTimeoutMs?: number;
+  expectBootstrapShutdown?: boolean;
   stopAfterCompletion?: boolean;
   stopOnlyIfStarted?: boolean;
 }

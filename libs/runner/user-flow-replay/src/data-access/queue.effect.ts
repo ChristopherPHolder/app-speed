@@ -232,6 +232,11 @@ const stopSelfEc2Instance = Effect.gen(function* () {
   });
 }).pipe(Effect.withSpan('runner.queue.selfTerminateEc2'));
 
+const attemptSelfTermination = stopSelfEc2Instance.pipe(
+  Effect.catchAll((error) => Effect.logWarning(`Runner EC2 self-termination failed: ${String(error)}`)),
+  Effect.asVoid,
+);
+
 export const requestRunnerTermination = Effect.fn('runner.queue.terminate')(function* (reason: RunnerShutdownReason) {
   const shutdownDecision = yield* requestRunnerShutdown(reason).pipe(
     Effect.map((response) => Option.some(response.shouldTerminate)),
@@ -241,11 +246,12 @@ export const requestRunnerTermination = Effect.fn('runner.queue.terminate')(func
   );
 
   if (Option.isSome(shutdownDecision)) {
+    if (shutdownDecision.value) {
+      yield* attemptSelfTermination;
+    }
     return shutdownDecision.value;
   }
 
-  yield* stopSelfEc2Instance.pipe(
-    Effect.catchAll((error) => Effect.logWarning(`Runner EC2 self-termination failed: ${String(error)}`)),
-  );
+  yield* attemptSelfTermination;
   return true;
 });

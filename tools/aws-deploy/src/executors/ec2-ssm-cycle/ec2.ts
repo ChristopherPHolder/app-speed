@@ -8,7 +8,7 @@ import {
   waitUntilInstanceRunning,
   waitUntilInstanceStopped,
 } from '@aws-sdk/client-ec2';
-import { Effect, Exit } from 'effect';
+import { Effect } from 'effect';
 
 import { Ec2SsmCycleError } from './errors';
 
@@ -371,16 +371,14 @@ const getInstanceState = (
     });
   });
 
-const startInstanceWithRetry = (
+const startInstance = (
   client: EC2Client,
   region: string,
   instanceId: string,
   startWaitTimeoutMs: number,
-  attempt = 1,
 ): Effect.Effect<void, Ec2SsmCycleError> =>
   Effect.gen(function* () {
-    const attemptSuffix = attempt > 1 ? ` (attempt ${attempt} of 2)` : '';
-    yield* Effect.logInfo(`Starting EC2 instance ${instanceId}${attemptSuffix}`);
+    yield* Effect.logInfo(`Starting EC2 instance ${instanceId}`);
     yield* Effect.tryPromise({
       try: () => client.send(new StartInstancesCommand({ InstanceIds: [instanceId] })),
       catch: (error) =>
@@ -390,24 +388,27 @@ const startInstanceWithRetry = (
         }),
     });
 
-    const waitExit = yield* Effect.exit(waitForInstanceRunning(client, region, instanceId, startWaitTimeoutMs));
-    if (Exit.isSuccess(waitExit)) {
-      return;
-    }
+    yield* waitForInstanceRunning(client, region, instanceId, startWaitTimeoutMs);
+  });
 
-    const currentState = yield* getInstanceState(client, region, instanceId).pipe(
-      Effect.catchAll(() => Effect.succeed<Ec2InstanceStateName>('unknown')),
-    );
+const runBootstrapShutdownCycle = (
+  client: EC2Client,
+  region: string,
+  instanceId: string,
+  waitTimeoutMs: number,
+): Effect.Effect<void, Ec2SsmCycleError> =>
+  Effect.gen(function* () {
+    yield* Effect.logInfo(`Starting EC2 instance ${instanceId} for expected bootstrap shutdown`);
+    yield* Effect.tryPromise({
+      try: () => client.send(new StartInstancesCommand({ InstanceIds: [instanceId] })),
+      catch: (error) =>
+        new Ec2SsmCycleError({
+          message: `Failed to start instance ${instanceId}: ${String(error)}`,
+          cause: error,
+        }),
+    });
 
-    if (attempt < 2 && currentState === 'stopping') {
-      yield* Effect.logWarning(
-        `EC2 instance ${instanceId} transitioned to stopping during startup; waiting for it to stop before retrying once`,
-      );
-      yield* waitForInstanceStopped(client, region, instanceId, startWaitTimeoutMs);
-      return yield* startInstanceWithRetry(client, region, instanceId, startWaitTimeoutMs, attempt + 1);
-    }
-
-    return yield* Effect.failCause(waitExit.cause);
+    yield* waitForInstanceStopped(client, region, instanceId, waitTimeoutMs);
   });
 
 export const startInstanceIfNeeded = (
@@ -415,6 +416,7 @@ export const startInstanceIfNeeded = (
   region: string,
   instanceId: string,
   startWaitTimeoutMs: number,
+  expectBootstrapShutdown = false,
 ): Effect.Effect<StartedInstance, Ec2SsmCycleError> =>
   Effect.gen(function* () {
     const state = yield* getInstanceState(client, region, instanceId);
@@ -442,7 +444,11 @@ export const startInstanceIfNeeded = (
       });
     }
 
-    yield* startInstanceWithRetry(client, region, instanceId, startWaitTimeoutMs);
+    if (expectBootstrapShutdown) {
+      yield* runBootstrapShutdownCycle(client, region, instanceId, startWaitTimeoutMs);
+    }
+
+    yield* startInstance(client, region, instanceId, startWaitTimeoutMs);
 
     return { startedByExecutor: true };
   });

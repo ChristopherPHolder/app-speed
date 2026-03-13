@@ -82,6 +82,11 @@
       "description": "Maximum wait time for instances to become stopped.",
       "default": 600000
     },
+    "expectBootstrapShutdown": {
+      "type": "boolean",
+      "description": "When true, the executor expects an initial bootstrap boot to stop itself before the deployment boot.",
+      "default": false
+    },
     "stopAfterCompletion": {
       "type": "boolean",
       "description": "Stop instances after command completes or fails.",
