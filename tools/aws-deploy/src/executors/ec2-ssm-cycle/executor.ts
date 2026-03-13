@@ -58,7 +58,7 @@ const buildDefaultCommands = (
           'docker pull "$IMAGE_REF"',
         ]
       : ['docker pull "$IMAGE_REF"', `docker rm -f ${shellQuote(containerName)} || true`]),
-    [`docker run -d --name ${shellQuote(containerName)}`, `${portFlag}${runArgsSuffix} "$IMAGE_REF"`].join(' '),
+    [`docker run -d --name ${shellQuote(containerName)} --restart unless-stopped`, `${portFlag}${runArgsSuffix} "$IMAGE_REF"`].join(' '),
   ];
 };
 
