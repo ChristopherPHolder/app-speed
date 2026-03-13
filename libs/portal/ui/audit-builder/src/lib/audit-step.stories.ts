@@ -1,40 +1,25 @@
-import type { AuditStep } from '@app-speed/shared-user-flow-replay/schema';
+import { DEFAULT_AUDIT_DETAILS } from '@app-speed/shared-user-flow-replay';
 import type { Meta, StoryObj } from '@storybook/angular';
-import { StepFormGroup } from './audit-builder-form';
+import { AuditFormGroup, StepFormGroup } from './audit-builder-form';
 import { AuditStepComponent } from './audit-step.component';
 
-type AuditStepStoryArgs = {
-  step: AuditStep;
-};
-
-const meta = {
+const meta: Meta<AuditStepComponent> = {
   title: 'Patterns/Audit Builder/Step',
   component: AuditStepComponent,
-  args: {
-    step: {
-      type: 'navigate',
-      url: 'https://app-speed.dev/',
-    } as never,
-  },
-  argTypes: {
-    stepControl: {
-      control: false,
-      table: {
-        disable: true,
-      },
-    },
-  },
-  render: ({ step }: AuditStepStoryArgs) => ({
-    props: {
-      stepControl: new StepFormGroup(step),
-    },
-  }),
   parameters: {
     layout: 'padded',
   },
-} satisfies Meta<AuditStepComponent & AuditStepStoryArgs>;
+};
 
 export default meta;
-type Story = StoryObj<AuditStepComponent & AuditStepStoryArgs>;
+type Story = StoryObj<AuditStepComponent>;
 
-export const Default: Story = {};
+export const Default: Story = {
+  render: () => {
+    return {
+      props: {
+        stepControl: new StepFormGroup({ type: '' } as never),
+      },
+    };
+  },
+};

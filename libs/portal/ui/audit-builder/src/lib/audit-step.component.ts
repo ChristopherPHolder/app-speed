@@ -1,5 +1,6 @@
 import { afterNextRender, ChangeDetectionStrategy, Component, DestroyRef, inject, input } from '@angular/core';
 import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
+import { LIGHTHOUSE_AUDIT_STEP_TYPE } from '@app-speed/shared-user-flow-replay';
 import { StepFormGroup } from './audit-builder-form';
 import { MatFabButton } from '@angular/material/button';
 import { OptionsFieldComponent } from './fields/options-field.component';
@@ -9,6 +10,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToTitleCasePipe } from './utils/toTitleCase.pipe';
 import { InputFieldComponent } from './fields/input-field.component';
 import { ArrayFieldComponent } from './fields/array-field.component';
+import { AuditStepLighthouseIconComponent } from './audit-step-lighthouse-icon.component';
+import { AuditStepPuppeteerIconComponent } from './audit-step-puppeteer-icon.component';
 
 @Component({
   selector: 'ui-audit-builder-step',
@@ -18,7 +21,14 @@ import { ArrayFieldComponent } from './fields/array-field.component';
       <mat-expansion-panel-header>
         <mat-panel-title>
           @if (control.controls['type'].value; as stepType) {
-            {{ stepType | toTitleCase }}
+            <span class="step-title">
+              @if (isLighthouseStep(stepType)) {
+                <ui-audit-step-lighthouse-icon />
+              } @else {
+                <ui-audit-step-puppeteer-icon />
+              }
+              <span class="step-title__text">{{ stepType | toTitleCase }}</span>
+            </span>
           } @else {
             Audit Step Required!
           }
@@ -33,28 +43,27 @@ import { ArrayFieldComponent } from './fields/array-field.component';
               <ui-options-field [label]="stepField" />
             }
             @case ('string') {
-              <ui-input-field [label]='stepField' />
+              <ui-input-field [label]="stepField" />
             }
             @case ('number') {
-              <ui-input-field [label]='stepField' />
+              <ui-input-field [label]="stepField" />
             }
             @case ('boolean') {
               <ui-options-field [label]="stepField" />
             }
             @case ('stringArray') {
-              <ui-array-field [label]='stepField' />
+              <ui-array-field [label]="stepField" />
             }
             @default {
               TODO not yet implemented {{ fieldType }} {{ fieldType }}
             }
           }
-
         }
       </ng-container>
       @let optionalFields = control.optionalFields();
       @if (optionalFields.length > 0) {
         <h4>Optional Properties</h4>
-        <div class='add-optional-field'>
+        <div class="add-optional-field">
           @for (optionField of optionalFields; track optionField) {
             <button
               mat-fab
@@ -69,7 +78,6 @@ import { ArrayFieldComponent } from './fields/array-field.component';
           }
         </div>
       }
-
     </mat-expansion-panel>
   `,
   imports: [
@@ -82,8 +90,21 @@ import { ArrayFieldComponent } from './fields/array-field.component';
     ToTitleCasePipe,
     InputFieldComponent,
     ArrayFieldComponent,
+    AuditStepLighthouseIconComponent,
+    AuditStepPuppeteerIconComponent,
   ],
   styles: `
+    .step-title {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .step-title__text {
+      min-width: 0;
+    }
+
     .add-optional-field {
       display: flex;
       gap: 16px;
@@ -95,9 +116,14 @@ import { ArrayFieldComponent } from './fields/array-field.component';
 export class AuditStepComponent {
   stepControl = input.required<StepFormGroup>();
   private readonly destroyRef = inject(DestroyRef);
+  private readonly lighthouseStepTypes = new Set<string>(Object.values(LIGHTHOUSE_AUDIT_STEP_TYPE));
 
   constructor() {
     afterNextRender(() => this.handleStepTypeChange());
+  }
+
+  protected isLighthouseStep(stepType: string): boolean {
+    return this.lighthouseStepTypes.has(stepType);
   }
 
   private handleStepTypeChange(): void {
