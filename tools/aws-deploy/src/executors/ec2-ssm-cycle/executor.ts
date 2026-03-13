@@ -54,7 +54,7 @@ const buildDefaultCommands = (
     `docker rm -f ${shellQuote(containerName)} || true`,
     [
       `docker run -d --name ${shellQuote(containerName)}`,
-      `--restart unless-stopped${portFlag}${runArgsSuffix} "$IMAGE_REF"`,
+      `${portFlag}${runArgsSuffix} "$IMAGE_REF"`,
     ].join(' '),
   ];
 };

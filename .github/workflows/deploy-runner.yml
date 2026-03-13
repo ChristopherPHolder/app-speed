@@ -12,6 +12,10 @@ on:
           - production
         default: development
 
+concurrency:
+  group: deploy-runner-ec2-i-049287bf43503d01e
+  cancel-in-progress: false
+
 env:
   NODE_VERSION: 24.14.0
   PNPM_VERSION: 10.11.0

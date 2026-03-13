@@ -1,6 +1,7 @@
 import {
   DescribeInstancesCommand,
   DescribeInstanceStatusCommand,
+  GetConsoleOutputCommand,
   StartInstancesCommand,
   StopInstancesCommand,
   waitUntilInstanceRunning,
@@ -20,6 +21,10 @@ vi.mock('@aws-sdk/client-ec2', () => {
     constructor(readonly input: unknown) {}
   }
 
+  class GetConsoleOutputCommand {
+    constructor(readonly input: unknown) {}
+  }
+
   class StartInstancesCommand {
     constructor(readonly input: unknown) {}
   }
@@ -31,6 +36,7 @@ vi.mock('@aws-sdk/client-ec2', () => {
   return {
     DescribeInstancesCommand,
     DescribeInstanceStatusCommand,
+    GetConsoleOutputCommand,
     StartInstancesCommand,
     StopInstancesCommand,
     waitUntilInstanceRunning: vi.fn(),
@@ -65,6 +71,10 @@ describe('ec2-ssm-cycle ec2 helpers', () => {
 
       if (command instanceof DescribeInstanceStatusCommand) {
         return { InstanceStatuses: [] };
+      }
+
+      if (command instanceof GetConsoleOutputCommand) {
+        return {};
       }
 
       if (command instanceof StartInstancesCommand) {
@@ -108,6 +118,10 @@ describe('ec2-ssm-cycle ec2 helpers', () => {
         return { InstanceStatuses: [] };
       }
 
+      if (command instanceof GetConsoleOutputCommand) {
+        return {};
+      }
+
       throw new Error(`Unexpected command: ${String(command)}`);
     });
 
@@ -141,6 +155,10 @@ describe('ec2-ssm-cycle ec2 helpers', () => {
 
       if (command instanceof DescribeInstanceStatusCommand) {
         return { InstanceStatuses: [] };
+      }
+
+      if (command instanceof GetConsoleOutputCommand) {
+        return {};
       }
 
       if (command instanceof StopInstancesCommand) {
@@ -207,6 +225,12 @@ describe('ec2-ssm-cycle ec2 helpers', () => {
         };
       }
 
+      if (command instanceof GetConsoleOutputCommand) {
+        return {
+          Output: Buffer.from('systemd[1]: Reached target Multi-User System.', 'utf8').toString('base64'),
+        };
+      }
+
       throw new Error(`Unexpected command: ${String(command)}`);
     });
 
@@ -220,6 +244,75 @@ describe('ec2-ssm-cycle ec2 helpers', () => {
     await expect(Effect.runPromise(startInstanceIfNeeded(client, 'eu-central-1', 'i-123', 60_000))).rejects.toThrow(
       'Failed while waiting for instance i-123 to become running: waiter state=TIMEOUT, observed responses=200: OK x8, latest snapshot: instance state=pending, state reason=Instance is still booting, transition reason=User initiated (2026-03-13 08:04:36 GMT), system status=initializing, instance status=initializing',
     );
+  });
+
+  it('retries once when the instance transitions to stopping during startup', async () => {
+    const send = vi.fn().mockImplementation(async (command: unknown) => {
+      if (command instanceof DescribeInstancesCommand) {
+        const hasAttemptedStart = send.mock.calls.some(([called]) => called instanceof StartInstancesCommand);
+        return {
+          Reservations: [
+            {
+              Instances: [
+                {
+                  InstanceId: 'i-123',
+                  State: { Name: hasAttemptedStart ? 'stopping' : 'stopped' },
+                  StateReason: { Message: 'Client.UserInitiatedShutdown: User initiated shutdown' },
+                  StateTransitionReason: 'User initiated (2026-03-13 10:12:32 GMT)',
+                },
+              ],
+            },
+          ],
+        };
+      }
+
+      if (command instanceof DescribeInstanceStatusCommand) {
+        return { InstanceStatuses: [] };
+      }
+
+      if (command instanceof GetConsoleOutputCommand) {
+        return {
+          Output: Buffer.from('docker[1]: starting previous runner container', 'utf8').toString('base64'),
+        };
+      }
+
+      if (command instanceof StartInstancesCommand) {
+        return {};
+      }
+
+      throw new Error(`Unexpected command: ${String(command)}`);
+    });
+
+    const client = { send } as unknown as EC2Client;
+
+    waitUntilInstanceRunningMock
+      .mockRejectedValueOnce({
+        state: 'FAILURE',
+        observedResponses: { '200: OK': 2 },
+        reason: {
+          Reservations: [
+            {
+              Instances: [
+                {
+                  State: { Name: 'stopping' },
+                  StateReason: { Message: 'Client.UserInitiatedShutdown: User initiated shutdown' },
+                  StateTransitionReason: 'User initiated (2026-03-13 10:12:32 GMT)',
+                },
+              ],
+            },
+          ],
+        },
+      } as never)
+      .mockResolvedValueOnce({ state: 'SUCCESS' } as never);
+    waitUntilInstanceStoppedMock.mockResolvedValue({ state: 'SUCCESS' } as never);
+
+    const result = await Effect.runPromise(startInstanceIfNeeded(client, 'eu-central-1', 'i-123', 60_000));
+
+    expect(result).toEqual({ startedByExecutor: true });
+    expect(waitUntilInstanceRunningMock).toHaveBeenCalledTimes(2);
+    expect(waitUntilInstanceStoppedMock).toHaveBeenCalledTimes(1);
+    expect(send.mock.calls.filter(([command]) => command instanceof StartInstancesCommand)).toHaveLength(2);
+    expect(send.mock.calls.filter(([command]) => command instanceof GetConsoleOutputCommand)).toHaveLength(1);
   });
 
   it('waits for stop completion after issuing StopInstancesCommand', async () => {

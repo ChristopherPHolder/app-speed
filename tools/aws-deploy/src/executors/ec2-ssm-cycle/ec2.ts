@@ -2,12 +2,13 @@ import {
   DescribeInstancesCommand,
   DescribeInstanceStatusCommand,
   EC2Client,
+  GetConsoleOutputCommand,
   StartInstancesCommand,
   StopInstancesCommand,
   waitUntilInstanceRunning,
   waitUntilInstanceStopped,
 } from '@aws-sdk/client-ec2';
-import { Effect } from 'effect';
+import { Effect, Exit } from 'effect';
 
 import { Ec2SsmCycleError } from './errors';
 
@@ -25,6 +26,7 @@ type InstanceDiagnostics = {
   instanceStatus?: string;
   launchTime?: string;
   events?: string[];
+  consoleOutputExcerpt?: string;
 };
 
 const toWaitSeconds = (timeoutMs: number): number => Math.max(1, Math.ceil(timeoutMs / 1000));
@@ -129,6 +131,29 @@ const toWaiterError = (error: unknown): Ec2SsmCycleError =>
     cause: error,
   });
 
+const looksBase64 = (value: string): boolean => {
+  const normalized = value.replace(/\s+/g, '');
+  return normalized.length > 0 && normalized.length % 4 === 0 && /^[A-Za-z0-9+/=]+$/.test(normalized);
+};
+
+const toConsoleOutputExcerpt = (output: string | undefined): string | undefined => {
+  if (!output) {
+    return undefined;
+  }
+
+  const decoded = looksBase64(output) ? Buffer.from(output, 'base64').toString('utf8') : output;
+  const lines = decoded
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  if (lines.length === 0) {
+    return undefined;
+  }
+
+  return lines.join(' | ').slice(-2000);
+};
+
 const formatInstanceDiagnostics = (diagnostics: InstanceDiagnostics): string => {
   const parts = [
     diagnostics.instanceState ? `instance state=${diagnostics.instanceState}` : null,
@@ -138,6 +163,7 @@ const formatInstanceDiagnostics = (diagnostics: InstanceDiagnostics): string => 
     diagnostics.instanceStatus ? `instance status=${diagnostics.instanceStatus}` : null,
     diagnostics.launchTime ? `launch time=${diagnostics.launchTime}` : null,
     diagnostics.events && diagnostics.events.length > 0 ? `events=${diagnostics.events.join(' | ')}` : null,
+    diagnostics.consoleOutputExcerpt ? `console output=${diagnostics.consoleOutputExcerpt}` : null,
   ].filter((value): value is string => value !== null);
 
   return parts.join(', ');
@@ -194,6 +220,19 @@ const describeInstanceDiagnostics = (
         })
         .filter((value): value is string => value !== undefined);
     }
+
+    const consoleOutputResponse = yield* Effect.tryPromise({
+      try: () =>
+        client.send(
+          new GetConsoleOutputCommand({
+            InstanceId: instanceId,
+            Latest: true,
+          }),
+        ),
+      catch: (error) => toDiagnosticsLookupError('fetch EC2 console output', instanceId, error),
+    }).pipe(Effect.catchAll(() => Effect.succeed(undefined)));
+
+    diagnostics.consoleOutputExcerpt = toConsoleOutputExcerpt(consoleOutputResponse?.Output);
 
     return diagnostics;
   });
@@ -332,6 +371,45 @@ const getInstanceState = (
     });
   });
 
+const startInstanceWithRetry = (
+  client: EC2Client,
+  region: string,
+  instanceId: string,
+  startWaitTimeoutMs: number,
+  attempt = 1,
+): Effect.Effect<void, Ec2SsmCycleError> =>
+  Effect.gen(function* () {
+    const attemptSuffix = attempt > 1 ? ` (attempt ${attempt} of 2)` : '';
+    yield* Effect.logInfo(`Starting EC2 instance ${instanceId}${attemptSuffix}`);
+    yield* Effect.tryPromise({
+      try: () => client.send(new StartInstancesCommand({ InstanceIds: [instanceId] })),
+      catch: (error) =>
+        new Ec2SsmCycleError({
+          message: `Failed to start instance ${instanceId}: ${String(error)}`,
+          cause: error,
+        }),
+    });
+
+    const waitExit = yield* Effect.exit(waitForInstanceRunning(client, region, instanceId, startWaitTimeoutMs));
+    if (Exit.isSuccess(waitExit)) {
+      return;
+    }
+
+    const currentState = yield* getInstanceState(client, region, instanceId).pipe(
+      Effect.catchAll(() => Effect.succeed<Ec2InstanceStateName>('unknown')),
+    );
+
+    if (attempt < 2 && currentState === 'stopping') {
+      yield* Effect.logWarning(
+        `EC2 instance ${instanceId} transitioned to stopping during startup; waiting for it to stop before retrying once`,
+      );
+      yield* waitForInstanceStopped(client, region, instanceId, startWaitTimeoutMs);
+      return yield* startInstanceWithRetry(client, region, instanceId, startWaitTimeoutMs, attempt + 1);
+    }
+
+    return yield* Effect.failCause(waitExit.cause);
+  });
+
 export const startInstanceIfNeeded = (
   client: EC2Client,
   region: string,
@@ -364,17 +442,7 @@ export const startInstanceIfNeeded = (
       });
     }
 
-    yield* Effect.logInfo(`Starting EC2 instance ${instanceId}`);
-    yield* Effect.tryPromise({
-      try: () => client.send(new StartInstancesCommand({ InstanceIds: [instanceId] })),
-      catch: (error) =>
-        new Ec2SsmCycleError({
-          message: `Failed to start instance ${instanceId}: ${String(error)}`,
-          cause: error,
-        }),
-    });
-
-    yield* waitForInstanceRunning(client, region, instanceId, startWaitTimeoutMs);
+    yield* startInstanceWithRetry(client, region, instanceId, startWaitTimeoutMs);
 
     return { startedByExecutor: true };
   });
