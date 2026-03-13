@@ -8,6 +8,7 @@ export interface SsmDeployExecutorSchema {
   hostPort?: number;
   containerPort?: number;
   additionalRunArgs?: string[];
+  pruneDockerBeforePull?: boolean;
   parameters?: Record<string, string[]>;
   waitForCompletion?: boolean;
   pollIntervalMs?: number;

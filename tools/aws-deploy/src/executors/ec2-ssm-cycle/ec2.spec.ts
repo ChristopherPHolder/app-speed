@@ -247,50 +247,65 @@ describe('ec2-ssm-cycle ec2 helpers', () => {
   });
 
   it('runs an expected bootstrap shutdown cycle before the deployment boot', async () => {
-    const send = vi.fn().mockImplementation(async (command: unknown) => {
-      if (command instanceof DescribeInstancesCommand) {
-        return {
-          Reservations: [
-            {
-              Instances: [
-                {
-                  InstanceId: 'i-123',
-                  State: { Name: 'stopped' },
-                },
-              ],
-            },
-          ],
-        };
-      }
+    vi.useFakeTimers();
+    try {
+      const states: Array<'stopped' | 'pending' | 'running' | 'stopping' | 'stopped'> = [
+        'stopped',
+        'stopped',
+        'pending',
+        'running',
+        'stopping',
+        'stopped',
+      ];
 
-      if (command instanceof DescribeInstanceStatusCommand) {
-        return { InstanceStatuses: [] };
-      }
+      const send = vi.fn().mockImplementation(async (command: unknown) => {
+        if (command instanceof DescribeInstancesCommand) {
+          return {
+            Reservations: [
+              {
+                Instances: [
+                  {
+                    InstanceId: 'i-123',
+                    State: { Name: states.shift() ?? 'stopped' },
+                  },
+                ],
+              },
+            ],
+          };
+        }
 
-      if (command instanceof GetConsoleOutputCommand) {
-        return {
-          Output: Buffer.from('docker[1]: starting previous runner container', 'utf8').toString('base64'),
-        };
-      }
+        if (command instanceof DescribeInstanceStatusCommand) {
+          return { InstanceStatuses: [] };
+        }
 
-      if (command instanceof StartInstancesCommand) {
-        return {};
-      }
+        if (command instanceof GetConsoleOutputCommand) {
+          return {
+            Output: Buffer.from('docker[1]: starting previous runner container', 'utf8').toString('base64'),
+          };
+        }
 
-      throw new Error(`Unexpected command: ${String(command)}`);
-    });
+        if (command instanceof StartInstancesCommand) {
+          return {};
+        }
 
-    const client = { send } as unknown as EC2Client;
+        throw new Error(`Unexpected command: ${String(command)}`);
+      });
 
-    waitUntilInstanceRunningMock.mockResolvedValue({ state: 'SUCCESS' } as never);
-    waitUntilInstanceStoppedMock.mockResolvedValue({ state: 'SUCCESS' } as never);
+      const client = { send } as unknown as EC2Client;
 
-    const result = await Effect.runPromise(startInstanceIfNeeded(client, 'eu-central-1', 'i-123', 60_000, true));
+      waitUntilInstanceRunningMock.mockResolvedValue({ state: 'SUCCESS' } as never);
 
-    expect(result).toEqual({ startedByExecutor: true });
-    expect(waitUntilInstanceRunningMock).toHaveBeenCalledTimes(1);
-    expect(waitUntilInstanceStoppedMock).toHaveBeenCalledTimes(1);
-    expect(send.mock.calls.filter(([command]) => command instanceof StartInstancesCommand)).toHaveLength(2);
+      const resultPromise = Effect.runPromise(startInstanceIfNeeded(client, 'eu-central-1', 'i-123', 60_000, true));
+      await vi.advanceTimersByTimeAsync(20_000);
+      const result = await resultPromise;
+
+      expect(result).toEqual({ startedByExecutor: true });
+      expect(waitUntilInstanceRunningMock).toHaveBeenCalledTimes(1);
+      expect(waitUntilInstanceStoppedMock).not.toHaveBeenCalled();
+      expect(send.mock.calls.filter(([command]) => command instanceof StartInstancesCommand)).toHaveLength(2);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('waits for stop completion after issuing StopInstancesCommand', async () => {

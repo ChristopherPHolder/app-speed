@@ -118,6 +118,7 @@
         "containerName": "app-speed-server",
         "hostPort": 3000,
         "containerPort": 3000,
+        "pruneDockerBeforePull": true,
         "waitForCompletion": true,
         "pollIntervalMs": 5000,
         "timeoutMs": 900000

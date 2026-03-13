@@ -8,7 +8,7 @@ import {
   waitUntilInstanceRunning,
   waitUntilInstanceStopped,
 } from '@aws-sdk/client-ec2';
-import { Effect } from 'effect';
+import { Duration, Effect } from 'effect';
 
 import { Ec2SsmCycleError } from './errors';
 
@@ -29,6 +29,7 @@ type InstanceDiagnostics = {
   consoleOutputExcerpt?: string;
 };
 
+const BOOTSTRAP_POLL_INTERVAL_MS = 5000;
 const toWaitSeconds = (timeoutMs: number): number => Math.max(1, Math.ceil(timeoutMs / 1000));
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null;
@@ -408,7 +409,60 @@ const runBootstrapShutdownCycle = (
         }),
     });
 
-    yield* waitForInstanceStopped(client, region, instanceId, waitTimeoutMs);
+    yield* Effect.logInfo(
+      `Waiting for EC2 instance ${instanceId} in ${region} to complete its expected bootstrap shutdown ` +
+        `(timeout ${waitTimeoutMs}ms)`,
+    );
+
+    const startedAt = Date.now();
+    let sawStartedState = false;
+    let lastObservedState: Ec2InstanceStateName | undefined;
+
+    while (Date.now() - startedAt <= waitTimeoutMs) {
+      const state = yield* getInstanceState(client, region, instanceId);
+
+      if (state !== lastObservedState) {
+        yield* Effect.logInfo(`EC2 instance ${instanceId} bootstrap cycle state=${state}`);
+        lastObservedState = state;
+      }
+
+      if (state === 'pending' || state === 'running' || state === 'stopping') {
+        sawStartedState = true;
+      }
+
+      if (state === 'stopped' && sawStartedState) {
+        yield* Effect.logInfo(`EC2 instance ${instanceId} completed its expected bootstrap shutdown`);
+        return;
+      }
+
+      if (state === 'shutting-down' || state === 'terminated') {
+        const diagnostics = yield* describeInstanceDiagnostics(client, instanceId);
+        return yield* new Ec2SsmCycleError({
+          message:
+            `Instance ${instanceId} entered terminal state ${state} during expected bootstrap shutdown` +
+            (formatInstanceDiagnostics(diagnostics) ? `: ${formatInstanceDiagnostics(diagnostics)}` : ''),
+        });
+      }
+
+      if (state === 'unknown') {
+        const diagnostics = yield* describeInstanceDiagnostics(client, instanceId);
+        return yield* new Ec2SsmCycleError({
+          message:
+            `Instance ${instanceId} entered an unknown state during expected bootstrap shutdown` +
+            (formatInstanceDiagnostics(diagnostics) ? `: ${formatInstanceDiagnostics(diagnostics)}` : ''),
+        });
+      }
+
+      yield* Effect.sleep(Duration.millis(BOOTSTRAP_POLL_INTERVAL_MS));
+    }
+
+    const diagnostics = yield* describeInstanceDiagnostics(client, instanceId);
+    return yield* new Ec2SsmCycleError({
+      message:
+        `Timed out while waiting for instance ${instanceId} to complete its expected bootstrap shutdown` +
+        (lastObservedState ? `; last observed state=${lastObservedState}` : '') +
+        (formatInstanceDiagnostics(diagnostics) ? `; latest snapshot: ${formatInstanceDiagnostics(diagnostics)}` : ''),
+    });
   });
 
 export const startInstanceIfNeeded = (

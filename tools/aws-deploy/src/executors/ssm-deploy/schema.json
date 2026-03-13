@@ -53,6 +53,11 @@
         "type": "string"
       }
     },
+    "pruneDockerBeforePull": {
+      "type": "boolean",
+      "description": "Remove the existing container and prune unused Docker images before pulling the new image",
+      "default": false
+    },
     "parameters": {
       "type": "object",
       "description": "Additional SSM document parameters",

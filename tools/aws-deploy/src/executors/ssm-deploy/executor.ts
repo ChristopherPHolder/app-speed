@@ -45,6 +45,7 @@ const buildDefaultCommands = (
   hostPort: number,
   containerPort: number,
   additionalRunArgs: string[],
+  pruneDockerBeforePull: boolean,
 ): string[] => {
   const registry = imageRef.split('/')[0];
   const runArgs = additionalRunArgs.join(' ');
@@ -56,8 +57,17 @@ const buildDefaultCommands = (
     `REGION=${shellQuote(region)}`,
     `REGISTRY=${shellQuote(registry)}`,
     'aws ecr get-login-password --region "$REGION" | docker login --username AWS --password-stdin "$REGISTRY"',
-    'docker pull "$IMAGE_REF"',
-    `docker rm -f ${shellQuote(containerName)} || true`,
+    ...(pruneDockerBeforePull
+      ? [
+          'echo "Docker disk usage before cleanup"',
+          'docker system df || true',
+          `docker rm -f ${shellQuote(containerName)} || true`,
+          'docker image prune -af || true',
+          'echo "Docker disk usage after cleanup"',
+          'docker system df || true',
+          'docker pull "$IMAGE_REF"',
+        ]
+      : ['docker pull "$IMAGE_REF"', `docker rm -f ${shellQuote(containerName)} || true`]),
     `docker run -d --name ${shellQuote(containerName)} --restart unless-stopped -p ` +
       `${hostPort}:${containerPort}${runArgsSuffix} "$IMAGE_REF"`,
   ];
@@ -92,10 +102,19 @@ const runExecutor: PromiseExecutor<SsmDeployExecutorSchema> = async (options): P
   const hostPort = options.hostPort ?? DEFAULT_HOST_PORT;
   const containerPort = options.containerPort ?? DEFAULT_CONTAINER_PORT;
   const additionalRunArgs = (options.additionalRunArgs ?? []).map((arg) => arg.trim()).filter(Boolean);
+  const pruneDockerBeforePull = options.pruneDockerBeforePull === true;
 
   const commands = hasCustomCommands
     ? (options.commands ?? []).map((command) => command.trim()).filter(Boolean)
-    : buildDefaultCommands(defaultImageRef, region, containerName, hostPort, containerPort, additionalRunArgs);
+    : buildDefaultCommands(
+        defaultImageRef,
+        region,
+        containerName,
+        hostPort,
+        containerPort,
+        additionalRunArgs,
+        pruneDockerBeforePull,
+      );
 
   const parameters: Record<string, string[]> = {
     commands,
