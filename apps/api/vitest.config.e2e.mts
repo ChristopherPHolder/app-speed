@@ -4,17 +4,17 @@ import { nxCopyAssetsPlugin } from '@nx/vite/plugins/nx-copy-assets.plugin';
 
 export default defineConfig(() => ({
   root: __dirname,
-  cacheDir: '../../node_modules/.vite/apps/server',
+  cacheDir: '../../node_modules/.vite/apps/api',
   plugins: [nxViteTsPaths(), nxCopyAssetsPlugin(['*.md'])],
   test: {
-    name: 'server',
+    name: 'api',
     watch: false,
     globals: true,
     environment: 'node',
     include: ['e2e/**/*.{e2e,test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     reporters: ['default'],
     coverage: {
-      reportsDirectory: '../../coverage/apps/server',
+      reportsDirectory: '../../coverage/apps/api',
       provider: 'v8' as const,
     },
   },

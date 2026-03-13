@@ -217,23 +217,23 @@
   ],
   "release": {
     "groups": {
-      "server": {
-        "projects": ["server"],
+      "api": {
+        "projects": ["api"],
         "projectsRelationship": "fixed",
         "changelog": false,
         "docker": {
-          "repositoryName": "app-speed/server",
-          "groupPreVersionCommand": "pnpm exec nx run server:docker:build",
+          "repositoryName": "app-speed/api",
+          "groupPreVersionCommand": "pnpm exec nx run api:docker:build",
           "skipVersionActions": true
         }
       },
       "runner": {
-        "projects": ["runner-app"],
+        "projects": ["runner"],
         "projectsRelationship": "fixed",
         "changelog": false,
         "docker": {
           "repositoryName": "app-speed/runner",
-          "groupPreVersionCommand": "pnpm exec nx run runner-app:docker:build",
+          "groupPreVersionCommand": "pnpm exec nx run runner:docker:build",
           "skipVersionActions": true
         }
       }

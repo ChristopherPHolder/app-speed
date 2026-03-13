@@ -1,5 +1,5 @@
 {
-  "name": "portal-app",
+  "name": "portal",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "prefix": "app",
@@ -49,10 +49,10 @@
       "executor": "@nx/angular:dev-server",
       "configurations": {
         "production": {
-          "buildTarget": "portal-app:build:production"
+          "buildTarget": "portal:build:production"
         },
         "development": {
-          "buildTarget": "portal-app:build:development"
+          "buildTarget": "portal:build:development"
         }
       },
       "defaultConfiguration": "development",
@@ -60,12 +60,12 @@
         "proxyConfig": "apps/portal/proxy.conf.json"
       },
       "continuous": true,
-      "dependsOn": ["server:serve"]
+      "dependsOn": ["api:serve"]
     },
     "extract-i18n": {
       "executor": "@angular-devkit/build-angular:extract-i18n",
       "options": {
-        "buildTarget": "portal-app:build"
+        "buildTarget": "portal:build"
       }
     },
     "lint": {
@@ -83,7 +83,7 @@
     "serve-static": {
       "executor": "@nx/web:file-server",
       "options": {
-        "buildTarget": "portal-app:build"
+        "buildTarget": "portal:build"
       }
     },
     "deploy": {

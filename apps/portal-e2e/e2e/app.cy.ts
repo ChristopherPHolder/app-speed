@@ -30,7 +30,7 @@ const waitForAuditResult = (auditId: string, attempts = 180): Cypress.Chainable 
     });
 };
 
-describe('portal-app', () => {
+describe('portal', () => {
   beforeEach(() => cy.visit('/'));
 
   it('should show the audit builder', () => {

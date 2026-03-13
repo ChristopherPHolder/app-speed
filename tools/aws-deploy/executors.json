@@ -8,7 +8,7 @@
     "ssm-deploy": {
       "implementation": "./src/executors/ssm-deploy/executor",
       "schema": "./src/executors/ssm-deploy/schema.json",
-      "description": "Deploy server image to EC2 instances via AWS SSM document"
+      "description": "Deploy API image to EC2 instances via AWS SSM document"
     },
     "ec2-ssm-cycle": {
       "implementation": "./src/executors/ec2-ssm-cycle/executor",

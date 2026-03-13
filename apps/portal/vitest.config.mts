@@ -7,7 +7,7 @@ export default defineConfig(() => ({
   cacheDir: '../../node_modules/.vite/apps/portal',
   plugins: [angular(), nxViteTsPaths()],
   test: {
-    name: 'portal-app',
+    name: 'portal',
     watch: false,
     globals: true,
     environment: 'jsdom',

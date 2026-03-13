@@ -1,7 +1,7 @@
 {
-  "name": "server",
+  "name": "api",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/server/src",
+  "sourceRoot": "apps/api/src",
   "projectType": "application",
   "tags": [],
   "targets": {
@@ -12,12 +12,12 @@
       "options": {
         "platform": "node",
         "target": "node24",
-        "outputPath": "dist/apps/server",
+        "outputPath": "dist/apps/api",
         "format": ["esm"],
         "bundle": true,
-        "main": "apps/server/src/main.ts",
-        "tsConfig": "apps/server/tsconfig.app.json",
-        "assets": ["apps/server/src/assets"],
+        "main": "apps/api/src/main.ts",
+        "tsConfig": "apps/api/tsconfig.app.json",
+        "assets": ["apps/api/src/assets"],
         "generatePackageJson": true,
         "esbuildOptions": {
           "sourcemap": true,
@@ -42,10 +42,7 @@
       "dependsOn": ["build"],
       "cache": true,
       "executor": "@nx/js:prune-lockfile",
-      "outputs": [
-        "{workspaceRoot}/dist/apps/server/package.json",
-        "{workspaceRoot}/dist/apps/server/pnpm-lock.yaml"
-      ],
+      "outputs": ["{workspaceRoot}/dist/apps/api/package.json", "{workspaceRoot}/dist/apps/api/pnpm-lock.yaml"],
       "options": {
         "buildTarget": "build"
       }
@@ -53,7 +50,7 @@
     "copy-workspace-modules": {
       "dependsOn": ["build"],
       "cache": true,
-      "outputs": ["{workspaceRoot}/dist/apps/server/workspace_modules"],
+      "outputs": ["{workspaceRoot}/dist/apps/api/workspace_modules"],
       "executor": "@nx/js:copy-workspace-modules",
       "options": {
         "buildTarget": "build"
@@ -69,15 +66,15 @@
       "defaultConfiguration": "development",
       "dependsOn": ["build"],
       "options": {
-        "buildTarget": "server:build",
+        "buildTarget": "api:build",
         "runBuildTargetDependencies": false
       },
       "configurations": {
         "development": {
-          "buildTarget": "server:build:development"
+          "buildTarget": "api:build:development"
         },
         "production": {
-          "buildTarget": "server:build:production"
+          "buildTarget": "api:build:production"
         }
       }
     },
@@ -85,7 +82,7 @@
       "executor": "@nx/vitest:test",
       "outputs": ["{options.reportsDirectory}"],
       "options": {
-        "reportsDirectory": "../../coverage/apps/server"
+        "reportsDirectory": "../../coverage/apps/api"
       }
     },
     "e2e": {
@@ -93,7 +90,7 @@
       "outputs": ["{options.reportsDirectory}"],
       "options": {
         "configFile": "{projectRoot}/vitest.config.e2e.mts",
-        "reportsDirectory": "../../coverage/apps/server"
+        "reportsDirectory": "../../coverage/apps/api"
       }
     },
     "lint": {
@@ -115,7 +112,7 @@
         "region": "eu-central-1",
         "documentName": "AWS-RunShellScript",
         "instanceIds": ["i-016827500a47a80ef"],
-        "containerName": "app-speed-server",
+        "containerName": "app-speed-api",
         "hostPort": 3000,
         "containerPort": 3000,
         "pruneDockerBeforePull": true,

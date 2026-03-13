@@ -1,8 +1,8 @@
 node_modules
 dist
 !dist/apps
-!dist/apps/server
-!dist/apps/server/**
+!dist/apps/api
+!dist/apps/api/**
 tmp
 coverage
 .nx

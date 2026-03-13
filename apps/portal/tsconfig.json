@@ -23,7 +23,7 @@
       "path": "./tsconfig.editor.json"
     },
     {
-      "path": "./../portal-app-e2e/tsconfig.json"
+      "path": "./../portal-e2e/tsconfig.json"
     }
   ],
   "extends": "../../tsconfig.base.json",

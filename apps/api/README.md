@@ -1,16 +1,16 @@
-# Server App
+# API App
 
 Control plane API for scheduling audits, reporting status, and orchestrating runner lifecycle.
 
 ## Run
 
 ```bash
-pnpm exec nx serve server
+pnpm exec nx serve api
 ```
 
 ## Runtime Configuration
 
-The server resolves runtime config through Effect `Config` in:
+The API resolves runtime config through Effect `Config` in:
 
 - `src/runtime-config.ts`
 - `src/Runner/AwsRunnerManager.ts`
@@ -22,7 +22,7 @@ Only these two runtime env vars are currently supported:
 
 ### Local Mode
 
-- The server uses `LocalRunnerManager` and starts a local runner process using Nx.
+- The API uses `LocalRunnerManager` and starts a local runner process using Nx.
 
 ### AWS Mode
 

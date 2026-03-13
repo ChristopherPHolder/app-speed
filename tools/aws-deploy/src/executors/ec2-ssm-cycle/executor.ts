@@ -58,10 +58,7 @@ const buildDefaultCommands = (
           'docker pull "$IMAGE_REF"',
         ]
       : ['docker pull "$IMAGE_REF"', `docker rm -f ${shellQuote(containerName)} || true`]),
-    [
-      `docker run -d --name ${shellQuote(containerName)}`,
-      `${portFlag}${runArgsSuffix} "$IMAGE_REF"`,
-    ].join(' '),
+    [`docker run -d --name ${shellQuote(containerName)}`, `${portFlag}${runArgsSuffix} "$IMAGE_REF"`].join(' '),
   ];
 };
 
@@ -71,7 +68,11 @@ const resolveCommands = (options: Ec2SsmCycleExecutorSchema, region: string): st
     return customCommands;
   }
 
-  const imageRef = options.imageRef?.trim() || env.RUNNER_IMAGE_REF?.trim() || env.SERVER_IMAGE_REF?.trim();
+  const imageRef =
+    options.imageRef?.trim() ||
+    env.RUNNER_IMAGE_REF?.trim() ||
+    env.API_IMAGE_REF?.trim() ||
+    env.SERVER_IMAGE_REF?.trim();
   if (!imageRef) {
     throw new Ec2SsmCycleError({
       message: 'Missing image reference. Set options.imageRef or RUNNER_IMAGE_REF',

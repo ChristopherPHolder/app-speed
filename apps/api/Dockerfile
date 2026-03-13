@@ -7,9 +7,9 @@ ENV OTEL_EXPORTER_OTLP_ENDPOINT=http://host.docker.internal:4318
 
 WORKDIR /app
 
-COPY dist/apps/server ./
+COPY dist/apps/api ./
 COPY libs/server/db/migrations ./migrations
-COPY apps/server/.npmrc ./
+COPY apps/api/.npmrc ./
 
 RUN corepack enable \
   && pnpm install --prod --no-frozen-lockfile

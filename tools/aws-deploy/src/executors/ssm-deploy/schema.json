@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/schema",
   "version": 2,
   "title": "SsmDeploy executor",
-  "description": "Deploy a server image to EC2 instances by running an SSM document.",
+  "description": "Deploy an API image to EC2 instances by running an SSM document.",
   "type": "object",
   "properties": {
     "region": {
@@ -15,14 +15,14 @@
     },
     "instanceIds": {
       "type": "array",
-      "description": "Target EC2 instance ids. Falls back to SERVER_SSM_INSTANCE_IDS (comma-separated) when omitted.",
+      "description": "Target EC2 instance ids. Falls back to API_SSM_INSTANCE_IDS (comma-separated) when omitted. Legacy SERVER_SSM_INSTANCE_IDS is also supported.",
       "items": {
         "type": "string"
       }
     },
     "imageRef": {
       "type": "string",
-      "description": "Container image reference to deploy. Falls back to SERVER_IMAGE_REF env var when omitted."
+      "description": "Container image reference to deploy. Falls back to API_IMAGE_REF when omitted. Legacy SERVER_IMAGE_REF is also supported."
     },
     "commands": {
       "type": "array",
@@ -34,7 +34,7 @@
     "containerName": {
       "type": "string",
       "description": "Container name used by generated deploy commands",
-      "default": "app-speed-server"
+      "default": "app-speed-api"
     },
     "hostPort": {
       "type": "number",

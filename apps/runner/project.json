@@ -1,5 +1,5 @@
 {
-  "name": "runner-app",
+  "name": "runner",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "root": "apps/runner",
   "sourceRoot": "apps/runner/src",
@@ -39,14 +39,14 @@
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "runner-app:build"
+        "buildTarget": "runner:build"
       },
       "configurations": {
         "development": {
-          "buildTarget": "runner-app:build:development"
+          "buildTarget": "runner:build:development"
         },
         "production": {
-          "buildTarget": "runner-app:build:production"
+          "buildTarget": "runner:build:production"
         }
       }
     },

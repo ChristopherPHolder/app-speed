@@ -8,7 +8,7 @@ import { SsmDeployExecutorSchema } from './schema';
 const DEFAULT_DOCUMENT_NAME = 'AWS-RunShellScript';
 const DEFAULT_POLL_INTERVAL_MS = 5000;
 const DEFAULT_TIMEOUT_MS = 900000;
-const DEFAULT_CONTAINER_NAME = 'app-speed-server';
+const DEFAULT_CONTAINER_NAME = 'app-speed-api';
 const DEFAULT_HOST_PORT = 3000;
 const DEFAULT_CONTAINER_PORT = 3000;
 const toTimeoutSeconds = (timeoutMs: number): number => Math.max(1, Math.ceil(timeoutMs / 1000));
@@ -85,17 +85,17 @@ const runExecutor: PromiseExecutor<SsmDeployExecutorSchema> = async (options): P
   }
 
   const optionInstanceIds = (options.instanceIds ?? []).map((instanceId) => instanceId.trim()).filter(Boolean);
-  const envInstanceIds = parseInstanceIds(env.SERVER_SSM_INSTANCE_IDS);
+  const envInstanceIds = parseInstanceIds(env.API_SSM_INSTANCE_IDS || env.SERVER_SSM_INSTANCE_IDS);
   const instanceIds = optionInstanceIds.length > 0 ? optionInstanceIds : envInstanceIds;
   if (instanceIds.length === 0) {
-    fail('Missing EC2 instance ids. Set options.instanceIds or SERVER_SSM_INSTANCE_IDS');
+    fail('Missing EC2 instance ids. Set options.instanceIds or API_SSM_INSTANCE_IDS');
   }
 
-  const imageRef = options.imageRef?.trim() || env.SERVER_IMAGE_REF?.trim();
+  const imageRef = options.imageRef?.trim() || env.API_IMAGE_REF?.trim() || env.SERVER_IMAGE_REF?.trim();
   const hasCustomCommands = (options.commands ?? []).some((command) => command.trim().length > 0);
   const defaultImageRef = imageRef ?? '';
   if (!hasCustomCommands && defaultImageRef.length === 0) {
-    fail('Missing image reference. Set options.imageRef or SERVER_IMAGE_REF');
+    fail('Missing image reference. Set options.imageRef or API_IMAGE_REF');
   }
 
   const containerName = options.containerName?.trim() || DEFAULT_CONTAINER_NAME;

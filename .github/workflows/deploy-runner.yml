@@ -67,4 +67,4 @@ jobs:
 
           NX_DOCKER_IMAGE_REF="${IMAGE_REF}" pnpm exec nx release version --group=runner
           pnpm exec nx release publish --group=runner --yes --outputStyle=static
-          RUNNER_IMAGE_REF="${IMAGE_REF}" pnpm exec nx run runner-app:deploy --configuration="${DEPLOY_ENV}" --outputStyle=static --verbose
+          RUNNER_IMAGE_REF="${IMAGE_REF}" pnpm exec nx run runner:deploy --configuration="${DEPLOY_ENV}" --outputStyle=static --verbose

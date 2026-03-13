@@ -23,7 +23,7 @@ const closeScope = (scope: CloseableScope) => Scope.close(scope, Exit.void);
 const startRunner = Effect.fn('runner.manager.startProcess')(function* (runnerId: string) {
   const scope = yield* Scope.make();
   const runnerProcess = yield* Command.start(
-    Command.make('pnpm', 'exec', 'nx', 'execute', 'runner-app').pipe(
+    Command.make('pnpm', 'exec', 'nx', 'execute', 'runner').pipe(
       Command.workingDirectory(process.cwd()),
       Command.stdout('inherit'),
       Command.stderr('inherit'),

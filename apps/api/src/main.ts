@@ -12,7 +12,7 @@ import { RunnerRegistryLive } from './Runner/RunnerRegistry.js';
 import { RunnerIdleReaperLive } from './Runner/RunnerIdleReaper.js';
 import { RunnerLifecycleLive } from './Runner/RunnerLifecycle.js';
 
-const ObservabilityLive = makeNodeObservabilityLayer({ serviceName: 'server' });
+const ObservabilityLive = makeNodeObservabilityLayer({ serviceName: 'api' });
 const MainLayer = Layer.unwrapEffect(
   Effect.gen(function* () {
     const runtimeConfig = yield* ServerConfig;
