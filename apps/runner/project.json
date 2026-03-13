@@ -15,6 +15,7 @@
         "outputPath": "dist/{projectRoot}",
         "format": ["esm"],
         "bundle": true,
+        "external": ["@aws-sdk/client-ec2"],
         "main": "{projectRoot}/src/bin.ts",
         "tsConfig": "{projectRoot}/tsconfig.app.json",
         "assets": ["{projectRoot}/src/assets"],

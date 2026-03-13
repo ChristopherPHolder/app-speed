@@ -15,6 +15,7 @@
         "outputPath": "dist/apps/api",
         "format": ["esm"],
         "bundle": true,
+        "external": ["@aws-sdk/client-ec2"],
         "main": "apps/api/src/main.ts",
         "tsConfig": "apps/api/tsconfig.app.json",
         "assets": ["apps/api/src/assets"],
