@@ -16,7 +16,7 @@ import { scan } from 'rxjs';
   template: `
     @if (auditDetails$ | async; as auditDetails) {
       <ui-audit-builder
-        [modifing]="modifying()"
+        [modifying]="modifying()"
         (modified)="updateAuditDetails($event)"
         [initialAudit]="auditDetails"
         (submitAudit)="submitAudit($event)"
