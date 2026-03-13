@@ -1,6 +1,5 @@
-import { DEFAULT_AUDIT_DETAILS } from '@app-speed/shared-user-flow-replay';
 import type { Meta, StoryObj } from '@storybook/angular';
-import { AuditFormGroup, StepFormGroup } from './audit-builder-form';
+import { StepFormGroup } from './audit-builder-form';
 import { AuditStepComponent } from './audit-step.component';
 
 const meta: Meta<AuditStepComponent> = {
