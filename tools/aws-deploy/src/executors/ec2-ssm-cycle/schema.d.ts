@@ -8,6 +8,7 @@ export interface Ec2SsmCycleExecutorSchema {
   hostPort?: number;
   containerPort?: number;
   additionalRunArgs?: string[];
+  pruneDockerBeforePull?: boolean;
   parameters?: Record<string, string[]>;
   comment?: string;
   timeoutMs?: number;

@@ -32,6 +32,7 @@ const buildDefaultCommands = (
   hostPort: number | undefined,
   containerPort: number | undefined,
   additionalRunArgs: string[],
+  pruneDockerBeforePull: boolean,
 ): string[] => {
   if ((hostPort === undefined) !== (containerPort === undefined)) {
     throw new Ec2SsmCycleError({
@@ -50,8 +51,13 @@ const buildDefaultCommands = (
     `REGION=${shellQuote(region)}`,
     `REGISTRY=${shellQuote(registry)}`,
     'aws ecr get-login-password --region "$REGION" | docker login --username AWS --password-stdin "$REGISTRY"',
-    'docker pull "$IMAGE_REF"',
-    `docker rm -f ${shellQuote(containerName)} || true`,
+    ...(pruneDockerBeforePull
+      ? [
+          `docker rm -f ${shellQuote(containerName)} || true`,
+          'docker image prune -af || true',
+          'docker pull "$IMAGE_REF"',
+        ]
+      : ['docker pull "$IMAGE_REF"', `docker rm -f ${shellQuote(containerName)} || true`]),
     [
       `docker run -d --name ${shellQuote(containerName)}`,
       `${portFlag}${runArgsSuffix} "$IMAGE_REF"`,
@@ -74,6 +80,7 @@ const resolveCommands = (options: Ec2SsmCycleExecutorSchema, region: string): st
 
   const containerName = options.containerName?.trim() || DEFAULT_CONTAINER_NAME;
   const additionalRunArgs = (options.additionalRunArgs ?? []).map((arg) => arg.trim()).filter(Boolean);
+  const pruneDockerBeforePull = options.pruneDockerBeforePull === true;
 
   return buildDefaultCommands(
     imageRef,
@@ -82,6 +89,7 @@ const resolveCommands = (options: Ec2SsmCycleExecutorSchema, region: string): st
     options.hostPort,
     options.containerPort,
     additionalRunArgs,
+    pruneDockerBeforePull,
   );
 };
 
