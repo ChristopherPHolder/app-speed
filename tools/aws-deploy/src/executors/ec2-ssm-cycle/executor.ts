@@ -95,6 +95,7 @@ const prepareInstance = (
 
 const stopInstanceIfConfigured = (
   ec2Client: EC2Client,
+  region: string,
   started: StartedInstance,
   instanceId: string,
   stopAfterCompletion: boolean,
@@ -108,7 +109,7 @@ const stopInstanceIfConfigured = (
     if (stopOnlyIfStarted && !started.startedByExecutor) {
       return;
     }
-    yield* stopInstance(ec2Client, instanceId, stopWaitTimeoutMs);
+    yield* stopInstance(ec2Client, region, instanceId, stopWaitTimeoutMs);
   });
 
 const runSsmCommand = (
@@ -121,6 +122,7 @@ const runSsmCommand = (
   pollIntervalMs: number,
 ): Effect.Effect<ExecutorExit, Ec2SsmCycleError> =>
   Effect.gen(function* () {
+    yield* Effect.logInfo(`Sending SSM document ${documentName} to EC2 instance ${instanceId}`);
     const sendResponse = yield* Effect.tryPromise({
       try: () =>
         ssmClient.send(
@@ -161,6 +163,7 @@ const runSsmCommand = (
       return yield* new Ec2SsmCycleError({ message: result.message });
     }
 
+    yield* Effect.logInfo(`SSM command ${commandId} completed successfully for EC2 instance ${instanceId}`);
     return result;
   });
 
@@ -201,12 +204,15 @@ const program = (options: Ec2SsmCycleExecutorSchema): Effect.Effect<ExecutorExit
     const ec2Client = new EC2Client({ region });
     const ssmClient = new SSMClient({ region });
 
+    yield* Effect.logInfo(`Starting EC2/SSM deploy cycle for instance ${instanceId} in ${region}`);
+
     return yield* Effect.acquireUseRelease(
       prepareInstance(ec2Client, region, instanceId, startWaitTimeoutMs),
       () => runSsmCommand(ssmClient, documentName, instanceId, parameters, options.comment, timeoutMs, pollIntervalMs),
       (started) =>
         stopInstanceIfConfigured(
           ec2Client,
+          region,
           started,
           instanceId,
           stopAfterCompletion,

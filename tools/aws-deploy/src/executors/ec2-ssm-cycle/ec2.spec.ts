@@ -1,5 +1,6 @@
 import {
   DescribeInstancesCommand,
+  DescribeInstanceStatusCommand,
   StartInstancesCommand,
   StopInstancesCommand,
   waitUntilInstanceRunning,
@@ -15,6 +16,10 @@ vi.mock('@aws-sdk/client-ec2', () => {
     constructor(readonly input: unknown) {}
   }
 
+  class DescribeInstanceStatusCommand {
+    constructor(readonly input: unknown) {}
+  }
+
   class StartInstancesCommand {
     constructor(readonly input: unknown) {}
   }
@@ -25,6 +30,7 @@ vi.mock('@aws-sdk/client-ec2', () => {
 
   return {
     DescribeInstancesCommand,
+    DescribeInstanceStatusCommand,
     StartInstancesCommand,
     StopInstancesCommand,
     waitUntilInstanceRunning: vi.fn(),
@@ -55,6 +61,10 @@ describe('ec2-ssm-cycle ec2 helpers', () => {
             },
           ],
         };
+      }
+
+      if (command instanceof DescribeInstanceStatusCommand) {
+        return { InstanceStatuses: [] };
       }
 
       if (command instanceof StartInstancesCommand) {
@@ -94,6 +104,10 @@ describe('ec2-ssm-cycle ec2 helpers', () => {
         };
       }
 
+      if (command instanceof DescribeInstanceStatusCommand) {
+        return { InstanceStatuses: [] };
+      }
+
       throw new Error(`Unexpected command: ${String(command)}`);
     });
 
@@ -123,6 +137,10 @@ describe('ec2-ssm-cycle ec2 helpers', () => {
             },
           ],
         };
+      }
+
+      if (command instanceof DescribeInstanceStatusCommand) {
+        return { InstanceStatuses: [] };
       }
 
       if (command instanceof StopInstancesCommand) {
@@ -156,6 +174,54 @@ describe('ec2-ssm-cycle ec2 helpers', () => {
     );
   });
 
+  it('reports timeout failures with a latest EC2 snapshot', async () => {
+    const send = vi.fn().mockImplementation(async (command: unknown) => {
+      if (command instanceof DescribeInstancesCommand) {
+        return {
+          Reservations: [
+            {
+              Instances: [
+                {
+                  InstanceId: 'i-123',
+                  State: { Name: 'pending' },
+                  StateReason: { Message: 'Instance is still booting' },
+                  StateTransitionReason: 'User initiated (2026-03-13 08:04:36 GMT)',
+                  LaunchTime: new Date('2026-03-13T08:04:33.000Z'),
+                },
+              ],
+            },
+          ],
+        };
+      }
+
+      if (command instanceof DescribeInstanceStatusCommand) {
+        return {
+          InstanceStatuses: [
+            {
+              InstanceId: 'i-123',
+              SystemStatus: { Status: 'initializing' },
+              InstanceStatus: { Status: 'initializing' },
+              Events: [{ Code: 'instance-reboot', Description: 'Instance reboot scheduled' }],
+            },
+          ],
+        };
+      }
+
+      throw new Error(`Unexpected command: ${String(command)}`);
+    });
+
+    const client = { send } as unknown as EC2Client;
+
+    waitUntilInstanceRunningMock.mockResolvedValue({
+      state: 'TIMEOUT',
+      observedResponses: { '200: OK': 8 },
+    } as never);
+
+    await expect(Effect.runPromise(startInstanceIfNeeded(client, 'eu-central-1', 'i-123', 60_000))).rejects.toThrow(
+      'Failed while waiting for instance i-123 to become running: waiter state=TIMEOUT, observed responses=200: OK x8, latest snapshot: instance state=pending, state reason=Instance is still booting, transition reason=User initiated (2026-03-13 08:04:36 GMT), system status=initializing, instance status=initializing',
+    );
+  });
+
   it('waits for stop completion after issuing StopInstancesCommand', async () => {
     const send = vi.fn().mockImplementation(async (command: unknown) => {
       if (command instanceof StopInstancesCommand) {
@@ -168,7 +234,7 @@ describe('ec2-ssm-cycle ec2 helpers', () => {
     const client = { send } as unknown as EC2Client;
     waitUntilInstanceStoppedMock.mockResolvedValue({ state: 'SUCCESS' } as never);
 
-    await Effect.runPromise(stopInstance(client, 'i-123', 60_000));
+    await Effect.runPromise(stopInstance(client, 'eu-central-1', 'i-123', 60_000));
 
     expect(waitUntilInstanceStoppedMock).toHaveBeenCalledTimes(1);
   });

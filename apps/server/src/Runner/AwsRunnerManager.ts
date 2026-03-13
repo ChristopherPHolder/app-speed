@@ -270,7 +270,7 @@ export const AwsRunnerManagerLive = Layer.effect(
           return;
         }
 
-        yield* stopInstance(client, parsedInstanceId.value, config.stopWaitTimeoutMs);
+        yield* stopInstance(client, config.region, parsedInstanceId.value, config.stopWaitTimeoutMs);
         yield* runnerRegistry.markTerminated(runnerId);
       }).pipe(
         Effect.withSpan('runner.manager.terminate'),

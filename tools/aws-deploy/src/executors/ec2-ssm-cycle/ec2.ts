@@ -1,5 +1,6 @@
 import {
   DescribeInstancesCommand,
+  DescribeInstanceStatusCommand,
   EC2Client,
   StartInstancesCommand,
   StopInstancesCommand,
@@ -10,39 +11,71 @@ import { Effect } from 'effect';
 
 import { Ec2SsmCycleError } from './errors';
 
-type WaiterOutput = {
-  state: 'ABORTED' | 'FAILURE' | 'SUCCESS' | 'RETRY' | 'TIMEOUT';
-};
-
 export type StartedInstance = {
   startedByExecutor: boolean;
 };
 
 type Ec2InstanceStateName = 'pending' | 'running' | 'shutting-down' | 'terminated' | 'stopping' | 'stopped' | 'unknown';
 
-const ensureWaiterSuccess = (result: WaiterOutput, failureMessage: string): Effect.Effect<void, Ec2SsmCycleError> =>
-  result.state === 'SUCCESS'
-    ? Effect.void
-    : Effect.fail(new Ec2SsmCycleError({ message: `${failureMessage}: waiter state=${result.state}` }));
+type InstanceDiagnostics = {
+  instanceState?: string;
+  stateReason?: string;
+  transitionReason?: string;
+  systemStatus?: string;
+  instanceStatus?: string;
+  launchTime?: string;
+  events?: string[];
+};
 
 const toWaitSeconds = (timeoutMs: number): number => Math.max(1, Math.ceil(timeoutMs / 1000));
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null;
 
+const normalizeWaiterError = (error: unknown): unknown => {
+  if (!(error instanceof Error) || !error.message) {
+    return error;
+  }
+
+  const message = error.message.trim();
+  if (!message || message === '[object Object]') {
+    return error;
+  }
+
+  if (message.startsWith('{')) {
+    try {
+      return JSON.parse(message);
+    } catch {
+      return error;
+    }
+  }
+
+  return error;
+};
+
 const getObservedInstanceDetails = (
   error: unknown,
 ): {
   waiterState?: string;
+  observedResponses?: string;
   instanceState?: string;
   stateReason?: string;
   transitionReason?: string;
 } => {
-  if (!isRecord(error)) {
+  const normalizedError = normalizeWaiterError(error);
+
+  if (!isRecord(normalizedError)) {
     return {};
   }
 
-  const waiterState = typeof error.state === 'string' ? error.state : undefined;
-  const reason = isRecord(error.reason) ? error.reason : undefined;
+  const waiterState = typeof normalizedError.state === 'string' ? normalizedError.state : undefined;
+  const observedResponsesRecord = isRecord(normalizedError.observedResponses) ? normalizedError.observedResponses : undefined;
+  const observedResponses = observedResponsesRecord
+    ? Object.entries(observedResponsesRecord)
+        .filter(([, count]) => typeof count === 'number')
+        .map(([status, count]) => `${status} x${count}`)
+        .join('; ')
+    : undefined;
+  const reason = isRecord(normalizedError.reason) ? normalizedError.reason : undefined;
   const reservations = Array.isArray(reason?.Reservations) ? reason.Reservations : [];
   const firstReservation = reservations.find(isRecord);
   const instances = Array.isArray(firstReservation?.Instances) ? firstReservation.Instances : [];
@@ -53,6 +86,7 @@ const getObservedInstanceDetails = (
 
   return {
     waiterState,
+    observedResponses,
     instanceState: typeof state?.Name === 'string' ? state.Name : undefined,
     stateReason: typeof stateReason?.Message === 'string' ? stateReason.Message : undefined,
     transitionReason:
@@ -61,13 +95,20 @@ const getObservedInstanceDetails = (
 };
 
 const formatWaiterError = (error: unknown): string => {
-  if (error instanceof Error && error.message && error.message !== '[object Object]') {
-    return error.message;
+  const normalizedError = normalizeWaiterError(error);
+  if (
+    normalizedError instanceof Error &&
+    normalizedError.message &&
+    normalizedError.message !== '[object Object]' &&
+    !normalizedError.message.trim().startsWith('{')
+  ) {
+    return normalizedError.message;
   }
 
-  const details = getObservedInstanceDetails(error);
+  const details = getObservedInstanceDetails(normalizedError);
   const parts = [
     details.waiterState ? `waiter state=${details.waiterState}` : null,
+    details.observedResponses ? `observed responses=${details.observedResponses}` : null,
     details.instanceState ? `instance state=${details.instanceState}` : null,
     details.stateReason ? `state reason=${details.stateReason}` : null,
     details.transitionReason ? `transition reason=${details.transitionReason}` : null,
@@ -76,12 +117,106 @@ const formatWaiterError = (error: unknown): string => {
   return parts.length > 0 ? parts.join(', ') : String(error);
 };
 
+const toDiagnosticsLookupError = (operation: string, instanceId: string, error: unknown): Ec2SsmCycleError =>
+  new Ec2SsmCycleError({
+    message: `Failed to ${operation} for instance ${instanceId}: ${String(error)}`,
+    cause: error,
+  });
+
+const toWaiterError = (error: unknown): Ec2SsmCycleError =>
+  new Ec2SsmCycleError({
+    message: formatWaiterError(error),
+    cause: error,
+  });
+
+const formatInstanceDiagnostics = (diagnostics: InstanceDiagnostics): string => {
+  const parts = [
+    diagnostics.instanceState ? `instance state=${diagnostics.instanceState}` : null,
+    diagnostics.stateReason ? `state reason=${diagnostics.stateReason}` : null,
+    diagnostics.transitionReason ? `transition reason=${diagnostics.transitionReason}` : null,
+    diagnostics.systemStatus ? `system status=${diagnostics.systemStatus}` : null,
+    diagnostics.instanceStatus ? `instance status=${diagnostics.instanceStatus}` : null,
+    diagnostics.launchTime ? `launch time=${diagnostics.launchTime}` : null,
+    diagnostics.events && diagnostics.events.length > 0 ? `events=${diagnostics.events.join(' | ')}` : null,
+  ].filter((value): value is string => value !== null);
+
+  return parts.join(', ');
+};
+
+const describeInstanceDiagnostics = (
+  client: EC2Client,
+  instanceId: string,
+): Effect.Effect<InstanceDiagnostics, never> =>
+  Effect.gen(function* () {
+    const diagnostics: InstanceDiagnostics = {};
+
+    const describeInstancesResponse = yield* Effect.tryPromise({
+      try: () => client.send(new DescribeInstancesCommand({ InstanceIds: [instanceId] })),
+      catch: (error) => toDiagnosticsLookupError('describe EC2 state', instanceId, error),
+    }).pipe(Effect.catchAll(() => Effect.succeed(undefined)));
+
+    if (describeInstancesResponse) {
+      for (const reservation of describeInstancesResponse.Reservations ?? []) {
+        for (const instance of reservation.Instances ?? []) {
+          if (instance.InstanceId === instanceId) {
+            diagnostics.instanceState = instance.State?.Name;
+            diagnostics.stateReason = instance.StateReason?.Message;
+            diagnostics.transitionReason = instance.StateTransitionReason;
+            diagnostics.launchTime = instance.LaunchTime ? instance.LaunchTime.toISOString() : undefined;
+          }
+        }
+      }
+    }
+
+    const describeInstanceStatusResponse = yield* Effect.tryPromise({
+      try: () =>
+        client.send(
+          new DescribeInstanceStatusCommand({
+            IncludeAllInstances: true,
+            InstanceIds: [instanceId],
+          }),
+        ),
+      catch: (error) => toDiagnosticsLookupError('describe EC2 status checks', instanceId, error),
+    }).pipe(Effect.catchAll(() => Effect.succeed(undefined)));
+
+    const status = describeInstanceStatusResponse?.InstanceStatuses?.find((item) => item.InstanceId === instanceId);
+    if (status) {
+      diagnostics.systemStatus = status.SystemStatus?.Status;
+      diagnostics.instanceStatus = status.InstanceStatus?.Status;
+      diagnostics.events = (status.Events ?? [])
+        .map((event) => {
+          const code = event.Code?.trim();
+          const description = event.Description?.trim();
+          if (code && description) {
+            return `${code}: ${description}`;
+          }
+          return code || description || undefined;
+        })
+        .filter((value): value is string => value !== undefined);
+    }
+
+    return diagnostics;
+  });
+
+const buildWaiterFailureMessage = (
+  waiterDetails: string,
+  diagnostics: InstanceDiagnostics,
+): string => {
+  const diagnosticDetails = formatInstanceDiagnostics(diagnostics);
+  return diagnosticDetails ? `${waiterDetails}, latest snapshot: ${diagnosticDetails}` : waiterDetails;
+};
+
 const waitForInstanceRunning = (
   client: EC2Client,
+  region: string,
   instanceId: string,
   startWaitTimeoutMs: number,
 ): Effect.Effect<void, Ec2SsmCycleError> =>
   Effect.gen(function* () {
+    yield* Effect.logInfo(
+      `Waiting for EC2 instance ${instanceId} in ${region} to become running (timeout ${startWaitTimeoutMs}ms)`,
+    );
+
     const waiter = yield* Effect.tryPromise({
       try: () =>
         waitUntilInstanceRunning(
@@ -91,22 +226,46 @@ const waitForInstanceRunning = (
           },
           { InstanceIds: [instanceId] },
         ),
-      catch: (error) =>
-        new Ec2SsmCycleError({
-          message: `Failed while waiting for instance ${instanceId} to become running: ${formatWaiterError(error)}`,
-          cause: error,
+      catch: toWaiterError,
+    }).pipe(
+      Effect.catchAll((error) =>
+        Effect.gen(function* () {
+          const diagnostics = yield* describeInstanceDiagnostics(client, instanceId);
+          return yield* new Ec2SsmCycleError({
+            message: `Failed while waiting for instance ${instanceId} to become running: ${buildWaiterFailureMessage(
+              error.message,
+              diagnostics,
+            )}`,
+            cause: error.cause ?? error,
+          });
         }),
-    });
+      ),
+    );
 
-    yield* ensureWaiterSuccess(waiter as WaiterOutput, `Instance ${instanceId} did not reach running state in time`);
+    if (waiter.state !== 'SUCCESS') {
+      const diagnostics = yield* describeInstanceDiagnostics(client, instanceId);
+      return yield* new Ec2SsmCycleError({
+        message: `Failed while waiting for instance ${instanceId} to become running: ${buildWaiterFailureMessage(
+          formatWaiterError(waiter),
+          diagnostics,
+        )}`,
+      });
+    }
+
+    yield* Effect.logInfo(`EC2 instance ${instanceId} is running`);
   });
 
 const waitForInstanceStopped = (
   client: EC2Client,
+  region: string,
   instanceId: string,
   stopWaitTimeoutMs: number,
 ): Effect.Effect<void, Ec2SsmCycleError> =>
   Effect.gen(function* () {
+    yield* Effect.logInfo(
+      `Waiting for EC2 instance ${instanceId} in ${region} to stop (timeout ${stopWaitTimeoutMs}ms)`,
+    );
+
     const waiter = yield* Effect.tryPromise({
       try: () =>
         waitUntilInstanceStopped(
@@ -116,14 +275,33 @@ const waitForInstanceStopped = (
           },
           { InstanceIds: [instanceId] },
         ),
-      catch: (error) =>
-        new Ec2SsmCycleError({
-          message: `Failed while waiting for instance ${instanceId} to stop: ${formatWaiterError(error)}`,
-          cause: error,
+      catch: toWaiterError,
+    }).pipe(
+      Effect.catchAll((error) =>
+        Effect.gen(function* () {
+          const diagnostics = yield* describeInstanceDiagnostics(client, instanceId);
+          return yield* new Ec2SsmCycleError({
+            message: `Failed while waiting for instance ${instanceId} to stop: ${buildWaiterFailureMessage(
+              error.message,
+              diagnostics,
+            )}`,
+            cause: error.cause ?? error,
+          });
         }),
-    });
+      ),
+    );
 
-    yield* ensureWaiterSuccess(waiter as WaiterOutput, `Instance ${instanceId} did not reach stopped state in time`);
+    if (waiter.state !== 'SUCCESS') {
+      const diagnostics = yield* describeInstanceDiagnostics(client, instanceId);
+      return yield* new Ec2SsmCycleError({
+        message: `Failed while waiting for instance ${instanceId} to stop: ${buildWaiterFailureMessage(
+          formatWaiterError(waiter),
+          diagnostics,
+        )}`,
+      });
+    }
+
+    yield* Effect.logInfo(`EC2 instance ${instanceId} is stopped`);
   });
 
 const getInstanceState = (
@@ -162,18 +340,20 @@ export const startInstanceIfNeeded = (
 ): Effect.Effect<StartedInstance, Ec2SsmCycleError> =>
   Effect.gen(function* () {
     const state = yield* getInstanceState(client, region, instanceId);
+    yield* Effect.logInfo(`EC2 instance ${instanceId} current state=${state}`);
 
     if (state === 'running') {
       return { startedByExecutor: false };
     }
 
     if (state === 'pending') {
-      yield* waitForInstanceRunning(client, instanceId, startWaitTimeoutMs);
+      yield* waitForInstanceRunning(client, region, instanceId, startWaitTimeoutMs);
       return { startedByExecutor: false };
     }
 
     if (state === 'stopping') {
-      yield* waitForInstanceStopped(client, instanceId, startWaitTimeoutMs);
+      yield* Effect.logInfo(`EC2 instance ${instanceId} is stopping; waiting for it to stop before restarting`);
+      yield* waitForInstanceStopped(client, region, instanceId, startWaitTimeoutMs);
     } else if (state === 'shutting-down' || state === 'terminated') {
       return yield* new Ec2SsmCycleError({
         message: `Instance ${instanceId} cannot be started from state ${state}`,
@@ -184,6 +364,7 @@ export const startInstanceIfNeeded = (
       });
     }
 
+    yield* Effect.logInfo(`Starting EC2 instance ${instanceId}`);
     yield* Effect.tryPromise({
       try: () => client.send(new StartInstancesCommand({ InstanceIds: [instanceId] })),
       catch: (error) =>
@@ -193,17 +374,19 @@ export const startInstanceIfNeeded = (
         }),
     });
 
-    yield* waitForInstanceRunning(client, instanceId, startWaitTimeoutMs);
+    yield* waitForInstanceRunning(client, region, instanceId, startWaitTimeoutMs);
 
     return { startedByExecutor: true };
   });
 
 export const stopInstance = (
   client: EC2Client,
+  region: string,
   instanceId: string,
   stopWaitTimeoutMs: number,
 ): Effect.Effect<void, Ec2SsmCycleError> =>
   Effect.gen(function* () {
+    yield* Effect.logInfo(`Stopping EC2 instance ${instanceId}`);
     yield* Effect.tryPromise({
       try: () => client.send(new StopInstancesCommand({ InstanceIds: [instanceId] })),
       catch: (error) =>
@@ -213,5 +396,5 @@ export const stopInstance = (
         }),
     });
 
-    yield* waitForInstanceStopped(client, instanceId, stopWaitTimeoutMs);
+    yield* waitForInstanceStopped(client, region, instanceId, stopWaitTimeoutMs);
   });
