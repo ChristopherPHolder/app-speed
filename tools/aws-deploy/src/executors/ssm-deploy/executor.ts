@@ -11,6 +11,7 @@ const DEFAULT_TIMEOUT_MS = 900000;
 const DEFAULT_CONTAINER_NAME = 'app-speed-server';
 const DEFAULT_HOST_PORT = 3000;
 const DEFAULT_CONTAINER_PORT = 3000;
+const toTimeoutSeconds = (timeoutMs: number): number => Math.max(1, Math.ceil(timeoutMs / 1000));
 
 type ExecutorExit = {
   success: boolean;
@@ -100,6 +101,8 @@ const runExecutor: PromiseExecutor<SsmDeployExecutorSchema> = async (options): P
     commands,
     ...(options.parameters ?? {}),
   };
+  const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+  const pollIntervalMs = options.pollIntervalMs ?? DEFAULT_POLL_INTERVAL_MS;
 
   const client = new SSMClient({ region });
   const sendCommand = new SendCommandCommand({
@@ -107,13 +110,12 @@ const runExecutor: PromiseExecutor<SsmDeployExecutorSchema> = async (options): P
     InstanceIds: instanceIds,
     Parameters: parameters,
     Comment: options.comment,
+    TimeoutSeconds: toTimeoutSeconds(timeoutMs),
   });
   const sendResponse = await client
     .send(sendCommand)
     .catch((error: unknown) =>
-      fail(
-        `Failed to submit SSM command in ${region} for instances ${instanceIds.join(', ')}: ${formatError(error)}`,
-      ),
+      fail(`Failed to submit SSM command in ${region} for instances ${instanceIds.join(', ')}: ${formatError(error)}`),
     );
 
   const resolvedCommandId = sendResponse.Command?.CommandId ?? fail('SSM send command did not return commandId');
@@ -125,9 +127,6 @@ const runExecutor: PromiseExecutor<SsmDeployExecutorSchema> = async (options): P
       message: `SSM command submitted: ${resolvedCommandId}`,
     };
   }
-
-  const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
-  const pollIntervalMs = options.pollIntervalMs ?? DEFAULT_POLL_INTERVAL_MS;
 
   const result = await waitForSsmCommandCompletion(client, resolvedCommandId, instanceIds, timeoutMs, pollIntervalMs);
   if (!result.success) {

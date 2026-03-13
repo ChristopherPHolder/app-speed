@@ -23,6 +23,7 @@ type ExecutorExit = {
 };
 
 const shellQuote = (value: string): string => `'${value.replace(/'/g, `'"'"'`)}'`;
+const toTimeoutSeconds = (timeoutMs: number): number => Math.max(1, Math.ceil(timeoutMs / 1000));
 
 const buildDefaultCommands = (
   imageRef: string,
@@ -128,6 +129,7 @@ const runSsmCommand = (
             InstanceIds: [instanceId],
             Parameters: parameters,
             Comment: comment,
+            TimeoutSeconds: toTimeoutSeconds(timeoutMs),
           }),
         ),
       catch: (error) =>
@@ -201,16 +203,7 @@ const program = (options: Ec2SsmCycleExecutorSchema): Effect.Effect<ExecutorExit
 
     return yield* Effect.acquireUseRelease(
       prepareInstance(ec2Client, region, instanceId, startWaitTimeoutMs),
-      () =>
-        runSsmCommand(
-          ssmClient,
-          documentName,
-          instanceId,
-          parameters,
-          options.comment,
-          timeoutMs,
-          pollIntervalMs,
-        ),
+      () => runSsmCommand(ssmClient, documentName, instanceId, parameters, options.comment, timeoutMs, pollIntervalMs),
       (started) =>
         stopInstanceIfConfigured(
           ec2Client,
