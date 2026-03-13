@@ -110,7 +110,6 @@
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/release-notes-generator": "^13.0.0",
     "@swc-node/register": "~1.9.1",
-    "@swc/cli": "0.6.0",
     "@swc/core": "^1.15.11",
     "@swc/helpers": "~0.5.11",
     "@types/archiver": "^6.0.2",
@@ -172,7 +171,7 @@
     "overrides": {
       "chokidar": "4.0.0",
       "@esbuild-kit/core-utils>esbuild": "0.27.3",
-      "hono": "4.12.4",
+      "hono": "4.12.7",
       "@hono/node-server": "1.19.11",
       "immutable": "5.1.5",
       "koa": "3.1.2",
@@ -181,7 +180,7 @@
       "postcss-url>minimatch": "3.1.4",
       "serialize-javascript": "7.0.3",
       "svgo": "3.3.3",
-      "tar": "7.5.10",
+      "tar": "7.5.11",
       "typescript": "5.9.2"
     },
     "onlyBuiltDependencies": ["better-sqlite3", "puppeteer"]
