@@ -3,9 +3,5 @@ export {
   AuditRepo,
   AuditRepoLive,
   AuditRunIdSchema,
-  AuditTemplateIdSchema,
-  AuditRunRecord,
-  type AuditRunSummaryRecord,
-  type AuditRunListCursor,
 } from './lib/audit-repo';
-export type { AuditRunId, AuditTemplateId } from './lib/audit-repo';
+export type { AuditRunId } from './lib/audit-repo';
