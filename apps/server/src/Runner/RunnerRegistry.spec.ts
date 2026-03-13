@@ -4,6 +4,17 @@ import { describe, expect, it } from 'vitest';
 import { RunnerRegistry, RunnerRegistryLive } from './RunnerRegistry.js';
 
 describe('RunnerRegistry', () => {
+  it('does not treat runners without observed activity as active', async () => {
+    await Effect.runPromise(
+      Effect.gen(function* () {
+        const registry = yield* RunnerRegistry;
+
+        const activeRunners = yield* registry.listActiveRunners(['runner-1']);
+        expect(activeRunners).toEqual([]);
+      }).pipe(Effect.provide(RunnerRegistryLive)),
+    );
+  });
+
   it('marks a runner idle after an empty claim and clears idle state after completion', async () => {
     const now = Date.now();
 

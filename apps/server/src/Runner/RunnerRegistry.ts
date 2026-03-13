@@ -135,12 +135,20 @@ export const RunnerRegistryLive = Layer.scoped(
 
     const listActiveRunners = (runnerIds: ReadonlyArray<string>) =>
       Effect.gen(function* () {
-        const nowMs = yield* Clock.currentTimeMillis;
         const records = yield* SynchronizedRef.get(stateRef);
-        return runnerIds.map((runnerId) => ({
-          id: toRunnerId(runnerId),
-          lastHeartbeatAt: records.get(runnerId)?.lastHeartbeatAt ?? new Date(nowMs),
-        })) satisfies ActiveRunnerList;
+        return runnerIds.flatMap((runnerId) => {
+          const record = records.get(runnerId);
+          if (!record) {
+            return [];
+          }
+
+          return [
+            {
+              id: toRunnerId(runnerId),
+              lastHeartbeatAt: record.lastHeartbeatAt,
+            },
+          ];
+        }) satisfies ActiveRunnerList;
       });
 
     const listIdleRunnerIds = (runnerIds: ReadonlyArray<string>, idleTimeoutMs: number) =>
