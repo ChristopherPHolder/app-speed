@@ -70,14 +70,22 @@ type CategoryView = {
       </mat-tab-group>
     }
   `,
-  imports: [MatTabGroup, MatTab, ViewerStepMetricSummaryComponent, ViewerFilmStripComponent, ViewerStepDetailSectionComponent],
+  imports: [
+    MatTabGroup,
+    MatTab,
+    ViewerStepMetricSummaryComponent,
+    ViewerFilmStripComponent,
+    ViewerStepDetailSectionComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
     :host {
       display: block;
       max-width: 1200px;
       margin: auto;
-      padding: 20px;
+      @media (min-width: 600px) {
+        padding: 20px;
+      }
     }
     .pad {
       padding: 20px;
