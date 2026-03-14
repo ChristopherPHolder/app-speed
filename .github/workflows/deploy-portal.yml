@@ -1,4 +1,4 @@
-name: Deploy Frontend
+name: Deploy Portal
 
 on:
   push:
@@ -20,8 +20,8 @@ env:
   PNPM_VERSION: 10.11.0
 
 jobs:
-  deploy-frontend:
-    name: Deploy Frontend
+  deploy-portal:
+    name: Deploy Portal
     runs-on: ubuntu-latest
 
     steps:
@@ -48,11 +48,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-central-1
 
-      - name: Deploy Frontend (Auto Main)
+      - name: Deploy Portal (Auto Main)
         if: ${{ github.event_name == 'push' }}
         run: pnpm exec nx deploy portal --configuration=production
 
-      - name: Deploy Frontend (Manual)
+      - name: Deploy Portal (Manual)
         if: ${{ github.event_name == 'workflow_dispatch' }}
         env:
           DEPLOY_ENV: ${{ github.event.inputs.environment }}
