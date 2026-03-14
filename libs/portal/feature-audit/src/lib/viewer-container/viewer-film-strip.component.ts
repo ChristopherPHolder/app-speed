@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { ScrollContainerComponent } from '@app-speed/portal-ui/scroll-container';
 
 @Component({
-  selector: 'viewer-file-strip',
+  selector: 'viewer-film-strip',
   template: `
     <ui-scroll-container>
       <div class="film-strip-container">
@@ -40,6 +40,6 @@ import { ScrollContainerComponent } from '@app-speed/portal-ui/scroll-container'
   imports: [ScrollContainerComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ViewerFileStripComponent {
+export class ViewerFilmStripComponent {
   filmStrip = input.required<{ data: string }[]>();
 }

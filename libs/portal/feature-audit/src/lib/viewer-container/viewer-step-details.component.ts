@@ -16,7 +16,7 @@ import {
 } from '../lighthouse-report-utils';
 import { MdToAnkerPipe } from '../utils/md-to-anker.pipe';
 import { MetricSummary, ViewerStepMetricSummaryComponent } from './viewer-step-metric-summary.component';
-import { ViewerFileStripComponent } from './viewer-file-strip.component';
+import { ViewerFilmStripComponent } from './viewer-film-strip.component';
 import { metricAudits, metricResults } from './view-step-details.adaptor';
 
 type PerformanceAuditRef = FlowResult.Step['lhr']['categories']['performance']['auditRefs'][number];
@@ -42,7 +42,7 @@ type DiagnosticSection = {
     }
 
     @if (filmStrip(); as filmStrip) {
-      <viewer-file-strip [filmStrip]="filmStrip" />
+      <viewer-film-strip [filmStrip]="filmStrip" />
     }
 
     @for (section of sections(); track section.key) {
@@ -59,7 +59,7 @@ type DiagnosticSection = {
       }
     }
   `,
-  imports: [ViewerStepMetricSummaryComponent, ViewerFileStripComponent, ViewerDiagnosticComponent, MdToAnkerPipe],
+  imports: [ViewerStepMetricSummaryComponent, ViewerFilmStripComponent, ViewerDiagnosticComponent, MdToAnkerPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
     :host {
@@ -184,7 +184,9 @@ export class ViewerStepDetailComponent {
   });
 
   readonly passedItems = computed<DiagnosticItem[]>(() => {
-    return this.filterablePerformanceAudits().filter(({ result }) => showAsPassed(result)).map(this.diagnosticItemsMapper);
+    return this.filterablePerformanceAudits()
+      .filter(({ result }) => showAsPassed(result))
+      .map(this.diagnosticItemsMapper);
   });
 
   readonly sections = computed<DiagnosticSection[]>(() => {
