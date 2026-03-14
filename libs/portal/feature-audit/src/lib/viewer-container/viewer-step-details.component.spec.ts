@@ -1,20 +1,24 @@
-import type { Meta, StoryObj } from '@storybook/angular';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { describe, beforeEach, expect, it } from 'vitest';
 import { FlowResult } from 'lighthouse';
 import { ViewerStepDetailComponent } from './viewer-step-details.component';
 
-const stepDetails = {
+const rendererFormattedStrings = {
+  passedAuditsGroupTitle: 'Passed audits',
+  warningAuditsGroupTitle: 'Passed audits but with warnings',
+  manualAuditsGroupTitle: 'Additional items to manually check',
+  notApplicableAuditsGroupTitle: 'Not applicable',
+};
+
+const multiCategoryStep = {
   name: 'Search results',
   lhr: {
     finalDisplayedUrl: 'https://app-speed.dev/search',
     entities: null,
     fullPageScreenshot: null,
     i18n: {
-      rendererFormattedStrings: {
-        passedAuditsGroupTitle: 'Passed audits',
-        warningAuditsGroupTitle: 'Passed audits but with warnings',
-        manualAuditsGroupTitle: 'Additional items to manually check',
-        notApplicableAuditsGroupTitle: 'Not applicable',
-      },
+      rendererFormattedStrings,
     },
     categoryGroups: {
       diagnostics: {
@@ -55,7 +59,7 @@ const stepDetails = {
       },
       accessibility: {
         title: 'Accessibility',
-        score: 0.91,
+        score: 0.74,
         auditRefs: [
           {
             id: 'image-alt',
@@ -131,18 +135,80 @@ const stepDetails = {
   },
 } as unknown as FlowResult.Step;
 
-const meta: Meta<ViewerStepDetailComponent> = {
-  title: 'Patterns/Viewer Container/Step Details',
-  component: ViewerStepDetailComponent,
-  parameters: {
-    layout: 'padded',
+const accessibilityOnlyStep = {
+  name: 'Accessibility only',
+  lhr: {
+    finalDisplayedUrl: 'https://app-speed.dev/accessibility',
+    entities: null,
+    fullPageScreenshot: null,
+    i18n: {
+      rendererFormattedStrings,
+    },
+    categoryGroups: {
+      'a11y-names-labels': {
+        title: 'Names and labels',
+      },
+    },
+    categories: {
+      accessibility: {
+        title: 'Accessibility',
+        score: 0.5,
+        auditRefs: [
+          {
+            id: 'image-alt',
+            weight: 10,
+            group: 'a11y-names-labels',
+          },
+        ],
+      },
+    },
+    audits: {
+      'image-alt': {
+        id: 'image-alt',
+        title: 'Image elements have `[alt]` attributes',
+        description: 'Informative elements should aim for short, descriptive alternate text.',
+        score: 0,
+        scoreDisplayMode: 'binary',
+      },
+    },
   },
-  args: {
-    stepDetails,
-  },
-};
+} as unknown as FlowResult.Step;
 
-export default meta;
-type Story = StoryObj<ViewerStepDetailComponent>;
+describe('ViewerStepDetailComponent', () => {
+  let component: ViewerStepDetailComponent;
+  let fixture: ComponentFixture<ViewerStepDetailComponent>;
 
-export const Default: Story = {};
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [ViewerStepDetailComponent, NoopAnimationsModule],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(ViewerStepDetailComponent);
+    component = fixture.componentInstance;
+  });
+
+  it('builds sections for non-performance Lighthouse categories', () => {
+    fixture.componentRef.setInput('stepDetails', multiCategoryStep);
+    fixture.detectChanges();
+
+    expect(component.categoryViews().map((category) => category.title)).toEqual(
+      expect.arrayContaining(['Performance', 'Accessibility', 'SEO']),
+    );
+    expect(component.categoryViews().find((category) => category.id === 'performance')?.metricSummary).toHaveLength(1);
+    expect(component.categoryViews().find((category) => category.id === 'accessibility')?.sections.map((section) => section.title)).toEqual(
+      expect.arrayContaining(['Accessibility: Names and labels']),
+    );
+    expect(component.categoryViews().find((category) => category.id === 'seo')?.sections.map((section) => section.title)).toEqual(
+      ['SEO: Content Best Practices'],
+    );
+  });
+
+  it('does not require a performance category to render category sections', () => {
+    fixture.componentRef.setInput('stepDetails', accessibilityOnlyStep);
+    fixture.detectChanges();
+
+    expect(component.categoryViews().map((category) => category.title)).toEqual(['Accessibility']);
+    expect(component.categoryViews()[0]?.metricSummary).toEqual([]);
+    expect(component.categoryViews()[0]?.sections.map((section) => section.title)).toEqual(['Accessibility: Names and labels']);
+  });
+});

@@ -4,9 +4,13 @@ import { STATUS, StatusOptions } from '@app-speed/portal-ui/status-badge';
 
 const LIGHTHOUSE_PASS_THRESHOLD = 0.9;
 const LIGHTHOUSE_AVERAGE_THRESHOLD = 0.5;
+const WARNING_AUDITS_GROUP_TITLE = 'Passed audits but with warnings';
 const PASSED_AUDITS_GROUP_TITLE = 'Passed audits';
+const NOT_APPLICABLE_AUDITS_GROUP_TITLE = 'Not applicable';
+const MANUAL_AUDITS_GROUP_TITLE = 'Additional items to manually check';
 
 type LighthouseRating = 'pass' | 'average' | 'fail' | 'error';
+export type AuditClumpId = 'failed' | 'warning' | 'manual' | 'passed' | 'notApplicable';
 
 type CategoryAuditRefWithResult = Result.Category['auditRefs'][number] & {
   result: AuditResult;
@@ -91,6 +95,32 @@ export const shouldDisplayAsFraction = (gatherMode: Result.GatherMode): boolean 
 
 export const passedAuditsGroupTitle = (lhr: Pick<Result, 'i18n'>): string => {
   return lhr.i18n.rendererFormattedStrings['passedAuditsGroupTitle'] || PASSED_AUDITS_GROUP_TITLE;
+};
+
+export const warningAuditsGroupTitle = (lhr: Pick<Result, 'i18n'>): string => {
+  return lhr.i18n.rendererFormattedStrings['warningAuditsGroupTitle'] || WARNING_AUDITS_GROUP_TITLE;
+};
+
+export const notApplicableAuditsGroupTitle = (lhr: Pick<Result, 'i18n'>): string => {
+  return lhr.i18n.rendererFormattedStrings['notApplicableAuditsGroupTitle'] || NOT_APPLICABLE_AUDITS_GROUP_TITLE;
+};
+
+export const manualAuditsGroupTitle = (lhr: Pick<Result, 'i18n'>): string => {
+  return lhr.i18n.rendererFormattedStrings['manualAuditsGroupTitle'] || MANUAL_AUDITS_GROUP_TITLE;
+};
+
+export const auditClumpId = (
+  audit: Pick<AuditResult, 'score' | 'scoreDisplayMode' | 'warnings'>,
+): AuditClumpId => {
+  if (audit.scoreDisplayMode === 'manual' || audit.scoreDisplayMode === 'notApplicable') {
+    return audit.scoreDisplayMode;
+  }
+
+  if (showAsPassed(audit)) {
+    return audit.warnings?.length ? 'warning' : 'passed';
+  }
+
+  return 'failed';
 };
 
 // Mirrors Lighthouse report-utils calculateRating logic without depending on renderer internals.
@@ -270,4 +300,8 @@ export const sortFailedPerformanceAudits = <T extends SortablePerformanceAudit>(
 
     return guidanceB - guidanceA;
   });
+};
+
+export const sortAuditRefsByWeight = <T extends Pick<Result.Category['auditRefs'][number], 'weight'>>(audits: T[]): T[] => {
+  return [...audits].sort((a, b) => b.weight - a.weight);
 };

@@ -1,56 +1,76 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { FlowResult } from 'lighthouse';
+import { MatTab, MatTabGroup } from '@angular/material/tabs';
+import { FlowResult, Result } from 'lighthouse';
 import { Result as AuditResult } from 'lighthouse/types/lhr/audit-result';
 
 import { DiagnosticItem, ViewerDiagnosticContext } from '@app-speed/portal-ui/viewer-diagnostics';
 import {
+  auditClumpId,
   auditBadgeStatus,
+  AuditClumpId,
+  manualAuditsGroupTitle,
+  notApplicableAuditsGroupTitle,
   passedAuditsGroupTitle,
   PerformanceMetricAudit,
-  showAsPassed,
+  sortAuditRefsByWeight,
   sortFailedPerformanceAudits,
+  warningAuditsGroupTitle,
 } from '../lighthouse-report-utils';
 import { ViewerStepDetailSectionComponent } from './viewer-step-detail-section.component';
 import { MetricSummary, ViewerStepMetricSummaryComponent } from './viewer-step-metric-summary.component';
 import { ViewerFilmStripComponent } from './viewer-film-strip.component';
 import { metricAudits, metricResults } from './view-step-details.adaptor';
 
-type PerformanceAuditRef = FlowResult.Step['lhr']['categories']['performance']['auditRefs'][number];
-type SectionKey = 'insights' | 'diagnostics' | 'passed';
+type CategoryAuditRef = Result.Category['auditRefs'][number];
 type SectionMetadata = NonNullable<FlowResult.Step['lhr']['categoryGroups']>[string];
-type DiagnosticAuditRef = PerformanceAuditRef & {
+type DiagnosticAuditRef = CategoryAuditRef & {
   result: AuditResult;
   stackPacks?: { title: string; iconDataURL: string; description: string }[];
 };
 type DiagnosticSection = {
-  key: SectionKey;
+  key: string;
   title: string;
   description?: string;
   items: DiagnosticItem[];
+};
+type CategoryView = {
+  id: string;
+  title: string;
+  metricSummary: MetricSummary[];
+  sections: DiagnosticSection[];
 };
 
 @Component({
   selector: 'viewer-step-detail',
   template: `
-    @let metricSummary = categoryMetricSummary();
-    @if (metricSummary.length) {
-      <viewer-step-metric-summary [metricSummary]="metricSummary" class="pad" />
-    }
+    @let categories = categoryViews();
 
     @if (filmStrip(); as filmStrip) {
       <viewer-film-strip [filmStrip]="filmStrip" />
     }
 
-    @for (section of sections(); track section.key) {
-      <viewer-step-detail-section
-        [title]="section.title"
-        [description]="section.description"
-        [items]="section.items"
-        [context]="diagnosticContext()"
-      />
+    @if (categories.length) {
+      <mat-tab-group>
+        @for (category of categories; track category.id) {
+          <mat-tab [label]="category.title">
+            @if (category.metricSummary.length) {
+              <viewer-step-metric-summary [metricSummary]="category.metricSummary" class="pad" />
+            }
+
+            @for (section of category.sections; track section.key) {
+              <viewer-step-detail-section
+                [title]="section.title"
+                [description]="section.description"
+                [items]="section.items"
+                [context]="diagnosticContext()"
+              />
+            }
+          </mat-tab>
+        }
+      </mat-tab-group>
     }
   `,
-  imports: [ViewerStepMetricSummaryComponent, ViewerFilmStripComponent, ViewerStepDetailSectionComponent],
+  imports: [MatTabGroup, MatTab, ViewerStepMetricSummaryComponent, ViewerFilmStripComponent, ViewerStepDetailSectionComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
     :host {
@@ -66,10 +86,11 @@ type DiagnosticSection = {
 })
 export class ViewerStepDetailComponent {
   stepDetails = input.required<FlowResult.Step>();
-  categories = computed(() => this.stepDetails().lhr.categories);
-  categoryMetricSummary = computed<MetricSummary[]>(() => {
-    return this.categoriesMetricSummary(this.stepDetails().lhr.categories);
+  private readonly report = computed(() => this.stepDetails().lhr);
+  private readonly categoryEntries = computed(() => {
+    return Object.entries(this.report().categories) as [string, Result.Category][];
   });
+
   filmStrip = computed<{ data: string }[] | undefined>(() => {
     const details = this.stepDetails().lhr.audits?.['screenshot-thumbnails']?.['details'];
 
@@ -81,44 +102,34 @@ export class ViewerStepDetailComponent {
     return Array.isArray(items) ? (items as { data: string }[]) : undefined;
   });
 
-  private readonly performanceAuditRefs = computed(() => {
-    return this.stepDetails().lhr.categories['performance']['auditRefs'].filter(
-      (auditRef) => auditRef.group !== 'metrics',
-    );
-  });
-
   private readonly performanceMetricAudits = computed<PerformanceMetricAudit[]>(() => {
-    const report = this.stepDetails().lhr;
-    return this.stepDetails()
-      .lhr.categories['performance']['auditRefs'].filter((auditRef) => auditRef.group === 'metrics')
-      .map((auditRef) => ({
-        ...auditRef,
-        result: report.audits[auditRef.id],
-      }));
+    const performanceCategory = this.report().categories['performance'];
+    if (!performanceCategory) {
+      return [];
+    }
+
+    return performanceCategory.auditRefs
+      .filter((auditRef) => auditRef.group === 'metrics')
+      .flatMap((auditRef) => {
+        const result = this.report().audits[auditRef.id];
+        return result ? [{ ...auditRef, result }] : [];
+      });
   });
 
-  private readonly performanceAudits = computed(() => {
-    const report = this.stepDetails().lhr;
-    return this.performanceAuditRefs().map(
-      (auditRef): DiagnosticAuditRef => ({
-        ...auditRef,
-        result: report.audits[auditRef.id],
-        stackPacks: this.resolveStackPacks(auditRef.id, report.audits[auditRef.id]),
-      }),
-    );
-  });
+  readonly categoryViews = computed<CategoryView[]>(() => {
+    return this.categoryEntries()
+      .map(([categoryId, category]) => {
+        const sections = this.buildCategorySections(categoryId, category);
+        const metricSummary = this.categoryMetricSummary(categoryId, category);
 
-  private readonly filterablePerformanceAudits = computed(() => {
-    return this.performanceAudits().filter(
-      (auditRef) => this.isInsightAudit(auditRef) || auditRef.group === 'diagnostics',
-    );
-  });
-
-  private readonly failedFilterablePerformanceAudits = computed(() => {
-    return sortFailedPerformanceAudits(
-      this.filterablePerformanceAudits().filter(({ result }) => !showAsPassed(result)),
-      this.performanceMetricAudits(),
-    );
+        return {
+          id: categoryId,
+          title: category.title,
+          metricSummary,
+          sections,
+        };
+      })
+      .filter((category) => category.metricSummary.length || category.sections.length);
   });
 
   private readonly diagnosticItemsMapper = ({ result, weight, stackPacks }: DiagnosticAuditRef): DiagnosticItem => {
@@ -136,34 +147,8 @@ export class ViewerStepDetailComponent {
     };
   };
 
-  readonly insightItems = computed<DiagnosticItem[]>(() => {
-    return this.failedFilterablePerformanceAudits()
-      .filter((auditRef) => this.isInsightAudit(auditRef))
-      .map(this.diagnosticItemsMapper);
-  });
-
-  diagnosticItems = computed<DiagnosticItem[]>(() => {
-    return this.failedFilterablePerformanceAudits()
-      .filter((auditRef) => auditRef.group === 'diagnostics')
-      .map(this.diagnosticItemsMapper);
-  });
-
-  readonly passedItems = computed<DiagnosticItem[]>(() => {
-    return this.filterablePerformanceAudits()
-      .filter(({ result }) => showAsPassed(result))
-      .map(this.diagnosticItemsMapper);
-  });
-
-  readonly sections = computed<DiagnosticSection[]>(() => {
-    return [
-      this.buildSection('insights', this.insightItems()),
-      this.buildSection('diagnostics', this.diagnosticItems()),
-      this.buildSection('passed', this.passedItems()),
-    ].filter((section) => section.items.length);
-  });
-
   diagnosticContext = computed<ViewerDiagnosticContext>(() => {
-    const lhr = this.stepDetails().lhr;
+    const lhr = this.report();
     return {
       finalDisplayedUrl: lhr.finalDisplayedUrl,
       entities: lhr.entities,
@@ -171,38 +156,52 @@ export class ViewerStepDetailComponent {
     };
   });
 
-  private isInsightAudit(auditRef: DiagnosticAuditRef): boolean {
-    return auditRef.group === 'insights' || (auditRef.group === 'hidden' && auditRef.id.endsWith('-insight'));
-  }
-
-  private buildSection(key: SectionKey, items: DiagnosticItem[]): DiagnosticSection {
-    const metadata = key === 'passed' ? undefined : this.sectionMetadata(key);
-
-    return {
-      key,
-      title: metadata?.title || this.defaultSectionTitle(key),
-      description: metadata?.description,
-      items,
-    };
-  }
-
-  private sectionMetadata(key: Exclude<SectionKey, 'passed'>): SectionMetadata | undefined {
-    return this.stepDetails().lhr.categoryGroups?.[key];
-  }
-
-  private defaultSectionTitle(key: SectionKey): string {
-    switch (key) {
-      case 'insights':
-        return 'Insights';
-      case 'diagnostics':
-        return 'Diagnostics';
-      case 'passed':
-        return passedAuditsGroupTitle(this.stepDetails().lhr);
+  private buildCategorySections(categoryId: string, category: Result.Category): DiagnosticSection[] {
+    const audits = this.categoryAudits(categoryId, category);
+    if (!audits.length) {
+      return [];
     }
+
+    const clumps = new Map<AuditClumpId, DiagnosticAuditRef[]>([
+      ['failed', []],
+      ['warning', []],
+      ['manual', []],
+      ['passed', []],
+      ['notApplicable', []],
+    ]);
+
+    for (const audit of audits) {
+      clumps.get(auditClumpId(audit.result))?.push(audit);
+    }
+
+    const sections = [
+      ...this.buildFailedSections(categoryId, category, clumps.get('failed') ?? []),
+      this.buildClumpSection(categoryId, category, 'warning', clumps.get('warning') ?? []),
+      this.buildClumpSection(categoryId, category, 'manual', clumps.get('manual') ?? []),
+      this.buildClumpSection(categoryId, category, 'passed', clumps.get('passed') ?? []),
+      this.buildClumpSection(categoryId, category, 'notApplicable', clumps.get('notApplicable') ?? []),
+    ].filter((section): section is DiagnosticSection => Boolean(section));
+
+    if (category.description && !sections.some((section) => section.description)) {
+      sections[0] = {
+        ...sections[0],
+        description: category.description,
+      };
+    }
+
+    return sections;
+  }
+
+  private categoryMetricSummary(categoryId: string, category: Result.Category): MetricSummary[] {
+    if (categoryId !== 'performance') {
+      return [];
+    }
+
+    return metricResults(metricAudits(category.auditRefs), this.report().audits);
   }
 
   private resolveStackPacks(auditId: string, result: AuditResult): DiagnosticAuditRef['stackPacks'] {
-    const stackPacks = this.stepDetails().lhr.stackPacks ?? [];
+    const stackPacks = this.report().stackPacks ?? [];
     const candidateIds = [auditId, ...(result.replacesAudits ?? [])];
     const matchedPacks = stackPacks.flatMap((pack) => {
       const description = candidateIds.map((id) => pack.descriptions[id]).find((value) => typeof value === 'string');
@@ -212,9 +211,126 @@ export class ViewerStepDetailComponent {
     return matchedPacks.length ? matchedPacks : undefined;
   }
 
-  private categoriesMetricSummary(categories: FlowResult.Step['lhr']['categories']): MetricSummary[] {
-    return Object.entries(categories).map(([key, value]) => ({
-      [key]: metricResults(metricAudits(value.auditRefs), this.stepDetails().lhr.audits),
-    }))[0]['performance'];
+  private buildFailedSections(
+    categoryId: string,
+    category: Result.Category,
+    audits: DiagnosticAuditRef[],
+  ): DiagnosticSection[] {
+    if (!audits.length) {
+      return [];
+    }
+
+    const sortedAudits =
+      categoryId === 'performance'
+        ? sortFailedPerformanceAudits(audits, this.performanceMetricAudits())
+        : sortAuditRefsByWeight(audits);
+
+    const ungroupedAudits: DiagnosticAuditRef[] = [];
+    const groupedAudits = new Map<string, DiagnosticAuditRef[]>();
+
+    for (const audit of sortedAudits) {
+      if (!audit.group) {
+        ungroupedAudits.push(audit);
+        continue;
+      }
+
+      const group = groupedAudits.get(audit.group) ?? [];
+      group.push(audit);
+      groupedAudits.set(audit.group, group);
+    }
+
+    const sections: DiagnosticSection[] = [];
+
+    if (ungroupedAudits.length) {
+      sections.push({
+        key: `${categoryId}:failed`,
+        title: this.sectionTitle(categoryId, category.title),
+        description: category.description,
+        items: ungroupedAudits.map(this.diagnosticItemsMapper),
+      });
+    }
+
+    for (const [groupId, groupAudits] of groupedAudits) {
+      const metadata = this.sectionMetadata(groupId);
+      sections.push({
+        key: `${categoryId}:failed:${groupId}`,
+        title: this.sectionTitle(categoryId, category.title, metadata?.title),
+        description: metadata?.description,
+        items: groupAudits.map(this.diagnosticItemsMapper),
+      });
+    }
+
+    return sections;
+  }
+
+  private buildClumpSection(
+    categoryId: string,
+    category: Result.Category,
+    clumpId: Exclude<AuditClumpId, 'failed'>,
+    audits: DiagnosticAuditRef[],
+  ): DiagnosticSection | undefined {
+    if (!audits.length) {
+      return undefined;
+    }
+
+    return {
+      key: `${categoryId}:${clumpId}`,
+      title: this.sectionTitle(categoryId, category.title, this.clumpTitle(clumpId)),
+      description: clumpId === 'manual' ? category.manualDescription : undefined,
+      items: sortAuditRefsByWeight(audits).map(this.diagnosticItemsMapper),
+    };
+  }
+
+  private categoryAudits(categoryId: string, category: Result.Category): DiagnosticAuditRef[] {
+    return category.auditRefs.flatMap((auditRef) => {
+      const group =
+        categoryId === 'performance' && auditRef.group === 'hidden' && auditRef.id.endsWith('-insight')
+          ? 'insights'
+          : auditRef.group;
+
+      if (group === 'hidden' || (categoryId === 'performance' && group === 'metrics')) {
+        return [];
+      }
+
+      const result = this.report().audits[auditRef.id];
+      if (!result) {
+        return [];
+      }
+
+      return [
+        {
+          ...auditRef,
+          group,
+          result,
+          stackPacks: this.resolveStackPacks(auditRef.id, result),
+        },
+      ];
+    });
+  }
+
+  private sectionMetadata(key: string): SectionMetadata | undefined {
+    return this.report().categoryGroups?.[key];
+  }
+
+  private clumpTitle(clumpId: Exclude<AuditClumpId, 'failed'>): string {
+    switch (clumpId) {
+      case 'warning':
+        return warningAuditsGroupTitle(this.report());
+      case 'manual':
+        return manualAuditsGroupTitle(this.report());
+      case 'notApplicable':
+        return notApplicableAuditsGroupTitle(this.report());
+      case 'passed':
+      default:
+        return passedAuditsGroupTitle(this.report());
+    }
+  }
+
+  private sectionTitle(categoryId: string, categoryTitle: string, sectionTitle?: string): string {
+    if (!sectionTitle || sectionTitle === categoryTitle) {
+      return categoryTitle;
+    }
+
+    return categoryId === 'performance' ? sectionTitle : `${categoryTitle}: ${sectionTitle}`;
   }
 }
