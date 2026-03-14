@@ -4,6 +4,6 @@
     "emitDecoratorMetadata": true,
     "moduleResolution": "bundler"
   },
-  "exclude": ["./src/**/*.spec.ts"],
-  "include": ["./**/*.stories.ts", "./.storybook/*.ts"]
+  "include": ["./**/*.stories.ts", "./**/*.stories.tsx"],
+  "exclude": ["./src/**/*.spec.ts", "./src/**/*.test.ts"]
 }

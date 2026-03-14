@@ -21,9 +21,6 @@
       "inputs": ["default", "^default"],
       "cache": true
     },
-    "build-storybook": {
-      "cache": true
-    },
     "e2e": {
       "cache": true
     },

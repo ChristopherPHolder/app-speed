@@ -8,4 +8,4 @@ Run `nx test ui` to execute the unit tests.
 
 ## Running Storybook
 
-Run `nx storybook ui` to startup storybook locally
+Run `nx serve design-system` to start the shared Storybook locally.
