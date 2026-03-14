@@ -3,58 +3,43 @@ import {
   DiagnosticItem,
   ViewerDiagnosticComponent,
   ViewerDiagnosticContext,
+  ViewerMarkdownTextComponent,
 } from '@app-speed/portal-ui/viewer-diagnostics';
-import { MdToAnkerPipe } from '../utils/md-to-anker.pipe';
+import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
 
 @Component({
   selector: 'viewer-step-detail-section',
   template: `
     @if (items().length) {
-      <section>
-        <header>
-          <h2 class="viewer-step-detail-section__title">{{ title() }}</h2>
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>{{ title() }}</mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content>
           @if (description(); as description) {
-            <div class="viewer-step-detail-section__description" [innerHTML]="description | mdToAnker"></div>
+            <p>
+              <ui-viewer-markdown-text [text]="description" />
+            </p>
           }
-        </header>
-        <ui-viewer-diagnostic [items]="items()" [context]="context()" />
-      </section>
+          <ui-viewer-diagnostic [items]="items()" [context]="context()" />
+        </mat-card-content>
+      </mat-card>
     }
   `,
-  imports: [ViewerDiagnosticComponent, MdToAnkerPipe],
+  imports: [
+    MatCard,
+    MatCardHeader,
+    MatCardTitle,
+    MatCardContent,
+    ViewerDiagnosticComponent,
+    ViewerMarkdownTextComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
     :host {
       display: block;
-      min-width: 0;
       margin-top: 12px;
-    }
-
-    header,
-    ui-viewer-diagnostic {
-      padding: 20px;
-    }
-
-    header {
-      display: grid;
-      gap: 8px;
-      padding-bottom: 0;
-      min-width: 0;
-    }
-
-    .viewer-step-detail-section__title {
-      margin: 0;
-      color: var(--mat-sys-on-surface);
-      font: var(--mat-sys-title-small, 600 0.875rem/1.25rem sans-serif);
-      overflow-wrap: anywhere;
-      word-break: break-word;
-    }
-
-    .viewer-step-detail-section__description {
-      color: var(--mat-sys-on-surface-variant);
-      font: var(--mat-sys-body-medium, 400 0.875rem/1.5rem sans-serif);
-      overflow-wrap: anywhere;
-      word-break: break-word;
     }
   `,
 })
