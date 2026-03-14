@@ -67,10 +67,20 @@ const RequiresAuditStepSchemaFilter = Schema.filter<typeof AuditStepsSchema>(
   (steps) => !!steps.filter((step) => isUserflowStep(step)).length || 'Requires at least one audit steps',
 );
 
+const NonNegativeIntFromStringSchema = Schema.NumberFromString.pipe(Schema.int(), Schema.nonNegative()).annotations({
+  identifier: 'NonNegativeIntFromString',
+});
+
+const TimeoutSchema = Schema.optional(
+  Schema.Union(Schema.NonNegativeInt, NonNegativeIntFromStringSchema).annotations({
+    identifier: 'Timeout',
+  }),
+);
+
 export const ReplayUserflowAuditSchema = Schema.Struct({
   title: Schema.NonEmptyString,
   device: DeviceSchema,
-  timeout: Schema.optional(Schema.NonNegativeInt),
+  timeout: TimeoutSchema,
   steps: Schema.NonEmptyArray(AuditStepSchema).pipe(RequiresAuditStepSchemaFilter).annotations({ title: 'AuditSteps' }),
 }).annotations({ title: 'ReplayUserflowAudit' });
 
