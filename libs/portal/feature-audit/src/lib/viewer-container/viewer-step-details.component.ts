@@ -2,11 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { FlowResult } from 'lighthouse';
 import { Result as AuditResult } from 'lighthouse/types/lhr/audit-result';
 
-import {
-  DiagnosticItem,
-  ViewerDiagnosticComponent,
-  ViewerDiagnosticContext,
-} from '@app-speed/portal-ui/viewer-diagnostics';
+import { DiagnosticItem, ViewerDiagnosticContext } from '@app-speed/portal-ui/viewer-diagnostics';
 import {
   auditBadgeStatus,
   passedAuditsGroupTitle,
@@ -14,7 +10,7 @@ import {
   showAsPassed,
   sortFailedPerformanceAudits,
 } from '../lighthouse-report-utils';
-import { MdToAnkerPipe } from '../utils/md-to-anker.pipe';
+import { ViewerStepDetailSectionComponent } from './viewer-step-detail-section.component';
 import { MetricSummary, ViewerStepMetricSummaryComponent } from './viewer-step-metric-summary.component';
 import { ViewerFilmStripComponent } from './viewer-film-strip.component';
 import { metricAudits, metricResults } from './view-step-details.adaptor';
@@ -46,20 +42,15 @@ type DiagnosticSection = {
     }
 
     @for (section of sections(); track section.key) {
-      @if (section.items.length) {
-        <section class="viewer-step-detail__section">
-          <header class="viewer-step-detail__section-header pad">
-            <h2 class="viewer-step-detail__section-title">{{ section.title }}</h2>
-            @if (section.description) {
-              <div class="viewer-step-detail__section-description" [innerHTML]="section.description | mdToAnker"></div>
-            }
-          </header>
-          <ui-viewer-diagnostic class="pad" [items]="section.items" [context]="diagnosticContext()" />
-        </section>
-      }
+      <viewer-step-detail-section
+        [title]="section.title"
+        [description]="section.description"
+        [items]="section.items"
+        [context]="diagnosticContext()"
+      />
     }
   `,
-  imports: [ViewerStepMetricSummaryComponent, ViewerFilmStripComponent, ViewerDiagnosticComponent, MdToAnkerPipe],
+  imports: [ViewerStepMetricSummaryComponent, ViewerFilmStripComponent, ViewerStepDetailSectionComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
     :host {
@@ -70,32 +61,6 @@ type DiagnosticSection = {
     }
     .pad {
       padding: 20px;
-    }
-
-    .viewer-step-detail__section {
-      display: grid;
-      gap: 0;
-      margin-top: 12px;
-    }
-
-    .viewer-step-detail__section-header {
-      display: grid;
-      gap: 8px;
-      padding-bottom: 0;
-    }
-
-    .viewer-step-detail__section-title {
-      margin: 0;
-      font-size: 0.875rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    .viewer-step-detail__section-description {
-      color: var(--mat-sys-on-surface-variant);
-      font-size: 0.875rem;
-      line-height: 1.5;
     }
   `,
 })

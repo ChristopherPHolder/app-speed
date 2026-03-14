@@ -13,7 +13,7 @@ const frameDataUri = (label: string, background: string) =>
   )}`;
 
 const meta: Meta<ViewerFilmStripComponent> = {
-  title: 'Patterns/Viewer Container/Film Strip',
+  title: 'Patterns/Viewer /Film Strip',
   component: ViewerFilmStripComponent,
   parameters: {
     layout: 'padded',
