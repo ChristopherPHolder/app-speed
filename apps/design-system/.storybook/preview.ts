@@ -1,11 +1,7 @@
-import { applicationConfig, componentWrapperDecorator, type Preview } from '@storybook/angular';
-import { provideAnimations } from '@angular/platform-browser/animations';
+import { componentWrapperDecorator, type Preview } from '@storybook/angular';
 
 const preview: Preview = {
   decorators: [
-    applicationConfig({
-      providers: [provideAnimations()],
-    }),
     componentWrapperDecorator((story) => `<div class="mat-typography">${story}</div>`),
   ],
   parameters: {

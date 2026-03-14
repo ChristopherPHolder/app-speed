@@ -1,12 +1,11 @@
 import type { StorybookConfig } from '@storybook/angular';
 
-const config: StorybookConfig = {
+export default {
   stories: ['../../../{apps,libs}/**/*.stories.@(js|jsx|ts|tsx)'],
   addons: ['storybook-design-token', '@storybook/addon-docs'],
+  staticDirs: [{ from: '../../portal/src/assets', to: '/' }],
   framework: {
     name: '@storybook/angular',
     options: {},
   },
-};
-
-export default config;
+} satisfies StorybookConfig;
