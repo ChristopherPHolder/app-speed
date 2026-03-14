@@ -13,8 +13,17 @@ describe('Audit', () => {
     return await r.json();
   }
 
-  it.todo('should return actionable audit schema error messages', async () => {
-    expect(await ScheduleRequest(JSON.stringify({}))).toBe('TODO');
+  it('should return actionable audit schema error messages', async () => {
+    const response = await ScheduleRequest({});
+
+    expect(response).toMatchObject({
+      _tag: 'HttpApiDecodeError',
+    });
+    expect(response.message).toContain('title');
+    expect(response.issues[0]).toMatchObject({
+      _tag: 'Missing',
+      path: ['title'],
+    });
   });
 
   it('should schedule audit', async () => {

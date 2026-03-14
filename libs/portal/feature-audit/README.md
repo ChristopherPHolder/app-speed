@@ -92,8 +92,7 @@ The Portal Feature Audit is a comprehensive web performance auditing system that
 #### 2. Viewer Components
 - **Purpose**: Displays audit results and detailed analysis
 - **Key Components**:
-  - `ViewerComponent`: Main viewer container
-  - `AuditViewerContainer`: Handles audit data fetching and display
+  - `AuditViewerContainer`: Main viewer container that handles audit data fetching and display
   - `AuditSummaryComponent`: Displays audit overview with metrics
   - `ViewerStepDetailComponent`: Shows detailed step-by-step results
 

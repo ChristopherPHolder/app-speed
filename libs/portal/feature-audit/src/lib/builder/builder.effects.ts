@@ -20,6 +20,7 @@ import { DEFAULT_AUDIT_DETAILS } from '@app-speed/shared-user-flow-replay';
 import { ApiService, SchedulerService } from '@app-speed/portal-data-access';
 import { HttpClient } from '@angular/common/http';
 import type { FlowResult } from 'lighthouse';
+import { getAuditRequestErrorMessage } from './builder-error-message';
 
 type AuditResultResponse =
   | { status: 'SUCCESS'; result: FlowResult }
@@ -86,7 +87,7 @@ const submitAuditRequestEffect = createEffect(
       switchMap(({ audit }) =>
         api.requestAudit(audit).pipe(
           map((response) => submitAuditRequestSuccess({ requestId: response.auditId })),
-          catchError((error) => of(submitAuditRequestFailed({ auditRequestError: error.message }))),
+          catchError((error) => of(submitAuditRequestFailed({ auditRequestError: getAuditRequestErrorMessage(error) }))),
         ),
       ),
     ),

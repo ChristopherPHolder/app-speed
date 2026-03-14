@@ -21,9 +21,6 @@
       "inputs": ["default", "^default"],
       "cache": true
     },
-    "build-storybook": {
-      "cache": true
-    },
     "e2e": {
       "cache": true
     },
@@ -247,6 +244,5 @@
         "stageChanges": false
       }
     }
-  },
-  "nxCloudId": "67b1e61a2185ed22a4099d4a"
+  }
 }

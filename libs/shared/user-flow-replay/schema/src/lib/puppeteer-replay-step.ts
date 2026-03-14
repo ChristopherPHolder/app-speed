@@ -27,6 +27,16 @@ import { AuditStepTypeSchema } from './audit-step.schema';
 
 type SchemaType<T> = { Type: ReadonlyDeep<T> };
 
+const NonNegativeIntFromStringSchema = Schema.NumberFromString.pipe(Schema.int(), Schema.nonNegative()).annotations({
+  identifier: 'NonNegativeIntFromString',
+});
+
+const TimeoutSchema = Schema.optional(
+  Schema.Union(Schema.NonNegativeInt, NonNegativeIntFromStringSchema).annotations({
+    identifier: 'Timeout',
+  }),
+);
+
 const UrlWithHttpsSchema = Schema.String.pipe(
   Schema.pattern(/^https:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9()@:%_+.~#?&/=]*$/),
 ).annotations({ title: 'UrlWithHttps' });
@@ -57,7 +67,7 @@ export const ChangeStepSchema = Schema.Struct({
   frame: Schema.optional(FrameSelectorSchema),
   selectors: SelectorsSchema,
   target: Schema.optional(Schema.String),
-  timeout: Schema.optional(Schema.NonNegativeInt),
+  timeout: TimeoutSchema,
   value: Schema.NonEmptyString,
 }) satisfies SchemaType<ChangeStep>;
 
@@ -72,14 +82,14 @@ export const ClickStepSchema = Schema.Struct({
   offsetY: Schema.NonNegativeInt,
   selectors: SelectorsSchema,
   target: Schema.optional(Schema.String),
-  timeout: Schema.optional(Schema.NonNegativeInt),
+  timeout: TimeoutSchema,
 }) satisfies SchemaType<ClickStep>;
 
 export const CloseStepSchema = Schema.Struct({
   type: Schema.Literal(StepType.Close),
   assertedEvents: Schema.optional(Schema.Array(AssertedEventsSchema)),
   target: Schema.optional(Schema.String),
-  timeout: Schema.optional(Schema.NonNegativeInt),
+  timeout: TimeoutSchema,
 }) satisfies SchemaType<CloseStep>;
 
 export const CustomStepParamsSchema = Schema.Struct({
@@ -118,7 +128,7 @@ export const DoubleClickStepSchema = Schema.Struct({
   offsetY: Schema.NonNegativeInt,
   selectors: SelectorsSchema,
   target: Schema.optional(Schema.String),
-  timeout: Schema.optional(Schema.NonNegativeInt),
+  timeout: TimeoutSchema,
 }) satisfies SchemaType<DoubleClickStep>;
 
 export const EmulateNetworkConditionsStepSchema = Schema.Struct({
@@ -136,7 +146,7 @@ export const HoverStepSchema = Schema.Struct({
   frame: Schema.optional(FrameSelectorSchema),
   selectors: SelectorsSchema,
   target: Schema.optional(Schema.String),
-  timeout: Schema.optional(Schema.NonNegativeInt),
+  timeout: TimeoutSchema,
 }) satisfies SchemaType<HoverStep>;
 
 export const KeyDownStepSchema = Schema.Struct({
@@ -144,7 +154,7 @@ export const KeyDownStepSchema = Schema.Struct({
   assertedEvents: Schema.optional(Schema.Array(AssertedEventsSchema)),
   key: KeySchema,
   target: Schema.optional(Schema.String),
-  timeout: Schema.optional(Schema.NonNegativeInt),
+  timeout: TimeoutSchema,
 }) satisfies SchemaType<KeyDownStep>;
 
 export const KeyUpStepSchema = Schema.Struct({
@@ -152,14 +162,14 @@ export const KeyUpStepSchema = Schema.Struct({
   assertedEvents: Schema.optional(Schema.Array(AssertedEventsSchema)),
   key: KeySchema,
   target: Schema.optional(Schema.String),
-  timeout: Schema.optional(Schema.NonNegativeInt),
+  timeout: TimeoutSchema,
 }) satisfies { Type: ReadonlyDeep<KeyUpStep> };
 
 export const NavigateStepSchema = Schema.Struct({
   type: AuditStepTypeSchema.pipe(Schema.pickLiteral(StepType.Navigate)),
   assertedEvents: Schema.optional(Schema.Array(AssertedEventsSchema)),
   target: Schema.optional(Schema.String),
-  timeout: Schema.optional(Schema.NonNegativeInt),
+  timeout: TimeoutSchema,
   url: UrlWithHttpsSchema,
 }).annotations({ title: 'NavigationStep' }) satisfies SchemaType<NavigateStep>;
 
@@ -168,19 +178,15 @@ export const ScrollPageStepSchema = Schema.Struct({
   assertedEvents: Schema.optional(Schema.Array(AssertedEventsSchema)),
   frame: Schema.optional(FrameSelectorSchema),
   target: Schema.optional(Schema.String),
-  timeout: Schema.optional(Schema.NonNegativeInt),
+  timeout: TimeoutSchema,
   x: Schema.Number,
   y: Schema.Number,
 });
 
-export const ScrollStepSchema = ScrollPageStepSchema.pipe(
-  Schema.compose(
-    Schema.Struct({
-      ...ScrollPageStepSchema.fields,
-      selectors: SelectorsSchema,
-    }),
-  ),
-) satisfies SchemaType<ScrollStep>;
+export const ScrollStepSchema = Schema.Struct({
+  ...ScrollPageStepSchema.fields,
+  selectors: SelectorsSchema,
+}) satisfies SchemaType<ScrollStep>;
 
 export const SetViewStepSchema = Schema.Struct({
   type: Schema.Literal(StepType.SetViewport),
@@ -191,7 +197,7 @@ export const SetViewStepSchema = Schema.Struct({
   isLandscape: Schema.Boolean,
   isMobile: Schema.Boolean,
   target: Schema.optional(Schema.String),
-  timeout: Schema.optional(Schema.NonNegativeInt),
+  timeout: TimeoutSchema,
   width: Schema.NonNegativeInt,
 }) satisfies SchemaType<SetViewportStep>;
 
@@ -209,7 +215,7 @@ export const WaitForElementStepSchema = Schema.Struct({
   properties: Schema.optional(PropertiesSchema),
   selectors: SelectorsSchema,
   target: Schema.optional(Schema.String),
-  timeout: Schema.optional(Schema.NonNegativeInt),
+  timeout: TimeoutSchema,
   visible: Schema.optional(Schema.Boolean),
 }) satisfies SchemaType<WaitForElementStep>;
 
@@ -219,7 +225,7 @@ export const WaitForExpressionStepSchema = Schema.Struct({
   expression: Schema.NonEmptyString,
   frame: Schema.optional(FrameSelectorSchema),
   target: Schema.optional(Schema.String),
-  timeout: Schema.optional(Schema.NonNegativeInt),
+  timeout: TimeoutSchema,
 }) satisfies SchemaType<WaitForExpressionStep>;
 
 export const PuppeteerReplayStepSchema = Schema.Union(

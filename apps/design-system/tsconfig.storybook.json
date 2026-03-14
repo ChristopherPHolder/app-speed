@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "emitDecoratorMetadata": true,
+    "moduleResolution": "bundler"
+  },
+  "files": [],
+  "include": [
+    "./.storybook/preview.ts",
+    "../../libs/**/*.stories.ts",
+    "../../libs/**/*.stories.tsx",
+    "../../apps/**/*.stories.ts",
+    "../../apps/**/*.stories.tsx"
+  ],
+  "exclude": ["../../**/*.spec.ts", "../../**/*.test.ts"],
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
+  }
+}

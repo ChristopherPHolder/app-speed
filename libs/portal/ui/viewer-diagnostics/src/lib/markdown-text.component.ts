@@ -1,9 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import type { IcuMessage } from 'lighthouse/types/lhr/i18n';
 
-type MarkdownSegment =
-  | { kind: 'text'; value: string }
-  | { kind: 'link'; label: string; href: string };
+type MarkdownSegment = { kind: 'text'; value: string } | { kind: 'link'; label: string; href: string };
 
 const MARKDOWN_LINK_PATTERN = /\[([^\]]+)]\(([^)]+)\)/g;
 
@@ -21,15 +19,6 @@ const MARKDOWN_LINK_PATTERN = /\[([^\]]+)]\(([^)]+)\)/g;
   styles: `
     :host {
       display: inline;
-    }
-
-    .markdown-link {
-      color: var(--mat-sys-primary);
-      text-decoration: none;
-    }
-
-    .markdown-link:hover {
-      text-decoration: underline;
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
