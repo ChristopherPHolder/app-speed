@@ -13,6 +13,10 @@ import { ScrollContainerComponent } from '@app-speed/portal-ui/scroll-container'
     </ui-scroll-container>
   `,
   styles: `
+    :host {
+      display: block;
+      padding: 20px 0 20px 0;
+    }
     .film-strip-container {
       display: flex;
       overflow: auto;
