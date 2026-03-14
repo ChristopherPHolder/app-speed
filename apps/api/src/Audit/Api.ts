@@ -60,6 +60,7 @@ export class AuditApiGroup extends HttpApiGroup.make('audit')
     HttpApiEndpoint.post('schedule', '/schedule')
       .setPayload(ReplayUserflowAuditSchema)
       .addSuccess(Schema.Struct({ auditId: AuditId, auditQueuePosition: Schema.NonNegativeInt }))
+      .addError(HttpApiError.HttpApiDecodeError)
       .addError(HttpApiError.BadRequest),
   )
   .add(
