@@ -5,5 +5,13 @@
   "type": "module",
   "main": "./index.mjs",
   "types": "./index.d.ts",
-  "dependencies": {}
+  "dependencies": {
+    "@app-speed/shared-user-flow-replay": "0.0.1",
+    "@nx/vite": "22.5.4",
+    "better-sqlite3": "^12.6.2",
+    "drizzle-kit": "^0.31.9",
+    "drizzle-orm": "^0.45.1",
+    "effect": "^3.19.14",
+    "vitest": "^3.2.4"
+  }
 }
