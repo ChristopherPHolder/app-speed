@@ -19,15 +19,14 @@ export class UserFlowRunnerExtension extends PuppeteerRunnerExtension {
     if (step.type !== StepType.CustomStep) {
       return super.runStep(step as Step, flowRecording);
     }
-    if (!isReplayUserflowStep(step)) {
-      // TODO improve error message for unhandled custom type!
-      throw new Error('Custom step is not handled');
+
+    if (isReplayUserflowStep(step)) {
+      if (isReplayUserflowStepWithFlags(step)) {
+        return this.flow[step.name](step.parameters);
+      }
+      return this.flow[step.name]();
     }
 
-    if (isReplayUserflowStepWithFlags(step)) {
-      return this.flow[step.name](step.parameters);
-    }
-
-    return this.flow[step.name]();
+    throw new Error(`Unknown custom step type ${JSON.stringify(step)}`);
   }
 }
