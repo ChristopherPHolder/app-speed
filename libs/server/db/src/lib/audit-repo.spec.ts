@@ -1,7 +1,6 @@
 import { ConfigProvider, Effect, Layer } from 'effect';
 import { expect, layer } from '@effect/vitest';
 import { randomUUID } from 'node:crypto';
-import Database from 'better-sqlite3';
 import fs from 'node:fs';
 import path from 'node:path';
 import { auditResultTable, auditRunTable, auditTemplateTable } from './schema';
@@ -17,29 +16,6 @@ const sampleAudit: ReplayUserflowAudit = {
 };
 
 const testDbDir = path.join(process.cwd(), 'tmp');
-const localMigrationsPath = path.join(process.cwd(), 'migrations');
-const workspaceMigrationsPath = path.join(process.cwd(), 'libs/server/db/migrations');
-const migrationsPath = fs.existsSync(localMigrationsPath) ? localMigrationsPath : workspaceMigrationsPath;
-
-const applyMigrations = (dbPath: string) => {
-  const migrationFiles = fs
-    .readdirSync(migrationsPath, { withFileTypes: true })
-    .filter((entry) => entry.isFile() && entry.name.endsWith('.sql'))
-    .map((entry) => entry.name)
-    .sort((left, right) => left.localeCompare(right));
-
-  const sqlite = new Database(dbPath);
-
-  try {
-    sqlite.pragma('foreign_keys = ON');
-    for (const migrationFile of migrationFiles) {
-      const migrationSql = fs.readFileSync(path.join(migrationsPath, migrationFile), 'utf8');
-      sqlite.exec(migrationSql);
-    }
-  } finally {
-    sqlite.close();
-  }
-};
 
 const TestDbLayer = Layer.unwrapEffect(
   Effect.gen(function* () {
@@ -52,14 +28,11 @@ const TestDbLayer = Layer.unwrapEffect(
       ConfigProvider.fromMap(new Map([['DATABASE_URL', relativeTestDbPath]])),
     );
     const DbLayer = Layer.provideMerge(ConfigLayer)(DbClient.live);
-    const MigrationsLayer = Layer.scopedDiscard(
-      Effect.gen(function* () {
-        yield* Effect.sync(() => applyMigrations(testDbPath));
-        yield* Effect.addFinalizer(() => Effect.sync(() => fs.rmSync(testDbPath, { force: true })));
-      }),
+    const CleanupLayer = Layer.scopedDiscard(
+      Effect.addFinalizer(() => Effect.sync(() => fs.rmSync(testDbPath, { force: true }))),
     );
 
-    return Layer.provideMerge(MigrationsLayer)(DbLayer);
+    return Layer.provideMerge(CleanupLayer)(DbLayer);
   }),
 );
 
