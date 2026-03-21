@@ -33,47 +33,6 @@
     "lint": {
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"]
-    },
-    "storybook": {
-      "executor": "@storybook/angular:start-storybook",
-      "options": {
-        "port": 4400,
-        "configDir": "{workspaceRoot}/{projectRoot}/.storybook",
-        "tsConfig": "{workspaceRoot}/{projectRoot}/tsconfig.storybook.json",
-        "styles": ["{workspaceRoot}/{projectRoot}/theme/styles.scss"],
-        "browserTarget": "portal-ui:build-storybook",
-        "compodoc": false
-      },
-      "configurations": {
-        "ci": {
-          "quiet": true
-        }
-      }
-    },
-    "build-storybook": {
-      "executor": "@storybook/angular:build-storybook",
-      "outputs": ["{options.outputDir}"],
-      "options": {
-        "outputDir": "dist/storybook/ui",
-        "styles": ["{workspaceRoot}/{projectRoot}/theme/styles.scss"],
-        "tsConfig": "{workspaceRoot}/{projectRoot}/tsconfig.storybook.json",
-        "configDir": "{workspaceRoot}/{projectRoot}/.storybook",
-        "browserTarget": "portal-ui:build-storybook",
-        "compodoc": false
-      },
-      "configurations": {
-        "ci": {
-          "quiet": true
-        }
-      }
-    },
-    "publish-storybook": {
-      "executor": "nx:run-commands",
-      "dependsOn": ["build-storybook"],
-      "options": {
-        "parallel": false,
-        "commands": ["pnpm exec chromatic -d ./dist/storybook/ui --exit-zero-on-changes"]
-      }
     }
   }
 }

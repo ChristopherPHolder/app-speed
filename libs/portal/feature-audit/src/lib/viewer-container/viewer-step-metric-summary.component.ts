@@ -32,6 +32,11 @@ export type MetricSummary = {
     </div>
   `,
   styles: `
+    :host {
+      display: block;
+      padding: 20px;
+    }
+
     .header {
       display: flex;
       justify-content: space-between;

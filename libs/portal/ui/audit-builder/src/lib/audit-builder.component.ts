@@ -130,11 +130,11 @@ export class AuditBuilderComponent implements OnInit {
   initialAudit = input.required<AuditDetails>();
   protected readonly DEVICE_TYPES: readonly string[] = DEVICE_OPTIONS;
   private readonly destroyRef = inject(DestroyRef);
-  public readonly modifing = input.required<boolean>();
+  public readonly modifying = input.required<boolean>();
 
   constructor() {
     effect(() => {
-      if (this.modifing()) {
+      if (this.modifying()) {
         this.formGroup.enable();
       } else {
         this.formGroup.disable();
@@ -144,7 +144,7 @@ export class AuditBuilderComponent implements OnInit {
 
   ngOnInit(): void {
     this.formGroup = new AuditFormGroup(this.initialAudit());
-    
+
     this.formGroup.valueChanges
       .pipe(
         tap(() => this.modified.emit(this.formGroup.value)),

@@ -69,7 +69,15 @@ const processAuditRequest = Effect.fn('runner.queue.processItem')(function* (
 
   if (Exit.isSuccess(exit)) {
     yield* Effect.annotateCurrentSpan({ 'audit.status': 'SUCCESS' });
-    yield* completeAuditRun(auditRequest.auditId, { status: 'SUCCESS', data: exit.value }, durationMs);
+    yield* completeAuditRun(
+      auditRequest.auditId,
+      {
+        status: 'SUCCESS',
+        data: exit.value.flowResult,
+        reportHtml: exit.value.reportHtml,
+      },
+      durationMs,
+    );
   } else {
     const error = toErrorPayload(exit.cause);
     yield* Effect.annotateCurrentSpan({

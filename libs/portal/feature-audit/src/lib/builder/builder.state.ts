@@ -1,6 +1,7 @@
 import { AuditDetails } from '@app-speed/shared-user-flow-replay';
 import { createFeature, createReducer, on } from '@ngrx/store';
 import {
+  auditQueuePositionUpdated,
   auditResultFailure,
   auditResultRequested,
   auditResultSuccess,
@@ -14,6 +15,7 @@ import {
 } from './builder.actions';
 import type { FlowResult } from 'lighthouse';
 import type { AuditStage } from './builder.actions';
+import type { LoadingStatusViewModel } from '../audit-builder/loading-status.models';
 
 export const auditBuilderFeatureKey = 'auditBuilder';
 
@@ -24,6 +26,67 @@ const AUDIT_BUILDER_STATUS = {
   SUCCESS: 'success',
 } as const;
 
+type LoadingDialogState = LoadingStatusViewModel | null;
+
+const getQueueSubtitle = (queuePosition: number | null) =>
+  queuePosition === null
+    ? 'Waiting for queue status.'
+    : queuePosition === 0
+      ? 'Next in queue. Waiting for a runner.'
+      : `${queuePosition} ${queuePosition === 1 ? 'audit is' : 'audits are'} ahead in queue.`;
+
+const getRunningSubtitle = () =>
+  'A runner has started your audit. Results will open automatically when it completes.';
+
+const getFooterText = (requestId: string | null) => {
+  if (requestId === null) {
+    return undefined;
+  }
+
+  return `Audit ID: ${requestId}`;
+};
+
+const getLoadingDialog = ({
+  auditStage,
+  queuePosition,
+  requestId,
+  submittingRequest,
+}: {
+  auditStage: AuditStage | null;
+  queuePosition: number | null;
+  requestId: string | null;
+  submittingRequest: boolean;
+}): LoadingDialogState => {
+  if (!submittingRequest) {
+    return null;
+  }
+
+  if (requestId === null) {
+    return {
+      title: 'Submitting Audit',
+      subtitle: 'Submitting an audit request to server',
+    };
+  }
+
+  if (auditStage === 'running') {
+    return {
+      title: 'Audit running',
+      subtitle: getRunningSubtitle(),
+      footerText: getFooterText(requestId),
+    };
+  }
+
+  if (auditStage === 'scheduled' || auditStage === 'scheduling') {
+    return {
+      title: 'Audit queued',
+      subtitle: getQueueSubtitle(queuePosition),
+      footerText: getFooterText(requestId),
+    };
+  }
+
+  return null;
+};
+
 export interface AuditBuilderState {
   audit: AuditDetails | null;
   error: string | null;
@@ -32,7 +95,8 @@ export interface AuditBuilderState {
   auditRequestError: string | null;
   modifying: boolean;
   requestId: string | null;
-  loadingDialog: { title: string; subtitle: string } | null;
+  queuePosition: number | null;
+  loadingDialog: LoadingDialogState;
   listeningToAuditProgress: boolean | null;
   auditStage: AuditStage | null;
   auditResult: FlowResult | null;
@@ -48,6 +112,7 @@ export const initialState: AuditBuilderState = {
   auditRequestError: null,
   modifying: true,
   requestId: null,
+  queuePosition: null,
   loadingDialog: null,
   listeningToAuditProgress: null,
   auditStage: null,
@@ -60,44 +125,72 @@ export const auditBuilderReducer = createReducer(
   initialState,
   on(submitAuditRequest, (state, { audit }) => ({
     ...state,
-    audit: audit,
+    audit,
     submittingRequest: true,
     modifying: false,
+    requestId: null,
+    queuePosition: null,
     auditStage: 'scheduling',
     auditResult: null,
     auditResultStatus: null,
     auditResultError: null,
-    loadingDialog: {
-      title: `Submitting Audit`,
-      subtitle: `Submitting a an audit request to server`,
-    }
+    loadingDialog: getLoadingDialog({
+      auditStage: 'scheduling',
+      queuePosition: null,
+      requestId: null,
+      submittingRequest: true,
+    }),
   })),
-  on(submitAuditRequestSuccess, (state, { requestId }) => ({
-    ...state,
-    submittingRequest: true,
-    modifying: false,
-    requestId: requestId,
-    listeningToAuditProgress: true,
-    loadingDialog: {
-      title: `Audit pending`,
-      subtitle: `Audit request pending ${requestId}`,
-    }
-  })),
+  on(submitAuditRequestSuccess, (state, { requestId, queuePosition }) => {
+    const nextState = {
+      ...state,
+      submittingRequest: true,
+      modifying: false,
+      requestId,
+      queuePosition,
+      listeningToAuditProgress: true,
+      auditStage: 'scheduled' as const,
+    };
+
+    return {
+      ...nextState,
+      loadingDialog: getLoadingDialog(nextState),
+    };
+  }),
   on(submitAuditRequestFailed, (state, { auditRequestError }) => ({
     ...state,
     submittingRequest: false,
-    auditRequestError: auditRequestError,
+    auditRequestError,
     modifying: true,
+    queuePosition: null,
     listeningToAuditProgress: false,
     auditResult: null,
     auditResultStatus: 'FAILURE',
     auditResultError: auditRequestError,
     loadingDialog: null,
   })),
-  on(auditStageUpdated, (state, { stage }) => ({
-    ...state,
-    auditStage: stage,
-  })),
+  on(auditStageUpdated, (state, { stage }) => {
+    const nextState = {
+      ...state,
+      auditStage: stage,
+    };
+
+    return {
+      ...nextState,
+      loadingDialog: getLoadingDialog(nextState),
+    };
+  }),
+  on(auditQueuePositionUpdated, (state, { queuePosition }) => {
+    const nextState = {
+      ...state,
+      queuePosition,
+    };
+
+    return {
+      ...nextState,
+      loadingDialog: getLoadingDialog(nextState),
+    };
+  }),
   on(auditResultRequested, (state, { requestId }) => ({
     ...state,
     requestId,
@@ -105,6 +198,7 @@ export const auditBuilderReducer = createReducer(
   on(auditResultSuccess, (state, { result }) => ({
     ...state,
     submittingRequest: false,
+    queuePosition: null,
     listeningToAuditProgress: false,
     auditResult: result,
     auditResultStatus: 'SUCCESS',
@@ -114,6 +208,7 @@ export const auditBuilderReducer = createReducer(
   on(auditResultFailure, (state, { error }) => ({
     ...state,
     submittingRequest: false,
+    queuePosition: null,
     listeningToAuditProgress: false,
     auditResult: null,
     auditResultStatus: 'FAILURE',

@@ -2,6 +2,7 @@ import { createAction, props } from '@ngrx/store';
 
 import { AuditDetails } from '@app-speed/shared-user-flow-replay';
 import type { FlowResult } from 'lighthouse';
+import type { LoadingStatusViewModel } from '../audit-builder/loading-status.models';
 
 export type AuditStage = 'scheduling' | 'scheduled' | 'running' | 'done' | 'failed';
 
@@ -10,7 +11,10 @@ export const submitAuditRequest = createAction(
   props<{ audit: AuditDetails }>(),
 );
 
-export const submitAuditRequestSuccess = createAction('[Builder Page] Submitting Audit Request Success', props<{ requestId: string }>());
+export const submitAuditRequestSuccess = createAction(
+  '[Builder Page] Submitting Audit Request Success',
+  props<{ requestId: string; queuePosition: number }>(),
+);
 
 export const submitAuditRequestFailed = createAction(
   '[Builder Page] Submitting Audit Request Failed',
@@ -22,6 +26,11 @@ export const listenToAuditProgress = createAction('[Builder Page] Request audits
 export const auditStageUpdated = createAction(
   '[Builder Page] Audit Stage Updated',
   props<{ stage: AuditStage }>(),
+);
+
+export const auditQueuePositionUpdated = createAction(
+  '[Builder Page] Audit Queue Position Updated',
+  props<{ queuePosition: number }>(),
 );
 
 export const auditResultRequested = createAction(
@@ -55,6 +64,9 @@ export const loadAuditDetailsSuccess = createAction(
   props<{ audit: AuditDetails }>(),
 );
 
-export const updateLoadingDialog = createAction('[Builder Page] Update Loading Dialog', props<{ loadingDialog: null | { title: string, subtitle: string } }>());
+export const updateLoadingDialog = createAction(
+  '[Builder Page] Update Loading Dialog',
+  props<{ loadingDialog: LoadingStatusViewModel | null }>(),
+);
 
 export const loadAuditDetailsFailed = createAction('[Builder Page] Load Audit Details Failed');

@@ -13,8 +13,29 @@ describe('Audit', () => {
     return await r.json();
   }
 
-  it.todo('should return actionable audit schema error messages', async () => {
-    expect(await ScheduleRequest(JSON.stringify({}))).toBe('TODO');
+  async function CompleteRequest(payload: unknown) {
+    const r = await fetch('http://localhost:3000/api/runner/complete', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        accept: 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+    return await r.json();
+  }
+
+  it('should return actionable audit schema error messages', async () => {
+    const response = await ScheduleRequest({});
+
+    expect(response).toMatchObject({
+      _tag: 'HttpApiDecodeError',
+    });
+    expect(response.message).toContain('title');
+    expect(response.issues[0]).toMatchObject({
+      _tag: 'Missing',
+      path: ['title'],
+    });
   });
 
   it('should schedule audit', async () => {
@@ -106,6 +127,28 @@ describe('Audit', () => {
       _tag: 'AuditRunSummaryNotFoundError',
       code: 'RUN_NOT_FOUND',
     });
+  });
+
+  it('should return stored lighthouse html report', async () => {
+    const scheduleResponse = await ScheduleRequest(MOCK_AUDIT);
+
+    const completeResponse = await CompleteRequest({
+      runnerId: 'runner-e2e',
+      auditId: scheduleResponse.auditId,
+      status: 'SUCCESS',
+      result: { score: 0.9 },
+      reportHtml: '<!doctype html><html><body>Lighthouse flow report</body></html>',
+      durationMs: 321,
+    });
+
+    expect(completeResponse).toEqual({ ok: true });
+
+    const res = await fetch(`${AUDIT_API_ENDPOINT}${scheduleResponse.auditId}/report`);
+    const body = await res.text();
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toContain('text/html');
+    expect(body).toContain('Lighthouse flow report');
   });
 });
 

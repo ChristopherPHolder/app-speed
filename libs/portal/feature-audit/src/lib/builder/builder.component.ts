@@ -10,13 +10,14 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ErrorDialogComponent } from '../audit-builder/error-dialog.component';
 import { LoadingStatusComponent } from '../audit-builder/loading-status.component';
 import { scan } from 'rxjs';
+import type { LoadingStatusViewModel } from '../audit-builder/loading-status.models';
 
 @Component({
   selector: 'audit',
   template: `
     @if (auditDetails$ | async; as auditDetails) {
       <ui-audit-builder
-        [modifing]="modifying()"
+        [modifying]="modifying()"
         (modified)="updateAuditDetails($event)"
         [initialAudit]="auditDetails"
         (submitAudit)="submitAudit($event)"
@@ -65,8 +66,8 @@ export class BuilderComponent implements OnInit {
             return acc;
           },
           { loading: null, dialog: null } as {
-            loading: WritableSignal<{ title: string; subtitle: string }> | null;
-            dialog: MatDialogRef<LoadingStatusComponent, any> | null;
+            loading: WritableSignal<LoadingStatusViewModel> | null;
+            dialog: MatDialogRef<LoadingStatusComponent, unknown> | null;
           },
         ),
       )

@@ -9,6 +9,7 @@ import {
 } from '@angular/material/card';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import type { LoadingStatusViewModel } from './loading-status.models';
 
 @Component({
   selector: 'loading-status',
@@ -23,9 +24,11 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
       <mat-card-content [style.padding-top]="'16px'">
         <mat-spinner [diameter]="64" />
       </mat-card-content>
-      <mat-card-footer [style.padding]="'0 16px 0 16px'">
-        <p><small>If this loader is confusing please opening a ticket with suggestions!</small></p>
-      </mat-card-footer>
+      @if (data().footerText) {
+        <mat-card-footer [style.padding]="'0 16px 0 16px'">
+          <p><small>{{ data().footerText }}</small></p>
+        </mat-card-footer>
+      }
     </mat-card>
   `,
   imports: [MatCard, MatCardContent, MatCardFooter, MatCardHeader, MatCardSubtitle, MatCardTitle, MatProgressSpinner],
@@ -41,5 +44,5 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
   `,
 })
 export class LoadingStatusComponent {
-  readonly data = inject<Signal<{ title?: string; subtitle?: string }>>(MAT_DIALOG_DATA);
+  readonly data = inject<Signal<LoadingStatusViewModel>>(MAT_DIALOG_DATA);
 }

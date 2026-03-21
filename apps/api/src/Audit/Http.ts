@@ -262,6 +262,31 @@ export const AuditGroupLive = HttpApiBuilder.group(Api, 'audit', (handlers) =>
         ),
       )
       .handle(
+        'reportById',
+        Effect.fn('api.audit.reportById')((request) =>
+          repo.getRunById(request.path.id).pipe(
+            Effect.tap(() => Effect.annotateCurrentSpan({ 'audit.id': request.path.id })),
+            Effect.filterOrFail(
+              (r) => r !== null,
+              () => new AuditNotFoundError({ id: request.path.id }),
+            ),
+            Effect.flatMap(() => repo.getResultByRunId(request.path.id)),
+            Effect.flatMap((result) => {
+              if (result === null || result.reportHtml === null) {
+                return Effect.fail(new HttpApiError.NotFound());
+              }
+
+              return Effect.annotateCurrentSpan({ 'audit.result_status': result.status }).pipe(
+                Effect.as(result.reportHtml),
+              );
+            }),
+            Effect.withSpan('api.audit.reportById'),
+            Effect.catchTag('QueryError', () => new HttpApiError.BadRequest()),
+            Effect.catchTag('ParseError', () => new HttpApiError.BadRequest()),
+          ),
+        ),
+      )
+      .handle(
         'schedule',
         Effect.fn('api.audit.schedule')((request) =>
           Effect.gen(function* () {

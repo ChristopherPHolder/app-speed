@@ -8,8 +8,6 @@ type AuditResultResponse =
 
 type AuditStage = 'scheduling' | 'scheduled' | 'running' | 'done' | 'failed';
 
-const NO_DISPLAY_STAGES: AuditStage[] = ['done'];
-
 @Injectable({ providedIn: 'root' })
 export class SchedulerService {
   private eventSource: EventSource | null = null;
@@ -18,11 +16,11 @@ export class SchedulerService {
   private readonly http = inject(HttpClient);
 
   private readonly stage$ = new BehaviorSubject<AuditStage>('scheduling');
-  private readonly queuePosition$ = new BehaviorSubject<number | null>(null);
+  private readonly queuePositionState$ = new BehaviorSubject<number | null>(null);
   private readonly resultKey$ = new BehaviorSubject<string | null>(null);
 
   readonly stageName$ = this.stage$.asObservable();
-  readonly shouldDisplayIndicator$ = this.stageName$.pipe(map((stage) => !NO_DISPLAY_STAGES.includes(stage)));
+  readonly queuePosition$ = this.queuePositionState$.asObservable();
   readonly key$ = this.resultKey$.pipe(filter((key): key is string => key !== null));
 
   private finalizeWithStatus(auditId: string, status: 'SUCCESS' | 'FAILURE') {
@@ -53,7 +51,7 @@ export class SchedulerService {
     }
 
     this.stage$.next('scheduling');
-    this.queuePosition$.next(null);
+    this.queuePositionState$.next(null);
     this.resultKey$.next(null);
 
     this.disconnect$.next();
@@ -68,7 +66,7 @@ export class SchedulerService {
         map((event) => JSON.parse(event.data) as { position: number }),
         takeUntil(this.disconnect$),
       )
-      .subscribe(({ position }) => this.queuePosition$.next(position));
+      .subscribe(({ position }) => this.queuePositionState$.next(position));
 
     fromEvent<MessageEvent>(source, 'status')
       .pipe(

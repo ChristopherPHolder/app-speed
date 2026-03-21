@@ -60,6 +60,7 @@ export class AuditApiGroup extends HttpApiGroup.make('audit')
     HttpApiEndpoint.post('schedule', '/schedule')
       .setPayload(ReplayUserflowAuditSchema)
       .addSuccess(Schema.Struct({ auditId: AuditId, auditQueuePosition: Schema.NonNegativeInt }))
+      .addError(HttpApiError.HttpApiDecodeError)
       .addError(HttpApiError.BadRequest),
   )
   .add(
@@ -73,6 +74,14 @@ export class AuditApiGroup extends HttpApiGroup.make('audit')
     HttpApiEndpoint.get('resultById', '/:id/result')
       .setPath(Schema.Struct({ id: AuditId }))
       .addSuccess(AuditResultSchema)
+      .addError(HttpApiError.BadRequest)
+      .addError(HttpApiError.NotFound)
+      .addError(AuditNotFoundError),
+  )
+  .add(
+    HttpApiEndpoint.get('reportById', '/:id/report')
+      .setPath(Schema.Struct({ id: AuditId }))
+      .addSuccess(HttpApiSchema.Text({ contentType: 'text/html' }))
       .addError(HttpApiError.BadRequest)
       .addError(HttpApiError.NotFound)
       .addError(AuditNotFoundError),

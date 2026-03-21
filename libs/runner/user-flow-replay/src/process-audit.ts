@@ -1,7 +1,7 @@
 import { Config, Data, Effect, Schema } from 'effect';
 import { Browser, launch } from 'puppeteer';
 import { createRunner, parse as puppeteerReplayParse } from '@puppeteer/replay';
-import { Config as LighthouseConfig, defaultConfig, desktopConfig, startFlow } from 'lighthouse';
+import { Config as LighthouseConfig, defaultConfig, desktopConfig, generateReport, startFlow } from 'lighthouse';
 
 import { PuppeteerReplayUserflowRunnerSchema, ReplayUserflowAudit } from '@app-speed/shared-user-flow-replay/schema';
 
@@ -66,7 +66,14 @@ export const runAudit = Effect.fn((audit: ReplayUserflowAudit) =>
       },
     }).pipe(Effect.withSpan('runner.audit.executeReplay'));
 
-    return yield* Effect.promise(() => flow.createFlowResult()).pipe(Effect.withSpan('runner.audit.createFlowResult'));
+    const flowResult = yield* Effect.promise(() => flow.createFlowResult()).pipe(
+      Effect.withSpan('runner.audit.createFlowResult'),
+    );
+    const reportHtml = yield* Effect.sync(() => generateReport(flowResult, 'html')).pipe(
+      Effect.withSpan('runner.audit.createReportHtml'),
+    );
+
+    return { flowResult, reportHtml };
   }).pipe(Effect.withSpan('runner.audit.process'), Effect.scoped),
 );
 

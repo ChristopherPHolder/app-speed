@@ -13,6 +13,6 @@ type Story = StoryObj<AuditBuilderComponent>;
 export const Default: Story = {
   args: {
     initialAudit: DEFAULT_AUDIT_DETAILS,
-    modifing: true,
+    modifying: true,
   },
 };

@@ -1,6 +1,6 @@
 import { describe, expect } from 'vitest';
 import { Schema } from 'effect';
-import { NavigateStepSchema } from './puppeteer-replay-step';
+import { NavigateStepSchema, WaitForExpressionStepSchema } from './puppeteer-replay-step';
 
 describe('PuppeteerReplayStepSchema', () => {
   it('should validate NavigateStepSchema', () => {
@@ -10,5 +10,19 @@ describe('PuppeteerReplayStepSchema', () => {
         url: 'https://www.google.com',
       }),
     ).toEqual(true);
+  });
+
+  it('should decode string timeouts as numbers for waitForExpression', () => {
+    const decoded = Schema.decodeUnknownSync(WaitForExpressionStepSchema)({
+      type: 'waitForExpression',
+      expression: 'window.__ready === true',
+      timeout: '5000',
+    });
+
+    expect(decoded).toMatchObject({
+      type: 'waitForExpression',
+      expression: 'window.__ready === true',
+      timeout: 5000,
+    });
   });
 });

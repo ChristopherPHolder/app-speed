@@ -115,7 +115,7 @@ export const claimNextAudit = Effect.gen(function* () {
 
 export const completeAuditRun = Effect.fn('runner.queue.completeRun')(function* (
   auditId: string,
-  result: { status: 'SUCCESS' | 'FAILURE'; data: unknown; error?: unknown },
+  result: { status: 'SUCCESS' | 'FAILURE'; data: unknown; error?: unknown; reportHtml?: string },
   durationMs: number,
 ) {
   const apiBaseUrl = yield* getApiBaseUrl;
@@ -134,6 +134,7 @@ export const completeAuditRun = Effect.fn('runner.queue.completeRun')(function* 
       auditId,
       status: 'SUCCESS',
       result: success.data,
+      reportHtml: success.reportHtml,
       durationMs,
     })),
     Match.when({ status: 'FAILURE' }, (failure) => ({
