@@ -41,6 +41,7 @@ const AuditResultRecordSchema = Schema.Struct({
   data: Schema.Unknown,
   status: AuditResultStatusSchema,
   error: Schema.NullOr(Schema.Unknown),
+  reportHtml: Schema.NullOr(Schema.String),
   createdAt: Schema.DateFromSelf,
 });
 type AuditResultRecord = typeof AuditResultRecordSchema.Type;
@@ -92,7 +93,7 @@ export class AuditRepo extends Context.Tag('AuditRepo')<
     >;
     completeRun: (
       id: AuditRunId,
-      result: { status: 'SUCCESS' | 'FAILURE'; data: unknown; error?: unknown },
+      result: { status: 'SUCCESS' | 'FAILURE'; data: unknown; error?: unknown; reportHtml?: string | null },
       durationMs: number,
     ) => Effect.Effect<void, QueryError>;
     getRunById: (id: AuditRunId) => Effect.Effect<AuditRunRecord | null, QueryError | ParseResult.ParseError>;
@@ -128,6 +129,7 @@ const decodeAuditResultRecord = (result: {
   status: AuditResultStatus;
   data: unknown;
   error: unknown;
+  reportHtml: string | null;
   createdAt: Date;
 }) =>
   Schema.decodeUnknown(AuditResultRecordSchema, { errors: 'all' })({
@@ -135,6 +137,7 @@ const decodeAuditResultRecord = (result: {
     status: result.status,
     data: result.data ?? null,
     error: result.error ?? null,
+    reportHtml: result.reportHtml ?? null,
     createdAt: result.createdAt,
   });
 
@@ -505,7 +508,7 @@ export const AuditRepoLive = Layer.effect(
 
     const completeRun = (
       id: AuditRunId,
-      result: { status: 'SUCCESS' | 'FAILURE'; data: unknown; error?: unknown },
+      result: { status: 'SUCCESS' | 'FAILURE'; data: unknown; error?: unknown; reportHtml?: string | null },
       durationMs: number,
     ) =>
       Effect.gen(function* () {
@@ -535,6 +538,7 @@ export const AuditRepoLive = Layer.effect(
                 status: result.status,
                 data: result.data ?? null,
                 error: result.error ?? null,
+                reportHtml: result.reportHtml ?? null,
                 createdAt: now,
               })
               .run();
@@ -583,6 +587,7 @@ export const AuditRepoLive = Layer.effect(
             status: auditResultTable.status,
             data: auditResultTable.data,
             error: auditResultTable.error,
+            reportHtml: auditResultTable.reportHtml,
             createdAt: auditResultTable.createdAt,
           })
           .from(auditResultTable)

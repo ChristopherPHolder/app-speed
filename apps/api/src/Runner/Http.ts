@@ -46,7 +46,11 @@ export const RunnerGroupLive = HttpApiBuilder.group(Api, 'runner', (handlers) =>
         Effect.fn('api.runner.complete')((request) =>
           Effect.gen(function* () {
             const result = Match.value(request.payload).pipe(
-              Match.when({ status: 'SUCCESS' }, (payload) => ({ status: payload.status, data: payload.result })),
+              Match.when({ status: 'SUCCESS' }, (payload) => ({
+                status: payload.status,
+                data: payload.result,
+                reportHtml: payload.reportHtml,
+              })),
               Match.when({ status: 'FAILURE' }, (payload) => ({
                 status: payload.status,
                 data: null,

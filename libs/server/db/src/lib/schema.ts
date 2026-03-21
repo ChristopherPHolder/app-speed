@@ -54,6 +54,7 @@ export const auditResultTable = sqliteTable(
     status: text('status', { enum: auditResultStatusValues }).$type<AuditResultStatus>().notNull(),
     data: text('data', { mode: 'json' }).$type<unknown>(),
     error: text('error', { mode: 'json' }).$type<unknown>(),
+    reportHtml: text('reportHtml'),
     createdAt: integer('createdAt', { mode: 'timestamp_ms' })
       .notNull()
       .$defaultFn(() => new Date()),

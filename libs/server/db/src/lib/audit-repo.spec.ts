@@ -144,7 +144,11 @@ layer(TestLayer)('AuditRepo (contract)', (it) => {
       const runId = yield* repo.createRun(templateId);
 
       yield* repo.markRunInProgress(runId);
-      yield* repo.completeRun(runId, { status: 'SUCCESS', data: { score: 0.91 } }, 1234);
+      yield* repo.completeRun(
+        runId,
+        { status: 'SUCCESS', data: { score: 0.91 }, reportHtml: '<html><body>report</body></html>' },
+        1234,
+      );
 
       const run = yield* repo.getRunById(runId);
       const result = yield* repo.getResultByRunId(runId);
@@ -154,6 +158,7 @@ layer(TestLayer)('AuditRepo (contract)', (it) => {
       expect(result?.status).toBe('SUCCESS');
       expect(result?.data).toEqual({ score: 0.91 });
       expect(result?.error).toBeNull();
+      expect(result?.reportHtml).toBe('<html><body>report</body></html>');
     }),
   );
 

@@ -32,6 +32,7 @@ const RunnerCompleteSuccessSchema = Schema.Struct({
   auditId: AuditId,
   status: AuditResultStatusSchema.pipe(Schema.pickLiteral('SUCCESS')),
   result: Schema.Unknown,
+  reportHtml: Schema.String,
   durationMs: Schema.NonNegative,
 });
 

@@ -79,6 +79,14 @@ export class AuditApiGroup extends HttpApiGroup.make('audit')
       .addError(AuditNotFoundError),
   )
   .add(
+    HttpApiEndpoint.get('reportById', '/:id/report')
+      .setPath(Schema.Struct({ id: AuditId }))
+      .addSuccess(HttpApiSchema.Text({ contentType: 'text/html' }))
+      .addError(HttpApiError.BadRequest)
+      .addError(HttpApiError.NotFound)
+      .addError(AuditNotFoundError),
+  )
+  .add(
     HttpApiEndpoint.get('listRuns', '/runs')
       .setUrlParams(AuditRunsQuerySchema)
       .addSuccess(AuditRunsPageSchema)
