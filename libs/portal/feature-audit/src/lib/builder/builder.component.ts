@@ -67,7 +67,7 @@ export class BuilderComponent implements OnInit {
           },
           { loading: null, dialog: null } as {
             loading: WritableSignal<LoadingStatusViewModel> | null;
-            dialog: MatDialogRef<LoadingStatusComponent, any> | null;
+            dialog: MatDialogRef<LoadingStatusComponent, unknown> | null;
           },
         ),
       )
