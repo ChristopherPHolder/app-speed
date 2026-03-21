@@ -22,7 +22,8 @@ describe('auditBuilderReducer loading dialog states', () => {
 
     expect(queuedState.loadingDialog).toEqual({
       title: 'Audit queued',
-      subtitle: '2 audits are ahead in queue. Audit ID: audit-123',
+      subtitle: '2 audits are ahead in queue.',
+      footerText: 'Audit ID: audit-123',
     });
   });
 
@@ -37,7 +38,8 @@ describe('auditBuilderReducer loading dialog states', () => {
 
     expect(queuedState.loadingDialog).toEqual({
       title: 'Audit queued',
-      subtitle: 'Next in queue. Waiting for a runner. Audit ID: audit-123',
+      subtitle: 'Next in queue. Waiting for a runner.',
+      footerText: 'Audit ID: audit-123',
     });
   });
 
@@ -52,7 +54,8 @@ describe('auditBuilderReducer loading dialog states', () => {
 
     expect(queuedState.loadingDialog).toEqual({
       title: 'Audit queued',
-      subtitle: '1 audit is ahead in queue. Audit ID: audit-123',
+      subtitle: '1 audit is ahead in queue.',
+      footerText: 'Audit ID: audit-123',
     });
   });
 
@@ -67,8 +70,8 @@ describe('auditBuilderReducer loading dialog states', () => {
 
     expect(runningState.loadingDialog).toEqual({
       title: 'Audit running',
-      subtitle:
-        'A runner has started your audit. Results will open automatically when it completes. Audit ID: audit-123',
+      subtitle: 'A runner has started your audit. Results will open automatically when it completes.',
+      footerText: 'Audit ID: audit-123',
     });
   });
 });

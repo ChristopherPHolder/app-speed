@@ -15,6 +15,7 @@ import {
 } from './builder.actions';
 import type { FlowResult } from 'lighthouse';
 import type { AuditStage } from './builder.actions';
+import type { LoadingStatusViewModel } from '../audit-builder/loading-status.models';
 
 export const auditBuilderFeatureKey = 'auditBuilder';
 
@@ -25,21 +26,25 @@ const AUDIT_BUILDER_STATUS = {
   SUCCESS: 'success',
 } as const;
 
-type LoadingDialogState = { title: string; subtitle: string } | null;
+type LoadingDialogState = LoadingStatusViewModel | null;
 
-const getQueueSubtitle = (requestId: string, queuePosition: number | null) => {
-  const queueMessage =
-    queuePosition === null
-      ? 'Waiting for queue status.'
-      : queuePosition === 0
-        ? 'Next in queue. Waiting for a runner.'
-        : `${queuePosition} ${queuePosition === 1 ? 'audit is' : 'audits are'} ahead in queue.`;
+const getQueueSubtitle = (queuePosition: number | null) =>
+  queuePosition === null
+    ? 'Waiting for queue status.'
+    : queuePosition === 0
+      ? 'Next in queue. Waiting for a runner.'
+      : `${queuePosition} ${queuePosition === 1 ? 'audit is' : 'audits are'} ahead in queue.`;
 
-  return `${queueMessage} Audit ID: ${requestId}`;
+const getRunningSubtitle = () =>
+  'A runner has started your audit. Results will open automatically when it completes.';
+
+const getFooterText = (requestId: string | null) => {
+  if (requestId === null) {
+    return undefined;
+  }
+
+  return `Audit ID: ${requestId}`;
 };
-
-const getRunningSubtitle = (requestId: string) =>
-  `A runner has started your audit. Results will open automatically when it completes. Audit ID: ${requestId}`;
 
 const getLoadingDialog = ({
   auditStage,
@@ -66,14 +71,16 @@ const getLoadingDialog = ({
   if (auditStage === 'running') {
     return {
       title: 'Audit running',
-      subtitle: getRunningSubtitle(requestId),
+      subtitle: getRunningSubtitle(),
+      footerText: getFooterText(requestId),
     };
   }
 
   if (auditStage === 'scheduled' || auditStage === 'scheduling') {
     return {
       title: 'Audit queued',
-      subtitle: getQueueSubtitle(requestId, queuePosition),
+      subtitle: getQueueSubtitle(queuePosition),
+      footerText: getFooterText(requestId),
     };
   }
 

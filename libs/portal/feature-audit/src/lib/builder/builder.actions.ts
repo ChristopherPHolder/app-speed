@@ -2,6 +2,7 @@ import { createAction, props } from '@ngrx/store';
 
 import { AuditDetails } from '@app-speed/shared-user-flow-replay';
 import type { FlowResult } from 'lighthouse';
+import type { LoadingStatusViewModel } from '../audit-builder/loading-status.models';
 
 export type AuditStage = 'scheduling' | 'scheduled' | 'running' | 'done' | 'failed';
 
@@ -63,6 +64,9 @@ export const loadAuditDetailsSuccess = createAction(
   props<{ audit: AuditDetails }>(),
 );
 
-export const updateLoadingDialog = createAction('[Builder Page] Update Loading Dialog', props<{ loadingDialog: null | { title: string, subtitle: string } }>());
+export const updateLoadingDialog = createAction(
+  '[Builder Page] Update Loading Dialog',
+  props<{ loadingDialog: LoadingStatusViewModel | null }>(),
+);
 
 export const loadAuditDetailsFailed = createAction('[Builder Page] Load Audit Details Failed');

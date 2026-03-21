@@ -8,8 +8,6 @@ type AuditResultResponse =
 
 type AuditStage = 'scheduling' | 'scheduled' | 'running' | 'done' | 'failed';
 
-const NO_DISPLAY_STAGES: AuditStage[] = ['done'];
-
 @Injectable({ providedIn: 'root' })
 export class SchedulerService {
   private eventSource: EventSource | null = null;
@@ -23,7 +21,6 @@ export class SchedulerService {
 
   readonly stageName$ = this.stage$.asObservable();
   readonly queuePosition$ = this.queuePositionState$.asObservable();
-  readonly shouldDisplayIndicator$ = this.stageName$.pipe(map((stage) => !NO_DISPLAY_STAGES.includes(stage)));
   readonly key$ = this.resultKey$.pipe(filter((key): key is string => key !== null));
 
   private finalizeWithStatus(auditId: string, status: 'SUCCESS' | 'FAILURE') {

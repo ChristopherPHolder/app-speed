@@ -8,8 +8,26 @@ const meta: Meta<LoadingStatusComponent> = {
   component: LoadingStatusComponent,
   parameters: {
     layout: 'fullscreen',
+    docs: {
+      description: {
+        component:
+          'Presentation-only dialog body for audit progress. The container derives the message and provides it through MAT_DIALOG_DATA.',
+      },
+    },
   },
   decorators: [
+    applicationConfig({
+      providers: [
+        {
+          provide: MAT_DIALOG_DATA,
+          useValue: signal({
+            title: 'Loading Status Title',
+            subtitle: 'Loading Status Subtitle',
+            footerText: 'Loading Status Footer Text',
+          }),
+        },
+      ],
+    }),
     componentWrapperDecorator(
       (story) => `
         <div
@@ -35,50 +53,4 @@ const meta: Meta<LoadingStatusComponent> = {
 export default meta;
 type Story = StoryObj<LoadingStatusComponent>;
 
-export const Submitting: Story = {
-  decorators: [
-    applicationConfig({
-      providers: [
-        {
-          provide: MAT_DIALOG_DATA,
-          useValue: signal({
-            title: 'Submitting Audit',
-            subtitle: 'Submitting an audit request to server',
-          }),
-        },
-      ],
-    }),
-  ],
-};
-
-export const Queued: Story = {
-  decorators: [
-    applicationConfig({
-      providers: [
-        {
-          provide: MAT_DIALOG_DATA,
-          useValue: signal({
-            title: 'Audit queued',
-            subtitle: '2 audits are ahead in queue. Audit ID: audit-4b9f4f6d',
-          }),
-        },
-      ],
-    }),
-  ],
-};
-
-export const Running: Story = {
-  decorators: [
-    applicationConfig({
-      providers: [
-        {
-          provide: MAT_DIALOG_DATA,
-          useValue: signal({
-            title: 'Audit running',
-            subtitle: 'A runner has started your audit. Results will open automatically when it completes. Audit ID: audit-4b9f4f6d',
-          }),
-        },
-      ],
-    }),
-  ],
-};
+export const Default: Story = {};
