@@ -10,7 +10,10 @@ export const submitAuditRequest = createAction(
   props<{ audit: AuditDetails }>(),
 );
 
-export const submitAuditRequestSuccess = createAction('[Builder Page] Submitting Audit Request Success', props<{ requestId: string }>());
+export const submitAuditRequestSuccess = createAction(
+  '[Builder Page] Submitting Audit Request Success',
+  props<{ requestId: string; queuePosition: number }>(),
+);
 
 export const submitAuditRequestFailed = createAction(
   '[Builder Page] Submitting Audit Request Failed',
@@ -22,6 +25,11 @@ export const listenToAuditProgress = createAction('[Builder Page] Request audits
 export const auditStageUpdated = createAction(
   '[Builder Page] Audit Stage Updated',
   props<{ stage: AuditStage }>(),
+);
+
+export const auditQueuePositionUpdated = createAction(
+  '[Builder Page] Audit Queue Position Updated',
+  props<{ queuePosition: number }>(),
 );
 
 export const auditResultRequested = createAction(

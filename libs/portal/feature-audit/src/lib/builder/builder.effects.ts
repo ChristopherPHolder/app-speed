@@ -1,6 +1,7 @@
 import { inject } from '@angular/core';
 import { Actions, createEffect, ofType, provideEffects } from '@ngrx/effects';
 import {
+  auditQueuePositionUpdated,
   auditResultFailure,
   auditResultRequested,
   auditResultSuccess,
@@ -14,7 +15,7 @@ import {
   submitAuditRequestSuccess,
   updateAuditDetails,
 } from './builder.actions';
-import { catchError, debounceTime, distinctUntilChanged, map, of, switchMap, tap } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, filter, map, of, switchMap, tap } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DEFAULT_AUDIT_DETAILS } from '@app-speed/shared-user-flow-replay';
 import { ApiService, SchedulerService } from '@app-speed/portal-data-access';
@@ -86,7 +87,12 @@ const submitAuditRequestEffect = createEffect(
       ofType(submitAuditRequest),
       switchMap(({ audit }) =>
         api.requestAudit(audit).pipe(
-          map((response) => submitAuditRequestSuccess({ requestId: response.auditId })),
+          map((response) =>
+            submitAuditRequestSuccess({
+              requestId: response.auditId,
+              queuePosition: response.auditQueuePosition,
+            }),
+          ),
           catchError((error) => of(submitAuditRequestFailed({ auditRequestError: getAuditRequestErrorMessage(error) }))),
         ),
       ),
@@ -112,6 +118,21 @@ const listenToAuditProgressEffect = createEffect(
         scheduler.stageName$.pipe(
           distinctUntilChanged(),
           map((stage) => auditStageUpdated({ stage })),
+        ),
+      ),
+    ),
+  { functional: true },
+);
+
+const listenToAuditQueuePositionEffect = createEffect(
+  (action$ = inject(Actions), scheduler = inject(SchedulerService)) =>
+    action$.pipe(
+      ofType(listenToAuditProgress),
+      switchMap(() =>
+        scheduler.queuePosition$.pipe(
+          filter((queuePosition): queuePosition is number => queuePosition !== null),
+          distinctUntilChanged(),
+          map((queuePosition) => auditQueuePositionUpdated({ queuePosition })),
         ),
       ),
     ),
@@ -183,6 +204,7 @@ export const provideBuilderEffects = () =>
     loadAuditDetailsFailedEffect,
     submitAuditRequestSuccessEffect,
     listenToAuditProgressEffect,
+    listenToAuditQueuePositionEffect,
     auditResultRequestedEffect,
     auditResultEffect,
     auditResultSuccessNavigateEffect,
