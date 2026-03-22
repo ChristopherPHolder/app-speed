@@ -10,8 +10,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToTitleCasePipe } from './utils/toTitleCase.pipe';
 import { InputFieldComponent } from './fields/input-field.component';
 import { ArrayFieldComponent } from './fields/array-field.component';
-import { AuditStepLighthouseIconComponent } from './audit-step-lighthouse-icon.component';
-import { AuditStepPuppeteerIconComponent } from './audit-step-puppeteer-icon.component';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'ui-audit-builder-step',
@@ -22,11 +21,11 @@ import { AuditStepPuppeteerIconComponent } from './audit-step-puppeteer-icon.com
         <mat-panel-title>
           @if (control.controls['type'].value; as stepType) {
             <span class="step-title">
-              @if (isLighthouseStep(stepType)) {
-                <ui-audit-step-lighthouse-icon />
-              } @else {
-                <ui-audit-step-puppeteer-icon />
-              }
+              <mat-icon
+                [svgIcon]="isLighthouseStep(stepType) ? 'lighthouse-badge' : 'puppeteer-badge'"
+                class="step-source-icon"
+                aria-hidden="true"
+              />
               <span class="step-title__text">{{ stepType | toTitleCase }}</span>
             </span>
           } @else {
@@ -90,8 +89,7 @@ import { AuditStepPuppeteerIconComponent } from './audit-step-puppeteer-icon.com
     ToTitleCasePipe,
     InputFieldComponent,
     ArrayFieldComponent,
-    AuditStepLighthouseIconComponent,
-    AuditStepPuppeteerIconComponent,
+    MatIcon,
   ],
   styles: `
     .step-title {
@@ -103,6 +101,12 @@ import { AuditStepPuppeteerIconComponent } from './audit-step-puppeteer-icon.com
 
     .step-title__text {
       min-width: 0;
+    }
+
+    .step-source-icon {
+      width: 28px;
+      height: 28px;
+      flex: 0 0 28px;
     }
 
     .add-optional-field {

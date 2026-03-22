@@ -4,8 +4,11 @@ import { STEP_TYPE_OPTIONS_GROUPED } from './step-type';
 
 export type StepPropertyOptionValue = string | boolean;
 
+export type StepPropertyOptionGroupIcon = 'lighthouse-badge' | 'puppeteer-badge';
+
 export type StepPropertyOptionGroup = {
   label: string;
+  icon: StepPropertyOptionGroupIcon;
   options: readonly StepPropertyOptionValue[];
 };
 

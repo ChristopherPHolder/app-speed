@@ -30,7 +30,11 @@ import { PropertyName, StepPropertyOption, StepPropertyOptionGroup } from '@app-
           <mat-select [formControl]="control">
             @for (option of options; track option) {
               @if (isOptionGroup(option)) {
-                <mat-optgroup [label]="option.label">
+                <mat-optgroup>
+                  <span class="option-group-label">
+                    <mat-icon [svgIcon]="option.icon" aria-hidden="true" />
+                    <span>{{ option.label }}</span>
+                  </span>
                   @for (groupOption of option.options; track groupOption) {
                     <mat-option [value]="groupOption">{{ groupOption }}</mat-option>
                   }
@@ -53,6 +57,13 @@ import { PropertyName, StepPropertyOption, StepPropertyOptionGroup } from '@app-
         }
       }
     </div>
+  `,
+  styles: `
+    .option-group-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
