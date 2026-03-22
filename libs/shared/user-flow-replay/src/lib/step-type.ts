@@ -36,3 +36,18 @@ export const STEP_TYPE = {
 } as const;
 export type StepType = (typeof STEP_TYPE)[keyof typeof STEP_TYPE];
 export const STEP_OPTIONS = Object.values(STEP_TYPE);
+
+export const STEP_TYPE_OPTIONS_GROUPED = [
+  {
+    label: 'Audit Steps',
+    options: Object.values(LIGHTHOUSE_AUDIT_STEP_TYPE),
+  },
+  {
+    label: 'Assertion Steps',
+    options: Object.values(ASSERTION_STEP_TYPE),
+  },
+  {
+    label: 'Action Steps',
+    options: Object.values(USER_STEP_TYPE),
+  },
+] as const;
