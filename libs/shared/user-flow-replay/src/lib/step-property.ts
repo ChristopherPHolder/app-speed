@@ -1,12 +1,24 @@
 import { INPUT_TYPE, InputType, InputValue } from './input-type';
 import { PROPERTY_NAME, PropertyName } from './property-name';
-import { STEP_OPTIONS } from './step-type';
+import { STEP_TYPE_OPTIONS_GROUPED } from './step-type';
+
+export type StepPropertyOptionValue = string | boolean;
+
+export type StepPropertyOptionGroupIcon = 'lighthouse-badge' | 'puppeteer-badge';
+
+export type StepPropertyOptionGroup = {
+  label: string;
+  icon: StepPropertyOptionGroupIcon;
+  options: readonly StepPropertyOptionValue[];
+};
+
+export type StepPropertyOption = StepPropertyOptionValue | StepPropertyOptionGroup;
 
 export type StepProperty = {
   name: PropertyName;
   inputType: InputType;
   defaultValue?: InputValue;
-  options?: (string | boolean)[];
+  options?: readonly StepPropertyOption[];
   description?: string;
   required?: boolean;
 };
@@ -17,7 +29,7 @@ export const type = {
   name: PROPERTY_NAME.TYPE,
   inputType: INPUT_TYPE.OPTIONS,
   required: true,
-  options: STEP_OPTIONS,
+  options: ['', ...STEP_TYPE_OPTIONS_GROUPED],
 } as const satisfies StepProperty;
 
 export const timeout = {

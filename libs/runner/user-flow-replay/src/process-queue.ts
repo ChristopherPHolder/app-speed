@@ -35,21 +35,11 @@ const runnerIdleTimeoutMsConfig = Config.integer('RUNNER_IDLE_TIMEOUT_MS').pipe(
 const runnerIdlePollIntervalMsConfig = Config.integer('RUNNER_IDLE_POLL_INTERVAL_MS').pipe(Config.withDefault(5_000));
 const runnerHeartbeatIntervalMsConfig = Config.integer('RUNNER_HEARTBEAT_INTERVAL_MS').pipe(Config.withDefault(15_000));
 
-type QueueState =
-  | {
-      state: 'BUSY';
-      idleSince: null;
-    }
-  | {
-      state: 'IDLE';
-      idleSince: number;
-    };
+type QueueBusyState = { state: 'BUSY'; idleSince: null };
+type QueueIdleState = { state: 'IDLE'; idleSince: number };
+type QueueState = QueueBusyState | QueueIdleState;
 
-const setBusyState = (stateRef: Ref.Ref<QueueState>) =>
-  Ref.set(stateRef, {
-    state: 'BUSY',
-    idleSince: null,
-  });
+const setBusyState = (stateRef: Ref.Ref<QueueState>) => Ref.set(stateRef, { state: 'BUSY', idleSince: null });
 
 const setIdleState = (stateRef: Ref.Ref<QueueState>, idleSince: number) =>
   Ref.set(stateRef, {
@@ -145,10 +135,7 @@ export const processQueue = Effect.gen(function* () {
   const idleTimeoutMs = yield* runnerIdleTimeoutMsConfig;
   const idlePollIntervalMs = yield* runnerIdlePollIntervalMsConfig;
   const heartbeatIntervalMs = yield* runnerHeartbeatIntervalMsConfig;
-  const stateRef = yield* Ref.make<QueueState>({
-    state: 'BUSY',
-    idleSince: null,
-  });
+  const stateRef = yield* Ref.make<QueueState>({ state: 'BUSY', idleSince: null });
 
   yield* Effect.forkScoped(heartbeatLoop(stateRef, heartbeatIntervalMs));
   yield* queueLoop(stateRef, idleTimeoutMs, idlePollIntervalMs);

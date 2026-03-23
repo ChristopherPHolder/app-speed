@@ -1,17 +1,27 @@
 import { ChangeDetectionStrategy, Component, inject, input, OnInit } from '@angular/core';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
-import { MatOption } from '@angular/material/core';
+import { MatOption, MatOptgroup } from '@angular/material/core';
 import { MatSelect } from '@angular/material/select';
 import { ControlContainer, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { StepFormGroup } from '../audit-builder-form';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { ToTitleCasePipe } from '../utils/toTitleCase.pipe';
-import { PropertyName } from '@app-speed/shared-user-flow-replay';
+import { PropertyName, StepPropertyOption, StepPropertyOptionGroup } from '@app-speed/shared-user-flow-replay';
 
 @Component({
   selector: 'ui-options-field',
-  imports: [ReactiveFormsModule, MatLabel, MatFormField, MatSelect, MatOption, MatIconButton, MatIcon, ToTitleCasePipe],
+  imports: [
+    ReactiveFormsModule,
+    MatLabel,
+    MatFormField,
+    MatSelect,
+    MatOption,
+    MatOptgroup,
+    MatIconButton,
+    MatIcon,
+    ToTitleCasePipe,
+  ],
   template: `
     <div>
       @if (control) {
@@ -19,7 +29,19 @@ import { PropertyName } from '@app-speed/shared-user-flow-replay';
           <mat-label>{{ label() | toTitleCase }}</mat-label>
           <mat-select [formControl]="control">
             @for (option of options; track option) {
-              <mat-option [value]="option">{{ option }}</mat-option>
+              @if (isOptionGroup(option)) {
+                <mat-optgroup>
+                  <span class="option-group-label">
+                    <mat-icon [svgIcon]="option.icon" aria-hidden="true" />
+                    <span>{{ option.label }}</span>
+                  </span>
+                  @for (groupOption of option.options; track groupOption) {
+                    <mat-option [value]="groupOption">{{ groupOption }}</mat-option>
+                  }
+                </mat-optgroup>
+              } @else {
+                <mat-option [value]="option">{{ option }}</mat-option>
+              }
             }
           </mat-select>
         </mat-form-field>
@@ -36,6 +58,13 @@ import { PropertyName } from '@app-speed/shared-user-flow-replay';
       }
     </div>
   `,
+  styles: `
+    .option-group-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OptionsFieldComponent implements OnInit {
@@ -46,7 +75,7 @@ export class OptionsFieldComponent implements OnInit {
   stepFromGroup!: StepFormGroup;
   control?: FormControl;
   required?: boolean;
-  options!: (string | boolean)[];
+  options!: readonly StepPropertyOption[];
 
   ngOnInit(): void {
     this.setupControl();
@@ -67,5 +96,9 @@ export class OptionsFieldComponent implements OnInit {
     }
     // @TODO improve this type
     this.control = optionsControl as FormControl;
+  }
+
+  protected isOptionGroup(option: StepPropertyOption): option is StepPropertyOptionGroup {
+    return typeof option === 'object';
   }
 }

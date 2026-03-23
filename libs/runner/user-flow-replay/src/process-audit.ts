@@ -46,12 +46,7 @@ export const runAudit = Effect.fn((audit: ReplayUserflowAudit) =>
     const { browser, page } = yield* RunnerContext;
 
     const flow = yield* Effect.promise(() =>
-      startFlow(page, {
-        name: audit.title,
-        config: {
-          ...configOptions[audit.device],
-        },
-      }),
+      startFlow(page, { name: audit.title, config: { ...configOptions[audit.device] } }),
     ).pipe(Effect.withSpan('runner.audit.startFlow'));
 
     const runnerExtension = new UserFlowRunnerExtension(browser, page, flow);
