@@ -46,10 +46,10 @@
       },
       "configurations": {
         "production": {
-          "bucket": "s3://appspeed.dev"
+          "bucket": "s3://appspeed-design-system"
         },
         "development": {
-          "bucket": "s3://dev.appspeed.dev"
+          "bucket": "s3://dev.appspeed-design-system"
         }
       },
       "defaultConfiguration": "development"
