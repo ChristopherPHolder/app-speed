@@ -11,7 +11,7 @@
         "port": 4400,
         "configDir": "apps/design-system/.storybook",
         "tsConfig": "apps/design-system/tsconfig.storybook.json",
-        "styles": ["libs/portal/ui/theme/styles.scss"],
+        "styles": ["libs/ui/theme/styles.scss"],
         "browserTarget": "design-system:build",
         "compodoc": false
       },
@@ -28,7 +28,7 @@
         "outputDir": "dist/storybook/design-system",
         "configDir": "apps/design-system/.storybook",
         "tsConfig": "apps/design-system/tsconfig.storybook.json",
-        "styles": ["libs/portal/ui/theme/styles.scss"],
+        "styles": ["libs/ui/theme/styles.scss"],
         "browserTarget": "design-system:build",
         "compodoc": false
       },

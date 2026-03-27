@@ -3,7 +3,7 @@ import { SwiperComponent } from './swiper.component';
 import { FractionalResultChipComponent } from './fractional-result-chip.component';
 import { SwiperOptions } from 'swiper/types';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { RadialChartComponent } from '@app-speed/portal-ui/radial-chart';
+import { RadialChartComponent } from '@app-speed/ui/radial-chart';
 
 export type AuditSummary = {
   screenShot: string;

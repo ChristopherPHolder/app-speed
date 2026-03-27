@@ -1,6 +1,6 @@
 import { Result } from 'lighthouse';
 import { Result as AuditResult } from 'lighthouse/types/lhr/audit-result';
-import { STATUS, StatusOptions } from '@app-speed/portal-ui/status-badge';
+import { STATUS, StatusOptions } from '@app-speed/ui/status-badge';
 
 const LIGHTHOUSE_PASS_THRESHOLD = 0.9;
 const LIGHTHOUSE_AVERAGE_THRESHOLD = 0.5;

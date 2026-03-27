@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
-import { STATUS } from '@app-speed/portal-ui/status-badge';
+import { STATUS } from '@app-speed/ui/status-badge';
 import { MetricSummary, ViewerStepMetricSummaryComponent } from './viewer-step-metric-summary.component';
 
 const metricSummary: MetricSummary[] = [

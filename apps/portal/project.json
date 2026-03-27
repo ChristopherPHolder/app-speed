@@ -16,7 +16,7 @@
         "polyfills": ["zone.js"],
         "tsConfig": "{projectRoot}/tsconfig.app.json",
         "assets": ["{projectRoot}/src/favicon.ico", "{projectRoot}/src/assets"],
-        "styles": ["{workspaceRoot}/libs/portal/ui/theme/styles.scss"]
+        "styles": ["{workspaceRoot}/libs/ui/theme/styles.scss"]
       },
       "configurations": {
         "production": {

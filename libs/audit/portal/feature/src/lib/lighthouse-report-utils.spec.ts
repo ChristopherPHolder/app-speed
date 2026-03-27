@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { STATUS } from '@app-speed/portal-ui/status-badge';
+import { STATUS } from '@app-speed/ui/status-badge';
 import { auditBadgeStatus, calculateRating } from './lighthouse-report-utils';
 
 describe('calculateRating', () => {

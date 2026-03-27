@@ -4,7 +4,8 @@
   "peerDependencies": {
     "@angular/cdk": "21.2.1",
     "@angular/core": "21.2.1",
-    "@app-speed/portal-ui": "0.0.0",
+    "@angular/material": "21.2.1",
+    "@app-speed/ui": "0.0.0",
     "@storybook/angular": "^10.2.10",
     "swiper": "^12.1.2"
   },

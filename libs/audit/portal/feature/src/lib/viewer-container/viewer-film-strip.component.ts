@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { ScrollContainerComponent } from '@app-speed/portal-ui/scroll-container';
+import { ScrollContainerComponent } from '@app-speed/ui/scroll-container';
 
 @Component({
   selector: 'viewer-film-strip',

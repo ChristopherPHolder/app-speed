@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, effect, input, signal, untracked } from '@angular/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTableModule } from '@angular/material/table';
-import { ScrollContainerComponent } from '@app-speed/portal-ui/scroll-container';
+import { ScrollContainerComponent } from '@app-speed/ui/scroll-container';
 import type Details from 'lighthouse/types/lhr/audit-details';
 import { ViewerDetailValueComponent } from './detail-value.component';
 import { buildTableBaseModel, buildVisibleRows, getDefaultShowThirdParty, TableBaseModel } from './table.adaptor';
