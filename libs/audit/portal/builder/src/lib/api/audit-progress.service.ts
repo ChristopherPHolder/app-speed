@@ -9,7 +9,7 @@ type AuditResultResponse =
 type AuditStage = 'scheduling' | 'scheduled' | 'running' | 'done' | 'failed';
 
 @Injectable({ providedIn: 'root' })
-export class SchedulerService {
+export class AuditProgressService {
   private eventSource: EventSource | null = null;
   private currentAuditId: string | null = null;
   private readonly disconnect$ = new Subject<void>();

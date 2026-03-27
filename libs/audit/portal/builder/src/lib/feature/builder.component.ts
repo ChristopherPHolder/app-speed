@@ -10,7 +10,7 @@ import { ErrorDialogComponent } from '../audit-builder/error-dialog.component';
 import { LoadingStatusComponent } from '../audit-builder/loading-status.component';
 import { scan } from 'rxjs';
 import type { LoadingStatusViewModel } from '../audit-builder/loading-status.models';
-import { AuditBuilderComponent } from '../ui/audit-builder.component';
+import { AuditBuilderComponent } from '../components/audit-builder.component';
 
 @Component({
   selector: 'audit',

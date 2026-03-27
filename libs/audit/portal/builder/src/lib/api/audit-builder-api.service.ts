@@ -7,7 +7,7 @@ export interface ScheduleAuditResponse {
 }
 
 @Injectable({ providedIn: 'root' })
-export class ApiService {
+export class AuditBuilderApiService {
   private http = inject(HttpClient);
 
   requestAudit(auditDetails: any) {
