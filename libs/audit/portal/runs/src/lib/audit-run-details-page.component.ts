@@ -2,9 +2,9 @@ import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, interval, of, switchMap } from 'rxjs';
-import { AuditRunsApiService } from './data-access/audit-runs-api.service';
-import { AuditRunSummary } from './data-access/audit-runs.models';
-import { AuditRunDetailsComponent } from './ui/audit-run-details.component';
+import { AuditRunsApiService } from './api/audit-runs-api.service';
+import { AuditRunSummary } from './api/audit-runs.models';
+import { AuditRunDetailsComponent } from './components/audit-run-details.component';
 
 @Component({
   selector: 'portal-audit-run-details-page',

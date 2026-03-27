@@ -6,9 +6,9 @@ import {
   AuditRunStatus,
   AuditRunSummary,
   DEFAULT_AUDIT_RUN_FILTER,
-} from './data-access/audit-runs.models';
-import { AuditRunsApiService } from './data-access/audit-runs-api.service';
-import { AuditRunsTableComponent } from './ui/audit-runs-table.component';
+} from './api/audit-runs.models';
+import { AuditRunsApiService } from './api/audit-runs-api.service';
+import { AuditRunsTableComponent } from './components/audit-runs-table.component';
 import { interval } from 'rxjs';
 
 @Component({

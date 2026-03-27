@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/angular';
 import { AuditRunDetailsComponent } from './audit-run-details.component';
-import { AuditRunRow } from './audit-runs.types';
+import { AuditRunSummary } from '../api/audit-runs.models';
 
-const completedRun: AuditRunRow = {
+const completedRun: AuditRunSummary = {
   auditId: 'audit-003',
   title: 'Search journey regression audit',
   status: 'COMPLETE',
@@ -14,7 +14,7 @@ const completedRun: AuditRunRow = {
   durationMs: 78000,
 };
 
-const inProgressRun: AuditRunRow = {
+const inProgressRun: AuditRunSummary = {
   auditId: 'audit-002',
   title: 'Checkout flow accessibility audit',
   status: 'IN_PROGRESS',

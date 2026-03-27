@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/angular';
 import { AuditRunsTableComponent } from './audit-runs-table.component';
-import { AuditRunRow, DEFAULT_AUDIT_RUN_FILTER } from './audit-runs.types';
+import { AuditRunSummary, DEFAULT_AUDIT_RUN_FILTER } from '../api/audit-runs.models';
 
-const sampleRuns: ReadonlyArray<AuditRunRow> = [
+const sampleRuns: ReadonlyArray<AuditRunSummary> = [
   {
     auditId: 'audit-001',
     title: 'Homepage performance audit',

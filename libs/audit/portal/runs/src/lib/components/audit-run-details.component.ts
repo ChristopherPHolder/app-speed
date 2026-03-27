@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from 
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { AuditRunRow } from './audit-runs.types';
+import { AuditRunSummary } from '../api/audit-runs.models';
 
 @Component({
   selector: 'ui-audit-run-details',
@@ -137,7 +137,7 @@ import { AuditRunRow } from './audit-runs.types';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuditRunDetailsComponent {
-  @Input() run: AuditRunRow | null = null;
+  @Input() run: AuditRunSummary | null = null;
   @Input() loading = false;
   @Input() errorMessage: string | null = null;
 
