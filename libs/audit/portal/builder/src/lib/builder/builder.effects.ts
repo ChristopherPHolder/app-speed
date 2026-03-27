@@ -18,10 +18,11 @@ import {
 import { catchError, debounceTime, distinctUntilChanged, filter, map, of, switchMap, tap } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DEFAULT_AUDIT_DETAILS } from '@app-speed/audit/model';
-import { ApiService, SchedulerService } from '@app-speed/audit/portal-data-access';
 import { HttpClient } from '@angular/common/http';
 import type { FlowResult } from 'lighthouse';
 import { getAuditRequestErrorMessage } from './builder-error-message';
+import { ApiService } from '../data-access/api.services';
+import { SchedulerService } from '../data-access/scheduler/scheduler.service';
 
 type AuditResultResponse =
   | { status: 'SUCCESS'; result: FlowResult }

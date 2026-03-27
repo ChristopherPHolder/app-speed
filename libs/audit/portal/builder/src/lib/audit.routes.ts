@@ -4,9 +4,9 @@ import { provideState } from '@ngrx/store';
 import { auditBuilderFeature } from './builder/builder.state';
 import { provideBuilderEffects } from './builder/builder.effects';
 import { AuditComponent } from './audit.component';
-import { provideAuditBuilderIcons } from '@app-speed/audit/portal-ui-builder';
+import { provideAuditBuilderIcons } from './ui/audit-builder-icons.provider';
 
-export const auditRoutes: Routes = [
+export const auditBuilderRoutes: Routes = [
   {
     path: '',
     component: AuditComponent,

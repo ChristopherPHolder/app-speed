@@ -1,10 +1,11 @@
 {
-  "name": "audit-portal-ui-builder",
+  "name": "audit-portal-builder",
   "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/audit/portal/ui-builder/src",
+  "root": "libs/audit/portal/builder",
+  "sourceRoot": "libs/audit/portal/builder/src",
   "prefix": "lib",
   "projectType": "library",
-  "tags": ["type:domain", "scope:audit", "runtime:web", "layer:ui"],
+  "tags": ["type:domain", "scope:audit", "runtime:web", "layer:feature"],
   "targets": {
     "build": {
       "executor": "@nx/angular:ng-packagr-lite",
@@ -20,6 +21,15 @@
         "development": {}
       },
       "defaultConfiguration": "production"
+    },
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "configFile": "{projectRoot}/vitest.config.mts",
+        "reportsDirectory": "../../../../coverage/libs/audit/portal/builder",
+        "passWithNoTests": true
+      }
     },
     "lint": {
       "executor": "@nx/eslint:lint"

@@ -4,13 +4,13 @@ import { loadAuditDetails, submitAuditRequest, updateAuditDetails } from './buil
 import { AuditDetails } from '@app-speed/audit/model';
 import { AsyncPipe } from '@angular/common';
 import { auditBuilderFeature } from './builder.state';
-import { AuditBuilderComponent } from '@app-speed/audit/portal-ui-builder';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ErrorDialogComponent } from '../audit-builder/error-dialog.component';
 import { LoadingStatusComponent } from '../audit-builder/loading-status.component';
 import { scan } from 'rxjs';
 import type { LoadingStatusViewModel } from '../audit-builder/loading-status.models';
+import { AuditBuilderComponent } from '../ui/audit-builder.component';
 
 @Component({
   selector: 'audit',
