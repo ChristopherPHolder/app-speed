@@ -19,10 +19,6 @@
             "depConstraints": [
               {
                 "sourceTag": "type:app",
-                "onlyDependOnLibsWithTags": ["type:app-support", "type:domain", "type:ui", "type:platform"]
-              },
-              {
-                "sourceTag": "type:app-support",
                 "onlyDependOnLibsWithTags": ["type:domain", "type:ui", "type:platform"]
               },
               {
@@ -50,8 +46,8 @@
                 "onlyDependOnLibsWithTags": ["scope:runner", "scope:audit", "scope:shared"]
               },
               {
-                "sourceTag": "runtime:browser",
-                "onlyDependOnLibsWithTags": ["runtime:browser", "runtime:agnostic"]
+                "sourceTag": "runtime:web",
+                "onlyDependOnLibsWithTags": ["runtime:web", "runtime:agnostic"]
               },
               {
                 "sourceTag": "runtime:node",

@@ -5,7 +5,7 @@
   "sourceRoot": "libs/audit/portal/feature/src",
   "prefix": "lib",
   "projectType": "library",
-  "tags": ["type:domain", "scope:audit", "runtime:browser", "layer:feature"],
+  "tags": ["type:domain", "scope:audit", "runtime:web", "layer:feature"],
   "targets": {
     "build": {
       "executor": "@nx/angular:ng-packagr-lite",

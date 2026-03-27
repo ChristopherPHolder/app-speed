@@ -3,7 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "sourceRoot": "apps/design-system",
-  "tags": ["frontend"],
+  "tags": ["type:app", "scope:shared", "runtime:web", "app:design-system"],
   "targets": {
     "serve": {
       "executor": "@storybook/angular:start-storybook",

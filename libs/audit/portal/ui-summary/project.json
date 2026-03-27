@@ -4,7 +4,7 @@
   "sourceRoot": "libs/audit/portal/ui-summary/src",
   "prefix": "lib",
   "projectType": "library",
-  "tags": ["type:domain", "scope:audit", "runtime:browser", "layer:ui"],
+  "tags": ["type:domain", "scope:audit", "runtime:web", "layer:ui"],
   "targets": {
     "build": {
       "executor": "@nx/angular:ng-packagr-lite",
