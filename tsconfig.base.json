@@ -23,7 +23,6 @@
       "@app-speed/audit/portal-ui-runs": ["libs/audit/portal/ui-runs/src/index.ts"],
       "@app-speed/audit/portal-ui-builder": ["libs/audit/portal/ui-builder/src/index.ts"],
       "@app-speed/audit/portal-ui-summary": ["libs/audit/portal/ui-summary/src/index.ts"],
-      "@app-speed/portal-ui/fractional-result-chip": ["libs/portal/ui/fractional-result-chip/public-api.ts"],
       "@app-speed/portal-ui/radial-chart": ["libs/portal/ui/radial-chart/public-api.ts"],
       "@app-speed/portal-ui/scroll-container": ["libs/portal/ui/scroll-container/public-api.ts"],
       "@app-speed/portal-ui/status-badge": ["libs/portal/ui/status-badge/public-api.ts"],
