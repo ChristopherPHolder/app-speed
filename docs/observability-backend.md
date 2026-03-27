@@ -1,8 +1,8 @@
 # Backend Observability (Effect + OpenTelemetry)
 
-Status: Draft
+Status: Active
 Owner: Christopher Holder
-Last Updated: 2026-02-13
+Last Updated: 2026-03-27
 
 ## Scope
 
@@ -52,7 +52,7 @@ flowchart LR
 
 ### Backend Tracer Wiring
 
-- Shared tracer factory: `libs/shared/observability/src/node-sdk.ts`
+- Shared tracer factory: `libs/platform/observability/src/node-sdk.ts`
 - API wiring: `apps/api/src/main.ts`
 - Runner wiring: `apps/runner/src/bin.ts`
 - Both apps export traces to `OTEL_EXPORTER_OTLP_ENDPOINT` (default: `http://localhost:4318`).
@@ -80,12 +80,16 @@ The current implementation uses explicit span names at each instrumentation call
 - `api.health.get`
 - `api.audit.schedule`
 - `api.audit.findById`
+- `api.audit.listRuns`
+- `api.audit.runById`
 - `api.audit.resultById`
+- `api.audit.reportById`
 - `api.audit.watchById`
 - `api.audit.watchById.tick`
 - `api.runner.claim`
 - `api.runner.complete`
 - `api.runner.heartbeat`
+- `api.runner.shutdown`
 
 ### Runner Manager
 
@@ -100,8 +104,11 @@ The current implementation uses explicit span names at each instrumentation call
 - `db.auditTemplate.getById`
 - `db.auditRun.create`
 - `db.auditRun.claimNext`
+- `db.auditRun.hasScheduledRuns`
 - `db.auditRun.markInProgress`
 - `db.auditRun.getQueuePosition`
+- `db.auditRun.getSummaryById`
+- `db.auditRun.listPage`
 - `db.auditRun.complete`
 - `db.auditRun.getById`
 - `db.auditResult.getByRunId`
@@ -110,15 +117,28 @@ The current implementation uses explicit span names at each instrumentation call
 
 - `runner.queue.claimNext`
 - `runner.queue.completeRun`
+- `runner.queue.heartbeat`
+- `runner.queue.shutdownRequest`
+- `runner.queue.terminate`
+- `runner.queue.selfTerminateEc2`
 - `runner.queue.loop`
 - `runner.queue.processItem`
+- `runner.queue.runtime`
 - `runner.audit.process`
 - `runner.audit.decodeScript`
 - `runner.audit.acquireContext`
 - `runner.audit.startFlow`
 - `runner.audit.executeReplay`
 - `runner.audit.createFlowResult`
+- `runner.audit.createReportHtml`
 - `runner.cli.execute`
+
+### Runner Lifecycle + Reaper
+
+- `runner.reaper.tick`
+- `runner.lifecycle.reconcile`
+- `runner.lifecycle.requestActivation`
+- `runner.lifecycle.requestInactivation`
 
 `api.audit.watchById` is a long-lived stream span, and `api.audit.watchById.tick` is emitted for each poll tick.
 

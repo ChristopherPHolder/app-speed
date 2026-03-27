@@ -1,16 +1,21 @@
-# db
+# @app-speed/audit/persistence
 
-This library was generated with [Nx](https://nx.dev).
+Audit persistence library.
 
-## Building
+This library owns:
+- SQLite client wiring
+- migrations
+- audit template, run, and result persistence
+- queue and run-history queries exposed through `AuditRepo`
 
-Run `nx build db` to build the library.
+Build with:
 
-## Running unit tests
+```bash
+pnpm exec nx run audit-persistence:build
+```
 
-Run `nx test db` to execute the unit tests via [Vitest](https://vitest.dev/).
+Test with:
 
-
-___
-
-codex resume 019c231d-ff1d-7830-97cc-af026103527e
+```bash
+pnpm exec nx run audit-persistence:test
+```

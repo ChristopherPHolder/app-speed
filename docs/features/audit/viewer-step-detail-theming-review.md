@@ -21,17 +21,17 @@ It explains:
 
 Primary viewer code reviewed:
 
-- `libs/portal/feature-audit/src/lib/viewer-container/viewer-step-details.component.ts`
-- `libs/portal/feature-audit/src/lib/viewer-container/viewer-step-metric-summary.component.ts`
-- `libs/portal/feature-audit/src/lib/viewer-container/viewer-file-strip.component.ts`
-- `libs/portal/ui/viewer-diagnostics/src/lib/viewer-diagnostic-panel.component.ts`
-- `libs/portal/ui/status-badge/src/status-badge.component.ts`
-- `libs/portal/ui/status-badge/src/status-badge.constants.ts`
+- `libs/audit/portal/viewer/src/lib/steps/viewer-step-details.component.ts`
+- `libs/audit/portal/viewer/src/lib/steps/viewer-step-metric-summary.component.ts`
+- `libs/audit/portal/viewer/src/lib/steps/viewer-film-strip.component.ts`
+- `libs/audit/portal/viewer/src/lib/diagnostics/viewer-diagnostic-panel.component.ts`
+- `libs/ui/status-badge/src/status-badge.component.ts`
+- `libs/ui/status-badge/src/status-badge.constants.ts`
 
 Theme entry points reviewed:
 
-- `libs/portal/ui/theme/_theme.scss`
-- `libs/portal/ui/theme/styles.scss`
+- `libs/ui/theme/_theme.scss`
+- `libs/ui/theme/styles.scss`
 
 ## Motivation
 
@@ -119,7 +119,7 @@ Important parts of the same experience still use direct values:
 - `red`, `orange`, `gray`, `green` in `status-badge.constants.ts`
 - inline red text for `displayValue` in `viewer-diagnostic-panel.component.ts`
 - `#ccc`, `medium`, and `large` in `viewer-step-metric-summary.component.ts`
-- `groove gray` and custom shadow values in `viewer-file-strip.component.ts`
+- `groove gray` and custom shadow values in `viewer-film-strip.component.ts`
 - inline `style.color` bindings based on raw status constants
 
 The result is a mixed system:

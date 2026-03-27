@@ -1,8 +1,8 @@
 # Design Document: User Flow Audit Feature
 
-Status: Draft
+Status: Active
 Owner: Christopher Holder
-Last Updated: 2026-02-10
+Last Updated: 2026-03-27
 
 The feature we are designing is the User Flow Audit feature.
 This document is the main design doc for the feature.
@@ -25,11 +25,14 @@ This document defines the architecture for scheduling user flow audits, executin
 - UI design details beyond API contracts and event shapes.
 - Full autoscaling policies across multiple EC2 instance pools.
 
-## Current State
+## Current Code Locations
 
-- `apps/api` is an Effect-based API app with a basic audit queue and SSE endpoint.
-- `libs/server/db` provides audit templates, runs, results, and a `claimNextRun` DB transaction.
-- `apps/runner` currently claims audits from the DB queue; this will move to API calls.
+- `apps/api` is the application shell for the Effect-based control plane.
+- `libs/audit/control-plane` owns audit HTTP handlers, API groups, SSE progress, and runner lifecycle orchestration.
+- `libs/audit/persistence` owns audit templates, runs, results, queue operations, and DB-backed query logic.
+- `apps/runner` is the application shell for the runner process.
+- `libs/audit/runner` owns queue polling, heartbeat/shutdown requests, and audit execution.
+- `libs/audit/portal/{builder,viewer,runs}` own the portal-facing audit flows.
 
 ## Proposed Architecture
 
@@ -59,7 +62,7 @@ Pull-based runner orchestration with a dedicated `RunnerManager`.
 
 ## Core Data Model
 
-These types already exist in `libs/server/db` and align with the required flow.
+These records are implemented in `libs/audit/persistence` and align with the required flow.
 
 - `AuditTemplate` stores the audit definition.
 - `AuditRun` tracks status and timestamps.
@@ -130,7 +133,7 @@ Motivation: Lighthouse warns against concurrent runs on the same machine due to 
 - The runner exits after it drains the queue or after a 1 minute idle timeout.
 - The runner uses the same API as production to keep behavior aligned.
 - The local `RunnerManager` uses Effect `Command` + `CommandExecutor` to spawn the runner process.
-- Accepted dev spawn: `pnpm exec nx execute runner`.
+- Accepted dev spawn: `pnpm exec nx run runner:execute`.
 
 ### EC2
 
@@ -200,11 +203,11 @@ Phase 1 focuses on stability and local-first flow. Phase 2 introduces EC2 lifecy
 
 ### Phase 1
 
-- Align on a single control-plane API in `apps/api`.
-- Implement SSE progress based on DB-backed queue position.
-- Define `RunnerManager` as a `Context.Tag` interface.
-- Implement the local `RunnerManager` to spawn a separate runner process via Effect `Command` (dev spawn).
-- Update `apps/runner` to pull audits and report results through the API.
+- Keep `apps/api` and `apps/runner` as thin application shells.
+- Implement SSE progress based on DB-backed queue position in `libs/audit/control-plane`.
+- Keep `RunnerManager` as a `Context.Tag` interface with local and AWS-backed implementations.
+- Use `libs/audit/runner` to pull audits and report results through the API.
+- Keep persistence and queue semantics in `libs/audit/persistence`.
 
 ### Phase 2
 
