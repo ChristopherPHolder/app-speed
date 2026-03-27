@@ -132,7 +132,7 @@ const stepDetails = {
 } as unknown as FlowResult.Step;
 
 const meta: Meta<ViewerStepDetailComponent> = {
-  title: 'Patterns/Viewer Container/Step Details',
+  title: 'Patterns/Viewer Steps/Step Details',
   component: ViewerStepDetailComponent,
   parameters: {
     layout: 'padded',
