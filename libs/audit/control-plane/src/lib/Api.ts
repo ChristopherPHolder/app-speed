@@ -1,7 +1,7 @@
 import { HttpApi } from '@effect/platform';
-import { HealthApiGroup } from './Health/Api.js';
-import { AuditApiGroup } from './Audit/Api.js';
-import { RunnerApiGroup } from './Runner/Api.js';
+import { AuditApiGroup } from './audit/Api.js';
+import { HealthApiGroup } from './health/Api.js';
+import { RunnerApiGroup } from './runner/Api.js';
 
 export class Api extends HttpApi.make('api')
   .add(HealthApiGroup)
