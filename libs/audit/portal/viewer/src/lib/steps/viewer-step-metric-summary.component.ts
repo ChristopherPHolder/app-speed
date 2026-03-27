@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
 import { StatusBadgeComponent, StatusOptions, STATUS_COLOR } from '@app-speed/ui/status-badge';
-import { MdToAnkerPipe } from '../utils/md-to-anker.pipe';
+import { MdToAnkerPipe } from './md-to-anker.pipe';
 
 export type MetricSummary = {
   name: string;

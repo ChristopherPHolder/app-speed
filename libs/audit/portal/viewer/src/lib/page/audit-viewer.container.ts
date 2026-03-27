@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { filter, map, Observable, switchMap } from 'rxjs';
 import { FlowResult } from 'lighthouse';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { ViewerStepDetailComponent } from '../viewer-container/viewer-step-details.component';
+import { ViewerStepDetailComponent } from '../steps/viewer-step-details.component';
 import { calculateCategoryFraction, shouldDisplayAsFraction } from '../lighthouse-report-utils';
 import { AuditSummary, AuditSummaryComponent } from '../summary/audit-summary.component';
 
