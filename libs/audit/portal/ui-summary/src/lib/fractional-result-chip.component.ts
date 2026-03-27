@@ -1,6 +1,6 @@
 import { Component, computed, input } from '@angular/core';
 import { MatChip, MatChipAvatar } from '@angular/material/chips';
-import { StatusBadgeComponent } from '@app-speed/portal-ui/status-badge';
+import { StatusBadgeComponent } from '@app-speed/ui/status-badge';
 
 @Component({
   selector: 'ui-fractional-result-chip',

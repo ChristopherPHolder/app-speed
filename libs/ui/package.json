@@ -1,5 +1,5 @@
 {
-  "name": "@app-speed/portal-ui",
+  "name": "@app-speed/ui",
   "version": "0.0.0",
   "description": "App Speed UI library",
   "peerDependencies": {

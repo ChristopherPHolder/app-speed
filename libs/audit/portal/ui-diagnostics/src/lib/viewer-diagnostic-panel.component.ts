@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { MatChip } from '@angular/material/chips';
 import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
-import { StatusBadgeComponent } from '@app-speed/portal-ui/status-badge';
+import { StatusBadgeComponent } from '@app-speed/ui/status-badge';
 import { ViewerDetailsComponent } from './details.component';
 import { ViewerMarkdownTextComponent } from './markdown-text.component';
 import { DiagnosticItem, ViewerDiagnosticContext } from './viewer-diagnostic.models';

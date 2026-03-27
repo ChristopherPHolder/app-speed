@@ -4,10 +4,10 @@ import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 
 export default defineConfig(() => ({
   root: __dirname,
-  cacheDir: '../../../node_modules/.vite/libs/portal/ui',
+  cacheDir: '../../node_modules/.vite/libs/ui',
   plugins: [angular(), nxViteTsPaths()],
   test: {
-    name: 'portal-ui',
+    name: 'ui',
     watch: false,
     globals: true,
     environment: 'jsdom',
@@ -15,7 +15,7 @@ export default defineConfig(() => ({
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     reporters: ['default'],
     coverage: {
-      reportsDirectory: '../../../coverage/libs/portal/ui',
+      reportsDirectory: '../../coverage/libs/ui',
       provider: 'v8',
     },
   },

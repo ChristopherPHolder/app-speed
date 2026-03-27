@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
-import { STATUS } from '@app-speed/portal-ui/status-badge';
+import { STATUS } from '@app-speed/ui/status-badge';
 import type Details from 'lighthouse/types/lhr/audit-details';
 import { ViewerDiagnosticComponent } from './viewer-diagnostic.component';
 import { DiagnosticItem, DiagnosticStackPack, ViewerDiagnosticContext } from './viewer-diagnostic.models';

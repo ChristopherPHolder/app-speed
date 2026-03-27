@@ -24,7 +24,7 @@
       "path": "./tsconfig.storybook.json"
     }
   ],
-  "extends": "../../../tsconfig.base.json",
+  "extends": "../../tsconfig.base.json",
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
