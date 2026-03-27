@@ -1,6 +1,6 @@
 # ADR-0004: Domain-First Audit Architecture
 
-Status: Proposed  
+Status: Accepted  
 Date: 2026-03-27
 
 ## Decision
@@ -18,6 +18,16 @@ The intended target is:
 - audit domain modules in `libs/audit/**`
 - reusable platform modules in `libs/platform/**`
 - reusable UI primitives in `libs/ui/**`
+
+## Implementation Status
+
+This ADR has been implemented in the repository.
+
+Key outcomes now present in the codebase:
+- `apps/portal`, `apps/api`, and `apps/runner` are thin application shells
+- audit-specific frontend, backend, runner, model, contracts, and persistence code lives under `libs/audit/**`
+- shared observability lives under `libs/platform/**`
+- shared web primitives live under `libs/ui/**`
 
 ## Context
 
