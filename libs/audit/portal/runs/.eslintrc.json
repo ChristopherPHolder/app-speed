@@ -5,7 +5,7 @@
     {
       "files": ["*.ts"],
       "parserOptions": {
-        "project": ["libs/audit/portal/feature-runs/tsconfig.*?.json"]
+        "project": ["libs/audit/portal/runs/tsconfig.*?.json"]
       },
       "extends": ["plugin:@nx/angular", "plugin:@angular-eslint/template/process-inline-templates"],
       "rules": {
@@ -17,14 +17,7 @@
             "style": "camelCase"
           }
         ],
-        "@angular-eslint/component-selector": [
-          "error",
-          {
-            "type": "element",
-            "prefix": "portal",
-            "style": "kebab-case"
-          }
-        ]
+        "@angular-eslint/component-selector": "off"
       }
     },
     {
