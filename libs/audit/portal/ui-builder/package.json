@@ -1,0 +1,15 @@
+{
+  "name": "@app-speed/audit/portal-ui-builder",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/common": "21.2.1",
+    "@angular/core": "21.2.1",
+    "@angular/forms": "21.2.1",
+    "@angular/material": "21.2.1",
+    "@angular/platform-browser": "21.2.1",
+    "@app-speed/audit/contracts": "0.0.1",
+    "@app-speed/audit/model": "0.0.1",
+    "rxjs": "^7.8.0"
+  },
+  "sideEffects": false
+}

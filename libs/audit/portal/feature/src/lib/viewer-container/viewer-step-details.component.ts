@@ -3,7 +3,7 @@ import { MatTab, MatTabGroup } from '@angular/material/tabs';
 import { FlowResult, Result } from 'lighthouse';
 import { Result as AuditResult } from 'lighthouse/types/lhr/audit-result';
 
-import { DiagnosticItem, ViewerDiagnosticContext } from '@app-speed/portal-ui/viewer-diagnostics';
+import { DiagnosticItem, ViewerDiagnosticContext } from '@app-speed/audit/portal-ui-diagnostics';
 import {
   auditClumpId,
   auditBadgeStatus,

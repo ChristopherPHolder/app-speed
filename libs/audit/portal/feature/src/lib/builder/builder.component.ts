@@ -4,7 +4,7 @@ import { loadAuditDetails, submitAuditRequest, updateAuditDetails } from './buil
 import { AuditDetails } from '@app-speed/audit/model';
 import { AsyncPipe } from '@angular/common';
 import { auditBuilderFeature } from './builder.state';
-import { AuditBuilderComponent } from '@app-speed/portal-ui/audit-builder';
+import { AuditBuilderComponent } from '@app-speed/audit/portal-ui-builder';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ErrorDialogComponent } from '../audit-builder/error-dialog.component';

@@ -8,7 +8,7 @@ import {
   AuditRunsApiService,
   DEFAULT_AUDIT_RUN_FILTER,
 } from '@app-speed/audit/portal-data-access-runs';
-import { AuditRunsTableComponent } from '@app-speed/portal-ui/audit-runs';
+import { AuditRunsTableComponent } from '@app-speed/audit/portal-ui-runs';
 import { interval } from 'rxjs';
 
 @Component({

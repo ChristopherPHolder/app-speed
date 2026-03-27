@@ -4,7 +4,7 @@ import {
   ViewerDiagnosticComponent,
   ViewerDiagnosticContext,
   ViewerMarkdownTextComponent,
-} from '@app-speed/portal-ui/viewer-diagnostics';
+} from '@app-speed/audit/portal-ui-diagnostics';
 
 @Component({
   selector: 'viewer-step-detail-section',
