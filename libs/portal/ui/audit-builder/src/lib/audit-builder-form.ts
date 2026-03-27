@@ -8,8 +8,16 @@ import {
   STEP_OPTIONS,
   STEP_PROPERTY,
   StepDetails,
+  StepProperty,
 } from '@app-speed/shared-user-flow-replay';
 import { AuditStep } from '@app-speed/shared-user-flow-replay/schema';
+
+export type StepField<TControl extends AbstractControl = AbstractControl> = {
+  name: PropertyName;
+  property: StepProperty;
+  control: TControl;
+  removable: boolean;
+};
 
 export class AuditFormGroup extends FormGroup<{
   title: FormControl<string>;
@@ -61,8 +69,29 @@ export class StepFormGroup extends FormGroup {
     return stepProperty;
   }
 
-  stepPropertyType(propertyName: PropertyName) {
-    return this.stepProperty(propertyName).inputType;
+  field<TControl extends AbstractControl = AbstractControl>(propertyName: PropertyName): StepField<TControl> {
+    const control = this.get(propertyName);
+
+    if (!control) {
+      throw new Error(`Missing control for property "${propertyName}"`);
+    }
+
+    const property = this.stepProperty(propertyName);
+
+    return {
+      name: propertyName,
+      property,
+      control: control as TControl,
+      removable: !property.required,
+    };
+  }
+
+  formControlField(propertyName: PropertyName): StepField<FormControl> {
+    return this.field<FormControl>(propertyName);
+  }
+
+  stringArrayField(propertyName: PropertyName): StepField<FormArray<FormControl<string>>> {
+    return this.field<FormArray<FormControl<string>>>(propertyName);
   }
 
   constructor(step: AuditStep) {

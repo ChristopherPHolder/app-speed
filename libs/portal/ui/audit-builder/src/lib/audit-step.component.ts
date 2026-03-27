@@ -4,7 +4,6 @@ import { LIGHTHOUSE_AUDIT_STEP_TYPE } from '@app-speed/shared-user-flow-replay';
 import { StepFormGroup } from './audit-builder-form';
 import { MatFabButton } from '@angular/material/button';
 import { OptionsFieldComponent } from './fields/options-field.component';
-import { ReactiveFormsModule } from '@angular/forms';
 import { distinctUntilChanged, skip, startWith, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToTitleCasePipe } from './utils/toTitleCase.pipe';
@@ -34,24 +33,39 @@ import { MatIcon } from '@angular/material/icon';
         </mat-panel-title>
       </mat-expansion-panel-header>
       <ng-content />
-      <ng-container [formGroup]="control">
+      <ng-container>
         @for (stepField of control.fields(); track stepField) {
-          @let fieldType = control.stepPropertyType(stepField);
+          @let fieldType = control.stepProperty(stepField).inputType;
           @switch (fieldType) {
             @case ('options') {
-              <ui-options-field [label]="stepField" />
+              <ui-options-field
+                [field]="control.formControlField(stepField)"
+                (removeRequested)="control.removeOptionalField(stepField)"
+              />
             }
             @case ('string') {
-              <ui-input-field [label]="stepField" />
+              <ui-input-field
+                [field]="control.formControlField(stepField)"
+                (removeRequested)="control.removeOptionalField(stepField)"
+              />
             }
             @case ('number') {
-              <ui-input-field [label]="stepField" />
+              <ui-input-field
+                [field]="control.formControlField(stepField)"
+                (removeRequested)="control.removeOptionalField(stepField)"
+              />
             }
             @case ('boolean') {
-              <ui-options-field [label]="stepField" />
+              <ui-options-field
+                [field]="control.formControlField(stepField)"
+                (removeRequested)="control.removeOptionalField(stepField)"
+              />
             }
             @case ('stringArray') {
-              <ui-array-field [label]="stepField" />
+              <ui-array-field
+                [field]="control.stringArrayField(stepField)"
+                (removeRequested)="control.removeOptionalField(stepField)"
+              />
             }
             @default {
               TODO not yet implemented {{ fieldType }} {{ fieldType }}
@@ -85,7 +99,6 @@ import { MatIcon } from '@angular/material/icon';
     MatExpansionPanelTitle,
     MatFabButton,
     OptionsFieldComponent,
-    ReactiveFormsModule,
     ToTitleCasePipe,
     InputFieldComponent,
     ArrayFieldComponent,

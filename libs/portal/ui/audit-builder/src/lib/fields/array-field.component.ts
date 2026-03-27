@@ -1,33 +1,37 @@
-import { ChangeDetectionStrategy, Component, inject, input, OnInit } from '@angular/core';
-import { ControlContainer, FormArray, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { StepFormGroup } from '../audit-builder-form';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { FormArray, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { StepField } from '../audit-builder-form';
 import { ToTitleCasePipe } from '../utils/toTitleCase.pipe';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatFormField } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
-import { PropertyName } from '@app-speed/shared-user-flow-replay';
 
 @Component({
   selector: 'ui-array-field',
   template: `
     <div>
       <h4>
-        {{ label() | toTitleCase }}
-        <button mat-icon-button [disabled]="control.disabled" aria-label="Add property to step" (click)="addControl()">
+        {{ field().name | toTitleCase }}
+        <button
+          mat-icon-button
+          [disabled]="field().control.disabled"
+          aria-label="Add property to step"
+          (click)="addControl()"
+        >
           <mat-icon>library_add</mat-icon>
         </button>
       </h4>
-      @for (propertyControl of control.controls; track control) {
+      @for (propertyControl of field().control.controls; track propertyControl) {
         <div style="display: flex;">
           <mat-icon style="padding-top: 16px;">subdirectory_arrow_right</mat-icon>
           <mat-form-field>
             <input matInput [formControl]="propertyControl" />
           </mat-form-field>
-          @if (!(required && control.controls.length === 1)) {
+          @if (!(field().property.required && field().control.controls.length === 1)) {
             <button
               mat-icon-button
-              [disabled]="control.disabled"
+              [disabled]="field().control.disabled"
               aria-label="Delete property from step"
               (click)="removeControl($index)"
             >
@@ -41,29 +45,13 @@ import { PropertyName } from '@app-speed/shared-user-flow-replay';
   imports: [ToTitleCasePipe, MatIconButton, MatIcon, MatFormField, MatInput, ReactiveFormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ArrayFieldComponent implements OnInit {
-  label = input.required<PropertyName>();
-
-  stepContainer = inject(ControlContainer);
-
-  stepFromGroup!: StepFormGroup;
-  control!: FormArray<FormControl<string>>;
-  required?: boolean;
-  options!: string[];
-  type!: string;
-
-  ngOnInit(): void {
-    this.stepFromGroup = this.stepContainer.control as StepFormGroup;
-    this.control = this.stepContainer.control!.get(this.label()) as FormArray<FormControl<string>>;
-
-    const property = this.stepFromGroup.stepProperty(this.label());
-    this.type = property.inputType;
-    this.required = property.required;
-  }
+export class ArrayFieldComponent {
+  field = input.required<StepField<FormArray<FormControl<string>>>>();
+  removeRequested = output<void>();
 
   addControl(): void {
-    this.control.insert(
-      this.control.controls.length - 1,
+    this.field().control.insert(
+      this.field().control.controls.length - 1,
       new FormControl<string>('', {
         validators: [Validators.required, Validators.minLength(1)],
         nonNullable: true,
@@ -72,10 +60,10 @@ export class ArrayFieldComponent implements OnInit {
   }
 
   removeControl(index: number): void {
-    if (this.control.controls.length === 1) {
-      this.stepFromGroup.removeOptionalField(this.label());
+    if (this.field().control.controls.length === 1) {
+      this.removeRequested.emit();
     } else {
-      this.control.removeAt(index);
+      this.field().control.removeAt(index);
     }
   }
 }

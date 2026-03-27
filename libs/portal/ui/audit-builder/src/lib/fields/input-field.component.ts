@@ -1,13 +1,12 @@
-import { ChangeDetectionStrategy, Component, inject, input, OnInit } from '@angular/core';
-import { ControlContainer, FormControl, ReactiveFormsModule } from '@angular/forms';
-import { StepFormGroup } from '../audit-builder-form';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { StepField } from '../audit-builder-form';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatIconButton } from '@angular/material/button';
 import { MatInput } from '@angular/material/input';
 import { RxIf } from '@rx-angular/template/if';
 import { ToTitleCasePipe } from '../utils/toTitleCase.pipe';
-import { PropertyName } from '@app-speed/shared-user-flow-replay';
 
 @Component({
   selector: 'ui-input-field',
@@ -25,18 +24,18 @@ import { PropertyName } from '@app-speed/shared-user-flow-replay';
   template: `
     <div>
       <mat-form-field>
-        <mat-label>{{ label() | toTitleCase }}</mat-label>
-        <input matInput [type]="type" [formControl]="control" />
-        <mat-error *rxIf="control.hasError('required')">
-          {{ label() | toTitleCase }} is <strong>required</strong>
+        <mat-label>{{ field().name | toTitleCase }}</mat-label>
+        <input matInput [type]="type()" [formControl]="field().control" />
+        <mat-error *rxIf="field().control.hasError('required')">
+          {{ field().name | toTitleCase }} is <strong>required</strong>
         </mat-error>
       </mat-form-field>
-      @if (!required) {
+      @if (field().removable) {
         <button
           mat-icon-button
-          [disabled]="control.disabled"
+          [disabled]="field().control.disabled"
           aria-label="Delete property from step"
-          (click)="stepFromGroup.removeOptionalField(label())"
+          (click)="removeRequested.emit()"
         >
           <mat-icon>delete</mat-icon>
         </button>
@@ -45,23 +44,9 @@ import { PropertyName } from '@app-speed/shared-user-flow-replay';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class InputFieldComponent implements OnInit {
-  label = input.required<PropertyName>();
+export class InputFieldComponent {
+  field = input.required<StepField<FormControl>>();
+  removeRequested = output<void>();
 
-  stepContainer = inject(ControlContainer);
-
-  stepFromGroup!: StepFormGroup;
-  control!: FormControl;
-  required?: boolean;
-  options!: string[];
-  type!: string;
-
-  ngOnInit(): void {
-    this.stepFromGroup = this.stepContainer.control as StepFormGroup;
-    this.control = this.stepContainer.control!.get(this.label()) as FormControl;
-
-    const property = this.stepFromGroup.stepProperty(this.label());
-    this.type = property.inputType;
-    this.required = property.required;
-  }
+  protected readonly type = computed(() => (this.field().property.inputType === 'number' ? 'number' : 'text'));
 }
