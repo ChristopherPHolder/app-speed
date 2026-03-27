@@ -1,4 +1,4 @@
-import { AuditDetails } from '@app-speed/shared-user-flow-replay';
+import { AuditDetails } from '@app-speed/audit/model';
 import { createFeature, createReducer, on } from '@ngrx/store';
 import {
   auditQueuePositionUpdated,

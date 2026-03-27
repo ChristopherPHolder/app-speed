@@ -11,7 +11,7 @@
     "lighthouse": "^13.0.3",
     "@app-speed/portal-ui": "0.0.0",
     "@angular/platform-browser": "21.2.1",
-    "@app-speed/shared-user-flow-replay": "0.0.1",
+    "@app-speed/audit/model": "0.0.1",
     "@ngrx/store": "21.0.1",
     "@ngrx/effects": "21.0.1",
     "vitest": "^3.2.4",

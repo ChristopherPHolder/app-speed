@@ -1,6 +1,6 @@
 import { HttpApiEndpoint, HttpApiError, HttpApiGroup, HttpApiSchema } from '@effect/platform';
 import { Schema } from 'effect';
-import { ReplayUserflowAuditSchema } from '@app-speed/shared-user-flow-replay/schema';
+import { ReplayUserflowAuditSchema } from '@app-speed/audit/contracts';
 import {
   AuditId,
   AuditNotFoundError,

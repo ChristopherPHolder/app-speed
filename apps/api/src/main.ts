@@ -3,8 +3,8 @@ import { Effect, Layer, Option } from 'effect';
 import { HttpLive } from './Http.js';
 import { DevTools } from '@effect/experimental';
 
-import { AuditRepoLive, DbClient } from '@app-speed/server/db';
-import { makeNodeObservabilityLayer } from '@app-speed/shared-observability';
+import { AuditRepoLive, DbClient } from '@app-speed/audit/persistence';
+import { makeNodeObservabilityLayer } from '@app-speed/platform/observability';
 import { LocalRunnerManagerLive } from './Runner/LocalRunnerManager.js';
 import { AwsRunnerManagerLive } from './Runner/AwsRunnerManager.js';
 import { ServerConfig } from './Config/config.js';

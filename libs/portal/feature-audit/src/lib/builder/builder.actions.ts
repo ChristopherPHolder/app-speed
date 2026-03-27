@@ -1,6 +1,6 @@
 import { createAction, props } from '@ngrx/store';
 
-import { AuditDetails } from '@app-speed/shared-user-flow-replay';
+import { AuditDetails } from '@app-speed/audit/model';
 import type { FlowResult } from 'lighthouse';
 import type { LoadingStatusViewModel } from '../audit-builder/loading-status.models';
 

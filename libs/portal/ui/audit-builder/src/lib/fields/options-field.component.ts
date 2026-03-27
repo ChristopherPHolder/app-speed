@@ -6,7 +6,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { StepField } from '../audit-builder-form';
 import { MatIcon } from '@angular/material/icon';
 import { ToTitleCasePipe } from '../utils/toTitleCase.pipe';
-import { StepPropertyOption, StepPropertyOptionGroup } from '@app-speed/shared-user-flow-replay';
+import { StepPropertyOption, StepPropertyOptionGroup } from '@app-speed/audit/model';
 
 @Component({
   selector: 'ui-options-field',

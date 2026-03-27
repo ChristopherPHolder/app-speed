@@ -1,0 +1,61 @@
+{
+  "name": "audit-persistence",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/audit/persistence/src",
+  "projectType": "library",
+  "tags": ["type:domain", "scope:audit", "runtime:node", "layer:persistence"],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "outputPath": "dist/libs/audit/persistence",
+        "main": "libs/audit/persistence/src/index.ts",
+        "tsConfig": "libs/audit/persistence/tsconfig.lib.json",
+        "assets": [
+          "libs/audit/persistence/*.md"
+        ],
+        "format": [
+          "esm"
+        ],
+        "generatePackageJson": true
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": [
+        "{options.outputFile}"
+      ]
+    },
+    "migrate": {
+      "executor": "@app-speed/db-tools:sqlite-migrate",
+      "options": {
+        "migrationsDir": "libs/audit/persistence/migrations"
+      }
+    },
+    "migrate-generate": {
+      "executor": "@app-speed/db-tools:drizzle-kit",
+      "options": {
+        "command": "generate",
+        "config": "libs/audit/persistence/drizzle.config.ts"
+      }
+    },
+    "studio": {
+      "executor": "@app-speed/db-tools:drizzle-kit",
+      "options": {
+        "command": "studio",
+        "config": "libs/audit/persistence/drizzle.config.ts"
+      }
+    },
+    "effect:diagnostics": {
+      "executor": "@app-speed/effect-tools:diagnostics",
+      "options": {
+        "tsConfig": "{projectRoot}/tsconfig.lib.json",
+        "format": "text",
+        "severity": "error,warning,message"
+      }
+    }
+  }
+}

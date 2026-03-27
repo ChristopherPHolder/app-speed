@@ -1,6 +1,6 @@
 import { applicationConfig, type Meta, type StoryObj } from '@storybook/angular';
 import { provideAuditBuilderIcons } from './audit-builder-icons.provider';
-import { DEFAULT_AUDIT_DETAILS } from '@app-speed/shared-user-flow-replay';
+import { DEFAULT_AUDIT_DETAILS } from '@app-speed/audit/model';
 import { AuditBuilderComponent } from './audit-builder.component';
 
 const meta: Meta<AuditBuilderComponent> = {

@@ -17,7 +17,7 @@ import {
 } from './builder.actions';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, of, switchMap, tap } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DEFAULT_AUDIT_DETAILS } from '@app-speed/shared-user-flow-replay';
+import { DEFAULT_AUDIT_DETAILS } from '@app-speed/audit/model';
 import { ApiService, SchedulerService } from '@app-speed/portal-data-access';
 import { HttpClient } from '@angular/common/http';
 import type { FlowResult } from 'lighthouse';

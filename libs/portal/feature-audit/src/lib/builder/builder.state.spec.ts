@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_AUDIT_DETAILS } from '@app-speed/shared-user-flow-replay';
+import { DEFAULT_AUDIT_DETAILS } from '@app-speed/audit/model';
 import {
   auditQueuePositionUpdated,
   auditStageUpdated,

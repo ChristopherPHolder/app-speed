@@ -9,8 +9,8 @@ import {
   STEP_PROPERTY,
   StepDetails,
   StepProperty,
-} from '@app-speed/shared-user-flow-replay';
-import { AuditStep } from '@app-speed/shared-user-flow-replay/schema';
+} from '@app-speed/audit/model';
+import { AuditStep } from '@app-speed/audit/contracts';
 
 export type StepField<TControl extends AbstractControl = AbstractControl> = {
   name: PropertyName;

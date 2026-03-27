@@ -1,4 +1,4 @@
-import { AuditRepo } from '@app-speed/server/db';
+import { AuditRepo } from '@app-speed/audit/persistence';
 import { Clock, Config, Context, Duration, Effect, Layer, Ref } from 'effect';
 
 import { RunnerManager } from './RunnerManager.js';
