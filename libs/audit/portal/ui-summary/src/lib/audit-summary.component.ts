@@ -1,8 +1,8 @@
 import { Component, inject, input, model } from '@angular/core';
 import { SwiperComponent } from './swiper.component';
+import { FractionalResultChipComponent } from './fractional-result-chip.component';
 import { SwiperOptions } from 'swiper/types';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { FractionalResultChipComponent } from '@app-speed/portal-ui/fractional-result-chip';
 import { RadialChartComponent } from '@app-speed/portal-ui/radial-chart';
 
 export type AuditSummary = {
