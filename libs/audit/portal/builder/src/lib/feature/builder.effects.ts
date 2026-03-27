@@ -21,8 +21,8 @@ import { DEFAULT_AUDIT_DETAILS } from '@app-speed/audit/model';
 import { HttpClient } from '@angular/common/http';
 import type { FlowResult } from 'lighthouse';
 import { getAuditRequestErrorMessage } from './builder-error-message';
-import { ApiService } from '../data-access/api.services';
-import { SchedulerService } from '../data-access/scheduler/scheduler.service';
+import { AuditBuilderApiService } from '../api/audit-builder-api.service';
+import { AuditProgressService } from '../api/audit-progress.service';
 
 type AuditResultResponse =
   | { status: 'SUCCESS'; result: FlowResult }
@@ -83,7 +83,7 @@ const loadAuditDetailsFailedEffect = createEffect(
 );
 
 const submitAuditRequestEffect = createEffect(
-  (actions$ = inject(Actions), api = inject(ApiService)) =>
+  (actions$ = inject(Actions), api = inject(AuditBuilderApiService)) =>
     actions$.pipe(
       ofType(submitAuditRequest),
       switchMap(({ audit }) =>
@@ -111,7 +111,7 @@ const submitAuditRequestSuccessEffect = createEffect(
 );
 
 const listenToAuditProgressEffect = createEffect(
-  (action$ = inject(Actions), scheduler = inject(SchedulerService)) =>
+  (action$ = inject(Actions), scheduler = inject(AuditProgressService)) =>
     action$.pipe(
       ofType(listenToAuditProgress),
       tap(({ requestId }) => scheduler.watchAudit(requestId)),
@@ -126,7 +126,7 @@ const listenToAuditProgressEffect = createEffect(
 );
 
 const listenToAuditQueuePositionEffect = createEffect(
-  (action$ = inject(Actions), scheduler = inject(SchedulerService)) =>
+  (action$ = inject(Actions), scheduler = inject(AuditProgressService)) =>
     action$.pipe(
       ofType(listenToAuditProgress),
       switchMap(() =>
@@ -141,7 +141,7 @@ const listenToAuditQueuePositionEffect = createEffect(
 );
 
 const auditResultRequestedEffect = createEffect(
-  (actions$ = inject(Actions), scheduler = inject(SchedulerService)) =>
+  (actions$ = inject(Actions), scheduler = inject(AuditProgressService)) =>
     actions$.pipe(
       ofType(listenToAuditProgress),
       switchMap(() =>
