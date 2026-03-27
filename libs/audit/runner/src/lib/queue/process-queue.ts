@@ -5,8 +5,8 @@ import {
   completeAuditRun,
   requestRunnerTermination,
   sendRunnerHeartbeat,
-} from './data-access/queue.effect';
-import { processAudit } from './process-audit';
+} from './control-plane.effect';
+import { processAudit } from '../audit/process-audit';
 
 const toErrorPayload = (cause: Cause.Cause<unknown>) => {
   const failure = Cause.failureOption(cause);
