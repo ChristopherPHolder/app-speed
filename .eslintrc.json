@@ -18,6 +18,90 @@
             "allow": [],
             "depConstraints": [
               {
+                "sourceTag": "type:app",
+                "onlyDependOnLibsWithTags": ["type:app-support", "type:domain", "type:foundation", "type:platform"]
+              },
+              {
+                "sourceTag": "type:app-support",
+                "onlyDependOnLibsWithTags": ["type:domain", "type:foundation", "type:platform"]
+              },
+              {
+                "sourceTag": "type:domain",
+                "onlyDependOnLibsWithTags": ["type:domain", "type:foundation", "type:platform"]
+              },
+              {
+                "sourceTag": "type:foundation",
+                "onlyDependOnLibsWithTags": ["type:foundation", "type:platform"]
+              },
+              {
+                "sourceTag": "scope:audit",
+                "onlyDependOnLibsWithTags": ["scope:audit", "scope:shared"]
+              },
+              {
+                "sourceTag": "scope:portal",
+                "onlyDependOnLibsWithTags": ["scope:portal", "scope:audit", "scope:shared"]
+              },
+              {
+                "sourceTag": "scope:api",
+                "onlyDependOnLibsWithTags": ["scope:api", "scope:audit", "scope:shared"]
+              },
+              {
+                "sourceTag": "scope:runner",
+                "onlyDependOnLibsWithTags": ["scope:runner", "scope:audit", "scope:shared"]
+              },
+              {
+                "sourceTag": "runtime:browser",
+                "onlyDependOnLibsWithTags": ["runtime:browser", "runtime:agnostic"]
+              },
+              {
+                "sourceTag": "runtime:node",
+                "onlyDependOnLibsWithTags": ["runtime:node", "runtime:agnostic"]
+              },
+              {
+                "sourceTag": "layer:ui",
+                "onlyDependOnLibsWithTags": ["layer:ui", "layer:model", "layer:contract", "type:foundation", "type:platform"]
+              },
+              {
+                "sourceTag": "layer:data-access",
+                "onlyDependOnLibsWithTags": [
+                  "layer:data-access",
+                  "layer:model",
+                  "layer:contract",
+                  "type:foundation",
+                  "type:platform"
+                ]
+              },
+              {
+                "sourceTag": "layer:feature",
+                "onlyDependOnLibsWithTags": [
+                  "layer:feature",
+                  "layer:data-access",
+                  "layer:ui",
+                  "layer:model",
+                  "layer:contract",
+                  "type:foundation",
+                  "type:platform"
+                ]
+              },
+              {
+                "sourceTag": "layer:application",
+                "onlyDependOnLibsWithTags": [
+                  "layer:application",
+                  "layer:persistence",
+                  "layer:model",
+                  "layer:contract",
+                  "type:platform"
+                ]
+              },
+              {
+                "sourceTag": "layer:persistence",
+                "onlyDependOnLibsWithTags": ["layer:persistence", "layer:model", "layer:contract", "type:platform"]
+              },
+              {
+                "sourceTag": "layer:contract",
+                "onlyDependOnLibsWithTags": ["layer:contract", "layer:model", "type:platform"]
+              },
+              {
                 "sourceTag": "*",
                 "onlyDependOnLibsWithTags": ["*"]
               }

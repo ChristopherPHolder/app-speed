@@ -4,7 +4,7 @@
   "root": "apps/runner",
   "sourceRoot": "apps/runner/src",
   "projectType": "application",
-  "tags": ["backend"],
+  "tags": ["type:app", "scope:runner", "runtime:node"],
   "targets": {
     "build": {
       "executor": "@nx/esbuild:esbuild",

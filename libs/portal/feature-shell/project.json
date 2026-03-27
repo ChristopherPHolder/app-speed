@@ -4,7 +4,7 @@
   "sourceRoot": "libs/portal/feature-shell/src",
   "prefix": "lib",
   "projectType": "library",
-  "tags": [],
+  "tags": ["type:app-support", "scope:portal", "runtime:browser", "layer:shell"],
   "targets": {
     "build": {
       "executor": "@nx/angular:ng-packagr-lite",
