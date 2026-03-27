@@ -47,7 +47,7 @@ describe('requestRunnerTermination', () => {
   });
 
   it('attempts direct EC2 self-termination after shutdown is approved', async () => {
-    const { requestRunnerTermination } = await import('./queue.effect');
+    const { requestRunnerTermination } = await import('./control-plane.effect');
 
     const shouldTerminate = await Effect.runPromise(
       requestRunnerTermination('IDLE_TIMEOUT').pipe(provideHttpClient({ ok: true, shouldTerminate: true })),
@@ -62,7 +62,7 @@ describe('requestRunnerTermination', () => {
   });
 
   it('does not self-terminate when the server rejects shutdown', async () => {
-    const { requestRunnerTermination } = await import('./queue.effect');
+    const { requestRunnerTermination } = await import('./control-plane.effect');
 
     const shouldTerminate = await Effect.runPromise(
       requestRunnerTermination('IDLE_TIMEOUT').pipe(provideHttpClient({ ok: true, shouldTerminate: false })),
