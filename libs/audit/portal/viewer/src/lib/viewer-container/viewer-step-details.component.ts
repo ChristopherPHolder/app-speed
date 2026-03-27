@@ -3,7 +3,6 @@ import { MatTab, MatTabGroup } from '@angular/material/tabs';
 import { FlowResult, Result } from 'lighthouse';
 import { Result as AuditResult } from 'lighthouse/types/lhr/audit-result';
 
-import { DiagnosticItem, ViewerDiagnosticContext } from '@app-speed/audit/portal-ui-diagnostics';
 import {
   auditClumpId,
   auditBadgeStatus,
@@ -16,6 +15,7 @@ import {
   sortFailedPerformanceAudits,
   warningAuditsGroupTitle,
 } from '../lighthouse-report-utils';
+import { DiagnosticItem, ViewerDiagnosticContext } from '../diagnostics/viewer-diagnostic.models';
 import { ViewerStepDetailSectionComponent } from './viewer-step-detail-section.component';
 import { MetricSummary, ViewerStepMetricSummaryComponent } from './viewer-step-metric-summary.component';
 import { ViewerFilmStripComponent } from './viewer-film-strip.component';
