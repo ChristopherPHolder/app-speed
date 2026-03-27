@@ -4,7 +4,7 @@
   "sourceRoot": "libs/audit/portal/data-access/src",
   "prefix": "lib",
   "projectType": "library",
-  "tags": ["type:domain", "scope:audit", "runtime:browser", "layer:data-access"],
+  "tags": ["type:domain", "scope:audit", "runtime:web", "layer:data-access"],
   "targets": {
     "build": {
       "executor": "@nx/angular:ng-packagr-lite",

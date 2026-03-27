@@ -4,7 +4,7 @@
   "projectType": "application",
   "prefix": "app",
   "sourceRoot": "apps/portal/src",
-  "tags": ["type:app", "scope:portal", "runtime:browser"],
+  "tags": ["type:app", "scope:portal", "runtime:web", "app:portal"],
   "targets": {
     "build": {
       "executor": "@nx/angular:browser-esbuild",
