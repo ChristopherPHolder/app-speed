@@ -1,18 +1,11 @@
 import { HttpApiEndpoint, HttpApiError, HttpApiGroup } from '@effect/platform';
 import { Schema } from 'effect';
 import { ReplayUserflowAuditSchema } from '@app-speed/audit/contracts';
-import { AuditId } from '../audit/Audit.js';
+import { AuditErrorSchema, AuditId, AuditResultStatusSchema } from '../audit/Audit.js';
 
 const RunnerId = Schema.NonEmptyString.pipe(Schema.brand('RunnerId'));
 const RunnerHeartbeatStateSchema = Schema.Literal('BUSY', 'IDLE');
 const RunnerShutdownReasonSchema = Schema.Literal('IDLE_TIMEOUT');
-
-const AuditResultStatusSchema = Schema.Literal('SUCCESS', 'FAILURE');
-const AuditErrorSchema = Schema.Struct({
-  name: Schema.String,
-  message: Schema.String,
-  stack: Schema.String,
-});
 
 const RunnerClaimRequestSchema = Schema.Struct({
   runnerId: RunnerId,

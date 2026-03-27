@@ -6,6 +6,14 @@ import { AuditRunIdSchema } from '@app-speed/audit/persistence';
 export const AuditId = AuditRunIdSchema;
 
 export type AuditIdType = typeof AuditId.Type;
+export const AuditRunStatusSchema = Schema.Literal('SCHEDULED', 'IN_PROGRESS', 'COMPLETE');
+export const AuditResultStatusSchema = Schema.Literal('SUCCESS', 'FAILURE');
+
+export const AuditErrorSchema = Schema.Struct({
+  name: Schema.String,
+  message: Schema.String,
+  stack: Schema.String,
+});
 
 export class AuditNotFoundError extends Schema.TaggedError<AuditNotFoundError>()(
   'AuditNotFoundError',
