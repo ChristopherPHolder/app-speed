@@ -11,7 +11,7 @@ export const shellRoutes: Route[] = [
         children: [
           {
             path: 'builder',
-            loadChildren: () => import('@app-speed/audit/portal-feature').then((m) => m.auditRoutes),
+            loadChildren: () => import('@app-speed/audit/portal/builder').then((m) => m.auditBuilderRoutes),
           },
           {
             path: 'viewer',

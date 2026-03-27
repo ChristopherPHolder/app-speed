@@ -5,7 +5,7 @@
     {
       "files": ["*.ts"],
       "parserOptions": {
-        "project": ["libs/audit/portal/ui-builder/tsconfig.*?.json"]
+        "project": ["libs/audit/portal/builder/tsconfig.*?.json"]
       },
       "extends": ["plugin:@nx/angular", "plugin:@angular-eslint/template/process-inline-templates"],
       "rules": {
