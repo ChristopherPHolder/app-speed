@@ -1,4 +1,4 @@
-import { DeviceType } from './device-type';
+import { DeviceType } from '../shared/device-type';
 import { Step } from './step';
 
 export interface AuditDetails {
