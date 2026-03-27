@@ -44,18 +44,12 @@ const createStory = (field: {
   }),
 });
 
-export const StepTypeGroups: Story = createStory({
-  property: STEP_PROPERTY.type,
-  value: STEP_TYPE.NAVIGATE,
-});
-
-export const ButtonOptions: Story = createStory({
+export const Flat: Story = createStory({
   property: STEP_PROPERTY.button,
   value: 'secondary',
 });
 
-export const OptionalBoolean: Story = createStory({
-  property: STEP_PROPERTY.visible,
-  value: true,
-  removable: true,
+export const Grouped: Story = createStory({
+  property: STEP_PROPERTY.type,
+  value: STEP_TYPE.NAVIGATE,
 });
