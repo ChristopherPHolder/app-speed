@@ -39,9 +39,20 @@ import { RouterLink, RouterOutlet } from '@angular/router';
               <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
             </button>
           }
-          <span style="display:contents">
+          <span class="toolbar-logo">
             <img src="assets/logo.svg" alt="App Speed Logo" height="150%" width="auto" />
           </span>
+          <span class="toolbar-spacer"></span>
+          <a
+            class="github-link"
+            mat-icon-button
+            href="https://github.com/ChristopherPHolder/app-speed"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Open the app-speed repository on GitHub"
+          >
+            <img class="github-link__icon" src="assets/GitHub_Invertocat_Black.svg" alt="" aria-hidden="true" />
+          </a>
         </mat-toolbar>
         <main>
           <router-outlet />
@@ -69,6 +80,20 @@ import { RouterLink, RouterOutlet } from '@angular/router';
     }
     mat-toolbar {
       background-color: #ecf0ff;
+    }
+    .toolbar-logo {
+      display: contents;
+    }
+    .toolbar-spacer {
+      flex: 1 1 auto;
+    }
+    .github-link {
+      color: #111827;
+    }
+    .github-link__icon {
+      width: 24px;
+      height: 24px;
+      display: block;
     }
     mat-sidenav-content {
       min-height: 100vh;
