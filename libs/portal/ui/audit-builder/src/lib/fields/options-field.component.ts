@@ -1,10 +1,9 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatOption, MatOptgroup } from '@angular/material/core';
 import { MatSelect } from '@angular/material/select';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { StepField } from '../audit-builder-form';
-import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { ToTitleCasePipe } from '../utils/toTitleCase.pipe';
 import { StepPropertyOption, StepPropertyOptionGroup } from '@app-speed/shared-user-flow-replay';
@@ -18,12 +17,11 @@ import { StepPropertyOption, StepPropertyOptionGroup } from '@app-speed/shared-u
     MatSelect,
     MatOption,
     MatOptgroup,
-    MatIconButton,
     MatIcon,
     ToTitleCasePipe,
   ],
   template: `
-    <div>
+    <div class="field-row">
       <mat-form-field>
         <mat-label>{{ field().name | toTitleCase }}</mat-label>
         <mat-select [formControl]="field().control">
@@ -44,19 +42,16 @@ import { StepPropertyOption, StepPropertyOptionGroup } from '@app-speed/shared-u
           }
         </mat-select>
       </mat-form-field>
-      @if (field().removable) {
-        <button
-          mat-icon-button
-          [disabled]="field().control.disabled"
-          aria-label="Delete property from step"
-          (click)="removeRequested.emit()"
-        >
-          <mat-icon>delete</mat-icon>
-        </button>
-      }
+      <ng-content select="[field-action]" />
     </div>
   `,
   styles: `
+    .field-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
     .option-group-label {
       display: flex;
       align-items: center;
@@ -67,7 +62,6 @@ import { StepPropertyOption, StepPropertyOptionGroup } from '@app-speed/shared-u
 })
 export class OptionsFieldComponent {
   field = input.required<StepField<FormControl>>();
-  removeRequested = output<void>();
 
   protected readonly options = computed(() => this.field().property.options ?? []);
 

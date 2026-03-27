@@ -2,7 +2,7 @@ import { afterNextRender, ChangeDetectionStrategy, Component, DestroyRef, inject
 import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
 import { LIGHTHOUSE_AUDIT_STEP_TYPE } from '@app-speed/shared-user-flow-replay';
 import { StepFormGroup } from './audit-builder-form';
-import { MatFabButton } from '@angular/material/button';
+import { MatFabButton, MatIconButton } from '@angular/material/button';
 import { OptionsFieldComponent } from './fields/options-field.component';
 import { distinctUntilChanged, skip, startWith, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -38,34 +38,89 @@ import { MatIcon } from '@angular/material/icon';
           @let fieldType = control.stepProperty(stepField).inputType;
           @switch (fieldType) {
             @case ('options') {
-              <ui-options-field
-                [field]="control.formControlField(stepField)"
-                (removeRequested)="control.removeOptionalField(stepField)"
-              />
+              @let field = control.formControlField(stepField);
+              <ui-options-field [field]="field">
+                @if (field.removable) {
+                  <button
+                    field-action
+                    mat-icon-button
+                    [disabled]="field.control.disabled"
+                    aria-label="Delete property from step"
+                    type="button"
+                    (click)="control.removeOptionalField(stepField)"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                }
+              </ui-options-field>
             }
             @case ('string') {
-              <ui-input-field
-                [field]="control.formControlField(stepField)"
-                (removeRequested)="control.removeOptionalField(stepField)"
-              />
+              @let field = control.formControlField(stepField);
+              <ui-input-field [field]="field">
+                @if (field.removable) {
+                  <button
+                    field-action
+                    mat-icon-button
+                    [disabled]="field.control.disabled"
+                    aria-label="Delete property from step"
+                    type="button"
+                    (click)="control.removeOptionalField(stepField)"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                }
+              </ui-input-field>
             }
             @case ('number') {
-              <ui-input-field
-                [field]="control.formControlField(stepField)"
-                (removeRequested)="control.removeOptionalField(stepField)"
-              />
+              @let field = control.formControlField(stepField);
+              <ui-input-field [field]="field">
+                @if (field.removable) {
+                  <button
+                    field-action
+                    mat-icon-button
+                    [disabled]="field.control.disabled"
+                    aria-label="Delete property from step"
+                    type="button"
+                    (click)="control.removeOptionalField(stepField)"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                }
+              </ui-input-field>
             }
             @case ('boolean') {
-              <ui-options-field
-                [field]="control.formControlField(stepField)"
-                (removeRequested)="control.removeOptionalField(stepField)"
-              />
+              @let field = control.formControlField(stepField);
+              <ui-options-field [field]="field">
+                @if (field.removable) {
+                  <button
+                    field-action
+                    mat-icon-button
+                    [disabled]="field.control.disabled"
+                    aria-label="Delete property from step"
+                    type="button"
+                    (click)="control.removeOptionalField(stepField)"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                }
+              </ui-options-field>
             }
             @case ('stringArray') {
-              <ui-array-field
-                [field]="control.stringArrayField(stepField)"
-                (removeRequested)="control.removeOptionalField(stepField)"
-              />
+              @let field = control.stringArrayField(stepField);
+              <ui-array-field [field]="field">
+                @if (field.removable) {
+                  <button
+                    field-action
+                    mat-icon-button
+                    [disabled]="field.control.disabled"
+                    aria-label="Delete property from step"
+                    type="button"
+                    (click)="control.removeOptionalField(stepField)"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                }
+              </ui-array-field>
             }
             @default {
               TODO not yet implemented {{ fieldType }} {{ fieldType }}
@@ -98,6 +153,7 @@ import { MatIcon } from '@angular/material/icon';
     MatExpansionPanelHeader,
     MatExpansionPanelTitle,
     MatFabButton,
+    MatIconButton,
     OptionsFieldComponent,
     ToTitleCasePipe,
     InputFieldComponent,

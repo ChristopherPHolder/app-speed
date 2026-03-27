@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { FormArray, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { StepField } from '../audit-builder-form';
 import { ToTitleCasePipe } from '../utils/toTitleCase.pipe';
@@ -10,29 +10,34 @@ import { MatInput } from '@angular/material/input';
 @Component({
   selector: 'ui-array-field',
   template: `
-    <div>
-      <h4>
-        {{ field().name | toTitleCase }}
-        <button
-          mat-icon-button
-          [disabled]="field().control.disabled"
-          aria-label="Add property to step"
-          (click)="addControl()"
-        >
-          <mat-icon>library_add</mat-icon>
-        </button>
-      </h4>
+    <div class="array-field">
+      <div class="array-field__header">
+        <h4>{{ field().name | toTitleCase }}</h4>
+        <div class="array-field__actions">
+          <button
+            mat-icon-button
+            [disabled]="field().control.disabled"
+            aria-label="Add property to step"
+            type="button"
+            (click)="addControl()"
+          >
+            <mat-icon>library_add</mat-icon>
+          </button>
+          <ng-content select="[field-action]" />
+        </div>
+      </div>
       @for (propertyControl of field().control.controls; track propertyControl) {
         <div style="display: flex;">
           <mat-icon style="padding-top: 16px;">subdirectory_arrow_right</mat-icon>
           <mat-form-field>
             <input matInput [formControl]="propertyControl" />
           </mat-form-field>
-          @if (!(field().property.required && field().control.controls.length === 1)) {
+          @if (field().control.controls.length > 1) {
             <button
               mat-icon-button
               [disabled]="field().control.disabled"
               aria-label="Delete property from step"
+              type="button"
               (click)="removeControl($index)"
             >
               <mat-icon>delete</mat-icon>
@@ -42,12 +47,34 @@ import { MatInput } from '@angular/material/input';
       }
     </div>
   `,
+  styles: `
+    .array-field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .array-field__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .array-field__actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    h4 {
+      margin: 0;
+    }
+  `,
   imports: [ToTitleCasePipe, MatIconButton, MatIcon, MatFormField, MatInput, ReactiveFormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ArrayFieldComponent {
   field = input.required<StepField<FormArray<FormControl<string>>>>();
-  removeRequested = output<void>();
 
   addControl(): void {
     this.field().control.insert(
@@ -60,10 +87,6 @@ export class ArrayFieldComponent {
   }
 
   removeControl(index: number): void {
-    if (this.field().control.controls.length === 1) {
-      this.removeRequested.emit();
-    } else {
-      this.field().control.removeAt(index);
-    }
+    this.field().control.removeAt(index);
   }
 }

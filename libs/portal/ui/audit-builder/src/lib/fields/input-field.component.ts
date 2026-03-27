@@ -1,9 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { StepField } from '../audit-builder-form';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
-import { MatIcon } from '@angular/material/icon';
-import { MatIconButton } from '@angular/material/button';
 import { MatInput } from '@angular/material/input';
 import { RxIf } from '@rx-angular/template/if';
 import { ToTitleCasePipe } from '../utils/toTitleCase.pipe';
@@ -13,8 +11,6 @@ import { ToTitleCasePipe } from '../utils/toTitleCase.pipe';
   imports: [
     MatError,
     MatFormField,
-    MatIcon,
-    MatIconButton,
     MatInput,
     MatLabel,
     ReactiveFormsModule,
@@ -22,7 +18,7 @@ import { ToTitleCasePipe } from '../utils/toTitleCase.pipe';
     ToTitleCasePipe,
   ],
   template: `
-    <div>
+    <div class="field-row">
       <mat-form-field>
         <mat-label>{{ field().name | toTitleCase }}</mat-label>
         <input matInput [type]="type()" [formControl]="field().control" />
@@ -30,23 +26,20 @@ import { ToTitleCasePipe } from '../utils/toTitleCase.pipe';
           {{ field().name | toTitleCase }} is <strong>required</strong>
         </mat-error>
       </mat-form-field>
-      @if (field().removable) {
-        <button
-          mat-icon-button
-          [disabled]="field().control.disabled"
-          aria-label="Delete property from step"
-          (click)="removeRequested.emit()"
-        >
-          <mat-icon>delete</mat-icon>
-        </button>
-      }
+      <ng-content select="[field-action]" />
     </div>
+  `,
+  styles: `
+    .field-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InputFieldComponent {
   field = input.required<StepField<FormControl>>();
-  removeRequested = output<void>();
 
   protected readonly type = computed(() => (this.field().property.inputType === 'number' ? 'number' : 'text'));
 }
