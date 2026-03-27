@@ -1,10 +1,7 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import {
-  DiagnosticItem,
-  ViewerDiagnosticComponent,
-  ViewerDiagnosticContext,
-  ViewerMarkdownTextComponent,
-} from '@app-speed/audit/portal-ui-diagnostics';
+import { ViewerDiagnosticComponent } from '../diagnostics/viewer-diagnostic.component';
+import type { DiagnosticItem, ViewerDiagnosticContext } from '../diagnostics/viewer-diagnostic.models';
+import { ViewerMarkdownTextComponent } from '../diagnostics/markdown-text.component';
 
 @Component({
   selector: 'viewer-step-detail-section',

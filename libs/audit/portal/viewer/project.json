@@ -1,8 +1,8 @@
 {
-  "name": "audit-portal-feature",
+  "name": "audit-portal-viewer",
   "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
-  "root": "libs/audit/portal/feature",
-  "sourceRoot": "libs/audit/portal/feature/src",
+  "root": "libs/audit/portal/viewer",
+  "sourceRoot": "libs/audit/portal/viewer/src",
   "prefix": "lib",
   "projectType": "library",
   "tags": ["type:domain", "scope:audit", "runtime:web", "layer:feature"],
@@ -27,7 +27,7 @@
       "outputs": ["{options.reportsDirectory}"],
       "options": {
         "configFile": "{projectRoot}/vitest.config.mts",
-        "reportsDirectory": "../../../../coverage/libs/audit/portal/feature",
+        "reportsDirectory": "../../../../coverage/libs/audit/portal/viewer",
         "passWithNoTests": true
       }
     },
