@@ -20,7 +20,6 @@
       "@app-speed/audit/portal-data-access-runs": ["libs/audit/portal/data-access-runs/src/index.ts"],
       "@app-speed/audit/portal-feature": ["libs/audit/portal/feature/src/index.ts"],
       "@app-speed/audit/portal-feature-runs": ["libs/audit/portal/feature-runs/src/index.ts"],
-      "@app-speed/portal-feature-shell": ["libs/portal/feature-shell/src/index.ts"],
       "@app-speed/audit/portal-ui-runs": ["libs/audit/portal/ui-runs/src/index.ts"],
       "@app-speed/audit/portal-ui-builder": ["libs/audit/portal/ui-builder/src/index.ts"],
       "@app-speed/audit/portal-ui-summary": ["libs/audit/portal/ui-summary/src/index.ts"],

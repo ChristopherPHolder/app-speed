@@ -7,7 +7,7 @@ import { MatToolbar } from '@angular/material/toolbar';
 import { RouterLink, RouterOutlet } from '@angular/router';
 
 @Component({
-  selector: 'portal-shell',
+  selector: 'app-shell',
   imports: [
     MatSidenavContainer,
     MatSidenav,
