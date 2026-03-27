@@ -1,7 +1,7 @@
 import { HttpApiBuilder, HttpApiError, HttpServerResponse } from '@effect/platform';
-import { Api } from '../Api.js';
 import { Duration, Effect, Schedule, Stream } from 'effect';
 import { AuditRepo } from '@app-speed/audit/persistence';
+import { Api } from '../Api.js';
 import {
   AuditIdType,
   AuditNotFoundError,
@@ -10,7 +10,7 @@ import {
   AuditRunsInvalidCursorError,
   AuditRunsInvalidQueryError,
 } from './Audit';
-import { RunnerLifecycle } from '../Runner/RunnerLifecycle.js';
+import { RunnerLifecycle } from '../runner/RunnerLifecycle.js';
 
 type AuditSnapshot = {
   status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETE';
@@ -41,9 +41,9 @@ const normalizeError = (error: unknown) => {
   if (error && typeof error === 'object') {
     const record = error as Record<string, unknown>;
     return {
-      name: typeof record.name === 'string' ? record.name : 'Error',
-      message: typeof record.message === 'string' ? record.message : 'Unknown error',
-      stack: typeof record.stack === 'string' ? record.stack : '',
+      name: typeof record['name'] === 'string' ? record['name'] : 'Error',
+      message: typeof record['message'] === 'string' ? record['message'] : 'Unknown error',
+      stack: typeof record['stack'] === 'string' ? record['stack'] : '',
     };
   }
   if (typeof error === 'string') {

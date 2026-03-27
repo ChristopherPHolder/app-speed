@@ -30,6 +30,7 @@
       "@app-speed/portal-ui/status-badge": ["libs/portal/ui/status-badge/public-api.ts"],
       "@app-speed/portal-ui/viewer-diagnostics": ["libs/portal/ui/viewer-diagnostics/src/index.ts"],
       "@app-speed/audit/runner": ["libs/audit/runner/src/public-api.ts"],
+      "@app-speed/audit/control-plane": ["libs/audit/control-plane/src/index.ts"],
       "@app-speed/platform/observability": ["libs/platform/observability/src/public-api.ts"],
       "@app-speed/audit/model": ["libs/audit/model/src/index.ts"],
       "@app-speed/audit/contracts": ["libs/audit/contracts/src/index.ts"],

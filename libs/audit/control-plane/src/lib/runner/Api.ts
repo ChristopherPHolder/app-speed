@@ -1,7 +1,7 @@
 import { HttpApiEndpoint, HttpApiError, HttpApiGroup } from '@effect/platform';
 import { Schema } from 'effect';
 import { ReplayUserflowAuditSchema } from '@app-speed/audit/contracts';
-import { AuditId } from '../Audit/Audit.js';
+import { AuditId } from '../audit/Audit.js';
 
 const RunnerId = Schema.NonEmptyString.pipe(Schema.brand('RunnerId'));
 const RunnerHeartbeatStateSchema = Schema.Literal('BUSY', 'IDLE');
