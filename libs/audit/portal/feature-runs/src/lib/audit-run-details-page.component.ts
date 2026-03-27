@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuditRunSummary, AuditRunsApiService } from '@app-speed/audit/portal-data-access-runs';
-import { AuditRunDetailsComponent } from '@app-speed/portal-ui/audit-runs';
+import { AuditRunDetailsComponent } from '@app-speed/audit/portal-ui-runs';
 import { catchError, interval, of, switchMap } from 'rxjs';
 
 @Component({

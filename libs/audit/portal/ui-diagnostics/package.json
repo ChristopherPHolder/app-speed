@@ -1,0 +1,12 @@
+{
+  "name": "@app-speed/audit/portal-ui-diagnostics",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/common": "21.2.1",
+    "@angular/core": "21.2.1",
+    "@angular/material": "21.2.1",
+    "@app-speed/portal-ui": "0.0.0",
+    "rxjs": "^7.8.0"
+  },
+  "sideEffects": false
+}

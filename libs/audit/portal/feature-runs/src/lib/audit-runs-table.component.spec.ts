@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { describe, beforeEach, expect, it, vi } from 'vitest';
-import { AuditRunsTableComponent } from '@app-speed/portal-ui/audit-runs';
+import { AuditRunsTableComponent } from '@app-speed/audit/portal-ui-runs';
 
 @Component({
   standalone: true,
