@@ -1,5 +1,5 @@
 import { applicationConfig, type Meta, type StoryObj } from '@storybook/angular';
-import { STEP_TYPE } from '@app-speed/shared-user-flow-replay';
+import { STEP_TYPE } from '@app-speed/audit/model';
 import { provideAuditBuilderIcons } from './audit-builder-icons.provider';
 import { StepFormGroup } from './audit-builder-form';
 import { AuditStepComponent } from './audit-step.component';

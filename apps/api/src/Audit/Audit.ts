@@ -1,7 +1,7 @@
 import { HttpApiSchema } from '@effect/platform';
 import { Schema } from 'effect';
 
-import { AuditRunIdSchema } from '@app-speed/server/db';
+import { AuditRunIdSchema } from '@app-speed/audit/persistence';
 
 export const AuditId = AuditRunIdSchema;
 

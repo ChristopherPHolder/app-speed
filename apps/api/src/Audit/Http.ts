@@ -1,7 +1,7 @@
 import { HttpApiBuilder, HttpApiError, HttpServerResponse } from '@effect/platform';
 import { Api } from '../Api.js';
 import { Duration, Effect, Schedule, Stream } from 'effect';
-import { AuditRepo } from '@app-speed/server/db';
+import { AuditRepo } from '@app-speed/audit/persistence';
 import {
   AuditIdType,
   AuditNotFoundError,

@@ -1,6 +1,6 @@
 import { Command } from '@effect/cli';
 import { Duration, Effect } from 'effect';
-import { processQueue } from '@app-speed/runner-user-flow-replay';
+import { processQueue } from '@app-speed/audit/runner';
 
 const command = Command.make('audit', {}, () => {
   return Effect.gen(function* () {

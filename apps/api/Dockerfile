@@ -8,7 +8,7 @@ ENV OTEL_EXPORTER_OTLP_ENDPOINT=http://host.docker.internal:4318
 WORKDIR /app
 
 COPY dist/apps/api ./
-COPY libs/server/db/migrations ./migrations
+COPY libs/audit/persistence/migrations ./migrations
 COPY apps/api/.npmrc ./
 
 RUN corepack enable \

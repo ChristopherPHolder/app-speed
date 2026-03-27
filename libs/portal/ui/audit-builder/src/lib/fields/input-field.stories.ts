@@ -1,6 +1,6 @@
 import { FormControl, Validators } from '@angular/forms';
 import type { Meta, StoryObj } from '@storybook/angular';
-import { STEP_PROPERTY, StepProperty } from '@app-speed/shared-user-flow-replay';
+import { STEP_PROPERTY, StepProperty } from '@app-speed/audit/model';
 import { StepField } from '../audit-builder-form';
 import { InputFieldComponent } from './input-field.component';
 

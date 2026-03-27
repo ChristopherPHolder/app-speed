@@ -2,7 +2,7 @@
 import { argv } from 'node:process';
 import { Effect, Layer } from 'effect';
 import { NodeContext, NodeHttpClient, NodeRuntime } from '@effect/platform-node';
-import { makeNodeObservabilityLayer } from '@app-speed/shared-observability';
+import { makeNodeObservabilityLayer } from '@app-speed/platform/observability';
 import { cli } from './cli';
 
 const ObservabilityLive = makeNodeObservabilityLayer({ serviceName: 'runner' });

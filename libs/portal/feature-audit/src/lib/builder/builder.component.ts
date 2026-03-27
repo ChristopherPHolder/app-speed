@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { loadAuditDetails, submitAuditRequest, updateAuditDetails } from './builder.actions';
-import { AuditDetails } from '@app-speed/shared-user-flow-replay';
+import { AuditDetails } from '@app-speed/audit/model';
 import { AsyncPipe } from '@angular/common';
 import { auditBuilderFeature } from './builder.state';
 import { AuditBuilderComponent } from '@app-speed/portal-ui/audit-builder';
