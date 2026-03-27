@@ -40,7 +40,10 @@ export default async function runExecutor(
 
   if (context) {
     try {
-      execSync(`aws s3 sync ./${options.upload} ${options.bucket} --delete`);
+      execSync(`aws s3 sync ./${options.upload} ${options.bucket} --delete --exclude "index.html"`);
+      execSync(
+        `aws s3 cp ./${options.upload}/index.html ${options.bucket}/index.html --cache-control "no-cache, no-store, must-revalidate" --content-type "text/html"`,
+      );
     } catch (error) {
       if (error instanceof Error) {
         return {
