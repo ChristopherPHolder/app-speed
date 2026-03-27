@@ -22,7 +22,7 @@ export const shellRoutes: Route[] = [
       },
       {
         path: 'audit-runs',
-        loadChildren: () => import('@app-speed/audit/portal-feature-runs').then((m) => m.auditRunsRoutes),
+        loadChildren: () => import('@app-speed/audit/portal/runs').then((m) => m.auditRunsRoutes),
       },
       { path: '', redirectTo: 'user-flow', pathMatch: 'full' },
       { path: '**', redirectTo: 'results-viewer' },

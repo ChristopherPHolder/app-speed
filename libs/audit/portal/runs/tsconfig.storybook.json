@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "emitDecoratorMetadata": true,
+    "moduleResolution": "bundler"
+  },
+  "include": ["./**/*.stories.ts", "./**/*.stories.tsx"],
+  "exclude": ["./src/**/*.spec.ts", "./src/**/*.test.ts"]
+}

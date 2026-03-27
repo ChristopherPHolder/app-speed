@@ -5,10 +5,10 @@ import { Router } from '@angular/router';
 import {
   AuditRunStatus,
   AuditRunSummary,
-  AuditRunsApiService,
   DEFAULT_AUDIT_RUN_FILTER,
-} from '@app-speed/audit/portal-data-access-runs';
-import { AuditRunsTableComponent } from '@app-speed/audit/portal-ui-runs';
+} from './data-access/audit-runs.models';
+import { AuditRunsApiService } from './data-access/audit-runs-api.service';
+import { AuditRunsTableComponent } from './ui/audit-runs-table.component';
 import { interval } from 'rxjs';
 
 @Component({

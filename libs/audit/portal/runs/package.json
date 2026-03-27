@@ -1,13 +1,13 @@
 {
-  "name": "@app-speed/audit/portal-feature-runs",
+  "name": "@app-speed/audit/portal/runs",
   "version": "0.0.1",
   "peerDependencies": {
     "@angular/core": "21.2.1",
     "@angular/common": "21.2.1",
     "@angular/router": "21.2.1",
+    "@angular/material": "21.2.1",
+    "@storybook/angular": "^10.2.10",
     "rxjs": "^7.8.0",
-    "@app-speed/audit/portal-data-access-runs": "0.0.1",
-    "@app-speed/audit/portal-ui-runs": "0.0.1",
     "vite": "7.3.1",
     "@nx/vite": "22.5.4"
   },

@@ -1,6 +1,6 @@
 {
   "$schema": "../../../../node_modules/ng-packagr/ng-package.schema.json",
-  "dest": "../../../../dist/libs/audit/portal/ui-runs",
+  "dest": "../../../../dist/libs/audit/portal/runs",
   "lib": {
     "entryFile": "src/index.ts"
   }
