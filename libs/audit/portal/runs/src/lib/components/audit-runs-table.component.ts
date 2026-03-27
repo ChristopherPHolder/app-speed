@@ -5,7 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
-import { AuditRunRow, AuditRunStatus, DEFAULT_AUDIT_RUN_FILTER } from './audit-runs.types';
+import { AuditRunStatus, AuditRunSummary, DEFAULT_AUDIT_RUN_FILTER } from '../api/audit-runs.models';
 
 @Component({
   selector: 'ui-audit-runs-table',
@@ -166,7 +166,7 @@ import { AuditRunRow, AuditRunStatus, DEFAULT_AUDIT_RUN_FILTER } from './audit-r
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuditRunsTableComponent {
-  @Input({ required: true }) runs: ReadonlyArray<AuditRunRow> = [];
+  @Input({ required: true }) runs: ReadonlyArray<AuditRunSummary> = [];
   @Input() loading = false;
   @Input() errorMessage: string | null = null;
   @Input() activeStatuses: ReadonlyArray<AuditRunStatus> = [...DEFAULT_AUDIT_RUN_FILTER];
@@ -177,7 +177,7 @@ export class AuditRunsTableComponent {
   @Output() statusToggled = new EventEmitter<AuditRunStatus>();
   @Output() previousPage = new EventEmitter<void>();
   @Output() nextPage = new EventEmitter<void>();
-  @Output() runSelected = new EventEmitter<AuditRunRow>();
+  @Output() runSelected = new EventEmitter<AuditRunSummary>();
 
   readonly statuses = DEFAULT_AUDIT_RUN_FILTER;
   readonly displayedColumns: ReadonlyArray<string> = [

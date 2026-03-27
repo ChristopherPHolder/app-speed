@@ -3,8 +3,8 @@ import { Router } from '@angular/router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { of } from 'rxjs';
 import { AuditRunsPageComponent } from './audit-runs-page.component';
-import { AuditRunsApiService } from './data-access/audit-runs-api.service';
-import { AuditRunsPage } from './data-access/audit-runs.models';
+import { AuditRunsApiService } from './api/audit-runs-api.service';
+import { AuditRunsPage } from './api/audit-runs.models';
 
 describe('AuditRunsPageComponent', () => {
   let fixture: ComponentFixture<AuditRunsPageComponent>;
