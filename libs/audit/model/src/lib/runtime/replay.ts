@@ -1,5 +1,5 @@
 import type { Step as PuppeteerReplayStep, UserFlow as PuppeteerReplayUserFlow } from '@puppeteer/replay';
-import { LIGHTHOUSE_AUDIT_STEP_TYPE } from './step-type';
+import { LIGHTHOUSE_AUDIT_STEP_TYPE } from '../shared/lighthouse-step-type';
 
 // @TODO Move to global types and explain what it does
 type Modify<T, R> = Omit<T, keyof R> & R;

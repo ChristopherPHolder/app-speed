@@ -1,11 +1,4 @@
-// Audit Step Types are the ones related to running Lighthouse User-Flow Audits!
-export const LIGHTHOUSE_AUDIT_STEP_TYPE = {
-  START_NAVIGATION: 'startNavigation',
-  END_NAVIGATION: 'endNavigation',
-  START_TIMESPAN: 'startTimespan',
-  END_TIMESPAN: 'endTimespan',
-  SNAPSHOT: 'snapshot',
-} as const;
+import { LIGHTHOUSE_AUDIT_STEP_TYPE } from '../shared/lighthouse-step-type';
 
 // Assertion Step Types are those related to puppeteer assertion steps!
 const ASSERTION_STEP_TYPE = {
