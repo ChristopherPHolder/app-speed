@@ -20,7 +20,6 @@
       "@app-speed/audit/portal/runs": ["libs/audit/portal/runs/src/index.ts"],
       "@app-speed/audit/portal/viewer": ["libs/audit/portal/viewer/src/index.ts"],
       "@app-speed/ui": ["libs/ui/src/public-api.ts"],
-      "@app-speed/ui/radial-chart": ["libs/ui/radial-chart/public-api.ts"],
       "@app-speed/ui/scroll-container": ["libs/ui/scroll-container/public-api.ts"],
       "@app-speed/ui/status-badge": ["libs/ui/status-badge/public-api.ts"],
       "@app-speed/audit/runner": ["libs/audit/runner/src/public-api.ts"],
