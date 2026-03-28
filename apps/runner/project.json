@@ -59,14 +59,6 @@
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"]
     },
-    "s3-upload": {
-      "executor": "@app-speed/aws-deploy:s3-upload",
-      "dependsOn": ["build"],
-      "options": {
-        "upload": "dist/{projectRoot}",
-        "bucket": "s3://ufo-runner-dev"
-      }
-    },
     "deploy": {
       "executor": "@app-speed/aws-deploy:ec2-ssm-cycle",
       "defaultConfiguration": "development",
