@@ -1,8 +1,8 @@
 import { FormControl } from '@angular/forms';
 import { applicationConfig, type Meta, type StoryObj } from '@storybook/angular';
+import { provideAuditBuilderIcons } from '@app-speed/audit-builder-ui/icons';
 import { STEP_PROPERTY, STEP_TYPE, StepProperty } from '@app-speed/audit/model';
 import { StepField } from '../audit-builder-form';
-import { provideAuditBuilderIcons } from '../audit-builder-icons.provider';
 import { OptionsFieldComponent } from './options-field.component';
 
 const meta: Meta<OptionsFieldComponent> = {
@@ -32,11 +32,7 @@ const createField = ({
   removable,
 });
 
-const createStory = (field: {
-  property: StepProperty;
-  value: string | boolean;
-  removable?: boolean;
-}): Story => ({
+const createStory = (field: { property: StepProperty; value: string | boolean; removable?: boolean }): Story => ({
   render: () => ({
     props: {
       field: createField(field),

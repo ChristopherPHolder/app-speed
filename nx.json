@@ -89,7 +89,6 @@
       "flat": true,
       "inlineStyle": true,
       "inlineTemplate": true,
-      "simpleName": true,
       "setParserOptionsProject": true,
       "compilationMode": "partial",
       "style": "scss"

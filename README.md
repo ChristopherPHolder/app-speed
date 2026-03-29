@@ -39,3 +39,11 @@ Run diagnostics for multiple libraries:
 ```bash
 pnpm exec nx run-many -t effect:diagnostics --projects=platform-observability,audit-persistence,audit-runner --parallel=3
 ```
+
+## Angular Publishable Libraries
+
+For publishable Angular libraries with secondary entry points, keep the root package name, `tsconfig.base.json` aliases, and consumer imports in the same canonical form.
+
+Reference:
+
+- [docs/conventions/angular-secondary-entry-points.md](docs/conventions/angular-secondary-entry-points.md)

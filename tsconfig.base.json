@@ -27,7 +27,9 @@
       "@app-speed/platform/observability": ["libs/platform/observability/src/public-api.ts"],
       "@app-speed/audit/model": ["libs/audit/model/src/index.ts"],
       "@app-speed/audit/contracts": ["libs/audit/contracts/src/index.ts"],
-      "@app-speed/audit/persistence": ["libs/audit/persistence/src/index.ts"]
+      "@app-speed/audit/persistence": ["libs/audit/persistence/src/index.ts"],
+      "@app-speed/audit-builder-ui": ["libs/audit/builder/ui/src/index.ts"],
+      "@app-speed/audit-builder-ui/icons": ["libs/audit/builder/ui/icons/src/index.ts"]
     },
     "plugins": [
       {
