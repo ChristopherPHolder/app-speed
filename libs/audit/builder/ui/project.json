@@ -1,0 +1,37 @@
+{
+  "name": "audit-builder-ui",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/audit/builder/ui",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": ["type:domain", "scope:audit", "runtime:web", "layer:ui"],
+  "targets": {
+    "build": {
+      "executor": "@nx/angular:ng-packagr-lite",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "options": {
+        "project": "libs/audit/builder/ui/ng-package.json",
+        "tsConfig": "libs/audit/builder/ui/tsconfig.lib.json"
+      },
+      "configurations": {
+        "production": {
+          "tsConfig": "libs/audit/builder/ui/tsconfig.lib.prod.json"
+        },
+        "development": {}
+      },
+      "defaultConfiguration": "production"
+    },
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "configFile": "{projectRoot}/vitest.config.mts",
+        "reportsDirectory": "../../../../coverage/libs/audit/builder/ui",
+        "passWithNoTests": true
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}
