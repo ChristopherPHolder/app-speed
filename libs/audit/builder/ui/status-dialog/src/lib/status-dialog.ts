@@ -12,7 +12,7 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import type { ViewModel } from './view-model';
 
 @Component({
-  selector: 'lib-status-dialog',
+  selector: 'b-ui-status-dialog',
   template: `
     @let vm = viewModel();
     <mat-card class="status-card">

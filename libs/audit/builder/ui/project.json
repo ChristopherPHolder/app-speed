@@ -2,7 +2,7 @@
   "name": "audit-builder-ui",
   "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/audit/builder/ui",
-  "prefix": "lib",
+  "prefix": "b-ui",
   "projectType": "library",
   "tags": ["type:domain", "scope:audit", "runtime:web", "layer:ui"],
   "targets": {

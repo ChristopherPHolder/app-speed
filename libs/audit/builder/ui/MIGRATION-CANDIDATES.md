@@ -138,5 +138,5 @@ If `audit-builder-form.ts` or `step-property.ts` need reuse later, extract them 
 
 ## Migration Notes
 
-- The current portal-builder component selectors use `ui-*`, while `libs/audit/builder/ui/.eslintrc.json` enforces `lib-*`. Decide whether to rename selectors or relax that rule before moving Angular components.
+- The current portal-builder component selectors use `ui-*`, while `libs/audit/builder/ui/.eslintrc.json` enforces `b-ui-*`. Rename moved selectors to the UI-library prefix when extracting those components.
 - Keep icon registration in `@app-speed/audit-builder-ui/icons`; the moved components already align with that secondary entrypoint.
