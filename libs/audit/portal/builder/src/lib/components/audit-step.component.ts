@@ -3,11 +3,9 @@ import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } fr
 import { LIGHTHOUSE_AUDIT_STEP_TYPE } from '@app-speed/audit/model';
 import { StepFormGroup } from './audit-builder-form';
 import { MatFabButton, MatIconButton } from '@angular/material/button';
-import { OptionsFieldComponent } from './fields/options-field.component';
 import { distinctUntilChanged, skip, startWith, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { InputField } from '@app-speed/audit-builder-ui/form-fields';
-import { ArrayFieldComponent } from './fields/array-field.component';
+import { ArrayField, InputField, OptionsField } from '@app-speed/audit-builder-ui/form-fields';
 import { MatIcon } from '@angular/material/icon';
 import { ToTitleCasePipe } from '@app-speed/audit-builder-ui';
 
@@ -39,7 +37,7 @@ import { ToTitleCasePipe } from '@app-speed/audit-builder-ui';
           @switch (fieldType) {
             @case ('options') {
               @let field = control.formControlField(stepField);
-              <ui-options-field [field]="field">
+              <b-ui-options-field [field]="field">
                 @if (field.removable) {
                   <button
                     field-action
@@ -52,7 +50,7 @@ import { ToTitleCasePipe } from '@app-speed/audit-builder-ui';
                     <mat-icon>delete</mat-icon>
                   </button>
                 }
-              </ui-options-field>
+              </b-ui-options-field>
             }
             @case ('string') {
               @let field = control.inputField(stepField);
@@ -90,7 +88,7 @@ import { ToTitleCasePipe } from '@app-speed/audit-builder-ui';
             }
             @case ('boolean') {
               @let field = control.formControlField(stepField);
-              <ui-options-field [field]="field">
+              <b-ui-options-field [field]="field">
                 @if (field.removable) {
                   <button
                     field-action
@@ -103,11 +101,11 @@ import { ToTitleCasePipe } from '@app-speed/audit-builder-ui';
                     <mat-icon>delete</mat-icon>
                   </button>
                 }
-              </ui-options-field>
+              </b-ui-options-field>
             }
             @case ('stringArray') {
               @let field = control.stringArrayField(stepField);
-              <ui-array-field [field]="field">
+              <b-ui-array-field [field]="field">
                 @if (field.removable) {
                   <button
                     field-action
@@ -120,7 +118,7 @@ import { ToTitleCasePipe } from '@app-speed/audit-builder-ui';
                     <mat-icon>delete</mat-icon>
                   </button>
                 }
-              </ui-array-field>
+              </b-ui-array-field>
             }
             @default {
               TODO not yet implemented {{ fieldType }} {{ fieldType }}
@@ -154,10 +152,10 @@ import { ToTitleCasePipe } from '@app-speed/audit-builder-ui';
     MatExpansionPanelTitle,
     MatFabButton,
     MatIconButton,
-    OptionsFieldComponent,
+    OptionsField,
     ToTitleCasePipe,
     InputField,
-    ArrayFieldComponent,
+    ArrayField,
     MatIcon,
   ],
   styles: `

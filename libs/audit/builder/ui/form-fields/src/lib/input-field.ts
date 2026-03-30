@@ -3,7 +3,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { ToTitleCasePipe } from '@app-speed/audit-builder-ui';
-import type { InputFieldModel } from './field-model';
+import type { InputFieldModel } from './field.model';
 
 @Component({
   selector: 'b-ui-input-field',

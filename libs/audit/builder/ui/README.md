@@ -41,12 +41,24 @@ This library is the audit-builder UI layer. It should contain presentational com
   - UI-facing view model for the dialog status copy
 - `form-fields/src/index.ts`
   - public API for the `form-fields` secondary entrypoint
-- `form-fields/src/lib/input-field.component.ts`
+- `form-fields/src/lib/array-field.ts`
+  - extracted presentational array field component
+- `form-fields/src/lib/input-field.ts`
   - extracted presentational input field component
+- `form-fields/src/lib/options-field.ts`
+  - extracted presentational options field component
+- `form-fields/src/lib/array-field.stories.ts`
+  - Storybook stories for the array field component
 - `form-fields/src/lib/input-field.stories.ts`
   - Storybook stories for the input field component
+- `form-fields/src/lib/options-field.stories.ts`
+  - Storybook stories for the options field component
+- `form-fields/src/lib/array-field.spec.ts`
+  - component test coverage for the array field component
 - `form-fields/src/lib/input-field.spec.ts`
   - component test coverage for the `form-fields` secondary entrypoint
+- `form-fields/src/lib/options-field.spec.ts`
+  - component test coverage for the options field component
 - `vitest.config.mts`
   - shared Vitest config for both `src/**` and `icons/src/**`
 

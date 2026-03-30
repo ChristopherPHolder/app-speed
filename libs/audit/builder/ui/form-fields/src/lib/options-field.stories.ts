@@ -1,13 +1,13 @@
 import { FormControl } from '@angular/forms';
 import { applicationConfig, type Meta, type StoryObj } from '@storybook/angular';
-import type { OptionsFieldModel } from '@app-speed/audit-builder-ui/form-fields';
 import { provideAuditBuilderIcons } from '@app-speed/audit-builder-ui/icons';
 import { STEP_PROPERTY, STEP_TYPE } from '@app-speed/audit/model';
-import { OptionsFieldComponent } from './options-field.component';
+import type { OptionsFieldModel } from './field.model';
+import { OptionsField } from './options-field';
 
-const meta: Meta<OptionsFieldComponent> = {
+const meta: Meta<OptionsField> = {
   title: 'Patterns/Audit Builder/Fields/Options',
-  component: OptionsFieldComponent,
+  component: OptionsField,
   decorators: [applicationConfig({ providers: [provideAuditBuilderIcons()] })],
   parameters: {
     layout: 'padded',
@@ -15,7 +15,7 @@ const meta: Meta<OptionsFieldComponent> = {
 };
 
 export default meta;
-type Story = StoryObj<OptionsFieldComponent>;
+type Story = StoryObj<OptionsField>;
 
 const createField = ({
   property,
@@ -32,9 +32,11 @@ const createField = ({
   removable,
 });
 
-const createStory = (
-  field: { property: OptionsFieldModel['property']; value: string | boolean; removable?: boolean },
-): Story => ({
+const createStory = (field: {
+  property: OptionsFieldModel['property'];
+  value: string | boolean;
+  removable?: boolean;
+}): Story => ({
   render: () => ({
     props: {
       field: createField(field),

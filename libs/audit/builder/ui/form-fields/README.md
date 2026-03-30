@@ -6,7 +6,9 @@ This entry point is reserved for form field UI extracted from the audits portal 
 
 Exports:
 
+- `ArrayField`
 - `InputField`
+- `OptionsField`
 - `InputFieldModel`
 - `OptionsFieldModel`
 - `ArrayFieldModel`

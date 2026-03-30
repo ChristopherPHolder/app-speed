@@ -1,27 +1,18 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { MatFormField, MatLabel } from '@angular/material/form-field';
-import { MatOption, MatOptgroup } from '@angular/material/core';
-import { MatSelect } from '@angular/material/select';
 import { ReactiveFormsModule } from '@angular/forms';
+import { MatOption, MatOptgroup } from '@angular/material/core';
+import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
+import { MatSelect } from '@angular/material/select';
 import { ToTitleCasePipe } from '@app-speed/audit-builder-ui';
-import type { OptionsFieldModel } from '@app-speed/audit-builder-ui/form-fields';
+import type { OptionsFieldModel } from './field.model';
 
 type OptionFieldOption = NonNullable<OptionsFieldModel['property']['options']>[number];
 type OptionFieldOptionGroup = Exclude<OptionFieldOption, string | boolean>;
 
 @Component({
-  selector: 'ui-options-field',
-  imports: [
-    ReactiveFormsModule,
-    MatLabel,
-    MatFormField,
-    MatSelect,
-    MatOption,
-    MatOptgroup,
-    MatIcon,
-    ToTitleCasePipe,
-  ],
+  selector: 'b-ui-options-field',
+  imports: [ReactiveFormsModule, MatLabel, MatFormField, MatSelect, MatOption, MatOptgroup, MatIcon, ToTitleCasePipe],
   template: `
     <div class="field-row">
       <mat-form-field>
@@ -62,7 +53,7 @@ type OptionFieldOptionGroup = Exclude<OptionFieldOption, string | boolean>;
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class OptionsFieldComponent {
+export class OptionsField {
   field = input.required<OptionsFieldModel>();
 
   protected readonly options = computed(() => this.field().property.options ?? []);

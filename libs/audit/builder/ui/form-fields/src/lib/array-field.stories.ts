@@ -1,19 +1,19 @@
 import { FormArray, FormControl } from '@angular/forms';
 import type { Meta, StoryObj } from '@storybook/angular';
-import type { ArrayFieldModel } from '@app-speed/audit-builder-ui/form-fields';
 import { STEP_PROPERTY } from '@app-speed/audit/model';
-import { ArrayFieldComponent } from './array-field.component';
+import type { ArrayFieldModel } from './field.model';
+import { ArrayField } from './array-field';
 
-const meta: Meta<ArrayFieldComponent> = {
+const meta: Meta<ArrayField> = {
   title: 'Patterns/Audit Builder/Fields/Array',
-  component: ArrayFieldComponent,
+  component: ArrayField,
   parameters: {
     layout: 'padded',
   },
 };
 
 export default meta;
-type Story = StoryObj<ArrayFieldComponent>;
+type Story = StoryObj<ArrayField>;
 
 const createControl = (values: string[]): FormArray<FormControl<string>> =>
   new FormArray<FormControl<string>>(values.map((value) => new FormControl(value, { nonNullable: true })));

@@ -1,14 +1,14 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatIconButton } from '@angular/material/button';
-import { MatIcon } from '@angular/material/icon';
 import { MatFormField } from '@angular/material/form-field';
+import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
 import { ToTitleCasePipe } from '@app-speed/audit-builder-ui';
-import type { ArrayFieldModel } from '@app-speed/audit-builder-ui/form-fields';
+import type { ArrayFieldModel } from './field.model';
 
 @Component({
-  selector: 'ui-array-field',
+  selector: 'b-ui-array-field',
   template: `
     <div class="array-field">
       <div class="array-field__header">
@@ -73,7 +73,7 @@ import type { ArrayFieldModel } from '@app-speed/audit-builder-ui/form-fields';
   imports: [ToTitleCasePipe, MatIconButton, MatIcon, MatFormField, MatInput, ReactiveFormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ArrayFieldComponent {
+export class ArrayField {
   field = input.required<ArrayFieldModel>();
 
   addControl(): void {

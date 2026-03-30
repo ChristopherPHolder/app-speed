@@ -1,10 +1,10 @@
 import { FormControl } from '@angular/forms';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
-import type { InputFieldModel } from './field-model';
+import type { InputFieldModel } from './field.model';
 import { InputField } from './input-field';
 
-describe('InputFieldComponent', () => {
+describe('InputField', () => {
   let component: InputField;
   let fixture: ComponentFixture<InputField>;
 
