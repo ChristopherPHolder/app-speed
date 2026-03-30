@@ -10,25 +10,25 @@ Secondary entry points must follow one canonical naming rule:
 
 ## Canonical Example
 
-For `libs/audit/builder/ui`:
+For `libs/audit/portal/ui`:
 
-- root package name in `libs/audit/builder/ui/package.json`:
-  - `@app-speed/audit-builder-ui`
+- root package name in `libs/audit/portal/ui/package.json`:
+  - `@app-speed/audit/portal/ui`
 - secondary entry point folder:
   - `icons`
 - required TypeScript path aliases:
-  - `@app-speed/audit-builder-ui`
-  - `@app-speed/audit-builder-ui/icons`
+  - `@app-speed/audit/portal/ui`
+  - `@app-speed/audit/portal/ui/icons`
 - required consumer import:
-  - `@app-speed/audit-builder-ui/icons`
+  - `@app-speed/audit/portal/ui/icons`
 
 Do not mix naming schemes.
 
 Invalid examples:
 
-- `@app-speed/audit-builder-ui-icons`
-- `@app-speed/audit/builder-ui/icons`
-- `@app-speed/audit/builder/ui/icons`
+- `@app-speed/audit-portal-ui-icons`
+- `@app-speed/audit/portal-ui/icons`
+- `@app-speed/audit/portal/icons`
 
 Those names do not match the way Nx derives and remaps secondary entry points for buildable Angular packages.
 
@@ -90,17 +90,17 @@ This is the quickest way to tell whether the issue is stale Nx incremental state
 
 ## Current Working Pattern
 
-For the audit builder UI package, the correct imports are:
+For the audit portal UI package, the correct imports are:
 
 ```ts
-import { provideAuditBuilderIcons } from '@app-speed/audit-builder-ui/icons';
+import { provideAuditBuilderIcons } from '@app-speed/audit/portal/ui/icons';
 ```
 
 The correct aliases are:
 
 ```json
 {
-  "@app-speed/audit-builder-ui": ["libs/audit/builder/ui/src/index.ts"],
-  "@app-speed/audit-builder-ui/icons": ["libs/audit/builder/ui/icons/src/index.ts"]
+  "@app-speed/audit/portal/ui": ["libs/audit/portal/ui/src/index.ts"],
+  "@app-speed/audit/portal/ui/icons": ["libs/audit/portal/ui/icons/src/index.ts"]
 }
 ```

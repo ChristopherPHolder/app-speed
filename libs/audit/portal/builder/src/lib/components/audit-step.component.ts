@@ -5,9 +5,9 @@ import { StepFormGroup } from './audit-builder-form';
 import { MatFabButton, MatIconButton } from '@angular/material/button';
 import { distinctUntilChanged, skip, startWith, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ArrayField, InputField, OptionsField } from '@app-speed/audit-builder-ui/form-fields';
+import { ArrayField, InputField, OptionsField } from '@app-speed/audit/portal/ui/form-fields';
 import { MatIcon } from '@angular/material/icon';
-import { ToTitleCasePipe } from '@app-speed/audit-builder-ui';
+import { ToTitleCasePipe } from '@app-speed/audit/portal/ui';
 
 @Component({
   selector: 'ui-audit-builder-step',

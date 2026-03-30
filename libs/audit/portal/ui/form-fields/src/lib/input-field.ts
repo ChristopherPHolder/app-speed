@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
-import { ToTitleCasePipe } from '@app-speed/audit-builder-ui';
+import { ToTitleCasePipe } from '@app-speed/audit/portal/ui';
 import type { InputFieldModel } from './field.model';
 
 @Component({

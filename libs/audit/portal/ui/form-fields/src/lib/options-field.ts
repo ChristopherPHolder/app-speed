@@ -4,7 +4,7 @@ import { MatOption, MatOptgroup } from '@angular/material/core';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatSelect } from '@angular/material/select';
-import { ToTitleCasePipe } from '@app-speed/audit-builder-ui';
+import { ToTitleCasePipe } from '@app-speed/audit/portal/ui';
 import type { OptionsFieldModel } from './field.model';
 
 type OptionFieldOption = NonNullable<OptionsFieldModel['property']['options']>[number];

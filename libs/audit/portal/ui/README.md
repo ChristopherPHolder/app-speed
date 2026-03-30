@@ -1,36 +1,36 @@
-# @app-speed/audit-builder-ui
+# @app-speed/audit/portal/ui
 
-UI package for audit-builder-specific Angular components and assets.
+UI package for audit portal Angular components and assets.
 
-This library is the audit-builder UI layer. It should contain presentational components, UI-only helpers, and builder-specific assets such as icons. Keep routing, store logic, HTTP/SSE, and other feature or data-access concerns out of this package.
+This library is the audit portal UI layer. It should contain presentational components, UI-only helpers, and portal-specific assets such as icons. Keep routing, store logic, HTTP/SSE, and other feature or data-access concerns out of this package.
 
 ## Entry Points
 
-- `@app-speed/audit-builder-ui`
+- `@app-speed/audit/portal/ui`
   - root package entrypoint
-  - currently exports `AuditBuilderUiComponent` and `ToTitleCasePipe`
-- `@app-speed/audit-builder-ui/icons`
-  - secondary entrypoint for audit-builder icon registration
+  - currently exports `ToTitleCasePipe`
+- `@app-speed/audit/portal/ui/icons`
+  - secondary entrypoint for audit portal icon registration
   - exports `provideAuditBuilderIcons()`
-- `@app-speed/audit-builder-ui/dialogs`
-  - secondary entrypoint for audit builder dialog surfaces
+- `@app-speed/audit/portal/ui/dialogs`
+  - secondary entrypoint for audit portal dialog surfaces
   - exports `StatusDialog`, `StatusDialogModel`, `ErrorDialog`, and `ErrorDialogModel`
-- `@app-speed/audit-builder-ui/form-fields`
-  - secondary entrypoint for audit builder form field UI
+- `@app-speed/audit/portal/ui/form-fields`
+  - secondary entrypoint for audit portal form field UI
   - exports extracted leaf field components and field view models
 
 ## Structure
 
 - `src/index.ts`
   - root public API
-- `src/lib/audit-builder-ui.component.ts`
-  - current root component placeholder
+- `src/lib/toTitleCase.pipe.ts`
+  - root formatting helper exported by the package
 - `icons/src/index.ts`
   - public API for the `icons` secondary entrypoint
 - `icons/src/lib/icons.ts`
   - raw SVG strings and icon name constants
 - `icons/src/lib/icons.provide.ts`
-  - Angular provider that registers builder badge icons with `MatIconRegistry`
+  - Angular provider that registers audit portal badge icons with `MatIconRegistry`
 - `icons/src/lib/icons.stories.ts`
   - Storybook gallery for the icon set
 - `dialogs/src/index.ts`
@@ -76,7 +76,7 @@ The `icons` secondary entrypoint currently provides two registered SVG icons:
 Use them by registering the provider once at an app, route, or story boundary:
 
 ```ts
-import { provideAuditBuilderIcons } from '@app-speed/audit-builder-ui/icons';
+import { provideAuditBuilderIcons } from '@app-speed/audit/portal/ui/icons';
 
 export const appConfig = {
   providers: [provideAuditBuilderIcons()],
@@ -102,21 +102,21 @@ Testing is configured for the library through the root Nx project:
 
 Run:
 
-- `pnpm exec nx test audit-builder-ui`
-- `pnpm exec nx lint audit-builder-ui`
-- `pnpm exec nx build audit-builder-ui`
+- `pnpm exec nx test audit-portal-ui`
+- `pnpm exec nx lint audit-portal-ui`
+- `pnpm exec nx build audit-portal-ui`
 
 ## Notes
 
-- Nx project name: `audit-builder-ui`
-- Angular component selectors in this library use the `b-ui-*` prefix.
+- Nx project name: `audit-portal-ui`
+- Angular component selectors in this library currently use the `b-ui-*` prefix for compatibility.
 - Tags: `type:domain`, `scope:audit`, `runtime:web`, `layer:ui`
-- The root entrypoint is still minimal. As more builder UI pieces move in, export them from `src/index.ts` and keep shared icon registration in the `icons` secondary entrypoint.
+- The root entrypoint is still minimal. As more audit portal UI pieces move in, export them from `src/index.ts` and keep shared icon registration in the `icons` secondary entrypoint.
 - Candidate extractions from `libs/audit/portal/builder` are tracked in [MIGRATION-CANDIDATES.md](./MIGRATION-CANDIDATES.md).
 - Secondary entrypoint naming must stay aligned with the root package name.
-  - Use `@app-speed/audit-builder-ui/icons`
-  - Use `@app-speed/audit-builder-ui/form-fields`
-  - Use `@app-speed/audit-builder-ui/dialogs`
-  - Do not introduce alternate aliases such as `@app-speed/audit-builder-ui-icons` or slash-mismatched variants
+  - Use `@app-speed/audit/portal/ui/icons`
+  - Use `@app-speed/audit/portal/ui/form-fields`
+  - Use `@app-speed/audit/portal/ui/dialogs`
+  - Do not introduce alternate aliases such as `@app-speed/audit-portal-ui-icons` or slash-mismatched variants
 - After renaming the package name or secondary entrypoint aliases, run `pnpm exec nx reset` before trusting incremental builds.
 - See [docs/conventions/angular-secondary-entry-points.md](../../../../docs/conventions/angular-secondary-entry-points.md) for the full rule and recovery steps.

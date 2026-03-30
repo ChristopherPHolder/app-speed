@@ -1,0 +1,8 @@
+{
+  "name": "@app-speed/audit/portal/data-access",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/core": "21.2.1"
+  },
+  "sideEffects": false
+}

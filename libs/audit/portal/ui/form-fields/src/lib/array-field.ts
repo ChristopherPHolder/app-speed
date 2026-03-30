@@ -4,7 +4,7 @@ import { MatIconButton } from '@angular/material/button';
 import { MatFormField } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
-import { ToTitleCasePipe } from '@app-speed/audit-builder-ui';
+import { ToTitleCasePipe } from '@app-speed/audit/portal/ui';
 import type { ArrayFieldModel } from './field.model';
 
 @Component({

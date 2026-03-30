@@ -1,10 +1,10 @@
 # Audit Portal Builder Migration Candidates
 
-This note evaluates which pieces from `libs/audit/portal/builder` are good candidates for the domain-scoped `layer:ui` library at `libs/audit/builder/ui`.
+This note evaluates which pieces from `libs/audit/portal/builder` are good candidates for the domain-scoped `layer:ui` library at `libs/audit/portal/ui`.
 
 ## Boundary
 
-- `audit-builder-ui` is tagged `layer:ui`, so it should follow the Nx UI-library pattern: presentational components, UI-only helpers, and visual assets.
+- `audit-portal-ui` is tagged `layer:ui`, so it should follow the Nx UI-library pattern: presentational components, UI-only helpers, and visual assets.
 - Keep routing, NgRx state, HTTP/SSE, and workflow orchestration in `libs/audit/portal/builder`.
 - The workspace dependency rules already allow a `layer:ui` library to depend on `layer:model` and `layer:contract`, so audit model/contracts imports are acceptable here when they are only used to render UI.
 
@@ -13,7 +13,7 @@ This note evaluates which pieces from `libs/audit/portal/builder` are good candi
 ### `audit-builder/loading-status.component.ts`
 
 Status:
-- Migrated into `audit-builder-ui` as the `@app-speed/audit-builder-ui/dialogs` secondary entry point.
+- Migrated into `audit-portal-ui` as the `@app-speed/audit/portal/ui/dialogs` secondary entry point.
 
 Why it fits:
 - Pure dialog content.
@@ -27,7 +27,7 @@ Move with:
 ### `audit-builder/error-dialog.component.ts`
 
 Status:
-- Migrated into `audit-builder-ui` as the `@app-speed/audit-builder-ui/dialogs` secondary entry point.
+- Migrated into `audit-portal-ui` as the `@app-speed/audit/portal/ui/dialogs` secondary entry point.
 
 Why it fits:
 - Pure dialog body rendered from injected data.
@@ -36,7 +36,7 @@ Why it fits:
 ### `components/utils/toTitleCase.pipe.ts`
 
 Status:
-- Migrated into the `@app-speed/audit-builder-ui` root entry point.
+- Migrated into the `@app-speed/audit/portal/ui` root entry point.
 
 Why it fits:
 - Pure formatting helper.
@@ -134,11 +134,11 @@ If `audit-builder-form.ts` or `step-property.ts` need reuse later, extract them 
 
 1. Move the dialog pieces and `toTitleCase` pipe.
 2. Extract `StepField` into the UI library and move the three leaf field components.
-3. Re-export those pieces from `libs/audit/builder/ui/src/index.ts`.
+3. Re-export those pieces from `libs/audit/portal/ui/src/index.ts`.
 4. Repoint the portal-builder stories and imports.
 5. Revisit `AuditStepComponent` and `AuditBuilderComponent` after the form API is separated from the feature layer.
 
 ## Migration Notes
 
-- The current portal-builder component selectors use `ui-*`, while `libs/audit/builder/ui/.eslintrc.json` enforces `b-ui-*`. Rename moved selectors to the UI-library prefix when extracting those components.
-- Keep icon registration in `@app-speed/audit-builder-ui/icons`; the moved components already align with that secondary entrypoint.
+- The current portal-builder component selectors use `ui-*`, while `libs/audit/portal/ui/.eslintrc.json` enforces `b-ui-*`. Rename moved selectors to the UI-library prefix when extracting those components.
+- Keep icon registration in `@app-speed/audit/portal/ui/icons`; the moved components already align with that secondary entrypoint.

@@ -1,4 +1,4 @@
-import { provideAuditBuilderIcons } from '@app-speed/audit-builder-ui/icons';
+import { provideAuditBuilderIcons } from '@app-speed/audit/portal/ui/icons';
 import { Routes } from '@angular/router';
 import { BuilderComponent } from './feature/builder.component';
 import { provideState } from '@ngrx/store';

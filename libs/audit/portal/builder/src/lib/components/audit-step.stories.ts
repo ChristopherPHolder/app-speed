@@ -1,5 +1,5 @@
 import { applicationConfig, type Meta, type StoryObj } from '@storybook/angular';
-import { provideAuditBuilderIcons } from '@app-speed/audit-builder-ui/icons';
+import { provideAuditBuilderIcons } from '@app-speed/audit/portal/ui/icons';
 import { STEP_TYPE } from '@app-speed/audit/model';
 import { StepFormGroup } from './audit-builder-form';
 import { AuditStepComponent } from './audit-step.component';

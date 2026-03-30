@@ -25,7 +25,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ToTitleCasePipe } from '@app-speed/audit-builder-ui';
+import { ToTitleCasePipe } from '@app-speed/audit/portal/ui';
 
 @Component({
   selector: 'ui-audit-builder',

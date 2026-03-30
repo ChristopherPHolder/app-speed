@@ -1,6 +1,6 @@
-# @app-speed/audit-builder-ui/dialogs
+# @app-speed/audit/portal/ui/dialogs
 
-Secondary entry point of `@app-speed/audit-builder-ui`. It can be used by importing from `@app-speed/audit-builder-ui/dialogs`.
+Secondary entry point of `@app-speed/audit/portal/ui`. It can be used by importing from `@app-speed/audit/portal/ui/dialogs`.
 
 Exports:
 

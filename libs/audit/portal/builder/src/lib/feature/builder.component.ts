@@ -6,7 +6,7 @@ import { AsyncPipe } from '@angular/common';
 import { auditBuilderFeature } from './builder.state';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { ErrorDialog, StatusDialog, type ErrorDialogModel, type StatusDialogModel } from '@app-speed/audit-builder-ui/dialogs';
+import { ErrorDialog, StatusDialog, type ErrorDialogModel, type StatusDialogModel } from '@app-speed/audit/portal/ui/dialogs';
 import { scan } from 'rxjs';
 import { AuditBuilderComponent } from '../components/audit-builder.component';
 

@@ -1,6 +1,6 @@
-# @app-speed/audit-builder-data-access
+# @app-speed/audit/portal/data-access
 
-Nx library for the rebuilt audit portal builder data-access layer under `libs/audit/builder/data-access`.
+Nx library for the rebuilt audit portal data-access layer under `libs/audit/portal/data-access`.
 
 This library should follow the Nx [data-access library](https://nx.dev/docs/concepts/decisions/project-dependency-rules#data-access-libraries) pattern:
 
@@ -65,7 +65,7 @@ Suggested internal layout as code moves in:
 
 Candidate surface area:
 
-- `provideAuditBuilderDataAccess()` or equivalent state/provider entrypoint
+- `provideAuditPortalDataAccess()` or equivalent state/provider entrypoint
 - builder selectors or a facade for consuming feature containers
 - `AuditBuilderApiService`
 - `AuditProgressService`

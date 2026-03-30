@@ -1,6 +1,6 @@
 import { FormControl } from '@angular/forms';
 import { applicationConfig, type Meta, type StoryObj } from '@storybook/angular';
-import { provideAuditBuilderIcons } from '@app-speed/audit-builder-ui/icons';
+import { provideAuditBuilderIcons } from '@app-speed/audit/portal/ui/icons';
 import { STEP_PROPERTY, STEP_TYPE } from '@app-speed/audit/model';
 import type { OptionsFieldModel } from './field.model';
 import { OptionsField } from './options-field';

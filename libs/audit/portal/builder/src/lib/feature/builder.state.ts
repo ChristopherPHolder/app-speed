@@ -13,7 +13,7 @@ import {
   submitAuditRequestSuccess,
   updateAuditDetails,
 } from './builder.actions';
-import type { StatusDialogModel } from '@app-speed/audit-builder-ui/dialogs';
+import type { StatusDialogModel } from '@app-speed/audit/portal/ui/dialogs';
 import type { FlowResult } from 'lighthouse';
 import type { AuditStage } from './builder.actions';
 

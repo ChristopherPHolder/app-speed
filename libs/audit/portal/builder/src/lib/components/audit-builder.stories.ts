@@ -1,5 +1,5 @@
 import { applicationConfig, type Meta, type StoryObj } from '@storybook/angular';
-import { provideAuditBuilderIcons } from '@app-speed/audit-builder-ui/icons';
+import { provideAuditBuilderIcons } from '@app-speed/audit/portal/ui/icons';
 import { DEFAULT_AUDIT_DETAILS } from '@app-speed/audit/model';
 import { AuditBuilderComponent } from './audit-builder.component';
 
