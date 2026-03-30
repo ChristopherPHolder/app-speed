@@ -8,7 +8,7 @@ This library is the audit-builder UI layer. It should contain presentational com
 
 - `@app-speed/audit-builder-ui`
   - root package entrypoint
-  - currently exports `AuditBuilderUiComponent`
+  - currently exports `AuditBuilderUiComponent` and `ToTitleCasePipe`
 - `@app-speed/audit-builder-ui/icons`
   - secondary entrypoint for audit-builder icon registration
   - exports `provideAuditBuilderIcons()`

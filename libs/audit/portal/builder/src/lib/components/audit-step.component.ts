@@ -55,7 +55,7 @@ import { ToTitleCasePipe } from '@app-speed/audit-builder-ui';
               </ui-options-field>
             }
             @case ('string') {
-              @let field = control.formControlField(stepField);
+              @let field = control.inputField(stepField);
               <ui-input-field [field]="field">
                 @if (field.removable) {
                   <button
@@ -72,7 +72,7 @@ import { ToTitleCasePipe } from '@app-speed/audit-builder-ui';
               </ui-input-field>
             }
             @case ('number') {
-              @let field = control.formControlField(stepField);
+              @let field = control.inputField(stepField);
               <ui-input-field [field]="field">
                 @if (field.removable) {
                   <button

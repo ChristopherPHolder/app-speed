@@ -4,6 +4,7 @@ import {
   AuditDetails,
   DEVICE_OPTIONS,
   DeviceType,
+  InputType,
   PropertyName,
   STEP_OPTIONS,
   StepDetails,
@@ -13,9 +14,9 @@ import { AuditStep } from '@app-speed/audit/contracts';
 
 import { stepPropertyFactoryMap } from './step-property';
 
-export type StepField<TControl extends AbstractControl = AbstractControl> = {
+export type StepField<TControl extends AbstractControl = AbstractControl, TInputType extends InputType = InputType> = {
   name: PropertyName;
-  property: StepProperty;
+  property: StepProperty<TInputType>;
   control: TControl;
   removable: boolean;
 };
@@ -62,22 +63,25 @@ export class StepFormGroup extends FormGroup {
 
   stepSchema!: StepDetails;
 
-  stepProperty(propertyName: PropertyName) {
+  stepProperty<TInputType extends InputType = InputType>(propertyName: PropertyName): StepProperty<TInputType> {
     const stepProperty = this.stepSchema.properties.find((prop) => prop.name === propertyName);
     if (!stepProperty) {
       throw new Error('Invalid property name');
     }
-    return stepProperty;
+    // TODO improve inference
+    return stepProperty as StepProperty<TInputType>;
   }
 
-  field<TControl extends AbstractControl = AbstractControl>(propertyName: PropertyName): StepField<TControl> {
+  field<TControl extends AbstractControl = AbstractControl, TInputType extends InputType = InputType>(
+    propertyName: PropertyName,
+  ): StepField<TControl, TInputType> {
     const control = this.get(propertyName);
 
     if (!control) {
       throw new Error(`Missing control for property "${propertyName}"`);
     }
 
-    const property = this.stepProperty(propertyName);
+    const property = this.stepProperty<TInputType>(propertyName);
 
     return {
       name: propertyName,
@@ -93,6 +97,18 @@ export class StepFormGroup extends FormGroup {
 
   stringArrayField(propertyName: PropertyName): StepField<FormArray<FormControl<string>>> {
     return this.field<FormArray<FormControl<string>>>(propertyName);
+  }
+
+  inputField<TInputType extends 'string' | 'number'>(
+    propertyName: PropertyName,
+  ): StepField<FormControl<string | number>, TInputType> {
+    const field = this.field<FormControl<string | number>, TInputType>(propertyName);
+
+    if (field.property.inputType !== 'string' && field.property.inputType !== 'number') {
+      throw new Error(`Expected input field, got ${field.property.inputType}`);
+    }
+
+    return field;
   }
 
   constructor(step: AuditStep) {

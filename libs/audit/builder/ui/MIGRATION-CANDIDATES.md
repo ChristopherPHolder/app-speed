@@ -36,6 +36,9 @@ Cleanup to do during move:
 
 ### `components/utils/toTitleCase.pipe.ts`
 
+Status:
+- Migrated into the `@app-speed/audit-builder-ui` root entry point.
+
 Why it fits:
 - Pure formatting helper.
 - No feature or domain orchestration.

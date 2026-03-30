@@ -14,9 +14,9 @@ export type StepPropertyOptionGroup = {
 
 export type StepPropertyOption = StepPropertyOptionValue | StepPropertyOptionGroup;
 
-export type StepProperty = {
+export type StepProperty<TInputType extends InputType = InputType> = {
   name: PropertyName;
-  inputType: InputType;
+  inputType: TInputType;
   defaultValue?: InputValue;
   options?: readonly StepPropertyOption[];
   description?: string;
