@@ -6,10 +6,10 @@ import { MatFabButton, MatIconButton } from '@angular/material/button';
 import { OptionsFieldComponent } from './fields/options-field.component';
 import { distinctUntilChanged, skip, startWith, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ToTitleCasePipe } from './utils/toTitleCase.pipe';
 import { InputFieldComponent } from './fields/input-field.component';
 import { ArrayFieldComponent } from './fields/array-field.component';
 import { MatIcon } from '@angular/material/icon';
+import { ToTitleCasePipe } from '@app-speed/audit-builder-ui';
 
 @Component({
   selector: 'ui-audit-builder-step',

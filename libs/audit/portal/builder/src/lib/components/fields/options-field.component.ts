@@ -4,8 +4,8 @@ import { MatOption, MatOptgroup } from '@angular/material/core';
 import { MatSelect } from '@angular/material/select';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
+import { ToTitleCasePipe } from '@app-speed/audit-builder-ui';
 import type { OptionsFieldModel } from '@app-speed/audit-builder-ui/form-fields';
-import { ToTitleCasePipe } from '../utils/toTitleCase.pipe';
 
 type OptionFieldOption = NonNullable<OptionsFieldModel['property']['options']>[number];
 type OptionFieldOptionGroup = Exclude<OptionFieldOption, string | boolean>;

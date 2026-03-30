@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ToTitleCasePipe } from '../utils/toTitleCase.pipe';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatFormField } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
+import { ToTitleCasePipe } from '@app-speed/audit-builder-ui';
 import type { ArrayFieldModel } from '@app-speed/audit-builder-ui/form-fields';
 
 @Component({

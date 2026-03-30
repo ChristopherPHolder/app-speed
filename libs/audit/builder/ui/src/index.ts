@@ -1,1 +1,1 @@
-export * from './lib/audit-builder-ui.component';
+export * from './lib/toTitleCase.pipe';
