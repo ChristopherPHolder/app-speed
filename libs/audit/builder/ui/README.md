@@ -17,7 +17,7 @@ This library is the audit-builder UI layer. It should contain presentational com
   - exports `StatusDialog` and `StatusDialogViewModel`
 - `@app-speed/audit-builder-ui/form-fields`
   - secondary entrypoint for audit builder form field UI
-  - currently reserved for extracted field components
+  - exports extracted leaf field components and field view models
 
 ## Structure
 
@@ -41,6 +41,12 @@ This library is the audit-builder UI layer. It should contain presentational com
   - UI-facing view model for the dialog status copy
 - `form-fields/src/index.ts`
   - public API for the `form-fields` secondary entrypoint
+- `form-fields/src/lib/input-field.component.ts`
+  - extracted presentational input field component
+- `form-fields/src/lib/input-field.stories.ts`
+  - Storybook stories for the input field component
+- `form-fields/src/lib/input-field.spec.ts`
+  - component test coverage for the `form-fields` secondary entrypoint
 - `vitest.config.mts`
   - shared Vitest config for both `src/**` and `icons/src/**`
 
@@ -76,6 +82,7 @@ Testing is configured for the library through the root Nx project:
 - `src/**/*.spec.ts` covers the root entrypoint
 - `icons/src/**/*.spec.ts` covers the secondary entrypoint
 - `status-dialog/src/**/*.spec.ts` covers the status dialog secondary entrypoint
+- `form-fields/src/**/*.spec.ts` covers the form-fields secondary entrypoint
 
 Run:
 

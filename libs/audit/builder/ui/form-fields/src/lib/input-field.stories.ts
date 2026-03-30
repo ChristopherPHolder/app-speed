@@ -1,19 +1,19 @@
 import { FormControl } from '@angular/forms';
 import type { Meta, StoryObj } from '@storybook/angular';
-import type { InputFieldModel } from '@app-speed/audit-builder-ui/form-fields';
 import { STEP_PROPERTY } from '@app-speed/audit/model';
-import { InputFieldComponent } from './input-field.component';
+import type { InputFieldModel } from './field-model';
+import { InputField } from './input-field';
 
-const meta: Meta<InputFieldComponent> = {
+const meta: Meta<InputField> = {
   title: 'Patterns/Audit Builder/Fields/Input',
-  component: InputFieldComponent,
+  component: InputField,
   parameters: {
     layout: 'padded',
   },
 };
 
 export default meta;
-type Story = StoryObj<InputFieldComponent>;
+type Story = StoryObj<InputField>;
 
 const createField = ({
   property,
@@ -28,7 +28,13 @@ const createField = ({
   removable: false,
 });
 
-const createStory = ({ property, control }: { property: InputFieldModel['property']; control: FormControl }): Story => ({
+const createStory = ({
+  property,
+  control,
+}: {
+  property: InputFieldModel['property'];
+  control: FormControl;
+}): Story => ({
   render: () => ({
     props: {
       field: createField({

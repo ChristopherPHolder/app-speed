@@ -2,21 +2,20 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
-import { RxIf } from '@rx-angular/template/if';
 import { ToTitleCasePipe } from '@app-speed/audit-builder-ui';
-import type { InputFieldModel } from '@app-speed/audit-builder-ui/form-fields';
+import type { InputFieldModel } from './field-model';
 
 @Component({
-  selector: 'ui-input-field',
-  imports: [MatError, MatFormField, MatInput, MatLabel, ReactiveFormsModule, RxIf, ToTitleCasePipe],
+  selector: 'b-ui-input-field',
+  imports: [MatError, MatFormField, MatInput, MatLabel, ReactiveFormsModule, ToTitleCasePipe],
   template: `
     <div class="field-row">
       <mat-form-field>
         <mat-label>{{ field().name | toTitleCase }}</mat-label>
         <input matInput [type]="type()" [formControl]="field().control" />
-        <mat-error *rxIf="field().control.hasError('required')">
-          {{ field().name | toTitleCase }} is <strong>required</strong>
-        </mat-error>
+        @if (field().control.hasError('required')) {
+          <mat-error>{{ field().name | toTitleCase }} is <strong>required</strong></mat-error>
+        }
       </mat-form-field>
       <ng-content select="[field-action]" />
     </div>
@@ -30,7 +29,7 @@ import type { InputFieldModel } from '@app-speed/audit-builder-ui/form-fields';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class InputFieldComponent {
+export class InputField {
   field = input.required<InputFieldModel>();
 
   protected readonly type = computed(() => (this.field().property.inputType === 'number' ? 'number' : 'text'));

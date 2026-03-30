@@ -6,7 +6,7 @@ import { MatFabButton, MatIconButton } from '@angular/material/button';
 import { OptionsFieldComponent } from './fields/options-field.component';
 import { distinctUntilChanged, skip, startWith, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { InputFieldComponent } from './fields/input-field.component';
+import { InputField } from '@app-speed/audit-builder-ui/form-fields';
 import { ArrayFieldComponent } from './fields/array-field.component';
 import { MatIcon } from '@angular/material/icon';
 import { ToTitleCasePipe } from '@app-speed/audit-builder-ui';
@@ -56,7 +56,7 @@ import { ToTitleCasePipe } from '@app-speed/audit-builder-ui';
             }
             @case ('string') {
               @let field = control.inputField(stepField);
-              <ui-input-field [field]="field">
+              <b-ui-input-field [field]="field">
                 @if (field.removable) {
                   <button
                     field-action
@@ -69,11 +69,11 @@ import { ToTitleCasePipe } from '@app-speed/audit-builder-ui';
                     <mat-icon>delete</mat-icon>
                   </button>
                 }
-              </ui-input-field>
+              </b-ui-input-field>
             }
             @case ('number') {
               @let field = control.inputField(stepField);
-              <ui-input-field [field]="field">
+              <b-ui-input-field [field]="field">
                 @if (field.removable) {
                   <button
                     field-action
@@ -86,7 +86,7 @@ import { ToTitleCasePipe } from '@app-speed/audit-builder-ui';
                     <mat-icon>delete</mat-icon>
                   </button>
                 }
-              </ui-input-field>
+              </b-ui-input-field>
             }
             @case ('boolean') {
               @let field = control.formControlField(stepField);
@@ -156,7 +156,7 @@ import { ToTitleCasePipe } from '@app-speed/audit-builder-ui';
     MatIconButton,
     OptionsFieldComponent,
     ToTitleCasePipe,
-    InputFieldComponent,
+    InputField,
     ArrayFieldComponent,
     MatIcon,
   ],
