@@ -13,7 +13,7 @@ import {
   submitAuditRequestSuccess,
   updateAuditDetails,
 } from './builder.actions';
-import type { ViewModel } from '@app-speed/audit-builder-ui/status-dialog';
+import type { StatusDialogModel } from '@app-speed/audit-builder-ui/dialogs';
 import type { FlowResult } from 'lighthouse';
 import type { AuditStage } from './builder.actions';
 
@@ -26,7 +26,7 @@ const AUDIT_BUILDER_STATUS = {
   SUCCESS: 'success',
 } as const;
 
-type LoadingDialogState = ViewModel | null;
+type LoadingDialogState = StatusDialogModel | null;
 
 const getQueueSubtitle = (queuePosition: number | null) =>
   queuePosition === null

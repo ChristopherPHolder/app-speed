@@ -6,8 +6,7 @@ import { AsyncPipe } from '@angular/common';
 import { auditBuilderFeature } from './builder.state';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { StatusDialog, type ViewModel } from '@app-speed/audit-builder-ui/status-dialog';
-import { ErrorDialogComponent } from '../audit-builder/error-dialog.component';
+import { ErrorDialog, StatusDialog, type ErrorDialogModel, type StatusDialogModel } from '@app-speed/audit-builder-ui/dialogs';
 import { scan } from 'rxjs';
 import { AuditBuilderComponent } from '../components/audit-builder.component';
 
@@ -65,7 +64,7 @@ export class BuilderComponent implements OnInit {
             return acc;
           },
           { loading: null, dialog: null } as {
-            loading: WritableSignal<ViewModel> | null;
+            loading: WritableSignal<StatusDialogModel> | null;
             dialog: MatDialogRef<StatusDialog, unknown> | null;
           },
         ),
@@ -74,11 +73,13 @@ export class BuilderComponent implements OnInit {
 
     this.auditRequestError$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((error) => {
       if (error) {
-        this.dialog.open(ErrorDialogComponent, {
-          data: {
-            title: 'Request Failed',
-            message: error,
-          },
+        const dialogData: ErrorDialogModel = {
+          title: 'Request Failed',
+          message: error,
+        };
+
+        this.dialog.open(ErrorDialog, {
+          data: dialogData,
         });
       }
     });

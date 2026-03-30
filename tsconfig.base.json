@@ -67,8 +67,8 @@
       "@app-speed/audit-builder-data-access": [
         "libs/audit/builder/data-access/src/index.ts"
       ],
-      "@app-speed/audit-builder-ui/status-dialog": [
-        "libs/audit/builder/ui/status-dialog/src/index.ts"
+      "@app-speed/audit-builder-ui/dialogs": [
+        "libs/audit/builder/ui/dialogs/src/index.ts"
       ],
       "@app-speed/audit-builder-ui/form-fields": [
         "libs/audit/builder/ui/form-fields/src/index.ts"

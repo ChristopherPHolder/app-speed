@@ -9,7 +9,7 @@ import {
 } from '@angular/material/card';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
-import type { ViewModel } from './view-model';
+import type { StatusDialogModel } from './status-dialog.model';
 
 @Component({
   selector: 'b-ui-status-dialog',
@@ -48,5 +48,5 @@ import type { ViewModel } from './view-model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StatusDialog {
-  readonly viewModel = inject<Signal<ViewModel>>(MAT_DIALOG_DATA);
+  readonly viewModel = inject<Signal<StatusDialogModel>>(MAT_DIALOG_DATA);
 }

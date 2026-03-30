@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import {
   MAT_DIALOG_DATA,
   MatDialogActions,
@@ -7,9 +7,10 @@ import {
   MatDialogTitle,
 } from '@angular/material/dialog';
 import { MatButton } from '@angular/material/button';
+import type { ErrorDialogModel } from './error-dialog.model';
 
 @Component({
-  selector: 'portal-error-dialog',
+  selector: 'b-ui-error-dialog',
   template: `
     <h2 mat-dialog-title>{{ data.title }}</h2>
     <mat-dialog-content class="mat-typography">
@@ -23,11 +24,6 @@ import { MatButton } from '@angular/material/button';
   imports: [MatDialogTitle, MatDialogContent, MatDialogActions, MatButton, MatDialogClose],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ErrorDialogComponent implements OnInit {
-  data = inject<{ title: string; message: string }>(MAT_DIALOG_DATA);
-
-  ngOnInit() {
-    console.log(this.data.message);
-    console.log(this.data.message.split('\n'));
-  }
+export class ErrorDialog {
+  readonly data = inject<ErrorDialogModel>(MAT_DIALOG_DATA);
 }

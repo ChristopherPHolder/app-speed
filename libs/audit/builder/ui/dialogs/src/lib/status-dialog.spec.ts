@@ -3,9 +3,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { StatusDialog } from './status-dialog';
-import type { ViewModel } from './view-model';
+import type { StatusDialogModel } from './status-dialog.model';
 
-const DEFAULT_VIEW_MODEL: ViewModel = {
+const DEFAULT_VIEW_MODEL: StatusDialogModel = {
   title: 'Loading Status Title',
   subtitle: 'Loading Status Subtitle',
   footerText: 'Loading Status Footer Text',
@@ -14,7 +14,7 @@ const DEFAULT_VIEW_MODEL: ViewModel = {
 describe('StatusDialog', () => {
   let component: StatusDialog;
   let fixture: ComponentFixture<StatusDialog>;
-  let dialogData: WritableSignal<ViewModel>;
+  let dialogData: WritableSignal<StatusDialogModel>;
 
   beforeEach(async () => {
     dialogData = signal(DEFAULT_VIEW_MODEL);
@@ -36,7 +36,7 @@ describe('StatusDialog', () => {
 
   const getCompiledElement = (): HTMLElement => fixture.debugElement.nativeElement as HTMLElement;
 
-  const setDialogData = (nextValue: ViewModel): void => {
+  const setDialogData = (nextValue: StatusDialogModel): void => {
     dialogData.set(nextValue);
     fixture.detectChanges();
   };

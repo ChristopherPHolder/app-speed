@@ -47,16 +47,16 @@
     "icons/src/**/*.d.ts",
     "icons/src/**/*.stories.ts",
     "icons/src/**/*.stories.js",
-    "status-dialog/src/**/*.test.ts",
-    "status-dialog/src/**/*.spec.ts",
-    "status-dialog/src/**/*.test.tsx",
-    "status-dialog/src/**/*.spec.tsx",
-    "status-dialog/src/**/*.test.js",
-    "status-dialog/src/**/*.spec.js",
-    "status-dialog/src/**/*.test.jsx",
-    "status-dialog/src/**/*.spec.jsx",
-    "status-dialog/src/**/*.d.ts",
-    "status-dialog/src/**/*.stories.ts",
-    "status-dialog/src/**/*.stories.js"
+    "dialogs/src/**/*.test.ts",
+    "dialogs/src/**/*.spec.ts",
+    "dialogs/src/**/*.test.tsx",
+    "dialogs/src/**/*.spec.tsx",
+    "dialogs/src/**/*.test.js",
+    "dialogs/src/**/*.spec.js",
+    "dialogs/src/**/*.test.jsx",
+    "dialogs/src/**/*.spec.jsx",
+    "dialogs/src/**/*.d.ts",
+    "dialogs/src/**/*.stories.ts",
+    "dialogs/src/**/*.stories.js"
   ]
 }
