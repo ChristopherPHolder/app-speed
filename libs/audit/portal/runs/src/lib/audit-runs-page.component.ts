@@ -5,7 +5,6 @@ import { Router } from '@angular/router';
 import { AuditRunStatus, AuditRunSummary, DEFAULT_AUDIT_RUN_FILTER } from './api/audit-runs.models';
 import { AuditRunsApiService } from './api/audit-runs-api.service';
 import { AuditRunsTableComponent } from './components/audit-runs-table.component';
-import { interval } from 'rxjs';
 
 @Component({
   selector: 'portal-audit-runs-page',
