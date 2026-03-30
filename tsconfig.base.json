@@ -69,6 +69,9 @@
       ],
       "@app-speed/audit-builder-ui/status-dialog": [
         "libs/audit/builder/ui/status-dialog/src/index.ts"
+      ],
+      "@app-speed/audit-builder-ui/form-fields": [
+        "libs/audit/builder/ui/form-fields/src/index.ts"
       ]
     },
     "plugins": [

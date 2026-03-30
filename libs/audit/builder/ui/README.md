@@ -15,6 +15,9 @@ This library is the audit-builder UI layer. It should contain presentational com
 - `@app-speed/audit-builder-ui/status-dialog`
   - secondary entrypoint for the loading dialog surface
   - exports `StatusDialog` and `StatusDialogViewModel`
+- `@app-speed/audit-builder-ui/form-fields`
+  - secondary entrypoint for audit builder form field UI
+  - currently reserved for extracted field components
 
 ## Structure
 
@@ -36,6 +39,8 @@ This library is the audit-builder UI layer. It should contain presentational com
   - presentational loading dialog body for builder progress
 - `status-dialog/src/lib/status-dialog-view-model.ts`
   - UI-facing view model for the dialog status copy
+- `form-fields/src/index.ts`
+  - public API for the `form-fields` secondary entrypoint
 - `vitest.config.mts`
   - shared Vitest config for both `src/**` and `icons/src/**`
 
@@ -86,6 +91,7 @@ Run:
 - Candidate extractions from `libs/audit/portal/builder` are tracked in [MIGRATION-CANDIDATES.md](./MIGRATION-CANDIDATES.md).
 - Secondary entrypoint naming must stay aligned with the root package name.
   - Use `@app-speed/audit-builder-ui/icons`
+  - Use `@app-speed/audit-builder-ui/form-fields`
   - Do not introduce alternate aliases such as `@app-speed/audit-builder-ui-icons` or slash-mismatched variants
 - After renaming the package name or secondary entrypoint aliases, run `pnpm exec nx reset` before trusting incremental builds.
-- See [docs/angular-secondary-entry-points.md](../../../../docs/angular-secondary-entry-points.md) for the full rule and recovery steps.
+- See [docs/conventions/angular-secondary-entry-points.md](../../../../docs/conventions/angular-secondary-entry-points.md) for the full rule and recovery steps.
