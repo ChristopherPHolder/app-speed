@@ -1,15 +1,20 @@
 import { HttpApiEndpoint, HttpApiError, HttpApiSchema } from '@effect/platform';
 import { Schema } from 'effect';
 
-import { ReplayUserflowAuditSchema } from '@app-speed/audit/contracts';
+import {
+  ScheduleAuditBadRequestResponseSchema,
+  ScheduleAuditDecodeErrorResponseSchema,
+  ScheduleAuditRequestSchema,
+  ScheduleAuditResponseSchema,
+} from '@app-speed/audit/contracts';
 
 import { AuditId, AuditNotFoundError, AuditRunStatusSchema } from '../Audit.js';
 
 export const scheduleEndpoint = HttpApiEndpoint.post('schedule', '/schedule')
-  .setPayload(ReplayUserflowAuditSchema)
-  .addSuccess(Schema.Struct({ auditId: AuditId, auditQueuePosition: Schema.NonNegativeInt }))
-  .addError(HttpApiError.HttpApiDecodeError)
-  .addError(HttpApiError.BadRequest);
+  .setPayload(ScheduleAuditRequestSchema)
+  .addSuccess(ScheduleAuditResponseSchema)
+  .addError(ScheduleAuditDecodeErrorResponseSchema)
+  .addError(ScheduleAuditBadRequestResponseSchema);
 
 export const findByIdEndpoint = HttpApiEndpoint.get('findById', '/:id')
   .setPath(Schema.Struct({ id: AuditId }))

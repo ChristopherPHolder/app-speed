@@ -6,7 +6,7 @@ import { ToTitleCasePipe } from '@app-speed/audit/portal/ui';
 import type { InputFieldModel } from './field.model';
 
 @Component({
-  selector: 'b-ui-input-field',
+  selector: 'ui-input-field',
   imports: [MatError, MatFormField, MatInput, MatLabel, ReactiveFormsModule, ToTitleCasePipe],
   template: `
     <div class="field-row">

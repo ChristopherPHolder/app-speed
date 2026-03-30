@@ -11,7 +11,7 @@ type OptionFieldOption = NonNullable<OptionsFieldModel['property']['options']>[n
 type OptionFieldOptionGroup = Exclude<OptionFieldOption, string | boolean>;
 
 @Component({
-  selector: 'b-ui-options-field',
+  selector: 'ui-options-field',
   imports: [ReactiveFormsModule, MatLabel, MatFormField, MatSelect, MatOption, MatOptgroup, MatIcon, ToTitleCasePipe],
   template: `
     <div class="field-row">

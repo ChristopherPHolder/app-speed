@@ -109,7 +109,7 @@ Run:
 ## Notes
 
 - Nx project name: `audit-portal-ui`
-- Angular component selectors in this library currently use the `b-ui-*` prefix for compatibility.
+- Angular component selectors in this library use the `ui-*` prefix.
 - Tags: `type:domain`, `scope:audit`, `runtime:web`, `layer:ui`
 - The root entrypoint is still minimal. As more audit portal UI pieces move in, export them from `src/index.ts` and keep shared icon registration in the `icons` secondary entrypoint.
 - Candidate extractions from `libs/audit/portal/builder` are tracked in [MIGRATION-CANDIDATES.md](./MIGRATION-CANDIDATES.md).

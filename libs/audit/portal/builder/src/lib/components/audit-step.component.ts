@@ -37,7 +37,7 @@ import { ToTitleCasePipe } from '@app-speed/audit/portal/ui';
           @switch (fieldType) {
             @case ('options') {
               @let field = control.formControlField(stepField);
-              <b-ui-options-field [field]="field">
+              <ui-options-field [field]="field">
                 @if (field.removable) {
                   <button
                     field-action
@@ -50,11 +50,11 @@ import { ToTitleCasePipe } from '@app-speed/audit/portal/ui';
                     <mat-icon>delete</mat-icon>
                   </button>
                 }
-              </b-ui-options-field>
+              </ui-options-field>
             }
             @case ('string') {
               @let field = control.inputField(stepField);
-              <b-ui-input-field [field]="field">
+              <ui-input-field [field]="field">
                 @if (field.removable) {
                   <button
                     field-action
@@ -67,11 +67,11 @@ import { ToTitleCasePipe } from '@app-speed/audit/portal/ui';
                     <mat-icon>delete</mat-icon>
                   </button>
                 }
-              </b-ui-input-field>
+              </ui-input-field>
             }
             @case ('number') {
               @let field = control.inputField(stepField);
-              <b-ui-input-field [field]="field">
+              <ui-input-field [field]="field">
                 @if (field.removable) {
                   <button
                     field-action
@@ -84,11 +84,11 @@ import { ToTitleCasePipe } from '@app-speed/audit/portal/ui';
                     <mat-icon>delete</mat-icon>
                   </button>
                 }
-              </b-ui-input-field>
+              </ui-input-field>
             }
             @case ('boolean') {
               @let field = control.formControlField(stepField);
-              <b-ui-options-field [field]="field">
+              <ui-options-field [field]="field">
                 @if (field.removable) {
                   <button
                     field-action
@@ -101,11 +101,11 @@ import { ToTitleCasePipe } from '@app-speed/audit/portal/ui';
                     <mat-icon>delete</mat-icon>
                   </button>
                 }
-              </b-ui-options-field>
+              </ui-options-field>
             }
             @case ('stringArray') {
               @let field = control.stringArrayField(stepField);
-              <b-ui-array-field [field]="field">
+              <ui-array-field [field]="field">
                 @if (field.removable) {
                   <button
                     field-action
@@ -118,7 +118,7 @@ import { ToTitleCasePipe } from '@app-speed/audit/portal/ui';
                     <mat-icon>delete</mat-icon>
                   </button>
                 }
-              </b-ui-array-field>
+              </ui-array-field>
             }
             @default {
               TODO not yet implemented {{ fieldType }} {{ fieldType }}

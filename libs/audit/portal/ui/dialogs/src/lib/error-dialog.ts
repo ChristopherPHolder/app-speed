@@ -10,7 +10,7 @@ import { MatButton } from '@angular/material/button';
 import type { ErrorDialogModel } from './error-dialog.model';
 
 @Component({
-  selector: 'b-ui-error-dialog',
+  selector: 'ui-error-dialog',
   template: `
     <h2 mat-dialog-title>{{ data.title }}</h2>
     <mat-dialog-content class="mat-typography">

@@ -8,7 +8,7 @@ import { ToTitleCasePipe } from '@app-speed/audit/portal/ui';
 import type { ArrayFieldModel } from './field.model';
 
 @Component({
-  selector: 'b-ui-array-field',
+  selector: 'ui-array-field',
   template: `
     <div class="array-field">
       <div class="array-field__header">

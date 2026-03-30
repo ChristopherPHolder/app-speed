@@ -21,6 +21,15 @@
       },
       "defaultConfiguration": "production"
     },
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "configFile": "{projectRoot}/vitest.config.mts",
+        "reportsDirectory": "../../../../coverage/libs/audit/portal/data-access",
+        "passWithNoTests": true
+      }
+    },
     "lint": {
       "executor": "@nx/eslint:lint"
     }

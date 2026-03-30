@@ -28,7 +28,6 @@ export const STEP_TYPE = {
   ...USER_STEP_TYPE,
 } as const;
 export type StepType = (typeof STEP_TYPE)[keyof typeof STEP_TYPE];
-export const STEP_OPTIONS = Object.values(STEP_TYPE);
 
 export const STEP_TYPE_OPTIONS_GROUPED = [
   {

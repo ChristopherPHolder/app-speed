@@ -5,7 +5,7 @@ import { provideAuditBuilderIcons } from './icons.provide';
 import { LIGHTHOUSE_BADGE_ICON_NAME, PUPPETEER_BADGE_ICON_NAME } from './icons';
 
 @Component({
-  selector: 'b-ui-audit-builder-icon-gallery',
+  selector: 'ui-audit-builder-icon-gallery',
   imports: [MatIconModule],
   template: `
     <div style="display: flex; flex-wrap: wrap; gap: 20px;">
