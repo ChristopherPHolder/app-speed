@@ -25,6 +25,13 @@
 - ESLint enforces Nx module boundaries; avoid importing across disallowed library boundaries.
 - SCSS is the default style language for Angular generators.
 
+## Angular Agent Guidance
+- This workspace expects the Codex skills `angular-developer` and `angular-new-app` from `angular/skills` to be available locally.
+- Use `angular-developer` for Angular work in `apps/portal`, `libs/ui/**`, and Angular libraries under `libs/audit/**`.
+- Use `angular-new-app` only when creating a brand-new Angular app or standalone Angular workspace.
+- In this Nx monorepo, prefer Nx-aware commands for generation and verification: use `pnpm exec nx ...` targets for build, test, lint, and other project checks instead of raw `ng build` for existing projects.
+- When scaffolding Angular code, prefer workspace-consistent generators and keep outputs inside the owning Nx project boundary.
+
 ## Testing Guidelines
 - Unit tests use Vitest (Nx + Vite setup).
 - E2E tests are set up with Cypress (run via Nx targets).

@@ -1,4 +1,4 @@
-import { Component, inject, Signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Signal } from '@angular/core';
 import {
   MatCard,
   MatCardContent,
@@ -9,24 +9,25 @@ import {
 } from '@angular/material/card';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
-import type { LoadingStatusViewModel } from './loading-status.models';
+import type { StatusDialogViewModel } from './status-dialog-view-model';
 
 @Component({
-  selector: 'loading-status',
+  selector: 'lib-status-dialog',
   template: `
-    <mat-card class="loading-card">
+    @let vm = viewModel();
+    <mat-card class="status-card">
       <mat-card-header>
-        <mat-card-title>{{ data().title || 'loading...' }}</mat-card-title>
-        @if (data().subtitle) {
-          <mat-card-subtitle>{{ data().subtitle }}</mat-card-subtitle>
+        <mat-card-title>{{ vm.title || 'loading...' }}</mat-card-title>
+        @if (vm.subtitle) {
+          <mat-card-subtitle>{{ vm.subtitle }}</mat-card-subtitle>
         }
       </mat-card-header>
       <mat-card-content [style.padding-top]="'16px'">
         <mat-spinner [diameter]="64" />
       </mat-card-content>
-      @if (data().footerText) {
+      @if (vm.footerText) {
         <mat-card-footer [style.padding]="'0 16px 0 16px'">
-          <p><small>{{ data().footerText }}</small></p>
+          <p><small>{{ vm.footerText }}</small></p>
         </mat-card-footer>
       }
     </mat-card>
@@ -37,12 +38,13 @@ import type { LoadingStatusViewModel } from './loading-status.models';
       margin: 20px;
     }
 
-    .loading-card {
+    .status-card {
       align-items: center;
       text-align: center;
     }
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LoadingStatusComponent {
-  readonly data = inject<Signal<LoadingStatusViewModel>>(MAT_DIALOG_DATA);
+export class StatusDialogComponent {
+  readonly viewModel = inject<Signal<StatusDialogViewModel>>(MAT_DIALOG_DATA);
 }

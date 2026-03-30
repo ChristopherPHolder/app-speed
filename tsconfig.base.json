@@ -13,23 +13,63 @@
     "baseUrl": ".",
     "rootDir": ".",
     "paths": {
-      "@app-speed/aws-deploy": ["tools/aws-deploy/src/index.ts"],
-      "@app-speed/db-tools": ["tools/db-tools/src/index.ts"],
-      "@app-speed/effect-tools": ["tools/effect-tools/src/index.ts"],
-      "@app-speed/audit/portal/builder": ["libs/audit/portal/builder/src/index.ts"],
-      "@app-speed/audit/portal/runs": ["libs/audit/portal/runs/src/index.ts"],
-      "@app-speed/audit/portal/viewer": ["libs/audit/portal/viewer/src/index.ts"],
-      "@app-speed/ui": ["libs/ui/src/public-api.ts"],
-      "@app-speed/ui/scroll-container": ["libs/ui/scroll-container/public-api.ts"],
-      "@app-speed/ui/status-badge": ["libs/ui/status-badge/public-api.ts"],
-      "@app-speed/audit/runner": ["libs/audit/runner/src/public-api.ts"],
-      "@app-speed/audit/control-plane": ["libs/audit/control-plane/src/index.ts"],
-      "@app-speed/platform/observability": ["libs/platform/observability/src/public-api.ts"],
-      "@app-speed/audit/model": ["libs/audit/model/src/index.ts"],
-      "@app-speed/audit/contracts": ["libs/audit/contracts/src/index.ts"],
-      "@app-speed/audit/persistence": ["libs/audit/persistence/src/index.ts"],
-      "@app-speed/audit-builder-ui": ["libs/audit/builder/ui/src/index.ts"],
-      "@app-speed/audit-builder-ui/icons": ["libs/audit/builder/ui/icons/src/index.ts"]
+      "@app-speed/aws-deploy": [
+        "tools/aws-deploy/src/index.ts"
+      ],
+      "@app-speed/db-tools": [
+        "tools/db-tools/src/index.ts"
+      ],
+      "@app-speed/effect-tools": [
+        "tools/effect-tools/src/index.ts"
+      ],
+      "@app-speed/audit/portal/builder": [
+        "libs/audit/portal/builder/src/index.ts"
+      ],
+      "@app-speed/audit/portal/runs": [
+        "libs/audit/portal/runs/src/index.ts"
+      ],
+      "@app-speed/audit/portal/viewer": [
+        "libs/audit/portal/viewer/src/index.ts"
+      ],
+      "@app-speed/ui": [
+        "libs/ui/src/public-api.ts"
+      ],
+      "@app-speed/ui/scroll-container": [
+        "libs/ui/scroll-container/public-api.ts"
+      ],
+      "@app-speed/ui/status-badge": [
+        "libs/ui/status-badge/public-api.ts"
+      ],
+      "@app-speed/audit/runner": [
+        "libs/audit/runner/src/public-api.ts"
+      ],
+      "@app-speed/audit/control-plane": [
+        "libs/audit/control-plane/src/index.ts"
+      ],
+      "@app-speed/platform/observability": [
+        "libs/platform/observability/src/public-api.ts"
+      ],
+      "@app-speed/audit/model": [
+        "libs/audit/model/src/index.ts"
+      ],
+      "@app-speed/audit/contracts": [
+        "libs/audit/contracts/src/index.ts"
+      ],
+      "@app-speed/audit/persistence": [
+        "libs/audit/persistence/src/index.ts"
+      ],
+      "@app-speed/audit-builder-ui": [
+        "libs/audit/builder/ui/src/index.ts"
+      ],
+      "@app-speed/audit-builder-ui/icons": [
+        "libs/audit/builder/ui/icons/src/index.ts"
+      ],
+      "@app-speed/audit-builder-data-access": [
+        "libs/audit/builder/data-access/src/index.ts"
+      ],
+      "@app-speed/audit-builder-ui/status-dialog": [
+        "libs/audit/builder/ui/status-dialog/src/index.ts"
+      ]
     },
     "plugins": [
       {

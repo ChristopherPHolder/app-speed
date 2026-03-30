@@ -12,6 +12,9 @@ This library is the audit-builder UI layer. It should contain presentational com
 - `@app-speed/audit-builder-ui/icons`
   - secondary entrypoint for audit-builder icon registration
   - exports `provideAuditBuilderIcons()`
+- `@app-speed/audit-builder-ui/status-dialog`
+  - secondary entrypoint for the loading dialog surface
+  - exports `StatusDialogComponent` and `StatusDialogViewModel`
 
 ## Structure
 
@@ -27,6 +30,12 @@ This library is the audit-builder UI layer. It should contain presentational com
   - Angular provider that registers builder badge icons with `MatIconRegistry`
 - `icons/src/lib/icons.stories.ts`
   - Storybook gallery for the icon set
+- `status-dialog/src/index.ts`
+  - public API for the `status-dialog` secondary entrypoint
+- `status-dialog/src/lib/status-dialog.ts`
+  - presentational loading dialog body for builder progress
+- `status-dialog/src/lib/status-dialog-view-model.ts`
+  - UI-facing view model for the dialog status copy
 - `vitest.config.mts`
   - shared Vitest config for both `src/**` and `icons/src/**`
 
@@ -61,6 +70,7 @@ Testing is configured for the library through the root Nx project:
 - `src/test-setup.ts` bootstraps Angular + Vitest
 - `src/**/*.spec.ts` covers the root entrypoint
 - `icons/src/**/*.spec.ts` covers the secondary entrypoint
+- `status-dialog/src/**/*.spec.ts` covers the status dialog secondary entrypoint
 
 Run:
 

@@ -6,10 +6,12 @@ import { AsyncPipe } from '@angular/common';
 import { auditBuilderFeature } from './builder.state';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import {
+  StatusDialogComponent,
+  type StatusDialogViewModel,
+} from '@app-speed/audit-builder-ui/status-dialog';
 import { ErrorDialogComponent } from '../audit-builder/error-dialog.component';
-import { LoadingStatusComponent } from '../audit-builder/loading-status.component';
 import { scan } from 'rxjs';
-import type { LoadingStatusViewModel } from '../audit-builder/loading-status.models';
 import { AuditBuilderComponent } from '../components/audit-builder.component';
 
 @Component({
@@ -57,7 +59,7 @@ export class BuilderComponent implements OnInit {
               const loadingData = signal(loadingDialog);
               return {
                 loading: loadingData,
-                dialog: this.dialog.open(LoadingStatusComponent, {
+                dialog: this.dialog.open(StatusDialogComponent, {
                   data: loadingData,
                   disableClose: true,
                 }),
@@ -66,8 +68,8 @@ export class BuilderComponent implements OnInit {
             return acc;
           },
           { loading: null, dialog: null } as {
-            loading: WritableSignal<LoadingStatusViewModel> | null;
-            dialog: MatDialogRef<LoadingStatusComponent, unknown> | null;
+            loading: WritableSignal<StatusDialogViewModel> | null;
+            dialog: MatDialogRef<StatusDialogComponent, unknown> | null;
           },
         ),
       )

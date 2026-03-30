@@ -1,11 +1,11 @@
 import { signal } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { applicationConfig, componentWrapperDecorator, type Meta, type StoryObj } from '@storybook/angular';
-import { LoadingStatusComponent } from './loading-status.component';
+import { StatusDialogComponent } from './status-dialog';
 
-const meta: Meta<LoadingStatusComponent> = {
-  title: 'Patterns/Audit Builder/Loading Status',
-  component: LoadingStatusComponent,
+const meta: Meta<StatusDialogComponent> = {
+  title: 'Patterns/Audit Builder/Status Dialog',
+  component: StatusDialogComponent,
   parameters: {
     layout: 'fullscreen',
     docs: {
@@ -51,6 +51,6 @@ const meta: Meta<LoadingStatusComponent> = {
 };
 
 export default meta;
-type Story = StoryObj<LoadingStatusComponent>;
+type Story = StoryObj<StatusDialogComponent>;
 
 export const Default: Story = {};

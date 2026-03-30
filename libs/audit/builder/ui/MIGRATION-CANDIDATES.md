@@ -12,6 +12,9 @@ This note evaluates which pieces from `libs/audit/portal/builder` are good candi
 
 ### `audit-builder/loading-status.component.ts`
 
+Status:
+- Migrated into `audit-builder-ui` as the `@app-speed/audit-builder-ui/status-dialog` secondary entry point.
+
 Why it fits:
 - Pure dialog content.
 - Only depends on Angular Material and a small view-model interface.

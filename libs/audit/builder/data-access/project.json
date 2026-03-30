@@ -1,0 +1,28 @@
+{
+  "name": "audit-builder-data-access",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/audit/builder/data-access/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": ["type:domain", "scope:audit", "runtime:web", "layer:data-access"],
+  "targets": {
+    "build": {
+      "executor": "@nx/angular:ng-packagr-lite",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "options": {
+        "project": "libs/audit/builder/data-access/ng-package.json",
+        "tsConfig": "libs/audit/builder/data-access/tsconfig.lib.json"
+      },
+      "configurations": {
+        "production": {
+          "tsConfig": "libs/audit/builder/data-access/tsconfig.lib.prod.json"
+        },
+        "development": {}
+      },
+      "defaultConfiguration": "production"
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

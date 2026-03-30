@@ -35,6 +35,17 @@
     "icons/src/**/*.spec.jsx",
     "icons/src/**/*.d.ts",
     "icons/src/**/*.stories.ts",
-    "icons/src/**/*.stories.js"
+    "icons/src/**/*.stories.js",
+    "status-dialog/src/**/*.test.ts",
+    "status-dialog/src/**/*.spec.ts",
+    "status-dialog/src/**/*.test.tsx",
+    "status-dialog/src/**/*.spec.tsx",
+    "status-dialog/src/**/*.test.js",
+    "status-dialog/src/**/*.spec.js",
+    "status-dialog/src/**/*.test.jsx",
+    "status-dialog/src/**/*.spec.jsx",
+    "status-dialog/src/**/*.d.ts",
+    "status-dialog/src/**/*.stories.ts",
+    "status-dialog/src/**/*.stories.js"
   ]
 }

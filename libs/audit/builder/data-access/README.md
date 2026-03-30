@@ -1,6 +1,6 @@
 # @app-speed/audit-builder-data-access
 
-Planned data-access library for the rebuilt audit portal builder under `libs/audit/builder`.
+Nx library for the rebuilt audit portal builder data-access layer under `libs/audit/builder/data-access`.
 
 This library should follow the Nx [data-access library](https://nx.dev/docs/concepts/decisions/project-dependency-rules#data-access-libraries) pattern:
 
@@ -9,7 +9,7 @@ This library should follow the Nx [data-access library](https://nx.dev/docs/conc
 - expose a stable API to the feature layer
 - stay free of presentational Angular components
 
-This folder does not have a generated Nx project yet. The README exists to capture the target boundary before code moves in.
+The Nx project has now been generated. This README captures the intended boundary before the migration work starts.
 
 ## Boundary
 
@@ -45,7 +45,7 @@ Even though `type:ui` is technically allowed by lint rules, builder-specific UI 
 
 ## Likely Structure
 
-Suggested internal layout once the project is generated:
+Suggested internal layout as code moves in:
 
 - `src/lib/api`
   - HTTP and SSE delegates
@@ -151,13 +151,12 @@ These should stay in the feature or UI layers:
 
 ## Suggested Extraction Order
 
-1. Generate the Nx library with tags: `type:domain`, `scope:audit`, `runtime:web`, `layer:data-access`.
-2. Move API services and error/transport helpers first.
-3. Move actions, reducer, selectors, and shared builder status types.
-4. Split current effects into:
+1. Move API services and error/transport helpers first.
+2. Move actions, reducer, selectors, and shared builder status types.
+3. Split current effects into:
    - data-access effects for API, SSE, result loading, and draft persistence
    - feature effects for navigation and dialog behavior
-5. Repoint `libs/audit/portal/builder` to consume the exported data-access surface.
+4. Repoint `libs/audit/portal/builder` to consume the exported data-access surface.
 
 ## Open Decisions
 

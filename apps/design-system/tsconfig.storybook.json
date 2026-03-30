@@ -12,7 +12,7 @@
     "../../apps/**/*.stories.ts",
     "../../apps/**/*.stories.tsx"
   ],
-  "exclude": ["../../**/*.spec.ts", "../../**/*.test.ts"],
+  "exclude": ["../../**/*.spec.ts", "../../**/*.test.ts", "../../opensrc/**/*"],
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
