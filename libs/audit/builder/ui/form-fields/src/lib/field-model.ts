@@ -1,4 +1,5 @@
 import type { AbstractControl, FormArray, FormControl } from '@angular/forms';
+import type { InputType } from '@app-speed/audit/model';
 
 type FieldOptionValue = string | boolean;
 
@@ -10,15 +11,12 @@ type FieldOptionGroupModel = {
 
 type FieldOptionModel = FieldOptionValue | FieldOptionGroupModel;
 
-// TODO should extend InputType from libs/audit/model/src/lib/builder/input-type.ts
-interface BaseFieldModel<TFieldType extends string = string> {
+interface BaseFieldModel<TFieldType extends InputType = InputType> {
   name: string;
   inputType: TFieldType;
 }
 
-interface FieldPropertyModel {
-  name: string;
-  inputType: string;
+interface FieldPropertyModel extends BaseFieldModel {
   options?: readonly FieldOptionModel[];
 }
 
