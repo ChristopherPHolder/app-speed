@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { FormArray, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { StepField } from '../audit-builder-form';
+import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ToTitleCasePipe } from '../utils/toTitleCase.pipe';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatFormField } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
+import type { ArrayFieldModel } from '@app-speed/audit-builder-ui/form-fields';
 
 @Component({
   selector: 'ui-array-field',
@@ -74,7 +74,7 @@ import { MatInput } from '@angular/material/input';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ArrayFieldComponent {
-  field = input.required<StepField<FormArray<FormControl<string>>>>();
+  field = input.required<ArrayFieldModel>();
 
   addControl(): void {
     this.field().control.insert(

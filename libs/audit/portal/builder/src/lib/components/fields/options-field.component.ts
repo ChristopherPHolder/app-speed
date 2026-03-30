@@ -2,11 +2,13 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatOption, MatOptgroup } from '@angular/material/core';
 import { MatSelect } from '@angular/material/select';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { StepField } from '../audit-builder-form';
+import { ReactiveFormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
+import type { OptionsFieldModel } from '@app-speed/audit-builder-ui/form-fields';
 import { ToTitleCasePipe } from '../utils/toTitleCase.pipe';
-import { StepPropertyOption, StepPropertyOptionGroup } from '@app-speed/audit/model';
+
+type OptionFieldOption = NonNullable<OptionsFieldModel['property']['options']>[number];
+type OptionFieldOptionGroup = Exclude<OptionFieldOption, string | boolean>;
 
 @Component({
   selector: 'ui-options-field',
@@ -61,11 +63,11 @@ import { StepPropertyOption, StepPropertyOptionGroup } from '@app-speed/audit/mo
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OptionsFieldComponent {
-  field = input.required<StepField<FormControl>>();
+  field = input.required<OptionsFieldModel>();
 
   protected readonly options = computed(() => this.field().property.options ?? []);
 
-  protected isOptionGroup(option: StepPropertyOption): option is StepPropertyOptionGroup {
+  protected isOptionGroup(option: OptionFieldOption): option is OptionFieldOptionGroup {
     return typeof option === 'object';
   }
 }

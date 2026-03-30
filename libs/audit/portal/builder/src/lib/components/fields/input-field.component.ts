@@ -1,22 +1,14 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { StepField } from '../audit-builder-form';
+import { ReactiveFormsModule } from '@angular/forms';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { RxIf } from '@rx-angular/template/if';
+import type { InputFieldModel } from '@app-speed/audit-builder-ui/form-fields';
 import { ToTitleCasePipe } from '../utils/toTitleCase.pipe';
 
 @Component({
   selector: 'ui-input-field',
-  imports: [
-    MatError,
-    MatFormField,
-    MatInput,
-    MatLabel,
-    ReactiveFormsModule,
-    RxIf,
-    ToTitleCasePipe,
-  ],
+  imports: [MatError, MatFormField, MatInput, MatLabel, ReactiveFormsModule, RxIf, ToTitleCasePipe],
   template: `
     <div class="field-row">
       <mat-form-field>
@@ -39,7 +31,7 @@ import { ToTitleCasePipe } from '../utils/toTitleCase.pipe';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InputFieldComponent {
-  field = input.required<StepField<FormControl>>();
+  field = input.required<InputFieldModel>();
 
   protected readonly type = computed(() => (this.field().property.inputType === 'number' ? 'number' : 'text'));
 }

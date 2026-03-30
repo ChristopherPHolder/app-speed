@@ -1,7 +1,7 @@
 import { FormControl } from '@angular/forms';
 import type { Meta, StoryObj } from '@storybook/angular';
-import { STEP_PROPERTY, StepProperty } from '@app-speed/audit/model';
-import { StepField } from '../audit-builder-form';
+import type { InputFieldModel } from '@app-speed/audit-builder-ui/form-fields';
+import { STEP_PROPERTY } from '@app-speed/audit/model';
 import { InputFieldComponent } from './input-field.component';
 
 const meta: Meta<InputFieldComponent> = {
@@ -19,16 +19,16 @@ const createField = ({
   property,
   control,
 }: {
-  property: StepProperty;
+  property: InputFieldModel['property'];
   control: FormControl;
-}): StepField<FormControl> => ({
+}): InputFieldModel => ({
   name: property.name,
   property,
   control,
   removable: false,
 });
 
-const createStory = ({ property, control }: { property: StepProperty; control: FormControl }): Story => ({
+const createStory = ({ property, control }: { property: InputFieldModel['property']; control: FormControl }): Story => ({
   render: () => ({
     props: {
       field: createField({

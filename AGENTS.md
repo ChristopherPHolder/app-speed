@@ -31,6 +31,7 @@
 - Use `angular-new-app` only when creating a brand-new Angular app or standalone Angular workspace.
 - In this Nx monorepo, prefer Nx-aware commands for generation and verification: use `pnpm exec nx ...` targets for build, test, lint, and other project checks instead of raw `ng build` for existing projects.
 - When scaffolding Angular code, prefer workspace-consistent generators and keep outputs inside the owning Nx project boundary.
+- For Angular secondary entry points and public APIs, export only symbols consumed outside the defining file or entry point; keep helper/base types file-local when only used to build exported aliases.
 
 ## Testing Guidelines
 - Unit tests use Vitest (Nx + Vite setup).

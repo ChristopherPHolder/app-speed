@@ -1,2 +1,5 @@
-// Placeholder secondary entry point for migrated audit builder form field UI.
-export {};
+export type {
+  ArrayFieldModel,
+  InputFieldModel,
+  OptionsFieldModel,
+} from './lib/field-model';
