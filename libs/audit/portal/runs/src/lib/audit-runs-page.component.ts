@@ -2,11 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import {
-  AuditRunStatus,
-  AuditRunSummary,
-  DEFAULT_AUDIT_RUN_FILTER,
-} from './api/audit-runs.models';
+import { AuditRunStatus, AuditRunSummary, DEFAULT_AUDIT_RUN_FILTER } from './api/audit-runs.models';
 import { AuditRunsApiService } from './api/audit-runs-api.service';
 import { AuditRunsTableComponent } from './components/audit-runs-table.component';
 import { interval } from 'rxjs';
@@ -38,7 +34,7 @@ export class AuditRunsPageComponent {
   private readonly router = inject(Router);
 
   readonly runs = signal<ReadonlyArray<AuditRunSummary>>([]);
-  readonly loading = signal(false);
+  readonly loading = signal(true);
   readonly errorMessage = signal<string | null>(null);
   readonly activeStatuses = signal<ReadonlyArray<AuditRunStatus>>([...DEFAULT_AUDIT_RUN_FILTER]);
 
@@ -52,22 +48,13 @@ export class AuditRunsPageComponent {
 
   constructor() {
     this.refresh();
-    interval(5000)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        if (this.#currentCursor() === null) {
-          this.refresh();
-        }
-      });
   }
 
   refresh() {
-    this.loading.set(true);
     this.errorMessage.set(null);
 
     const selectedStatuses = this.activeStatuses();
-    const useStatusFilter =
-      selectedStatuses.length === DEFAULT_AUDIT_RUN_FILTER.length ? undefined : selectedStatuses;
+    const useStatusFilter = selectedStatuses.length === DEFAULT_AUDIT_RUN_FILTER.length ? undefined : selectedStatuses;
 
     this.api
       .listRuns({
