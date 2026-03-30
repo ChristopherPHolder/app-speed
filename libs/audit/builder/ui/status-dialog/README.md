@@ -4,5 +4,5 @@ Secondary entry point of `@app-speed/audit-builder-ui`. It can be used by import
 
 Exports:
 
-- `StatusDialogComponent`
+- `StatusDialog`
 - `StatusDialogViewModel`

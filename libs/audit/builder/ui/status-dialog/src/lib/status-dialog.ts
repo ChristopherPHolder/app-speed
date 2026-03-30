@@ -9,7 +9,7 @@ import {
 } from '@angular/material/card';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
-import type { StatusDialogViewModel } from './status-dialog-view-model';
+import type { ViewModel } from './view-model';
 
 @Component({
   selector: 'lib-status-dialog',
@@ -27,7 +27,9 @@ import type { StatusDialogViewModel } from './status-dialog-view-model';
       </mat-card-content>
       @if (vm.footerText) {
         <mat-card-footer [style.padding]="'0 16px 0 16px'">
-          <p><small>{{ vm.footerText }}</small></p>
+          <p>
+            <small>{{ vm.footerText }}</small>
+          </p>
         </mat-card-footer>
       }
     </mat-card>
@@ -45,6 +47,6 @@ import type { StatusDialogViewModel } from './status-dialog-view-model';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class StatusDialogComponent {
-  readonly viewModel = inject<Signal<StatusDialogViewModel>>(MAT_DIALOG_DATA);
+export class StatusDialog {
+  readonly viewModel = inject<Signal<ViewModel>>(MAT_DIALOG_DATA);
 }

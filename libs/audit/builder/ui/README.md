@@ -14,7 +14,7 @@ This library is the audit-builder UI layer. It should contain presentational com
   - exports `provideAuditBuilderIcons()`
 - `@app-speed/audit-builder-ui/status-dialog`
   - secondary entrypoint for the loading dialog surface
-  - exports `StatusDialogComponent` and `StatusDialogViewModel`
+  - exports `StatusDialog` and `StatusDialogViewModel`
 
 ## Structure
 

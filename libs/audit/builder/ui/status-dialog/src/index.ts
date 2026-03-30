@@ -1,2 +1,2 @@
-export * from './lib/status-dialog';
-export * from './lib/status-dialog-view-model';
+export { StatusDialog } from './lib/status-dialog';
+export * from './lib/view-model';

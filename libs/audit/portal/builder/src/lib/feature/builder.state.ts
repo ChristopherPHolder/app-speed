@@ -13,7 +13,7 @@ import {
   submitAuditRequestSuccess,
   updateAuditDetails,
 } from './builder.actions';
-import type { StatusDialogViewModel } from '@app-speed/audit-builder-ui/status-dialog';
+import type { ViewModel } from '@app-speed/audit-builder-ui/status-dialog';
 import type { FlowResult } from 'lighthouse';
 import type { AuditStage } from './builder.actions';
 
@@ -26,7 +26,7 @@ const AUDIT_BUILDER_STATUS = {
   SUCCESS: 'success',
 } as const;
 
-type LoadingDialogState = StatusDialogViewModel | null;
+type LoadingDialogState = ViewModel | null;
 
 const getQueueSubtitle = (queuePosition: number | null) =>
   queuePosition === null
@@ -35,8 +35,7 @@ const getQueueSubtitle = (queuePosition: number | null) =>
       ? 'Next in queue. Waiting for a runner.'
       : `${queuePosition} ${queuePosition === 1 ? 'audit is' : 'audits are'} ahead in queue.`;
 
-const getRunningSubtitle = () =>
-  'A runner has started your audit. Results will open automatically when it completes.';
+const getRunningSubtitle = () => 'A runner has started your audit. Results will open automatically when it completes.';
 
 const getFooterText = (requestId: string | null) => {
   if (requestId === null) {

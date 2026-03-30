@@ -2,25 +2,25 @@ import { signal, type WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { StatusDialogComponent } from './status-dialog';
-import type { StatusDialogViewModel } from './status-dialog-view-model';
+import { StatusDialog } from './status-dialog';
+import type { ViewModel } from './view-model';
 
-const DEFAULT_VIEW_MODEL: StatusDialogViewModel = {
+const DEFAULT_VIEW_MODEL: ViewModel = {
   title: 'Loading Status Title',
   subtitle: 'Loading Status Subtitle',
   footerText: 'Loading Status Footer Text',
 };
 
-describe('StatusDialogComponent', () => {
-  let component: StatusDialogComponent;
-  let fixture: ComponentFixture<StatusDialogComponent>;
-  let dialogData: WritableSignal<StatusDialogViewModel>;
+describe('StatusDialog', () => {
+  let component: StatusDialog;
+  let fixture: ComponentFixture<StatusDialog>;
+  let dialogData: WritableSignal<ViewModel>;
 
   beforeEach(async () => {
     dialogData = signal(DEFAULT_VIEW_MODEL);
 
     TestBed.configureTestingModule({
-      imports: [StatusDialogComponent],
+      imports: [StatusDialog],
       providers: [
         {
           provide: MAT_DIALOG_DATA,
@@ -29,14 +29,14 @@ describe('StatusDialogComponent', () => {
       ],
     });
 
-    fixture = TestBed.createComponent(StatusDialogComponent);
+    fixture = TestBed.createComponent(StatusDialog);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
   const getCompiledElement = (): HTMLElement => fixture.debugElement.nativeElement as HTMLElement;
 
-  const setDialogData = (nextValue: StatusDialogViewModel): void => {
+  const setDialogData = (nextValue: ViewModel): void => {
     dialogData.set(nextValue);
     fixture.detectChanges();
   };
