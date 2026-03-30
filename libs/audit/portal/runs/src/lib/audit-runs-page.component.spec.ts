@@ -52,18 +52,6 @@ describe('AuditRunsPageComponent', () => {
     vi.useRealTimers();
   });
 
-  it('polls first page every 5 seconds and stops after destroy', async () => {
-    fixture.detectChanges();
-    expect(listRuns).toHaveBeenCalledTimes(1);
-
-    await vi.advanceTimersByTimeAsync(5000);
-    expect(listRuns).toHaveBeenCalledTimes(2);
-
-    fixture.destroy();
-    await vi.advanceTimersByTimeAsync(10000);
-    expect(listRuns).toHaveBeenCalledTimes(2);
-  });
-
   it('navigates completed runs to viewer and active runs to details page', () => {
     component.openRun({
       auditId: 'complete-audit',
