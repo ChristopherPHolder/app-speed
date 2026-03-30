@@ -13,7 +13,7 @@ This note evaluates which pieces from `libs/audit/portal/builder` are good candi
 ### `audit-builder/loading-status.component.ts`
 
 Status:
-- Migrated into `audit-builder-ui` as the `@app-speed/audit-builder-ui/status-dialog` secondary entry point.
+- Migrated into `audit-builder-ui` as the `@app-speed/audit-builder-ui/dialogs` secondary entry point.
 
 Why it fits:
 - Pure dialog content.
@@ -26,13 +26,12 @@ Move with:
 
 ### `audit-builder/error-dialog.component.ts`
 
+Status:
+- Migrated into `audit-builder-ui` as the `@app-speed/audit-builder-ui/dialogs` secondary entry point.
+
 Why it fits:
 - Pure dialog body rendered from injected data.
 - Opened by the feature container, but the visual itself belongs in UI.
-
-Cleanup to do during move:
-- Remove the `console.log` calls from `ngOnInit`.
-- Consider dropping `OnInit` entirely.
 
 ### `components/utils/toTitleCase.pipe.ts`
 

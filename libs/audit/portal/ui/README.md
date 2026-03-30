@@ -12,9 +12,9 @@ This library is the audit-builder UI layer. It should contain presentational com
 - `@app-speed/audit-builder-ui/icons`
   - secondary entrypoint for audit-builder icon registration
   - exports `provideAuditBuilderIcons()`
-- `@app-speed/audit-builder-ui/status-dialog`
-  - secondary entrypoint for the loading dialog surface
-  - exports `StatusDialog` and `StatusDialogViewModel`
+- `@app-speed/audit-builder-ui/dialogs`
+  - secondary entrypoint for audit builder dialog surfaces
+  - exports `StatusDialog`, `StatusDialogModel`, `ErrorDialog`, and `ErrorDialogModel`
 - `@app-speed/audit-builder-ui/form-fields`
   - secondary entrypoint for audit builder form field UI
   - exports extracted leaf field components and field view models
@@ -33,11 +33,15 @@ This library is the audit-builder UI layer. It should contain presentational com
   - Angular provider that registers builder badge icons with `MatIconRegistry`
 - `icons/src/lib/icons.stories.ts`
   - Storybook gallery for the icon set
-- `status-dialog/src/index.ts`
-  - public API for the `status-dialog` secondary entrypoint
-- `status-dialog/src/lib/status-dialog.ts`
+- `dialogs/src/index.ts`
+  - public API for the `dialogs` secondary entrypoint
+- `dialogs/src/lib/status-dialog.ts`
   - presentational loading dialog body for builder progress
-- `status-dialog/src/lib/status-dialog-view-model.ts`
+- `dialogs/src/lib/error-dialog.ts`
+  - presentational error dialog body for request failures
+- `dialogs/src/lib/error-dialog.model.ts`
+  - UI-facing model for the dialog error copy
+- `dialogs/src/lib/status-dialog.model.ts`
   - UI-facing view model for the dialog status copy
 - `form-fields/src/index.ts`
   - public API for the `form-fields` secondary entrypoint
@@ -93,7 +97,7 @@ Testing is configured for the library through the root Nx project:
 - `src/test-setup.ts` bootstraps Angular + Vitest
 - `src/**/*.spec.ts` covers the root entrypoint
 - `icons/src/**/*.spec.ts` covers the secondary entrypoint
-- `status-dialog/src/**/*.spec.ts` covers the status dialog secondary entrypoint
+- `dialogs/src/**/*.spec.ts` covers the dialogs secondary entrypoint
 - `form-fields/src/**/*.spec.ts` covers the form-fields secondary entrypoint
 
 Run:
@@ -112,6 +116,7 @@ Run:
 - Secondary entrypoint naming must stay aligned with the root package name.
   - Use `@app-speed/audit-builder-ui/icons`
   - Use `@app-speed/audit-builder-ui/form-fields`
+  - Use `@app-speed/audit-builder-ui/dialogs`
   - Do not introduce alternate aliases such as `@app-speed/audit-builder-ui-icons` or slash-mismatched variants
 - After renaming the package name or secondary entrypoint aliases, run `pnpm exec nx reset` before trusting incremental builds.
 - See [docs/conventions/angular-secondary-entry-points.md](../../../../docs/conventions/angular-secondary-entry-points.md) for the full rule and recovery steps.
