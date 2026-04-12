@@ -1,7 +1,8 @@
+import type { Key } from '@puppeteer/replay';
+import { AssertNever, EnumLiteral } from '../type-utils';
 import { Schema } from 'effect';
-import { Key } from '@puppeteer/replay';
 
-export const KeySchema = Schema.Literal(
+const PUPPETEER_REPLAY_KEY = [
   '0',
   '1',
   '2',
@@ -247,7 +248,7 @@ export const KeySchema = Schema.Literal(
   '?',
   '~',
   '{',
-  ',',
+  '|',
   '}',
   '"',
   'SoftLeft',
@@ -257,4 +258,16 @@ export const KeySchema = Schema.Literal(
   'EndCall',
   'VolumeDown',
   'VolumeUp',
-) satisfies { literals: Readonly<[Key, ...Key[]]> };
+] as const satisfies readonly EnumLiteral<Key>[];
+
+export const PuppeteerReplayKeySchema = Schema.Literal(...PUPPETEER_REPLAY_KEY);
+
+/**
+ * Assert all puppeteer replay key are being used in the PUPPETEER_REPLAY_KEY literal
+ *
+ * This is required as we can only use @puppeteer/replay as a type due to its dependencies
+ * which would mean it cannot be used in browser bundles.
+ */
+type _AssertNoMissingPuppeteerReplayKeys = AssertNever<
+  Exclude<EnumLiteral<Key>, (typeof PUPPETEER_REPLAY_KEY)[number]>
+>;
