@@ -40,15 +40,15 @@ The system is split into a control plane (API) and one or more runners. The API 
 
 ```mermaid
 flowchart LR
-  Client["Client (Angular)"] -->|HTTP schedule/status/result| Api["API"]
-  Client -->|SSE progress| Api
-  Api --> DB[(Database)]
+  Client["Client (Angular)"] -->|HTTP schedule/status/result| ApiClient["API"]
+  Client -->|SSE progress| ApiClient
+  ApiClient --> DB[(Database)]
   subgraph ControlPlane["API Process"]
-    Api
+    ApiClient
     RunnerMgr["Runner Manager"]
   end
   RunnerMgr --> Runner["Runner Process(es)"]
-  Runner -->|Claim/complete/heartbeat| Api
+  Runner -->|Claim/complete/heartbeat| ApiClient
 ```
 
 ## Orchestration Approach

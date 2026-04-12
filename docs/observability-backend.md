@@ -28,7 +28,7 @@ Effect services emit spans via OTLP to a local SigNoz collector.
 
 ```mermaid
 flowchart LR
-  Api["API (Effect)"] -->|OTLP spans| Collector["SigNoz OTel Collector"]
+  ApiClient["API (Effect)"] -->|OTLP spans| Collector["SigNoz OTel Collector"]
   Runner["Runner (Effect)"] -->|OTLP spans| Collector
   Collector --> SigNoz["SigNoz"]
   SigNoz --> UI["SigNoz UI"]

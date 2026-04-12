@@ -1,6 +1,6 @@
 import { INPUT_TYPE, InputType, InputValue } from './input-type';
 import { PROPERTY_NAME, PropertyName } from './property-name';
-import { STEP_TYPE_OPTIONS_GROUPED } from './step-type';
+import { STEP_TYPE_OPTIONS_GROUPED } from '../step-type';
 
 export type StepPropertyOptionValue = string | boolean;
 

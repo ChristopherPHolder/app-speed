@@ -21,8 +21,8 @@ import { DEFAULT_AUDIT_DETAILS } from '@app-speed/audit/model';
 import { HttpClient } from '@angular/common/http';
 import type { FlowResult } from 'lighthouse';
 import { getAuditRequestErrorMessage } from './builder-error-message';
-import { AuditBuilderApiService } from '../api/audit-builder-api.service';
 import { AuditProgressService } from '../api/audit-progress.service';
+import { ApiClient } from '@app-speed/audit/portal/data-access';
 
 type AuditResultResponse =
   | { status: 'SUCCESS'; result: FlowResult }
@@ -83,18 +83,20 @@ const loadAuditDetailsFailedEffect = createEffect(
 );
 
 const submitAuditRequestEffect = createEffect(
-  (actions$ = inject(Actions), api = inject(AuditBuilderApiService)) =>
+  (actions$ = inject(Actions), api = inject(ApiClient)) =>
     actions$.pipe(
       ofType(submitAuditRequest),
       switchMap(({ audit }) =>
-        api.requestAudit(audit).pipe(
+        api.scheduleAudit(audit).pipe(
           map((response) =>
             submitAuditRequestSuccess({
               requestId: response.auditId,
               queuePosition: response.auditQueuePosition,
             }),
           ),
-          catchError((error) => of(submitAuditRequestFailed({ auditRequestError: getAuditRequestErrorMessage(error) }))),
+          catchError((error) =>
+            of(submitAuditRequestFailed({ auditRequestError: getAuditRequestErrorMessage(error) })),
+          ),
         ),
       ),
     ),
