@@ -17,3 +17,13 @@ export type MapEnumLiteral<T extends string> = {
 };
 
 export type AssertNever<T extends never> = T;
+
+type WithEnumLiteralDeep<T> = T extends readonly (infer U)[]
+  ? readonly WithEnumLiteralDeep<U>[]
+  : T extends object
+    ? { readonly [K in keyof T]: WithEnumLiteralDeep<T[K]> }
+    : T extends string
+      ? `${T}`
+      : T;
+
+export type SchemaTypeWithEnumLiteralDeep<T> = { Type: WithEnumLiteralDeep<T> };

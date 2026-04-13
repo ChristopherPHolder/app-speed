@@ -1,5 +1,4 @@
 import type {
-  AssertedEvent,
   ChangeStep,
   ClickStep,
   CloseStep,
@@ -20,31 +19,19 @@ import type {
   WaitForExpressionStep,
 } from '@puppeteer/replay';
 import { Schema } from 'effect';
-
 import {
-  PointerButtonTypeSchema,
   PUPPETEER_REPLAY_ASSERTED_EVENT_TYPE,
+  PuppeteerReplayAssociatedEventTypeSchema,
+} from './puppeteer-replay-asserted-event-type';
+import {
   PUPPETEER_REPLAY_ASSERTION_STEP_TYPE,
   PUPPETEER_REPLAY_CUSTOM_STEP_TYPE,
   PUPPETEER_REPLAY_USER_STEP_TYPE,
-  PuppeteerReplayAssociatedEventTypeSchema,
-  PuppeteerReplayKeySchema,
   PuppeteerReplayStepTypeSchema,
-} from '@app-speed/audit/model';
-
-type WithEnumLiteralDeep<T> = T extends readonly (infer U)[]
-  ? readonly WithEnumLiteralDeep<U>[]
-  : T extends object
-    ? { readonly [K in keyof T]: WithEnumLiteralDeep<T[K]> }
-    : T extends string
-      ? `${T}`
-      : T;
-
-type SchemaTypeWithEnumLiteralDeep<T> = { Type: WithEnumLiteralDeep<T> };
-
-type AssertedEventSchemaType<T extends AssertedEvent> = { Type: WithEnumLiteralDeep<T> };
-
-type StepSchemaType<T extends Step> = { Type: WithEnumLiteralDeep<T> };
+} from './puppeteer-replay-step-type';
+import { PointerButtonTypeSchema } from './puppeteer-replay-pointer-button-type';
+import { PuppeteerReplayKeySchema } from './puppeteer-replay-key';
+import { SchemaTypeWithEnumLiteralDeep } from '../type-utils';
 
 const NonNegativeIntFromStringSchema = Schema.NumberFromString.pipe(Schema.int(), Schema.nonNegative()).annotations({
   identifier: 'NonNegativeIntFromString',
@@ -66,7 +53,7 @@ const AssertedEventsSchema = Schema.Struct({
   ),
   title: Schema.optional(Schema.NonEmptyString),
   url: Schema.optional(UrlWithHttpsSchema),
-}) satisfies AssertedEventSchemaType<NavigationEvent>;
+}) satisfies SchemaTypeWithEnumLiteralDeep<NavigationEvent>;
 
 const FrameSelectorSchema = Schema.Array(Schema.NonNegativeInt);
 // TODO FIX Selectors is actually more complex, its an array of strings or string arrays.
@@ -88,7 +75,7 @@ export const ChangeStepSchema = Schema.Struct({
   target: Schema.optional(Schema.String),
   timeout: TimeoutSchema,
   value: Schema.NonEmptyString,
-}) satisfies StepSchemaType<ChangeStep>;
+}) satisfies SchemaTypeWithEnumLiteralDeep<ChangeStep>;
 
 export const ClickStepSchema = Schema.Struct({
   type: PuppeteerReplayStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_USER_STEP_TYPE.CLICK)),
@@ -102,20 +89,20 @@ export const ClickStepSchema = Schema.Struct({
   selectors: SelectorsSchema,
   target: Schema.optional(Schema.String),
   timeout: TimeoutSchema,
-}) satisfies StepSchemaType<ClickStep>;
+}) satisfies SchemaTypeWithEnumLiteralDeep<ClickStep>;
 
 export const CloseStepSchema = Schema.Struct({
   type: PuppeteerReplayStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_USER_STEP_TYPE.CLOSE)),
   assertedEvents: Schema.optional(Schema.Array(AssertedEventsSchema)),
   target: Schema.optional(Schema.String),
   timeout: TimeoutSchema,
-}) satisfies StepSchemaType<CloseStep>;
+}) satisfies SchemaTypeWithEnumLiteralDeep<CloseStep>;
 
 export const CustomStepParamsSchema = Schema.Struct({
   type: PuppeteerReplayStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP)),
   parameters: Schema.Unknown,
   name: Schema.NonEmptyString,
-}) satisfies StepSchemaType<CustomStepParams>;
+}) satisfies SchemaTypeWithEnumLiteralDeep<CustomStepParams>;
 
 export const CustomStepWithTargetSchema = Schema.Struct({
   ...CustomStepParamsSchema.fields,
@@ -134,7 +121,7 @@ export const CustomStepSchema = Schema.Union(
     ...CustomStepParamsSchema.fields,
     frame: Schema.optional(FrameSelectorSchema),
   }),
-) satisfies StepSchemaType<CustomStep>;
+) satisfies SchemaTypeWithEnumLiteralDeep<CustomStep>;
 
 export const DoubleClickStepSchema = Schema.Struct({
   type: PuppeteerReplayStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_USER_STEP_TYPE.DOUBLE_CLICK)),
@@ -148,7 +135,7 @@ export const DoubleClickStepSchema = Schema.Struct({
   selectors: SelectorsSchema,
   target: Schema.optional(Schema.String),
   timeout: TimeoutSchema,
-}) satisfies StepSchemaType<DoubleClickStep>;
+}) satisfies SchemaTypeWithEnumLiteralDeep<DoubleClickStep>;
 
 export const EmulateNetworkConditionsStepSchema = Schema.Struct({
   type: PuppeteerReplayStepTypeSchema.pipe(
@@ -159,7 +146,7 @@ export const EmulateNetworkConditionsStepSchema = Schema.Struct({
   latency: Schema.NonNegativeInt,
   target: Schema.optional(Schema.String),
   upload: Schema.NonNegativeInt,
-}) satisfies StepSchemaType<EmulateNetworkConditionsStep>;
+}) satisfies SchemaTypeWithEnumLiteralDeep<EmulateNetworkConditionsStep>;
 
 export const HoverStepSchema = Schema.Struct({
   type: PuppeteerReplayStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_USER_STEP_TYPE.HOVER)),
@@ -168,7 +155,7 @@ export const HoverStepSchema = Schema.Struct({
   selectors: SelectorsSchema,
   target: Schema.optional(Schema.String),
   timeout: TimeoutSchema,
-}) satisfies StepSchemaType<HoverStep>;
+}) satisfies SchemaTypeWithEnumLiteralDeep<HoverStep>;
 
 export const KeyDownStepSchema = Schema.Struct({
   type: PuppeteerReplayStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_USER_STEP_TYPE.KEY_DOWN)),
@@ -176,7 +163,7 @@ export const KeyDownStepSchema = Schema.Struct({
   key: PuppeteerReplayKeySchema,
   target: Schema.optional(Schema.String),
   timeout: TimeoutSchema,
-}) satisfies StepSchemaType<KeyDownStep>;
+}) satisfies SchemaTypeWithEnumLiteralDeep<KeyDownStep>;
 
 export const KeyUpStepSchema = Schema.Struct({
   type: PuppeteerReplayStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_USER_STEP_TYPE.KEY_UP)),
@@ -184,7 +171,7 @@ export const KeyUpStepSchema = Schema.Struct({
   key: PuppeteerReplayKeySchema,
   target: Schema.optional(Schema.String),
   timeout: TimeoutSchema,
-}) satisfies StepSchemaType<KeyUpStep>;
+}) satisfies SchemaTypeWithEnumLiteralDeep<KeyUpStep>;
 
 export const NavigateStepSchema = Schema.Struct({
   type: PuppeteerReplayStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_USER_STEP_TYPE.NAVIGATE)),
@@ -192,7 +179,7 @@ export const NavigateStepSchema = Schema.Struct({
   target: Schema.optional(Schema.String),
   timeout: TimeoutSchema,
   url: UrlWithHttpsSchema,
-}) satisfies StepSchemaType<NavigateStep>;
+}) satisfies SchemaTypeWithEnumLiteralDeep<NavigateStep>;
 
 export const ScrollPageStepSchema = Schema.Struct({
   type: PuppeteerReplayStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_USER_STEP_TYPE.SCROLL)),
@@ -207,7 +194,7 @@ export const ScrollPageStepSchema = Schema.Struct({
 export const ScrollStepSchema = Schema.Struct({
   ...ScrollPageStepSchema.fields,
   selectors: SelectorsSchema,
-}) satisfies StepSchemaType<ScrollStep>;
+}) satisfies SchemaTypeWithEnumLiteralDeep<ScrollStep>;
 
 export const SetViewStepSchema = Schema.Struct({
   type: PuppeteerReplayStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_USER_STEP_TYPE.SET_VIEWPORT)),
@@ -220,7 +207,7 @@ export const SetViewStepSchema = Schema.Struct({
   target: Schema.optional(Schema.String),
   timeout: TimeoutSchema,
   width: Schema.NonNegativeInt,
-}) satisfies StepSchemaType<SetViewportStep>;
+}) satisfies SchemaTypeWithEnumLiteralDeep<SetViewportStep>;
 
 // TODO
 const AttributesSchema = Schema.Record({ key: Schema.String, value: Schema.String });
@@ -238,7 +225,7 @@ export const WaitForElementStepSchema = Schema.Struct({
   target: Schema.optional(Schema.String),
   timeout: TimeoutSchema,
   visible: Schema.optional(Schema.Boolean),
-}) satisfies StepSchemaType<WaitForElementStep>;
+}) satisfies SchemaTypeWithEnumLiteralDeep<WaitForElementStep>;
 
 export const WaitForExpressionStepSchema = Schema.Struct({
   type: PuppeteerReplayStepTypeSchema.pipe(
@@ -249,7 +236,7 @@ export const WaitForExpressionStepSchema = Schema.Struct({
   frame: Schema.optional(FrameSelectorSchema),
   target: Schema.optional(Schema.String),
   timeout: TimeoutSchema,
-}) satisfies StepSchemaType<WaitForExpressionStep>;
+}) satisfies SchemaTypeWithEnumLiteralDeep<WaitForExpressionStep>;
 
 export const PuppeteerReplayStepSchema = Schema.Union(
   ChangeStepSchema,
@@ -266,4 +253,4 @@ export const PuppeteerReplayStepSchema = Schema.Union(
   SetViewStepSchema,
   WaitForElementStepSchema,
   WaitForExpressionStepSchema,
-).annotations({ title: 'PuppeteerReplayStep' }) satisfies StepSchemaType<Step>;
+).annotations({ title: 'PuppeteerReplayStep' }) satisfies SchemaTypeWithEnumLiteralDeep<Step>;

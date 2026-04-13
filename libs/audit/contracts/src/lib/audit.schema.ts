@@ -25,7 +25,7 @@ import {
   SetViewStepSchema,
   WaitForElementStepSchema,
   WaitForExpressionStepSchema,
-} from './puppeteer-replay-step';
+} from '@app-speed/audit/model';
 
 const PuppeteerReplaySteps = [
   ChangeStepSchema,

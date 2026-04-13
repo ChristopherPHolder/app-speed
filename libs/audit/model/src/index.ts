@@ -14,6 +14,26 @@ export {
   PUPPETEER_REPLAY_USER_STEP_TYPE,
   PUPPETEER_REPLAY_CUSTOM_STEP_TYPE,
 } from './lib/puppeteer-replay/puppeteer-replay-step-type';
+export {
+  WaitForExpressionStepSchema,
+  WaitForElementStepSchema,
+  SetViewStepSchema,
+  ScrollStepSchema,
+  ScrollPageStepSchema,
+  NavigateStepSchema,
+  KeyUpStepSchema,
+  KeyDownStepSchema,
+  HoverStepSchema,
+  EmulateNetworkConditionsStepSchema,
+  DoubleClickStepSchema,
+  CustomStepSchema,
+  CustomStepWithFrameSchema,
+  CustomStepWithTargetSchema,
+  CustomStepParamsSchema,
+  CloseStepSchema,
+  ClickStepSchema,
+  ChangeStepSchema,
+} from './lib/puppeteer-replay/puppeteer-replay-step';
 export { PointerButtonTypeSchema } from './lib/puppeteer-replay/puppeteer-replay-pointer-button-type';
 export {
   PuppeteerReplayAssociatedEventTypeSchema,

@@ -1,6 +1,5 @@
 import { Schema } from 'effect';
-import { LIGHTHOUSE_AUDIT_STEP_TYPE } from '@app-speed/audit/model';
-import { CustomStepParamsSchema } from './puppeteer-replay-step';
+import { LIGHTHOUSE_AUDIT_STEP_TYPE, CustomStepParamsSchema } from '@app-speed/audit/model';
 import { AuditStepTypeSchema } from './audit-step.schema';
 
 export const UserflowStartNavigationStepSchema = Schema.Struct({
@@ -117,8 +116,6 @@ const UserflowStepTypeWithoutStepFlagsScheme = Schema.transform(
 
 const ReplayUserflowStepSchema = Schema.Union(ReplayUserflowStepWithoutFlagsSchema, ReplayUserflowStepWithFlagsSchema);
 
-export const decodeReplayUserflowStepSchema = Schema.decodeUnknownSync(ReplayUserflowStepSchema);
-export const isUserflowStepTypeWithStepFlags = Schema.is(UserflowStepTypeWithStepFlagsLiteral);
 export const isReplayUserflowStep = Schema.is(ReplayUserflowStepSchema);
 export const isReplayUserflowStepWithFlags = Schema.is(ReplayUserflowStepWithFlagsSchema);
 

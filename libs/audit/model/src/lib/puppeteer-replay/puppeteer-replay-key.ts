@@ -1,5 +1,5 @@
 import type { Key } from '@puppeteer/replay';
-import { AssertNever, EnumLiteral } from '../type-utils';
+import type { AssertNever, EnumLiteral } from '../type-utils';
 import { Schema } from 'effect';
 
 const PUPPETEER_REPLAY_KEY = [
@@ -269,5 +269,5 @@ export const PuppeteerReplayKeySchema = Schema.Literal(...PUPPETEER_REPLAY_KEY);
  * which would mean it cannot be used in browser bundles.
  */
 type _AssertNoMissingPuppeteerReplayKeys = AssertNever<
-  Exclude<EnumLiteral<Key>, (typeof PUPPETEER_REPLAY_KEY)[number]>
+  Exclude<EnumLiteral<Key>, (typeof PuppeteerReplayKeySchema.literals)[number]>
 >;

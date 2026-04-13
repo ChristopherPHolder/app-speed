@@ -1,6 +1,9 @@
-import type { StepType } from '@puppeteer/replay';
+import type { StepType, AssertionStep } from '@puppeteer/replay';
 import { AssertNever, EnumLiteral, MapEnumLiteral } from '../type-utils';
 import { Schema } from 'effect';
+
+// TODO improve type inference and assertions
+type _AssertionStepType = EnumLiteral<Pick<AssertionStep, 'type'>['type']>;
 
 export const PUPPETEER_REPLAY_ASSERTION_STEP_TYPE = {
   WAIT_FOR_ELEMENT: 'waitForElement',
