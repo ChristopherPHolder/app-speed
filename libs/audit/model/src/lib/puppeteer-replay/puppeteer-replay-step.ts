@@ -33,12 +33,8 @@ import { PointerButtonTypeSchema } from './puppeteer-replay-pointer-button-type'
 import { PuppeteerReplayKeySchema } from './puppeteer-replay-key';
 import { SchemaTypeWithEnumLiteralDeep } from '../type-utils';
 
-const NonNegativeIntFromStringSchema = Schema.NumberFromString.pipe(Schema.int(), Schema.nonNegative()).annotations({
-  identifier: 'NonNegativeIntFromString',
-});
-
 const TimeoutSchema = Schema.optional(
-  Schema.Union(Schema.NonNegativeInt, NonNegativeIntFromStringSchema).annotations({
+  Schema.Union(Schema.NonNegativeInt, Schema.NumberFromString.pipe(Schema.int(), Schema.nonNegative())).annotations({
     identifier: 'Timeout',
   }),
 );

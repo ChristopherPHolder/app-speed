@@ -1,26 +1,31 @@
 import { Schema } from 'effect';
-import { LIGHTHOUSE_AUDIT_STEP_TYPE, CustomStepParamsSchema } from '@app-speed/audit/model';
+import {
+  LIGHTHOUSE_AUDIT_STEP_TYPE,
+  CustomStepParamsSchema,
+  PuppeteerReplayStepTypeSchema,
+  PUPPETEER_REPLAY_CUSTOM_STEP_TYPE,
+} from '@app-speed/audit/model';
 import { AuditStepTypeSchema } from './audit-step.schema';
 
 export const UserflowStartNavigationStepSchema = Schema.Struct({
-  type: AuditStepTypeSchema.pipe(Schema.pickLiteral('startNavigation')),
+  type: AuditStepTypeSchema.pipe(Schema.pickLiteral(LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION)),
   name: Schema.optional(Schema.NonEmptyString),
 });
 export const UserflowEndNavigationStepSchema = Schema.Struct({
-  type: AuditStepTypeSchema.pipe(Schema.pickLiteral('endNavigation')),
+  type: AuditStepTypeSchema.pipe(Schema.pickLiteral(LIGHTHOUSE_AUDIT_STEP_TYPE.END_NAVIGATION)),
 });
 
 export const UserflowStartTimespanStepSchema = Schema.Struct({
-  type: AuditStepTypeSchema.pipe(Schema.pickLiteral('startTimespan')),
+  type: AuditStepTypeSchema.pipe(Schema.pickLiteral(LIGHTHOUSE_AUDIT_STEP_TYPE.START_TIMESPAN)),
   name: Schema.optional(Schema.NonEmptyString),
 });
 
 export const UserflowEndTimespanStepSchema = Schema.Struct({
-  type: AuditStepTypeSchema.pipe(Schema.pickLiteral('endTimespan')),
+  type: AuditStepTypeSchema.pipe(Schema.pickLiteral(LIGHTHOUSE_AUDIT_STEP_TYPE.END_TIMESPAN)),
 });
 
 export const UserflowSnapshotStepSchema = Schema.Struct({
-  type: AuditStepTypeSchema.pipe(Schema.pickLiteral('snapshot')),
+  type: AuditStepTypeSchema.pipe(Schema.pickLiteral(LIGHTHOUSE_AUDIT_STEP_TYPE.SNAPSHOT)),
 });
 
 export const UserflowStepSchema = Schema.Union(
@@ -41,8 +46,6 @@ export const UserflowAuditStepTypeScheme = Schema.Literal(
   LIGHTHOUSE_AUDIT_STEP_TYPE.SNAPSHOT,
 ) satisfies { readonly literals: readonly string[] };
 
-export type UserflowStepType = typeof UserflowAuditStepTypeScheme.Type;
-
 const UserflowStepTypeWithStepFlagsLiteral = UserflowAuditStepTypeScheme.pipe(
   Schema.pickLiteral(
     LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
@@ -56,7 +59,7 @@ const UserflowStepTypeWithoutStepFlagsLiteral = UserflowAuditStepTypeScheme.pipe
 );
 
 const ReplayUserflowStepWithFlagsSchema = Schema.Struct({
-  ...CustomStepParamsSchema.fields,
+  type: PuppeteerReplayStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP)),
   name: UserflowStepTypeWithStepFlagsLiteral,
   parameters: Schema.Struct({ name: Schema.NonEmptyString }),
 });
@@ -69,11 +72,6 @@ export const LighthouseUserflowStepWithFlagsSchema = Schema.Struct({
 export const LighthouseUserflowStepWithoutFlagsSchema = Schema.Struct({
   type: UserflowStepTypeWithoutStepFlagsLiteral,
 });
-
-export const LighthouseUserflowStepSchema = Schema.Union(
-  LighthouseUserflowStepWithFlagsSchema,
-  LighthouseUserflowStepWithoutFlagsSchema,
-);
 
 const UserflowStepTypeWithStepFlagsScheme = Schema.transform(
   LighthouseUserflowStepWithFlagsSchema,
@@ -93,7 +91,7 @@ const UserflowStepTypeWithStepFlagsScheme = Schema.transform(
 );
 
 export const ReplayUserflowStepWithoutFlagsSchema = Schema.Struct({
-  ...CustomStepParamsSchema.fields,
+  type: PuppeteerReplayStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP)),
   name: UserflowStepTypeWithoutStepFlagsLiteral,
   parameters: Schema.optional(Schema.Undefined),
 });
@@ -114,7 +112,10 @@ const UserflowStepTypeWithoutStepFlagsScheme = Schema.transform(
   },
 );
 
-const ReplayUserflowStepSchema = Schema.Union(ReplayUserflowStepWithoutFlagsSchema, ReplayUserflowStepWithFlagsSchema);
+export const ReplayUserflowStepSchema = Schema.Union(
+  ReplayUserflowStepWithoutFlagsSchema,
+  ReplayUserflowStepWithFlagsSchema,
+);
 
 export const isReplayUserflowStep = Schema.is(ReplayUserflowStepSchema);
 export const isReplayUserflowStepWithFlags = Schema.is(ReplayUserflowStepWithFlagsSchema);

@@ -17,7 +17,4 @@ export {
   ScheduleAuditResponseSchema,
   ScheduleAuditResponse,
 } from './lib/schedule-audit';
-export {
-  isReplayUserflowStepWithFlags,
-  isReplayUserflowStep,
-} from './lib/userflow-step';
+export { isReplayUserflowStepWithFlags, isReplayUserflowStep, ReplayUserflowStepSchema } from './lib/userflow-step';
