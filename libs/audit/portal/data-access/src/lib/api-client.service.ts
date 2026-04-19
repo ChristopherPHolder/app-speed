@@ -4,8 +4,8 @@ import { FetchHttpClient, HttpApiClient } from '@effect/platform';
 import { Effect, ManagedRuntime, Schema } from 'effect';
 
 import { from } from 'rxjs';
-import { Api, ScheduleAuditRequestSchema } from '@app-speed/audit/api-contract';
-import type { AuditDetails } from '@app-speed/audit/model';
+import { Api } from '@app-speed/audit/api-contract';
+import { AuditDetails, ReplayUserflowAuditSchema } from '@app-speed/audit/model';
 
 @Injectable({ providedIn: 'root' })
 export class ApiClient {
@@ -25,7 +25,7 @@ export class ApiClient {
       this.runtime.runPromise(
         Effect.gen(function* () {
           const apiClient = yield* HttpApiClient.make(Api);
-          const payload = yield* Schema.decodeUnknown(ScheduleAuditRequestSchema)(auditDetails);
+          const payload = yield* Schema.decodeUnknown(ReplayUserflowAuditSchema)(auditDetails);
           return yield* apiClient.audit.schedule({ payload });
         }),
       ),

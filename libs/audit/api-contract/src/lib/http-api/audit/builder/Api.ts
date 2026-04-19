@@ -1,20 +1,19 @@
 import { HttpApiEndpoint, HttpApiError, HttpApiSchema } from '@effect/platform';
 import { Schema } from 'effect';
 
-import {
-  ScheduleAuditBadRequestResponseSchema,
-  ScheduleAuditDecodeErrorResponseSchema,
-  ScheduleAuditRequestSchema,
-  ScheduleAuditResponseSchema,
-} from '../../../schedule-audit';
-
 import { AuditId, AuditNotFoundError, AuditRunStatusSchema } from '../Audit';
+import { ReplayUserflowAuditSchema } from '@app-speed/audit/model';
 
 export const scheduleEndpoint = HttpApiEndpoint.post('schedule', '/schedule')
-  .setPayload(ScheduleAuditRequestSchema)
-  .addSuccess(ScheduleAuditResponseSchema)
-  .addError(ScheduleAuditDecodeErrorResponseSchema)
-  .addError(ScheduleAuditBadRequestResponseSchema);
+  .setPayload(ReplayUserflowAuditSchema)
+  .addSuccess(
+    Schema.Struct({
+      auditId: Schema.String,
+      auditQueuePosition: Schema.NonNegativeInt,
+    }),
+  )
+  .addError(HttpApiError.HttpApiDecodeError)
+  .addError(HttpApiError.BadRequest);
 
 export const findByIdEndpoint = HttpApiEndpoint.get('findById', '/:id')
   .setPath(Schema.Struct({ id: AuditId }))
@@ -25,7 +24,9 @@ export const findByIdEndpoint = HttpApiEndpoint.get('findById', '/:id')
 export const watchByIdEndpoint = HttpApiEndpoint.get('watchById', '/:id/events')
   .setPath(Schema.Struct({ id: AuditId }))
   .addSuccess(
-    Schema.Uint8ArrayFromSelf.pipe(HttpApiSchema.withEncoding({ kind: 'Uint8Array', contentType: 'text/event-stream' })),
+    Schema.Uint8ArrayFromSelf.pipe(
+      HttpApiSchema.withEncoding({ kind: 'Uint8Array', contentType: 'text/event-stream' }),
+    ),
   )
   .addError(HttpApiError.BadRequest)
   .addError(AuditNotFoundError);
