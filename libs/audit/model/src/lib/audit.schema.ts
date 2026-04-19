@@ -1,5 +1,4 @@
 import { Schema } from 'effect';
-import { DeviceSchema } from '@app-speed/audit/model';
 import {
   isUserflowStep,
   UserflowEndNavigationStepSchema,
@@ -8,7 +7,7 @@ import {
   UserflowStartNavigationStepSchema,
   UserflowStartTimespanStepSchema,
   UserflowAuditStepSchema,
-} from './userflow-step';
+} from './lighthouse-userflow/lighthouse-userflow-step';
 import {
   ChangeStepSchema,
   ClickStepSchema,
@@ -25,7 +24,8 @@ import {
   SetViewStepSchema,
   WaitForElementStepSchema,
   WaitForExpressionStepSchema,
-} from '@app-speed/audit/model';
+} from './puppeteer-replay/puppeteer-replay-step';
+import { DeviceSchema } from './shared/device-type';
 
 const PuppeteerReplaySteps = [
   ChangeStepSchema,

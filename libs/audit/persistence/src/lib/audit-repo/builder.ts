@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { eq } from 'drizzle-orm';
 import { Clock, Effect } from 'effect';
 
-import { ReplayUserflowAudit } from '@app-speed/audit/contracts';
+import { ReplayUserflowAudit } from '@app-speed/audit/model';
 
 import { DbClient } from '../db';
 import { auditTemplateTable, auditRunTable } from '../schema';

@@ -1,9 +1,8 @@
 import { Schema } from 'effect';
 import { describe } from 'vitest';
 import { it } from '@effect/vitest';
-import { ReplayUserflowAuditSchema, PuppeteerReplayUserflowRunnerSchema } from './audit.schema';
-import { StepType } from '@puppeteer/replay';
-import { LIGHTHOUSE_AUDIT_STEP_TYPE } from '@app-speed/audit/model';
+import { LIGHTHOUSE_AUDIT_STEP_TYPE } from './lighthouse-userflow/lighthouse-userflow-step-type';
+import { PuppeteerReplayUserflowRunnerSchema, ReplayUserflowAuditSchema } from './audit.schema';
 
 describe('ReplayRunnerSchema', () => {
   it('should decode to replay schema', () => {
@@ -23,7 +22,7 @@ describe('ReplayRunnerSchema', () => {
       device: 'mobile',
       steps: [
         {
-          type: StepType.CustomStep,
+          type: 'customStep',
           name: LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
           parameters: { name: 'Home Page' },
         },

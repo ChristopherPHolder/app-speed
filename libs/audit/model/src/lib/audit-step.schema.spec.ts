@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { isStepType, AuditStepTypeSchema, isAuditStep, AuditStepSchema } from './audit-step.schema';
-import { LIGHTHOUSE_AUDIT_STEP_TYPE } from '@app-speed/audit/model';
 import { Schema, Either, ParseResult } from 'effect';
+import { AuditStepSchema, AuditStepTypeSchema, isAuditStep, isStepType } from './audit-step.schema';
+import { LIGHTHOUSE_AUDIT_STEP_TYPE } from './lighthouse-userflow/lighthouse-userflow-step-type';
 
 describe('AuditStep', () => {
   it('should reject with readable message invalid step type', () => {

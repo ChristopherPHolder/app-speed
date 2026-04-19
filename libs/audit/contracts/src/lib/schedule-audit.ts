@@ -1,8 +1,8 @@
 import { HttpApiError } from '@effect/platform';
 import { Schema } from 'effect';
 
-import type { ReplayUserflowAudit } from './audit.schema';
-import { ReplayUserflowAuditSchema } from './audit.schema';
+import { ReplayUserflowAuditSchema } from '@app-speed/audit/model';
+import type { ReplayUserflowAudit } from '@app-speed/audit/model';
 
 export const ScheduleAuditRequestSchema = ReplayUserflowAuditSchema;
 export type ScheduleAuditRequest = ReplayUserflowAudit;

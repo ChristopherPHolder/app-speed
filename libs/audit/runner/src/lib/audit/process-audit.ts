@@ -3,8 +3,12 @@ import { Browser, launch } from 'puppeteer';
 import { createRunner, parse as puppeteerReplayParse } from '@puppeteer/replay';
 import { Config as LighthouseConfig, defaultConfig, desktopConfig, generateReport, startFlow } from 'lighthouse';
 
-import { PuppeteerReplayUserflowRunnerSchema, ReplayUserflowAudit } from '@app-speed/audit/contracts';
-import { DEVICE_TYPE, DeviceSchema } from '@app-speed/audit/model';
+import {
+  DEVICE_TYPE,
+  DeviceSchema,
+  PuppeteerReplayUserflowRunnerSchema,
+  ReplayUserflowAudit,
+} from '@app-speed/audit/model';
 
 import { UserFlowRunnerExtension } from './runner-extension';
 import { AuditRequestSchema } from '../queue/control-plane.effect';

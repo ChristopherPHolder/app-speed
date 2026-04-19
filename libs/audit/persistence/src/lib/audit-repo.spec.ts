@@ -6,7 +6,7 @@ import path from 'node:path';
 import { auditResultTable, auditRunTable, auditTemplateTable } from './schema';
 
 import { AuditRepo, AuditRepoLive } from './audit-repo';
-import { ReplayUserflowAudit } from '@app-speed/audit/contracts';
+import { ReplayUserflowAudit } from '@app-speed/audit/model';
 import { DbClient } from './db';
 
 const sampleAudit: ReplayUserflowAudit = {

@@ -1,10 +1,10 @@
 import { Schema } from 'effect';
+import { LIGHTHOUSE_AUDIT_STEP_TYPE } from './lighthouse-userflow/lighthouse-userflow-step-type';
 import {
-  LIGHTHOUSE_AUDIT_STEP_TYPE,
   PUPPETEER_REPLAY_ASSERTION_STEP_TYPE,
   PUPPETEER_REPLAY_CUSTOM_STEP_TYPE,
   PUPPETEER_REPLAY_USER_STEP_TYPE,
-} from '@app-speed/audit/model';
+} from './puppeteer-replay/puppeteer-replay-step-type';
 
 const PuppeteerReplayStepTypeSchema = Schema.Literal(
   PUPPETEER_REPLAY_USER_STEP_TYPE.CHANGE,

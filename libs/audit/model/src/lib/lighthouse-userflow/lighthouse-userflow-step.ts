@@ -1,11 +1,11 @@
 import { Schema } from 'effect';
+import { LIGHTHOUSE_AUDIT_STEP_TYPE } from './lighthouse-userflow-step-type';
+import { CustomStepParamsSchema } from '../puppeteer-replay/puppeteer-replay-step';
 import {
-  LIGHTHOUSE_AUDIT_STEP_TYPE,
-  CustomStepParamsSchema,
   PuppeteerReplayStepTypeSchema,
   PUPPETEER_REPLAY_CUSTOM_STEP_TYPE,
-} from '@app-speed/audit/model';
-import { AuditStepTypeSchema } from './audit-step.schema';
+} from '../puppeteer-replay/puppeteer-replay-step-type';
+import { AuditStepTypeSchema } from '../audit-step.schema';
 
 export const UserflowStartNavigationStepSchema = Schema.Struct({
   type: AuditStepTypeSchema.pipe(Schema.pickLiteral(LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION)),

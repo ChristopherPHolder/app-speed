@@ -1,9 +1,9 @@
 import { Effect, Schema } from 'effect';
 import { describe, it, expect } from '@effect/vitest';
 import { StepType } from '@puppeteer/replay';
-import { LIGHTHOUSE_AUDIT_STEP_TYPE } from '@app-speed/audit/model';
+import { LIGHTHOUSE_AUDIT_STEP_TYPE } from './lighthouse-userflow-step-type';
 
-import { UserflowAuditStepSchema } from './userflow-step';
+import { UserflowAuditStepSchema } from './lighthouse-userflow-step';
 
 describe('UserflowAuditStepSchema', () => {
   it.effect('should decode UserflowAuditStep', () =>

@@ -1,6 +1,6 @@
 import { HttpApiEndpoint, HttpApiError, HttpApiGroup } from '@effect/platform';
 import { Schema } from 'effect';
-import { ReplayUserflowAuditSchema } from '@app-speed/audit/contracts';
+import { ReplayUserflowAuditSchema } from '@app-speed/audit/model';
 import { AuditErrorSchema, AuditId, AuditResultStatusSchema } from '../audit/Audit.js';
 
 const RunnerId = Schema.NonEmptyString.pipe(Schema.brand('RunnerId'));

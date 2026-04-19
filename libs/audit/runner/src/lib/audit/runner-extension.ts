@@ -5,8 +5,8 @@ import {
   isReplayUserflowStep,
   isReplayUserflowStepWithFlags,
   ReplayUserflowStepSchema,
-} from '@app-speed/audit/contracts';
-import { CustomStepParamsSchema } from '@app-speed/audit/model';
+  CustomStepParamsSchema,
+} from '@app-speed/audit/model';
 import { Schema } from 'effect';
 
 export class UserFlowRunnerExtension extends PuppeteerRunnerExtension {
@@ -33,7 +33,7 @@ export class UserFlowRunnerExtension extends PuppeteerRunnerExtension {
       if (isReplayUserflowStepWithFlags(step)) {
         return this.flow[step.name](step.parameters);
       }
-      // @ts-ignore
+      // @ts-expect-error `step.name` is constrained by runtime guards above.
       return this.flow[step.name]();
     }
 

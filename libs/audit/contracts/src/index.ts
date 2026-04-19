@@ -1,10 +1,4 @@
 export {
-  ReplayUserflowAuditSchema,
-  AuditStep,
-  ReplayUserflowAudit,
-  PuppeteerReplayUserflowRunnerSchema,
-} from './lib/audit.schema';
-export {
   ScheduleAuditBadRequestResponseSchema,
   ScheduleAuditBadRequestResponse,
   ScheduleAuditDecodeErrorResponseSchema,
@@ -17,4 +11,3 @@ export {
   ScheduleAuditResponseSchema,
   ScheduleAuditResponse,
 } from './lib/schedule-audit';
-export { isReplayUserflowStepWithFlags, isReplayUserflowStep, ReplayUserflowStepSchema } from './lib/userflow-step';
