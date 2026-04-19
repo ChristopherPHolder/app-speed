@@ -1,6 +1,6 @@
-export { Api } from './lib/http-api/Api';
+export { Api } from './lib/Api';
 
-export { AuditApiGroup } from './lib/http-api/audit/Api';
+export { AuditApiGroup } from './lib/audit/Api';
 export {
   AuditErrorSchema,
   AuditId,
@@ -12,15 +12,10 @@ export {
   AuditRunsInternalError,
   AuditRunsInvalidCursorError,
   AuditRunsInvalidQueryError,
-} from './lib/http-api/audit/Audit';
-export { findByIdEndpoint, scheduleEndpoint, watchByIdEndpoint } from './lib/http-api/audit/builder/Api';
-export {
-  AuditRunSummarySchema,
-  AuditRunsQuerySchema,
-  listRunsEndpoint,
-  runByIdEndpoint,
-} from './lib/http-api/audit/runs/Api';
-export { reportByIdEndpoint, resultByIdEndpoint } from './lib/http-api/audit/viewer/Api';
+} from './lib/audit/Audit';
+export { findByIdEndpoint, scheduleEndpoint, watchByIdEndpoint } from './lib/audit/builder/Api';
+export { AuditRunSummarySchema, AuditRunsQuerySchema, listRunsEndpoint, runByIdEndpoint } from './lib/audit/runs/Api';
+export { reportByIdEndpoint, resultByIdEndpoint } from './lib/audit/viewer/Api';
 
-export { HealthApiGroup } from './lib/http-api/health/Api';
-export { RunnerApiGroup } from './lib/http-api/runner/Api';
+export { HealthApiGroup } from './lib/health/Api';
+export { RunnerApiGroup } from './lib/runner/Api';
