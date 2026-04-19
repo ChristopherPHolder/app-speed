@@ -5,7 +5,7 @@ import { Effect, ManagedRuntime, Schema } from 'effect';
 
 import { from } from 'rxjs';
 import { Api } from '@app-speed/audit/api-contract';
-import { AuditDetails, ReplayUserflowAuditSchema } from '@app-speed/audit/model';
+import { AuditDetails, ReplayUserflowAuditSchema } from '@app-speed/audit/domain';
 
 @Injectable({ providedIn: 'root' })
 export class ApiClient {

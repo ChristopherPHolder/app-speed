@@ -2,7 +2,7 @@ import { HttpApiEndpoint, HttpApiError, HttpApiSchema } from '@effect/platform';
 import { Schema } from 'effect';
 
 import { AuditId, AuditNotFoundError, AuditRunStatusSchema } from '../Audit';
-import { ReplayUserflowAuditSchema } from '@app-speed/audit/model';
+import { ReplayUserflowAuditSchema } from '@app-speed/audit/domain';
 
 export const scheduleEndpoint = HttpApiEndpoint.post('schedule', '/schedule')
   .setPayload(ReplayUserflowAuditSchema)

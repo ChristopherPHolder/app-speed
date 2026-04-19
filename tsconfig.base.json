@@ -25,14 +25,14 @@
       "@app-speed/audit/runner": ["libs/audit/runner/src/public-api.ts"],
       "@app-speed/audit/api-runtime": ["libs/audit/api-runtime/src/index.ts"],
       "@app-speed/platform/observability": ["libs/platform/observability/src/public-api.ts"],
-      "@app-speed/audit/model": ["libs/audit/model/src/index.ts"],
       "@app-speed/audit/api-contract": ["libs/audit/api-contract/src/index.ts"],
       "@app-speed/audit/persistence": ["libs/audit/persistence/src/index.ts"],
       "@app-speed/audit/portal/ui": ["libs/audit/portal/ui/src/index.ts"],
       "@app-speed/audit/portal/ui/icons": ["libs/audit/portal/ui/icons/src/index.ts"],
       "@app-speed/audit/portal/ui/dialogs": ["libs/audit/portal/ui/dialogs/src/index.ts"],
       "@app-speed/audit/portal/ui/form-fields": ["libs/audit/portal/ui/form-fields/src/index.ts"],
-      "@app-speed/audit/portal/data-access": ["libs/audit/portal/data-access/src/index.ts"]
+      "@app-speed/audit/portal/data-access": ["libs/audit/portal/data-access/src/index.ts"],
+      "@app-speed/audit/domain": ["libs/audit/domain/src/index.ts"]
     },
     "plugins": [
       {

@@ -1,5 +1,5 @@
 import type { AbstractControl, FormArray, FormControl } from '@angular/forms';
-import type { InputType } from '@app-speed/audit/model';
+import type { InputType } from '@app-speed/audit/domain';
 
 type FieldOptionValue = string | boolean;
 

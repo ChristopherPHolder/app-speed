@@ -1,7 +1,7 @@
 import { HttpApiBuilder } from '@effect/platform';
 import { Effect } from 'effect';
+import { Api } from '@app-speed/audit/api-contract';
 
-import { Api } from '../Api.js';
 import { findByIdHandler, scheduleHandler, watchByIdHandler } from './builder/Http.js';
 import { listRunsHandler, runByIdHandler } from './runs/Http.js';
 import { reportByIdHandler, resultByIdHandler } from './viewer/Http.js';

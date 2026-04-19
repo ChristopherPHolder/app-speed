@@ -17,7 +17,7 @@ import {
 } from './builder.actions';
 import { catchError, debounceTime, distinctUntilChanged, filter, map, of, switchMap, tap } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DEFAULT_AUDIT_DETAILS } from '@app-speed/audit/model';
+import { DEFAULT_AUDIT_DETAILS } from '@app-speed/audit/domain';
 import { HttpClient } from '@angular/common/http';
 import type { FlowResult } from 'lighthouse';
 import { getAuditRequestErrorMessage } from './builder-error-message';

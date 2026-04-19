@@ -2,7 +2,7 @@ import { HttpApiBuilder, HttpApiSwagger, HttpMiddleware, HttpServer } from '@eff
 import { NodeHttpServer } from '@effect/platform-node';
 import { Layer } from 'effect';
 import { createServer } from 'node:http';
-import { Api } from './Api.js';
+import { Api } from '@app-speed/audit/api-contract';
 import { AuditGroupLive } from './audit/Http.js';
 import { HealthGroupLive } from './health/Http.js';
 import { RunnerGroupLive } from './runner/Http.js';

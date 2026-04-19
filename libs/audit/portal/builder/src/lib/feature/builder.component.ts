@@ -1,12 +1,17 @@
 import { Component, DestroyRef, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { loadAuditDetails, submitAuditRequest, updateAuditDetails } from './builder.actions';
-import { AuditDetails } from '@app-speed/audit/model';
+import { AuditDetails } from '@app-speed/audit/domain';
 import { AsyncPipe } from '@angular/common';
 import { auditBuilderFeature } from './builder.state';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { ErrorDialog, StatusDialog, type ErrorDialogModel, type StatusDialogModel } from '@app-speed/audit/portal/ui/dialogs';
+import {
+  ErrorDialog,
+  StatusDialog,
+  type ErrorDialogModel,
+  type StatusDialogModel,
+} from '@app-speed/audit/portal/ui/dialogs';
 import { scan } from 'rxjs';
 import { AuditBuilderComponent } from '../components/audit-builder.component';
 

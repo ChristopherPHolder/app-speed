@@ -1,6 +1,6 @@
 import { Context, Effect, Layer, ParseResult } from 'effect';
 
-import { ReplayUserflowAudit } from '@app-speed/audit/model';
+import { ReplayUserflowAudit } from '@app-speed/audit/domain';
 
 import { DbClient, QueryError } from './db';
 import { createRun, createTemplate, getTemplateById } from './audit-repo/builder';

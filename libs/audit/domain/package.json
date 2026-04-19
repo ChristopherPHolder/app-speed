@@ -1,5 +1,5 @@
 {
-  "name": "@app-speed/audit/model",
+  "name": "@app-speed/audit/domain",
   "version": "0.0.1",
   "peerDependencies": {
     "@puppeteer/replay": "^3.1.3",

@@ -1,6 +1,6 @@
 import { Schema } from 'effect';
 
-import { ReplayUserflowAuditSchema } from '@app-speed/audit/model';
+import { ReplayUserflowAuditSchema } from '@app-speed/audit/domain';
 
 export const AuditTemplateIdSchema = Schema.NonEmptyString.pipe(Schema.brand('AuditTemplateId'));
 export type AuditTemplateId = typeof AuditTemplateIdSchema.Type;
@@ -64,12 +64,8 @@ export const AuditRunListCursorSchema = Schema.Struct({
 });
 export type AuditRunListCursor = typeof AuditRunListCursorSchema.Type;
 
-export const decodeAuditTemplateRecord = (template: {
-  id: string;
-  data: unknown;
-  createAt: Date;
-  updatedAt: Date;
-}) => Schema.decodeUnknown(AuditTemplateRecordSchema, { errors: 'all' })(template);
+export const decodeAuditTemplateRecord = (template: { id: string; data: unknown; createAt: Date; updatedAt: Date }) =>
+  Schema.decodeUnknown(AuditTemplateRecordSchema, { errors: 'all' })(template);
 
 export const decodeAuditRunRecord = (run: {
   id: string;

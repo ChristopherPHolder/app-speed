@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_AUDIT_DETAILS } from '@app-speed/audit/model';
+import { DEFAULT_AUDIT_DETAILS } from '@app-speed/audit/domain';
 import {
   auditQueuePositionUpdated,
   auditStageUpdated,
@@ -10,10 +10,7 @@ import { auditBuilderReducer, initialState } from './builder.state';
 
 describe('auditBuilderReducer loading dialog states', () => {
   it('shows the queued state with the initial queue position from scheduling', () => {
-    const submittingState = auditBuilderReducer(
-      initialState,
-      submitAuditRequest({ audit: DEFAULT_AUDIT_DETAILS }),
-    );
+    const submittingState = auditBuilderReducer(initialState, submitAuditRequest({ audit: DEFAULT_AUDIT_DETAILS }));
 
     const queuedState = auditBuilderReducer(
       submittingState,
@@ -45,10 +42,7 @@ describe('auditBuilderReducer loading dialog states', () => {
 
   it('keeps the queued copy when progress listening starts with a scheduling stage', () => {
     const queuedState = auditBuilderReducer(
-      auditBuilderReducer(
-        initialState,
-        submitAuditRequestSuccess({ requestId: 'audit-123', queuePosition: 1 }),
-      ),
+      auditBuilderReducer(initialState, submitAuditRequestSuccess({ requestId: 'audit-123', queuePosition: 1 })),
       auditStageUpdated({ stage: 'scheduling' }),
     );
 
@@ -61,10 +55,7 @@ describe('auditBuilderReducer loading dialog states', () => {
 
   it('switches the loading dialog to the running state', () => {
     const runningState = auditBuilderReducer(
-      auditBuilderReducer(
-        initialState,
-        submitAuditRequestSuccess({ requestId: 'audit-123', queuePosition: 0 }),
-      ),
+      auditBuilderReducer(initialState, submitAuditRequestSuccess({ requestId: 'audit-123', queuePosition: 0 })),
       auditStageUpdated({ stage: 'running' }),
     );
 

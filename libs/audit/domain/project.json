@@ -1,7 +1,7 @@
 {
-  "name": "audit-model",
+  "name": "audit-domain",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/audit/model/src",
+  "sourceRoot": "libs/audit/domain/src",
   "prefix": "lib",
   "projectType": "library",
   "tags": ["type:domain", "scope:audit", "runtime:agnostic", "layer:model"],
@@ -10,14 +10,14 @@
       "executor": "@nx/angular:ng-packagr-lite",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
-        "project": "libs/audit/model/ng-package.json"
+        "project": "libs/audit/domain/ng-package.json"
       },
       "configurations": {
         "production": {
-          "tsConfig": "libs/audit/model/tsconfig.lib.prod.json"
+          "tsConfig": "libs/audit/domain/tsconfig.lib.prod.json"
         },
         "development": {
-          "tsConfig": "libs/audit/model/tsconfig.lib.json"
+          "tsConfig": "libs/audit/domain/tsconfig.lib.json"
         }
       },
       "defaultConfiguration": "production"

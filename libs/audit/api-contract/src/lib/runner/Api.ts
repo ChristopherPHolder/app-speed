@@ -1,7 +1,7 @@
 import { HttpApiEndpoint, HttpApiError, HttpApiGroup } from '@effect/platform';
 import { Schema } from 'effect';
 
-import { ReplayUserflowAuditSchema } from '@app-speed/audit/model';
+import { ReplayUserflowAuditSchema } from '@app-speed/audit/domain';
 
 import { AuditErrorSchema, AuditId, AuditResultStatusSchema } from '../audit/Audit';
 

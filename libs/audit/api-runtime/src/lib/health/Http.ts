@@ -1,6 +1,6 @@
 import { HttpApiBuilder } from '@effect/platform';
 import { Effect } from 'effect';
-import { Api } from '../Api.js';
+import { Api } from '@app-speed/audit/api-contract';
 
 export const HealthGroupLive = HttpApiBuilder.group(Api, 'health', (handlers) =>
   Effect.gen(function* () {

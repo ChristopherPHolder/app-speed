@@ -6,7 +6,7 @@ import {
   isReplayUserflowStepWithFlags,
   ReplayUserflowStepSchema,
   CustomStepParamsSchema,
-} from '@app-speed/audit/model';
+} from '@app-speed/audit/domain';
 import { Schema } from 'effect';
 
 export class UserFlowRunnerExtension extends PuppeteerRunnerExtension {

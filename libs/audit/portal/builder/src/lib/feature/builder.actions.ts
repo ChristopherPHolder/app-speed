@@ -1,6 +1,6 @@
 import { createAction, props } from '@ngrx/store';
 
-import { AuditDetails } from '@app-speed/audit/model';
+import { AuditDetails } from '@app-speed/audit/domain';
 import type { FlowResult } from 'lighthouse';
 
 export type AuditStage = 'scheduling' | 'scheduled' | 'running' | 'done' | 'failed';

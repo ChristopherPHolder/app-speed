@@ -1,4 +1,3 @@
-export { Api } from './lib/Api';
 export { HttpLive } from './lib/Http';
 export { AuditApiGroup } from './lib/audit/Api';
 export { AuditGroupLive } from './lib/audit/Http';

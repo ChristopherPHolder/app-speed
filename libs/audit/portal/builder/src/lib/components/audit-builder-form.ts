@@ -10,7 +10,7 @@ import {
   STEP_OPTIONS,
   StepDetails,
   StepProperty,
-} from '@app-speed/audit/model';
+} from '@app-speed/audit/domain';
 
 import { stepPropertyFactoryMap } from './step-property';
 

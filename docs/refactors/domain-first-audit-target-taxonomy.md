@@ -78,7 +78,7 @@ The target projects below are intentionally concrete enough to drive naming, pat
 
 | Project | Suggested Import Alias | Responsibility | Target Tags |
 | --- | --- | --- | --- |
-| `audit-model` | `@app-speed/audit/model` | Audit value objects, constants, default values, shared domain vocabulary | `type:domain`, `scope:audit`, `runtime:agnostic`, `layer:model` |
+| `audit-domain` | `@app-speed/audit/domain` | Audit value objects, constants, default values, shared domain vocabulary | `type:domain`, `scope:audit`, `runtime:agnostic`, `layer:model` |
 | `audit-api-contract` | `@app-speed/audit/api-contract` | Schemas, contract types, wire-facing audit structures | `type:domain`, `scope:audit`, `runtime:agnostic`, `layer:contract` |
 | `audit-persistence` | `@app-speed/audit/persistence` | Audit repositories, audit DB schema, query behavior, persistence contract tests | `type:domain`, `scope:audit`, `runtime:node`, `layer:persistence` |
 | `audit-api-runtime` | `@app-speed/audit/api-runtime` | Audit HTTP API groups, runner lifecycle orchestration, server-side audit application logic | `type:domain`, `scope:audit`, `runtime:node`, `layer:application` |
@@ -232,7 +232,7 @@ These rules are the intended architectural guardrails.
 
 | Current Module | Target Module | Notes |
 | --- | --- | --- |
-| `libs/shared/user-flow-replay` | `audit-model` | Move domain vocabulary and defaults here |
+| `libs/shared/user-flow-replay` | `audit-domain` | Move domain vocabulary and defaults here |
 | `libs/shared/user-flow-replay/schema` | `audit-api-contract` | Move schemas and contract-facing types here |
 | `libs/server/db` | `audit-persistence` plus optional `platform-sqlite` | Split only if generic DB runtime concerns become clear |
 | `apps/api/src/Audit/**` | `audit-api-runtime` | Keep endpoint shapes unchanged |
@@ -258,7 +258,7 @@ These rules are the intended architectural guardrails.
 Prefer names that describe domain ownership first and runtime second.
 
 Good examples:
-- `audit-model`
+- `audit-domain`
 - `audit-api-contract`
 - `audit-persistence`
 - `audit-api-runtime`

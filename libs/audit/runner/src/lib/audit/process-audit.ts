@@ -8,7 +8,7 @@ import {
   DeviceSchema,
   PuppeteerReplayUserflowRunnerSchema,
   ReplayUserflowAudit,
-} from '@app-speed/audit/model';
+} from '@app-speed/audit/domain';
 
 import { UserFlowRunnerExtension } from './runner-extension';
 import { AuditRequestSchema } from '../queue/control-plane.effect';

@@ -2,15 +2,11 @@ import { randomUUID } from 'node:crypto';
 import { eq } from 'drizzle-orm';
 import { Clock, Effect } from 'effect';
 
-import { ReplayUserflowAudit } from '@app-speed/audit/model';
+import { ReplayUserflowAudit } from '@app-speed/audit/domain';
 
 import { DbClient } from '../db';
 import { auditTemplateTable, auditRunTable } from '../schema';
-import {
-  type AuditTemplateId,
-  type AuditRunId,
-  decodeAuditTemplateRecord,
-} from './shared';
+import { type AuditTemplateId, type AuditRunId, decodeAuditTemplateRecord } from './shared';
 
 export const createTemplate = Effect.fn('db.auditTemplate.create')(function* (audit: ReplayUserflowAudit) {
   const db = yield* DbClient;

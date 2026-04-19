@@ -1,6 +1,6 @@
 import { FormControl } from '@angular/forms';
 import type { Meta, StoryObj } from '@storybook/angular';
-import { STEP_PROPERTY } from '@app-speed/audit/model';
+import { STEP_PROPERTY } from '@app-speed/audit/domain';
 import type { InputFieldModel } from './field.model';
 import { InputField } from './input-field';
 

@@ -1,5 +1,5 @@
 import { AbstractControl, FormArray, FormControl, FormRecord, Validators } from '@angular/forms';
-import { PropertyName, STEP_PROPERTY } from '@app-speed/audit/model';
+import { PropertyName, STEP_PROPERTY } from '@app-speed/audit/domain';
 
 const stringFormControlFactory = (defaultValue: string) =>
   new FormControl(defaultValue, {

@@ -1,6 +1,6 @@
 import { afterNextRender, ChangeDetectionStrategy, Component, DestroyRef, inject, input } from '@angular/core';
 import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
-import { LIGHTHOUSE_AUDIT_STEP_TYPE } from '@app-speed/audit/model';
+import { LIGHTHOUSE_AUDIT_STEP_TYPE } from '@app-speed/audit/domain';
 import { StepFormGroup } from './audit-builder-form';
 import { MatFabButton, MatIconButton } from '@angular/material/button';
 import { distinctUntilChanged, skip, startWith, tap } from 'rxjs';

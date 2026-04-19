@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { integer, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
-import { type ReplayUserflowAudit } from '@app-speed/audit/model';
+import { type ReplayUserflowAudit } from '@app-speed/audit/domain';
 
 export const auditStatusValues = ['SCHEDULED', 'IN_PROGRESS', 'COMPLETE'] as const;
 export type AuditStatus = (typeof auditStatusValues)[number];

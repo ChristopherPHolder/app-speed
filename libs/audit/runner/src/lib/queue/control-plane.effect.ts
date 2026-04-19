@@ -1,7 +1,7 @@
 import { EC2Client, StopInstancesCommand } from '@aws-sdk/client-ec2';
 import { HttpClient, HttpClientRequest, HttpClientResponse } from '@effect/platform';
 import { Clock, Config, Data, Effect, Match, Option, Schema } from 'effect';
-import { ReplayUserflowAuditSchema } from '@app-speed/audit/model';
+import { ReplayUserflowAuditSchema } from '@app-speed/audit/domain';
 
 export const AuditRequestSchema = Schema.Struct({
   auditId: Schema.String,
