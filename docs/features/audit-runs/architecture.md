@@ -22,7 +22,7 @@ The Audit Runs feature adds a top-level experience for browsing queued, running,
 - New API endpoints:
   - `GET /api/audit/runs`
   - `GET /api/audit/runs/:id`
-- `libs/audit/control-plane` owns the route handlers and HTTP contract.
+- `libs/audit/api-runtime` owns the route handlers and HTTP contract.
 - `libs/audit/persistence` provides paginated summaries via `listRunsPage` and detail lookups via `getRunSummaryById`.
 - Cursor uses `(createdAtMs, id)` with descending order (`createdAt desc`, `id desc`).
 - Queue position is computed only for `SCHEDULED`.

@@ -79,9 +79,9 @@ The target projects below are intentionally concrete enough to drive naming, pat
 | Project | Suggested Import Alias | Responsibility | Target Tags |
 | --- | --- | --- | --- |
 | `audit-model` | `@app-speed/audit/model` | Audit value objects, constants, default values, shared domain vocabulary | `type:domain`, `scope:audit`, `runtime:agnostic`, `layer:model` |
-| `audit-contracts` | `@app-speed/audit/contracts` | Schemas, contract types, wire-facing audit structures | `type:domain`, `scope:audit`, `runtime:agnostic`, `layer:contract` |
+| `audit-api-contract` | `@app-speed/audit/api-contract` | Schemas, contract types, wire-facing audit structures | `type:domain`, `scope:audit`, `runtime:agnostic`, `layer:contract` |
 | `audit-persistence` | `@app-speed/audit/persistence` | Audit repositories, audit DB schema, query behavior, persistence contract tests | `type:domain`, `scope:audit`, `runtime:node`, `layer:persistence` |
-| `audit-control-plane` | `@app-speed/audit/control-plane` | Audit HTTP API groups, runner lifecycle orchestration, server-side audit application logic | `type:domain`, `scope:audit`, `runtime:node`, `layer:application` |
+| `audit-api-runtime` | `@app-speed/audit/api-runtime` | Audit HTTP API groups, runner lifecycle orchestration, server-side audit application logic | `type:domain`, `scope:audit`, `runtime:node`, `layer:application` |
 | `audit-runner` | `@app-speed/audit/runner` | Audit execution, queue claim/complete/heartbeat logic, runner-side orchestration | `type:domain`, `scope:audit`, `runtime:node`, `layer:application` |
 | `audit-portal-builder` | `@app-speed/audit/portal/builder` | Portal builder flow, builder state, builder routes, builder-specific UI | `type:domain`, `scope:audit`, `runtime:web`, `layer:feature` |
 | `audit-portal-viewer` | `@app-speed/audit/portal/viewer` | Portal viewer flow, result rendering, diagnostics, viewer-specific UI | `type:domain`, `scope:audit`, `runtime:web`, `layer:feature` |
@@ -233,10 +233,10 @@ These rules are the intended architectural guardrails.
 | Current Module | Target Module | Notes |
 | --- | --- | --- |
 | `libs/shared/user-flow-replay` | `audit-model` | Move domain vocabulary and defaults here |
-| `libs/shared/user-flow-replay/schema` | `audit-contracts` | Move schemas and contract-facing types here |
+| `libs/shared/user-flow-replay/schema` | `audit-api-contract` | Move schemas and contract-facing types here |
 | `libs/server/db` | `audit-persistence` plus optional `platform-sqlite` | Split only if generic DB runtime concerns become clear |
-| `apps/api/src/Audit/**` | `audit-control-plane` | Keep endpoint shapes unchanged |
-| `apps/api/src/Runner/**` | `audit-control-plane` | Runner lifecycle is still audit-specific control-plane logic |
+| `apps/api/src/Audit/**` | `audit-api-runtime` | Keep endpoint shapes unchanged |
+| `apps/api/src/Runner/**` | `audit-api-runtime` | Runner lifecycle is still audit-specific control-plane logic |
 | `libs/runner/user-flow-replay` | `audit-runner` | Rename around domain ownership rather than runtime bucket |
 | `libs/portal/feature-audit` | `audit-portal-builder` and `audit-portal-viewer` | Split by portal feature responsibility |
 | `libs/portal/feature-audit-runs` | `audit-portal-runs` | Keep as part of the same audit bounded context |
@@ -259,9 +259,9 @@ Prefer names that describe domain ownership first and runtime second.
 
 Good examples:
 - `audit-model`
-- `audit-contracts`
+- `audit-api-contract`
 - `audit-persistence`
-- `audit-control-plane`
+- `audit-api-runtime`
 - `audit-runner`
 - `audit-portal-builder`
 

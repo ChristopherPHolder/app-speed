@@ -1,8 +1,8 @@
 import { Observable } from 'rxjs';
 import type {
-  ScheduleAuditRequest,
   ScheduleAuditResponse,
-} from '@app-speed/audit/contracts';
+} from '@app-speed/audit/api-contract';
+import type { AuditDetails } from '@app-speed/audit/model';
 
 export type {
   ScheduleAuditBadRequestResponse,
@@ -11,7 +11,7 @@ export type {
   ScheduleAuditErrorResponse,
   ScheduleAuditRequest,
   ScheduleAuditResponse,
-} from '@app-speed/audit/contracts';
+} from '@app-speed/audit/api-contract';
 
 export interface ApiModel {
   /**
@@ -19,5 +19,5 @@ export interface ApiModel {
    * Non-2xx responses are surfaced via HttpClient as HttpErrorResponse with a
    * body matching ScheduleAuditErrorResponse.
    */
-  scheduleAudit(req: ScheduleAuditRequest): Observable<ScheduleAuditResponse>;
+  scheduleAudit(req: AuditDetails): Observable<ScheduleAuditResponse>;
 }

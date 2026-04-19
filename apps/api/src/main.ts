@@ -8,7 +8,7 @@ import {
   RunnerIdleReaperLive,
   RunnerLifecycleLive,
   RunnerRegistryLive,
-} from '@app-speed/audit/control-plane';
+} from '@app-speed/audit/api-runtime';
 import { AuditRepoLive, DbClient } from '@app-speed/audit/persistence';
 import { makeNodeObservabilityLayer } from '@app-speed/platform/observability';
 import { ServerConfig } from './Config/config.js';

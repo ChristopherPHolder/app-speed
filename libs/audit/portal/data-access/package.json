@@ -3,10 +3,12 @@
   "version": "0.0.1",
   "peerDependencies": {
     "@angular/core": "21.2.1",
+    "@app-speed/audit/api-contract": "0.0.1",
+    "@effect/platform": "^0.94.1",
+    "@nx/vite": "22.5.4",
+    "effect": "^3.19.14",
     "rxjs": "^7.8.0",
-    "@app-speed/audit/contracts": "0.0.1",
-    "vite": "7.3.1",
-    "@nx/vite": "22.5.4"
+    "vite": "7.3.1"
   },
   "sideEffects": false
 }

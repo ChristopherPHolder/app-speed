@@ -28,7 +28,7 @@ This document defines the architecture for scheduling user flow audits, executin
 ## Current Code Locations
 
 - `apps/api` is the application shell for the Effect-based control plane.
-- `libs/audit/control-plane` owns audit HTTP handlers, API groups, SSE progress, and runner lifecycle orchestration.
+- `libs/audit/api-runtime` owns audit HTTP handlers, API groups, SSE progress, and runner lifecycle orchestration.
 - `libs/audit/persistence` owns audit templates, runs, results, queue operations, and DB-backed query logic.
 - `apps/runner` is the application shell for the runner process.
 - `libs/audit/runner` owns queue polling, heartbeat/shutdown requests, and audit execution.
@@ -204,7 +204,7 @@ Phase 1 focuses on stability and local-first flow. Phase 2 introduces EC2 lifecy
 ### Phase 1
 
 - Keep `apps/api` and `apps/runner` as thin application shells.
-- Implement SSE progress based on DB-backed queue position in `libs/audit/control-plane`.
+- Implement SSE progress based on DB-backed queue position in `libs/audit/api-runtime`.
 - Keep `RunnerManager` as a `Context.Tag` interface with local and AWS-backed implementations.
 - Use `libs/audit/runner` to pull audits and report results through the API.
 - Keep persistence and queue semantics in `libs/audit/persistence`.
