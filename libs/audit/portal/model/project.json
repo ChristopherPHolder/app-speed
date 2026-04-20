@@ -1,0 +1,28 @@
+{
+  "name": "model",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/audit/portal/model/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": ["type:domain", "scope:audit", "runtime:web", "layer:model"],
+  "targets": {
+    "build": {
+      "executor": "@nx/angular:ng-packagr-lite",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "options": {
+        "project": "libs/audit/portal/model/ng-package.json",
+        "tsConfig": "libs/audit/portal/model/tsconfig.lib.json"
+      },
+      "configurations": {
+        "production": {
+          "tsConfig": "libs/audit/portal/model/tsconfig.lib.prod.json"
+        },
+        "development": {}
+      },
+      "defaultConfiguration": "production"
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

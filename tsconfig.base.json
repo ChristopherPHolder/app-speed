@@ -32,7 +32,8 @@
       "@app-speed/audit/portal/ui/dialogs": ["libs/audit/portal/ui/dialogs/src/index.ts"],
       "@app-speed/audit/portal/ui/form-fields": ["libs/audit/portal/ui/form-fields/src/index.ts"],
       "@app-speed/audit/portal/data-access": ["libs/audit/portal/data-access/src/index.ts"],
-      "@app-speed/audit/domain": ["libs/audit/domain/src/index.ts"]
+      "@app-speed/audit/domain": ["libs/audit/domain/src/index.ts"],
+      "@app-speed/audit/portal/model": ["libs/audit/portal/model/src/index.ts"]
     },
     "plugins": [
       {

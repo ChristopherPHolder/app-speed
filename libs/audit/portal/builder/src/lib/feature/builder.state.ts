@@ -1,4 +1,4 @@
-import { AuditDetails } from '@app-speed/audit/domain';
+import { AuditDetails } from '@app-speed/audit/portal/model';
 import { createFeature, createReducer, on } from '@ngrx/store';
 import {
   auditQueuePositionUpdated,

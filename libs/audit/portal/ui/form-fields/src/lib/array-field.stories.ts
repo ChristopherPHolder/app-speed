@@ -1,6 +1,6 @@
 import { FormArray, FormControl } from '@angular/forms';
 import type { Meta, StoryObj } from '@storybook/angular';
-import { STEP_PROPERTY } from '@app-speed/audit/domain';
+import { STEP_PROPERTY } from '@app-speed/audit/portal/model';
 import type { ArrayFieldModel } from './field.model';
 import { ArrayField } from './array-field';
 

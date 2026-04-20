@@ -46,7 +46,7 @@ export const UserflowAuditStepTypeScheme = Schema.Literal(
   LIGHTHOUSE_AUDIT_STEP_TYPE.SNAPSHOT,
 ) satisfies { readonly literals: readonly string[] };
 
-const UserflowStepTypeWithStepFlagsLiteral = UserflowAuditStepTypeScheme.pipe(
+export const UserflowStepTypeWithStepFlagsLiteral = UserflowAuditStepTypeScheme.pipe(
   Schema.pickLiteral(
     LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
     LIGHTHOUSE_AUDIT_STEP_TYPE.START_TIMESPAN,
@@ -54,7 +54,7 @@ const UserflowStepTypeWithStepFlagsLiteral = UserflowAuditStepTypeScheme.pipe(
   ),
 );
 
-const UserflowStepTypeWithoutStepFlagsLiteral = UserflowAuditStepTypeScheme.pipe(
+export const UserflowStepTypeWithoutStepFlagsLiteral = UserflowAuditStepTypeScheme.pipe(
   Schema.pickLiteral(LIGHTHOUSE_AUDIT_STEP_TYPE.END_NAVIGATION, LIGHTHOUSE_AUDIT_STEP_TYPE.END_TIMESPAN),
 );
 

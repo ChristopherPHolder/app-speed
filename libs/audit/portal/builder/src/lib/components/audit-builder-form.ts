@@ -1,16 +1,14 @@
 import { signal } from '@angular/core';
 import { AbstractControl, FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+import { AuditStep, DEVICE_OPTIONS, DeviceType } from '@app-speed/audit/domain';
 import {
-  AuditStep,
   AuditDetails,
-  DEVICE_OPTIONS,
-  DeviceType,
   InputType,
   PropertyName,
   STEP_OPTIONS,
   StepDetails,
   StepProperty,
-} from '@app-speed/audit/domain';
+} from '@app-speed/audit/portal/model';
 
 import { stepPropertyFactoryMap } from './step-property';
 

@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { loadAuditDetails, submitAuditRequest, updateAuditDetails } from './builder.actions';
-import { AuditDetails } from '@app-speed/audit/domain';
+import { AuditDetails } from '@app-speed/audit/portal/model';
 import { AsyncPipe } from '@angular/common';
 import { auditBuilderFeature } from './builder.state';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';

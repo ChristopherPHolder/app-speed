@@ -1,6 +1,28 @@
 import { INPUT_TYPE, InputType, InputValue } from './input-type';
 import { PROPERTY_NAME, PropertyName } from './property-name';
-import { STEP_TYPE_OPTIONS_GROUPED } from '../step-type';
+import {
+  LIGHTHOUSE_AUDIT_STEP_TYPE,
+  PUPPETEER_REPLAY_ASSERTION_STEP_TYPE,
+  PUPPETEER_REPLAY_USER_STEP_TYPE,
+} from '@app-speed/audit/domain';
+
+const STEP_TYPE_OPTIONS_GROUPED = [
+  {
+    label: 'Audit Steps',
+    icon: 'lighthouse-badge',
+    options: Object.values(LIGHTHOUSE_AUDIT_STEP_TYPE),
+  },
+  {
+    label: 'Assertion Steps',
+    icon: 'puppeteer-badge',
+    options: Object.values(PUPPETEER_REPLAY_ASSERTION_STEP_TYPE),
+  },
+  {
+    label: 'Action Steps',
+    icon: 'puppeteer-badge',
+    options: Object.values(PUPPETEER_REPLAY_USER_STEP_TYPE),
+  },
+] as const;
 
 export type StepPropertyOptionValue = string | boolean;
 

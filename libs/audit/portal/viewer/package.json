@@ -8,7 +8,7 @@
     "@angular/material": "21.2.1",
     "@angular/platform-browser": "21.2.1",
     "@app-speed/ui": "0.0.0",
-    "lighthouse": "^13.0.3",
+    "lighthouse": "^13.1.0",
     "rxjs": "^7.8.0",
     "swiper": "^12.1.2",
     "vitest": "^3.2.4",

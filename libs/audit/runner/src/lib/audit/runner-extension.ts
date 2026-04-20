@@ -2,10 +2,10 @@ import { PuppeteerRunnerExtension, Step, UserFlow as UserFlowRecording } from '@
 import type { Browser, Page } from 'puppeteer';
 import type { UserFlow } from 'lighthouse';
 import {
-  isReplayUserflowStep,
-  isReplayUserflowStepWithFlags,
   ReplayUserflowStepSchema,
-  CustomStepParamsSchema,
+  UserflowAuditStepTypeScheme,
+  UserflowStepTypeWithoutStepFlagsLiteral,
+  UserflowStepTypeWithStepFlagsLiteral,
 } from '@app-speed/audit/domain';
 import { Schema } from 'effect';
 
@@ -25,16 +25,18 @@ export class UserFlowRunnerExtension extends PuppeteerRunnerExtension {
     step: Step | typeof ReplayUserflowStepSchema.Type,
     flowRecording: UserFlowRecording,
   ): Promise<void> {
-    if (!Schema.is(CustomStepParamsSchema)(step)) {
+    // TODO refactor parsing custom types
+    if (step.type !== 'customStep') {
       return super.runStep(step as Step, flowRecording);
     }
-
-    if (isReplayUserflowStep(step)) {
-      if (isReplayUserflowStepWithFlags(step)) {
+    if (Schema.is(UserflowAuditStepTypeScheme)(step.name)) {
+      if (Schema.is(UserflowStepTypeWithStepFlagsLiteral)(step.name)) {
+        // @ts-expect-error require fixing parser
         return this.flow[step.name](step.parameters);
       }
-      // @ts-expect-error `step.name` is constrained by runtime guards above.
-      return this.flow[step.name]();
+      if (Schema.is(UserflowStepTypeWithoutStepFlagsLiteral)(step.name)) {
+        return this.flow[step.name]();
+      }
     }
 
     throw new Error(`Unknown custom step type ${JSON.stringify(step)}`);

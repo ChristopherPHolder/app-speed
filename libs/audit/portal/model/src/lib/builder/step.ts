@@ -3,7 +3,7 @@
 // TODO implement stringArray
 
 import { requiredFeature, STEP_PROPERTY, StepProperty } from './step-property';
-import { STEP_TYPE, StepType } from '../step-type';
+import { STEP_TYPE, StepType } from '@app-speed/audit/domain';
 import { PROPERTY_NAME, PropertyName } from './property-name';
 import { InputType } from './input-type';
 
