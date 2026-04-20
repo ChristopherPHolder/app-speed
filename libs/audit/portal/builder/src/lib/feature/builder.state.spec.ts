@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_AUDIT_DETAILS } from '@app-speed/audit/portal/model';
+import { DEFAULT_AUDIT_DETAILS } from '../audit-details';
 import {
   auditQueuePositionUpdated,
   auditStageUpdated,

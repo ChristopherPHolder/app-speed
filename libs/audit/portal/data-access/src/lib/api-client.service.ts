@@ -6,7 +6,6 @@ import { Effect, ManagedRuntime, Schema } from 'effect';
 import { from } from 'rxjs';
 import { Api } from '@app-speed/audit/api-contract';
 import { ReplayUserflowAuditSchema } from '@app-speed/audit/domain';
-import type { AuditDetails } from '@app-speed/audit/portal/model';
 
 @Injectable({ providedIn: 'root' })
 export class ApiClient {
@@ -21,7 +20,7 @@ export class ApiClient {
     );
   }
 
-  scheduleAudit(auditDetails: AuditDetails) {
+  scheduleAudit(auditDetails: unknown) {
     return from(
       this.runtime.runPromise(
         Effect.gen(function* () {

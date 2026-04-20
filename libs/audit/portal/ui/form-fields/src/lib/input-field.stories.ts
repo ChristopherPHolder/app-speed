@@ -1,8 +1,17 @@
 import { FormControl } from '@angular/forms';
 import type { Meta, StoryObj } from '@storybook/angular';
-import { STEP_PROPERTY } from '@app-speed/audit/portal/model';
 import type { InputFieldModel } from './field.model';
 import { InputField } from './input-field';
+
+const NAME_PROPERTY: InputFieldModel['property'] = {
+  name: 'name',
+  inputType: 'string',
+};
+
+const TIMEOUT_PROPERTY: InputFieldModel['property'] = {
+  name: 'timeout',
+  inputType: 'number',
+};
 
 const meta: Meta<InputField> = {
   title: 'Patterns/Audit Builder/Fields/Input',
@@ -46,11 +55,11 @@ const createStory = ({
 });
 
 export const Text: Story = createStory({
-  property: STEP_PROPERTY.name,
+  property: NAME_PROPERTY,
   control: new FormControl('Homepage audit', { nonNullable: true }),
 });
 
 export const Number: Story = createStory({
-  property: STEP_PROPERTY.timeout,
+  property: TIMEOUT_PROPERTY,
   control: new FormControl(30000, { nonNullable: true }),
 });

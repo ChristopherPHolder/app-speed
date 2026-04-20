@@ -1,14 +1,11 @@
 import { signal } from '@angular/core';
 import { AbstractControl, FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { AuditStep, DEVICE_OPTIONS, DeviceType } from '@app-speed/audit/domain';
-import {
-  AuditDetails,
-  InputType,
-  PropertyName,
-  STEP_OPTIONS,
-  StepDetails,
-  StepProperty,
-} from '@app-speed/audit/portal/model';
+import { AuditDetails } from '../audit-details';
+import { InputType } from '../input-type';
+import { PropertyName } from '../property-name';
+import { STEP_OPTIONS, StepDetails, Step } from '../step-details';
+import { StepProperty } from '../step-property.model';
 
 import { stepPropertyFactoryMap } from './step-property';
 
@@ -109,7 +106,7 @@ export class StepFormGroup extends FormGroup {
     return field;
   }
 
-  constructor(step: AuditStep) {
+  constructor(step: Step | AuditStep) {
     const typeControl = stepPropertyFactoryMap.type(step);
     super({ type: typeControl });
     this.setupControls(step.type, step);

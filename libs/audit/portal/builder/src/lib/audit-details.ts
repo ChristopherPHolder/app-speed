@@ -1,5 +1,5 @@
 import { DeviceType } from '@app-speed/audit/domain';
-import { Step } from './step';
+import { Step } from './step-details';
 
 export interface AuditDetails {
   title: string;

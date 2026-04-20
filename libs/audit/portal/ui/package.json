@@ -8,7 +8,6 @@
     "@angular/platform-browser": "21.2.1",
     "@angular/core": "21.2.1",
     "@app-speed/audit/domain": "0.0.1",
-    "@app-speed/audit/portal/model": "0.0.1",
     "@nx/vite": "22.5.4",
     "@storybook/angular": "^10.2.10",
     "vitest": "^3.2.4"

@@ -21,7 +21,7 @@ import { MatOption } from '@angular/material/autocomplete';
 import { MatSelect } from '@angular/material/select';
 import { RxIf } from '@rx-angular/template/if';
 import { DEVICE_OPTIONS } from '@app-speed/audit/domain';
-import { AuditDetails } from '@app-speed/audit/portal/model';
+import { AuditDetails } from '../audit-details';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { tap } from 'rxjs';

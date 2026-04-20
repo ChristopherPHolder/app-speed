@@ -1,8 +1,12 @@
 import { FormArray, FormControl } from '@angular/forms';
 import type { Meta, StoryObj } from '@storybook/angular';
-import { STEP_PROPERTY } from '@app-speed/audit/portal/model';
 import type { ArrayFieldModel } from './field.model';
 import { ArrayField } from './array-field';
+
+const SELECTORS_PROPERTY: ArrayFieldModel['property'] = {
+  name: 'selectors',
+  inputType: 'stringArray',
+};
 
 const meta: Meta<ArrayField> = {
   title: 'Patterns/Audit Builder/Fields/Array',
@@ -49,11 +53,11 @@ const createStory = ({
 });
 
 export const SingleItem: Story = createStory({
-  property: STEP_PROPERTY.selectors,
+  property: SELECTORS_PROPERTY,
   control: createControl(['aria/Search input']),
 });
 
 export const MultipleItems: Story = createStory({
-  property: STEP_PROPERTY.selectors,
+  property: SELECTORS_PROPERTY,
   control: createControl(['aria/Search input', 'input[name="query"]', '#search']),
 });

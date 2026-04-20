@@ -1,5 +1,6 @@
 import type { AbstractControl, FormArray, FormControl } from '@angular/forms';
-import type { InputType } from '@app-speed/audit/portal/model';
+
+type InputType = 'string' | 'number' | 'boolean' | 'options' | 'stringArray' | 'numberArray' | 'records';
 
 type FieldOptionValue = string | boolean;
 
