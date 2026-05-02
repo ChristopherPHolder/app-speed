@@ -6,7 +6,6 @@ import {
   auditResultRequested,
   auditResultSuccess,
   auditStageUpdated,
-  loadAuditDetails,
   loadAuditDetailsSuccess,
   submitAuditRequest,
   submitAuditRequestFailed,
@@ -18,13 +17,6 @@ import type { FlowResult } from 'lighthouse';
 import type { AuditStage } from './builder.actions';
 
 export const auditBuilderFeatureKey = 'auditBuilder';
-
-const AUDIT_BUILDER_STATUS = {
-  PENDING: 'pending',
-  LOADING: 'loading',
-  ERROR: 'error',
-  SUCCESS: 'success',
-} as const;
 
 type LoadingDialogState = StatusDialogModel | null;
 
@@ -88,8 +80,6 @@ const getLoadingDialog = ({
 
 export interface AuditBuilderState {
   audit: AuditDetails | null;
-  error: string | null;
-  status: (typeof AUDIT_BUILDER_STATUS)[keyof typeof AUDIT_BUILDER_STATUS];
   submittingRequest: boolean;
   auditRequestError: string | null;
   modifying: boolean;
@@ -105,8 +95,6 @@ export interface AuditBuilderState {
 
 export const initialState: AuditBuilderState = {
   audit: null,
-  error: null,
-  status: 'pending',
   submittingRequest: false,
   auditRequestError: null,
   modifying: true,
@@ -221,14 +209,9 @@ export const auditBuilderReducer = createReducer(
     audit: audit,
     auditRequestError: null,
   })),
-  on(loadAuditDetails, (state) => ({
-    ...state,
-    status: AUDIT_BUILDER_STATUS.LOADING,
-  })),
   on(loadAuditDetailsSuccess, (state, { audit }) => ({
     ...state,
     audit: audit,
-    status: AUDIT_BUILDER_STATUS.PENDING,
   })),
 );
 

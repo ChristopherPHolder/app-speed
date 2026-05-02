@@ -5,7 +5,6 @@ Vertical audit builder module for the portal.
 Exports:
 - `auditBuilderRoutes`
 - `BuilderComponent`
-- `AuditBuilderApiService`
 - `AuditProgressService`
 - `AuditBuilderComponent`
 

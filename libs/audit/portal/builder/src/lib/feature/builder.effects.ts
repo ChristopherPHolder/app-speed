@@ -37,8 +37,8 @@ const loadAuditDetailsEffect = createEffect(
         if (auditDetailsQuery) {
           try {
             return loadAuditDetailsSuccess({ audit: JSON.parse(auditDetailsQuery) });
-          } catch (e) {
-            console.error('Error parsing audit details from query params', e);
+          } catch {
+            // fall through to defaults below
           }
         }
         return loadAuditDetailsFailed();
@@ -76,7 +76,6 @@ const loadAuditDetailsFailedEffect = createEffect(
   (actions$ = inject(Actions)) =>
     actions$.pipe(
       ofType(loadAuditDetailsFailed),
-      tap(() => console.error('Failed to load audit details, falling back to defaults')),
       map(() => updateAuditDetails({ audit: DEFAULT_AUDIT_DETAILS })),
     ),
   { functional: true },

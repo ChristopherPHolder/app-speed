@@ -42,7 +42,6 @@ export class BuilderComponent implements OnInit {
 
   ngOnInit() {
     this.store.dispatch(loadAuditDetails());
-    this.auditDetails$.subscribe(console.log);
 
     this.auditLoadingDialog$
       .pipe(
