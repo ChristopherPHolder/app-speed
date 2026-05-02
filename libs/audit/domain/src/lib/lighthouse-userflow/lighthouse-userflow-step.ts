@@ -1,6 +1,5 @@
 import { Schema } from 'effect';
 import { LIGHTHOUSE_AUDIT_STEP_TYPE } from './lighthouse-userflow-step-type';
-import { CustomStepParamsSchema } from '../puppeteer-replay/puppeteer-replay-step';
 import {
   PuppeteerReplayStepTypeSchema,
   PUPPETEER_REPLAY_CUSTOM_STEP_TYPE,
@@ -79,7 +78,7 @@ const UserflowStepTypeWithStepFlagsScheme = Schema.transform(
   {
     strict: true,
     decode: ({ type, name }) => ({
-      type: CustomStepParamsSchema.fields.type.literals[0],
+      type: PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP,
       name: type,
       parameters: { name },
     }),
@@ -102,7 +101,7 @@ const UserflowStepTypeWithoutStepFlagsScheme = Schema.transform(
   {
     strict: true,
     decode: ({ type }) => ({
-      type: CustomStepParamsSchema.fields.type.literals[0],
+      type: PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP,
       name: type,
       parameters: undefined,
     }),
