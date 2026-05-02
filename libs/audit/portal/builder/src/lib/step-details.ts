@@ -8,13 +8,13 @@ import { PROPERTY_NAME, PropertyName } from './property-name';
 import { InputType } from './input-type';
 
 export type StepDetails = {
-  type: StepType;
+  type: StepType | '';
   properties: StepProperty[];
   description?: string;
 };
 
 export const EMPTY_STEP: StepDetails = {
-  type: STEP_TYPE.EMPTY,
+  type: '',
   properties: [STEP_PROPERTY.type],
 };
 
