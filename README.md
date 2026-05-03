@@ -1,11 +1,10 @@
-<p align="center">
-  <img src="apps/portal/src/assets/logo.svg" alt="AppSpeed logo" width="120" />
-</p>
-
 # AppSpeed
 
+<p align="center">
+  <img src="apps/portal/src/assets/logo.svg" alt="AppSpeed logo" width="400" />
+</p>
+
 AppSpeed runs Lighthouse user-flow audits in a stable environment.
-The workspace contains a web portal, an API control plane, a runner process, and shared audit domain libraries.
 
 ## Current Architecture
 
