@@ -1,10 +1,8 @@
-# AppSpeed
-
-<p align="center">
-  <img src="apps/portal/src/assets/logo.svg" alt="AppSpeed logo" width="400" />
+<h1 align="center">AppSpeed - Web Application Performance Insight</h1>
+<h3 align="center">Go beyond initial load. Measure the performance users actually experience.</h3>
+<p>
+    <img src="apps/portal/src/assets/logo.svg" alt="AppSpeed logo" width="400" />
 </p>
-
-AppSpeed runs Lighthouse user-flow audits in a stable environment.
 
 ## Current Architecture
 
