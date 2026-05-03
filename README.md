@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="apps/portal/src/assets/logo.svg" alt="AppSpeed logo" width="120" />
+</p>
+
 # AppSpeed
 
 AppSpeed runs Lighthouse user-flow audits in a stable environment.
