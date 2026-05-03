@@ -44,7 +44,6 @@ export class AuditFormGroup extends FormGroup<{
   }
 
   addStepAt(index: number) {
-    // @ts-expect-error expected as we add an invalid step type to allow user to choose
     this.controls.steps.insert(index, new StepFormGroup({ type: '' }));
   }
   removeStepAt(index: number) {
@@ -125,8 +124,7 @@ export class StepFormGroup extends FormGroup {
     this.removeControl(field);
   }
 
-  private setupControls(stepType: string, step?: AuditStep): void {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  private setupControls(stepType: string, step?: Step | AuditStep): void {
     const stepSchema = STEP_OPTIONS.find(({ type }) => type === stepType)!;
     this.stepSchema = stepSchema;
 

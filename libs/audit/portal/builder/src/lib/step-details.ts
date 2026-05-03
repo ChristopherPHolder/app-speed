@@ -249,4 +249,6 @@ const USER_STEPS: StepDetails[] = [
 export const STEP_OPTIONS = [EMPTY_STEP, ASSERTION_STEPS, USER_STEPS, AUDIT_STEPS].flat();
 
 // @TODO improve this type
-export type Step = { [PROPERTY_NAME.TYPE]: StepType } & Partial<Record<PropertyName, InputType>>;
+export type Step = { [PROPERTY_NAME.TYPE]: StepDetails['type'] } & Partial<
+  Record<Exclude<PropertyName, typeof PROPERTY_NAME.TYPE>, InputType>
+>;

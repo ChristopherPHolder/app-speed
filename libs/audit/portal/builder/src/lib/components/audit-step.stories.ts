@@ -3,6 +3,7 @@ import { provideAuditBuilderIcons } from '@app-speed/audit/portal/ui/icons';
 import { STEP_TYPE } from '@app-speed/audit/domain';
 import { StepFormGroup } from './audit-builder-form';
 import { AuditStepComponent } from './audit-step.component';
+import type { StepDetails } from '../step-details';
 
 const meta: Meta<AuditStepComponent> = {
   title: 'Patterns/Audit Builder/Step',
@@ -16,13 +17,13 @@ const meta: Meta<AuditStepComponent> = {
 export default meta;
 type Story = StoryObj<AuditStepComponent>;
 
-const createStory = (type: (typeof STEP_TYPE)[keyof typeof STEP_TYPE]): Story => ({
+const createStory = (type: StepDetails['type']): Story => ({
   render: () => {
-    return { props: { stepControl: new StepFormGroup({ type } as never) } };
+    return { props: { stepControl: new StepFormGroup({ type }) } };
   },
 });
 
-export const Empty = createStory(STEP_TYPE.EMPTY);
+export const Empty = createStory('');
 export const StartNavigation = createStory(STEP_TYPE.START_NAVIGATION);
 export const EndNavigation = createStory(STEP_TYPE.END_NAVIGATION);
 export const StartTimespan = createStory(STEP_TYPE.START_TIMESPAN);
