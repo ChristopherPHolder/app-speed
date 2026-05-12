@@ -1,52 +1,55 @@
-import { Config as LighthouseConfig, defaultConfig, desktopConfig } from 'lighthouse';
-import { type Viewport } from 'puppeteer';
+import { defaultConfig, desktopConfig } from 'lighthouse';
 
-import { DEVICE_TYPE, DeviceSchema } from '@app-speed/audit/domain';
+import { DEVICE_TYPE, DeviceSchema, type DeviceType } from '@app-speed/audit/domain';
+import { Effect, Schema, ParseResult } from 'effect';
 
-export type RunnerDeviceConfig = {
-  lighthouse: LighthouseConfig;
-  defaultViewport: Viewport;
-  userAgent: string;
-};
+export class InvalidDeviceConfigurationError extends Schema.TaggedError<InvalidDeviceConfigurationError>()(
+  'InvalidDeviceConfigurationError',
+  {
+    deviceType: DeviceSchema,
+    message: Schema.String,
+    cause: Schema.instanceOf(ParseResult.ParseError),
+  },
+) {}
 
-const createViewport = (config: LighthouseConfig): Viewport => {
-  const screenEmulation = config.settings?.screenEmulation;
+const lighthouseDevicePresets = {
+  [DEVICE_TYPE.MOBILE]: defaultConfig,
+  [DEVICE_TYPE.DESKTOP]: desktopConfig,
+} as const;
 
-  if (
-    !screenEmulation ||
-    screenEmulation.disabled ||
-    screenEmulation.width === undefined ||
-    screenEmulation.height === undefined
-  ) {
-    throw new Error('Missing screen emulation settings for audit runner device config');
-  }
+const LighthouseRunnerSettingsSchema = Schema.Struct({
+  emulatedUserAgent: Schema.String,
+  screenEmulation: Schema.Struct({
+    disabled: Schema.Literal(false),
+    width: Schema.Number,
+    height: Schema.Number,
+    deviceScaleFactor: Schema.Number,
+    mobile: Schema.Boolean,
+  }),
+});
+
+export const DeviceConfiguration = Effect.fn('deviceConfig')(function* (deviceType: DeviceType) {
+  const lighthousePreset = lighthouseDevicePresets[deviceType];
+  const settings = yield* Schema.decodeUnknown(LighthouseRunnerSettingsSchema)(lighthousePreset.settings).pipe(
+    Effect.mapError(
+      (cause) =>
+        new InvalidDeviceConfigurationError({
+          deviceType,
+          message: `Invalid lighthouse device configuration for ${deviceType}`,
+          cause,
+        }),
+    ),
+  );
 
   return {
-    width: screenEmulation.width,
-    height: screenEmulation.height,
-    deviceScaleFactor: screenEmulation.deviceScaleFactor,
-    isMobile: screenEmulation.mobile,
-    hasTouch: screenEmulation.mobile,
+    lighthousePreset,
+    userAgent: settings.emulatedUserAgent,
+    defaultViewport: {
+      width: settings.screenEmulation.width,
+      height: settings.screenEmulation.height,
+      deviceScaleFactor: settings.screenEmulation.deviceScaleFactor,
+      isMobile: settings.screenEmulation.mobile,
+      hasTouch: settings.screenEmulation.mobile,
+    },
   };
-};
-
-const createDeviceConfig = (lighthouse: LighthouseConfig): RunnerDeviceConfig => {
-  const userAgent = lighthouse.settings?.emulatedUserAgent;
-
-  if (typeof userAgent !== 'string' || userAgent.length === 0) {
-    throw new Error('Missing emulated user agent for audit runner device config');
-  }
-
-  const viewport = createViewport(lighthouse);
-
-  return {
-    lighthouse,
-    defaultViewport: viewport,
-    userAgent,
-  };
-};
-
-export const deviceConfiguration = {
-  [DEVICE_TYPE.MOBILE]: createDeviceConfig(defaultConfig),
-  [DEVICE_TYPE.DESKTOP]: createDeviceConfig(desktopConfig),
-} as const satisfies Record<typeof DeviceSchema.Type, RunnerDeviceConfig>;
+});

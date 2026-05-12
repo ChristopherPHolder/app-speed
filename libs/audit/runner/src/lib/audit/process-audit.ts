@@ -4,7 +4,7 @@ import { generateReport, startFlow } from 'lighthouse';
 
 import { PuppeteerReplayUserflowRunnerSchema, ReplayUserflowAudit } from '@app-speed/audit/domain';
 
-import { deviceConfiguration } from './device-configuration';
+import { DeviceConfiguration } from './device-configuration';
 import { RunnerContext } from './runner-context';
 import { UserFlowRunnerExtension } from './runner-extension';
 import { AuditRequestSchema } from '../queue/control-plane.effect';
@@ -28,11 +28,11 @@ export const runAudit = Effect.fn((audit: ReplayUserflowAudit) =>
       Effect.withSpan('runner.audit.parseReplayScript'),
     );
 
-    const runnerDeviceConfiguration = deviceConfiguration[audit.device];
+    const runnerDeviceConfiguration = yield* DeviceConfiguration(audit.device);
     const { browser, page } = yield* RunnerContext(runnerDeviceConfiguration);
 
     const flow = yield* Effect.promise(() =>
-      startFlow(page, { name: audit.title, config: runnerDeviceConfiguration.lighthouse }),
+      startFlow(page, { name: audit.title, config: runnerDeviceConfiguration.lighthousePreset }),
     ).pipe(Effect.withSpan('runner.audit.startFlow'));
 
     const runnerExtension = new UserFlowRunnerExtension(browser, page, flow);
