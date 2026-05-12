@@ -1,37 +1,18 @@
-import { Config, Data, Effect, Schema } from 'effect';
-import { Browser, launch } from 'puppeteer';
+import { Effect, Schema } from 'effect';
 import { createRunner, parse as puppeteerReplayParse } from '@puppeteer/replay';
-import { Config as LighthouseConfig, defaultConfig, desktopConfig, generateReport, startFlow } from 'lighthouse';
+import { generateReport, startFlow } from 'lighthouse';
 
-import {
-  DEVICE_TYPE,
-  DeviceSchema,
-  PuppeteerReplayUserflowRunnerSchema,
-  ReplayUserflowAudit,
-} from '@app-speed/audit/domain';
+import { PuppeteerReplayUserflowRunnerSchema, ReplayUserflowAudit } from '@app-speed/audit/domain';
 
+import { deviceConfiguration } from './device-configuration';
+import { RunnerContext } from './runner-context';
 import { UserFlowRunnerExtension } from './runner-extension';
 import { AuditRequestSchema } from '../queue/control-plane.effect';
 
-const configOptions = {
-  [DEVICE_TYPE.MOBILE]: defaultConfig,
-  [DEVICE_TYPE.DESKTOP]: desktopConfig,
-} as const satisfies Record<typeof DeviceSchema.Type, LighthouseConfig>;
-
-const RunnerContext = Effect.gen(function* () {
-  const headless = yield* Config.boolean('RUNNER_HEADLESS').pipe(Config.withDefault(false));
-  const browser = yield* Effect.acquireRelease(
-    Effect.promise(() => launch({ headless, args: ['--no-sandbox', '--disable-setuid-sandbox'] })),
-    (browser: Browser) => Effect.promise(() => browser.close()),
-  );
-  const page = yield* Effect.promise(() => browser.newPage());
-  return { browser, page };
-}).pipe(Effect.withSpan('runner.audit.acquireContext'));
-
-class RunnerError extends Data.TaggedError('RunnerFailed')<{
-  message: string;
-  cause?: unknown;
-}> {}
+class RunnerError extends Schema.TaggedError<RunnerError>()('RunnerFailed', {
+  message: Schema.String,
+  cause: Schema.optional(Schema.Unknown),
+}) {}
 
 export const runAudit = Effect.fn((audit: ReplayUserflowAudit) =>
   Effect.gen(function* () {
@@ -41,28 +22,28 @@ export const runAudit = Effect.fn((audit: ReplayUserflowAudit) =>
     });
 
     const runnerScript = yield* Schema.decode(PuppeteerReplayUserflowRunnerSchema)(audit).pipe(
-      Effect.withSpan('runner.audit.decodeScript'),
+      Effect.withSpan('runner.audit.decodeRunnerScript'),
     );
     const replayScript = yield* Effect.sync(() => puppeteerReplayParse(runnerScript)).pipe(
-      Effect.withSpan('runner.audit.decodeScript'),
+      Effect.withSpan('runner.audit.parseReplayScript'),
     );
 
-    const { browser, page } = yield* RunnerContext;
+    const runnerDeviceConfiguration = deviceConfiguration[audit.device];
+    const { browser, page } = yield* RunnerContext(runnerDeviceConfiguration);
 
     const flow = yield* Effect.promise(() =>
-      startFlow(page, { name: audit.title, config: { ...configOptions[audit.device] } }),
+      startFlow(page, { name: audit.title, config: runnerDeviceConfiguration.lighthouse }),
     ).pipe(Effect.withSpan('runner.audit.startFlow'));
 
     const runnerExtension = new UserFlowRunnerExtension(browser, page, flow);
 
     yield* Effect.tryPromise({
       try: () => createRunner(replayScript, runnerExtension).then((runner) => runner.run()),
-      catch: (error) => {
-        if (error instanceof Error) {
-          return new RunnerError({ message: error.message, cause: error.cause });
-        }
-        return new RunnerError({ message: 'Audit failed during while running' });
-      },
+      catch: (cause) =>
+        new RunnerError({
+          message: cause instanceof Error ? cause.message : 'Audit failed during while running',
+          cause,
+        }),
     }).pipe(Effect.withSpan('runner.audit.executeReplay'));
 
     const flowResult = yield* Effect.promise(() => flow.createFlowResult()).pipe(
