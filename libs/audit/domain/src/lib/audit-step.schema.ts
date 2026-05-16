@@ -10,7 +10,6 @@ const PuppeteerReplayStepTypeSchema = Schema.Literal(
   PUPPETEER_REPLAY_USER_STEP_TYPE.CHANGE,
   PUPPETEER_REPLAY_USER_STEP_TYPE.CLICK,
   PUPPETEER_REPLAY_USER_STEP_TYPE.CLOSE,
-  PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP,
   PUPPETEER_REPLAY_USER_STEP_TYPE.DOUBLE_CLICK,
   PUPPETEER_REPLAY_USER_STEP_TYPE.EMULATE_NETWORK_CONDITIONS,
   PUPPETEER_REPLAY_USER_STEP_TYPE.HOVER,
@@ -23,7 +22,7 @@ const PuppeteerReplayStepTypeSchema = Schema.Literal(
   PUPPETEER_REPLAY_ASSERTION_STEP_TYPE.WAIT_FOR_EXPRESSION,
 );
 
-const LighthouseUserflowStepTypeSchema = Schema.Literal(
+export const AuditCustomStepTypeSchema = Schema.Literal(
   LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
   LIGHTHOUSE_AUDIT_STEP_TYPE.END_NAVIGATION,
   LIGHTHOUSE_AUDIT_STEP_TYPE.START_TIMESPAN,
@@ -33,7 +32,7 @@ const LighthouseUserflowStepTypeSchema = Schema.Literal(
 
 export const AuditStepTypeSchema = Schema.Union(
   PuppeteerReplayStepTypeSchema,
-  LighthouseUserflowStepTypeSchema,
+  Schema.Literal(PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP),
 ).annotations({
   identifier: 'AuditStepType',
   parseIssueTitle: ({ actual }) => `Invalid audit step type: ${actual || null} is not supported`,
@@ -42,8 +41,12 @@ export const AuditStepTypeSchema = Schema.Union(
 
 export const isStepType = Schema.is(AuditStepTypeSchema);
 
-export const AuditStepSchema = Schema.Struct({
-  type: AuditStepTypeSchema,
+const ReplayAuditStepSchema = Schema.Struct({ type: PuppeteerReplayStepTypeSchema });
+const CustomAuditStepSchema = Schema.Struct({
+  type: AuditStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP)),
+  step: AuditCustomStepTypeSchema,
 });
+
+export const AuditStepSchema = Schema.Union(ReplayAuditStepSchema, CustomAuditStepSchema);
 
 export const isAuditStep = Schema.is(AuditStepSchema);

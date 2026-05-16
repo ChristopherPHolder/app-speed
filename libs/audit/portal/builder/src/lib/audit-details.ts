@@ -1,20 +1,14 @@
-import { DeviceType } from '@app-speed/audit/domain';
-import { Step } from './step-details';
+import { AuditAuthoring } from '@app-speed/audit/domain';
 
-export interface AuditDetails {
-  title: string;
-  device: DeviceType;
-  timeout: number;
-  steps: Step[]; // TODO fix type
-}
+export type AuditDetails = AuditAuthoring;
 
 export const DEFAULT_AUDIT_DETAILS = {
   title: '',
   device: 'mobile',
   timeout: 30000,
   steps: [
-    { type: 'startNavigation', stepOptions: { name: 'Initial Navigation' } },
+    { type: 'customStep', step: 'startNavigation', name: 'Initial Navigation' },
     { type: 'navigate', url: '' },
-    { type: 'endNavigation' },
+    { type: 'customStep', step: 'endNavigation' },
   ],
-} as const as any as AuditDetails;
+} as const satisfies AuditDetails;

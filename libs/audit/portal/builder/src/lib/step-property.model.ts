@@ -6,7 +6,7 @@ import {
   PUPPETEER_REPLAY_USER_STEP_TYPE,
 } from '@app-speed/audit/domain';
 
-const STEP_TYPE_OPTIONS_GROUPED = [
+export const STEP_SELECTION_OPTIONS_GROUPED = [
   {
     label: 'Audit Steps',
     icon: 'lighthouse-badge',
@@ -51,7 +51,7 @@ export const type = {
   name: PROPERTY_NAME.TYPE,
   inputType: INPUT_TYPE.OPTIONS,
   required: true,
-  options: ['', ...STEP_TYPE_OPTIONS_GROUPED],
+  options: ['', ...STEP_SELECTION_OPTIONS_GROUPED],
 } as const satisfies StepProperty;
 
 export const timeout = {

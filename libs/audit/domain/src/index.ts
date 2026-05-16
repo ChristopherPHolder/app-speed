@@ -1,8 +1,8 @@
 export {
   AuditStep,
   PuppeteerReplayUserflowRunnerSchema,
-  ReplayUserflowAudit,
-  ReplayUserflowAuditSchema,
+  AuditAuthoring,
+  AuditAuthoringSchema,
 } from './lib/audit.schema';
 export { STEP_TYPE, StepType } from './lib/step-type';
 export { AppSpeedUserFlow } from './lib/runtime/replay';
@@ -13,6 +13,8 @@ export {
   isReplayUserflowStep,
   ReplayUserflowStepSchema,
   UserflowAuditStepTypeScheme,
+  UserflowRunnerStepSchema,
+  UserflowStepSchema,
   UserflowStepTypeWithStepFlagsLiteral,
   UserflowStepTypeWithoutStepFlagsLiteral,
 } from './lib/lighthouse-userflow/lighthouse-userflow-step';

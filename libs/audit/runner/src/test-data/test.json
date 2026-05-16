@@ -2,13 +2,14 @@
   "title": "Example Title",
   "steps": [
     {
-      "type": "startNavigation",
-      "stepOptions": { "name": "Initial Navigation" }
+      "type": "customStep",
+      "step": "startNavigation",
+      "name": "Initial Navigation"
     },
     {
       "type": "navigate",
       "url": "https://google.com"
     },
-    { "type": "endNavigation" }
+    { "type": "customStep", "step": "endNavigation" }
   ]
 }

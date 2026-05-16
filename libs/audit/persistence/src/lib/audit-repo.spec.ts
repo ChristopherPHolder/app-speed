@@ -6,13 +6,13 @@ import path from 'node:path';
 import { auditResultTable, auditRunTable, auditTemplateTable } from './schema';
 
 import { AuditRepo, AuditRepoLive } from './audit-repo';
-import { ReplayUserflowAudit } from '@app-speed/audit/domain';
+import { AuditAuthoring } from '@app-speed/audit/domain';
 import { DbClient } from './db';
 
-const sampleAudit: ReplayUserflowAudit = {
+const sampleAudit: AuditAuthoring = {
   title: 'Sample audit',
   device: 'desktop',
-  steps: [{ type: 'snapshot' }],
+  steps: [{ type: 'customStep', step: 'snapshot' }],
 };
 
 const testDbDir = path.join(process.cwd(), 'tmp');

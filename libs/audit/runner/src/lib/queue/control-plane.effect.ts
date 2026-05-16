@@ -1,11 +1,11 @@
 import { EC2Client, StopInstancesCommand } from '@aws-sdk/client-ec2';
 import { HttpClient, HttpClientRequest, HttpClientResponse } from '@effect/platform';
 import { Clock, Config, Data, Effect, Match, Option, Schema } from 'effect';
-import { ReplayUserflowAuditSchema } from '@app-speed/audit/domain';
+import { AuditAuthoringSchema } from '@app-speed/audit/domain';
 
 export const AuditRequestSchema = Schema.Struct({
   auditId: Schema.String,
-  auditDetails: ReplayUserflowAuditSchema,
+  auditDetails: AuditAuthoringSchema,
 });
 export type AuditRequest = typeof AuditRequestSchema.Type;
 
@@ -14,7 +14,7 @@ const RunnerClaimResponseSchema = Schema.Union(
   Schema.Struct({
     available: Schema.Literal(true),
     auditId: Schema.String,
-    auditDetails: ReplayUserflowAuditSchema,
+    auditDetails: AuditAuthoringSchema,
   }),
 );
 

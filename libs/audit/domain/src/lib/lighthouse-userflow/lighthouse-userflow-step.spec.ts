@@ -3,17 +3,25 @@ import { describe, it, expect } from '@effect/vitest';
 import { StepType } from '@puppeteer/replay';
 import { LIGHTHOUSE_AUDIT_STEP_TYPE } from './lighthouse-userflow-step-type';
 
-import { UserflowAuditStepSchema } from './lighthouse-userflow-step';
+import {
+  ReplayUserflowStepSchema,
+  UserflowRunnerStepSchema,
+  UserflowSnapshotStepSchema,
+  UserflowStartNavigationStepSchema,
+  UserflowStartTimespanStepSchema,
+  UserflowStepSchema,
+} from './lighthouse-userflow-step';
 
-describe('UserflowAuditStepSchema', () => {
-  it.effect('should decode UserflowAuditStep', () =>
+describe('UserflowRunnerStepSchema', () => {
+  it.effect('should decode an explicit custom-step authoring schema', () =>
     Effect.gen(function* () {
       const startNavigationStep = {
-        type: LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
+        type: 'customStep',
+        step: LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
         name: 'Home Page',
       };
 
-      const decoded = yield* Schema.decodeUnknown(UserflowAuditStepSchema)(startNavigationStep);
+      const decoded = yield* Schema.decodeUnknown(UserflowRunnerStepSchema)(startNavigationStep);
 
       expect(decoded).toEqual({
         type: StepType.CustomStep,
@@ -26,11 +34,12 @@ describe('UserflowAuditStepSchema', () => {
   it.effect('decodes lighthouse steps with flags into replay steps', () =>
     Effect.gen(function* () {
       const input = {
-        type: LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
+        type: 'customStep',
+        step: LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
         name: 'Home Page',
       };
 
-      const decoded = yield* Schema.decodeUnknown(UserflowAuditStepSchema)(input);
+      const decoded = yield* Schema.decodeUnknown(UserflowRunnerStepSchema)(input);
 
       expect(decoded).toEqual({
         type: StepType.CustomStep,
@@ -43,10 +52,11 @@ describe('UserflowAuditStepSchema', () => {
   it.effect('decodes lighthouse steps without flags into replay steps', () =>
     Effect.gen(function* () {
       const input = {
-        type: LIGHTHOUSE_AUDIT_STEP_TYPE.END_NAVIGATION,
+        type: 'customStep',
+        step: LIGHTHOUSE_AUDIT_STEP_TYPE.END_NAVIGATION,
       };
 
-      const decoded = yield* Schema.decodeUnknown(UserflowAuditStepSchema)(input);
+      const decoded = yield* Schema.decodeUnknown(UserflowRunnerStepSchema)(input);
 
       expect(decoded).toEqual({
         type: StepType.CustomStep,
@@ -56,17 +66,44 @@ describe('UserflowAuditStepSchema', () => {
     }),
   );
 
-  it.effect('accepts replay custom steps as-is', () =>
-    Effect.gen(function* () {
-      const input = {
+  it('rejects replay-shaped custom steps as authoring input', () => {
+    expect(
+      Schema.is(UserflowStepSchema)({
         type: StepType.CustomStep,
         name: LIGHTHOUSE_AUDIT_STEP_TYPE.SNAPSHOT,
         parameters: { name: 'Snapshot step' },
-      };
+      }),
+    ).toBe(false);
+  });
 
-      const decoded = yield* Schema.decodeUnknown(UserflowAuditStepSchema)(input);
+  it('validates each explicit authoring schema', () => {
+    expect(
+      Schema.is(UserflowStartNavigationStepSchema)({
+        type: 'customStep',
+        step: LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
+      }),
+    ).toBe(true);
+    expect(
+      Schema.is(UserflowStartTimespanStepSchema)({
+        type: 'customStep',
+        step: LIGHTHOUSE_AUDIT_STEP_TYPE.START_TIMESPAN,
+      }),
+    ).toBe(true);
+    expect(
+      Schema.is(UserflowSnapshotStepSchema)({
+        type: 'customStep',
+        step: LIGHTHOUSE_AUDIT_STEP_TYPE.SNAPSHOT,
+      }),
+    ).toBe(true);
+  });
 
-      expect(decoded).toEqual(input);
-    }),
-  );
+  it('exposes replay custom-step output separately from the authoring schemas', () => {
+    expect(
+      Schema.is(ReplayUserflowStepSchema)({
+        type: StepType.CustomStep,
+        name: LIGHTHOUSE_AUDIT_STEP_TYPE.END_TIMESPAN,
+        parameters: undefined,
+      }),
+    ).toBe(true);
+  });
 });
