@@ -1,29 +1,35 @@
 import type { Step as PuppeteerReplayStep, UserFlow as PuppeteerReplayUserFlow } from '@puppeteer/replay';
+import { PUPPETEER_REPLAY_CUSTOM_STEP_TYPE } from '../puppeteer-replay/puppeteer-replay-step-type';
 import { LIGHTHOUSE_AUDIT_STEP_TYPE } from '../lighthouse-userflow/lighthouse-userflow-step-type';
 
 // @TODO Move to global types and explain what it does
 type Modify<T, R> = Omit<T, keyof R> & R;
 
 interface StartNavigationStep {
-  type: typeof LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION;
+  type: typeof PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP;
+  step: typeof LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION;
   name?: string;
 }
 
 interface EndNavigationStep {
-  type: typeof LIGHTHOUSE_AUDIT_STEP_TYPE.END_NAVIGATION;
+  type: typeof PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP;
+  step: typeof LIGHTHOUSE_AUDIT_STEP_TYPE.END_NAVIGATION;
 }
 
 interface StartTimespanStep {
-  type: typeof LIGHTHOUSE_AUDIT_STEP_TYPE.START_TIMESPAN;
+  type: typeof PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP;
+  step: typeof LIGHTHOUSE_AUDIT_STEP_TYPE.START_TIMESPAN;
   name?: string;
 }
 
 interface EndTimespanStep {
-  type: typeof LIGHTHOUSE_AUDIT_STEP_TYPE.END_TIMESPAN;
+  type: typeof PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP;
+  step: typeof LIGHTHOUSE_AUDIT_STEP_TYPE.END_TIMESPAN;
 }
 
 interface SnapshotStep {
-  type: typeof LIGHTHOUSE_AUDIT_STEP_TYPE.SNAPSHOT;
+  type: typeof PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP;
+  step: typeof LIGHTHOUSE_AUDIT_STEP_TYPE.SNAPSHOT;
   name?: string;
 }
 

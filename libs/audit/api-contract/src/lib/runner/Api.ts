@@ -1,7 +1,7 @@
 import { HttpApiEndpoint, HttpApiError, HttpApiGroup } from '@effect/platform';
 import { Schema } from 'effect';
 
-import { ReplayUserflowAuditSchema } from '@app-speed/audit/domain';
+import { AuditAuthoringSchema } from '@app-speed/audit/domain';
 
 import { AuditErrorSchema, AuditId, AuditResultStatusSchema } from '../audit/Audit';
 
@@ -18,7 +18,7 @@ const RunnerClaimResponseSchema = Schema.Union(
   Schema.Struct({
     available: Schema.Literal(true),
     auditId: AuditId,
-    auditDetails: ReplayUserflowAuditSchema,
+    auditDetails: AuditAuthoringSchema,
   }),
 );
 

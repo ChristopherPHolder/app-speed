@@ -1,9 +1,9 @@
 import { applicationConfig, type Meta, type StoryObj } from '@storybook/angular';
 import { provideAuditBuilderIcons } from '@app-speed/audit/portal/ui/icons';
-import { STEP_TYPE } from '@app-speed/audit/domain';
+import { LIGHTHOUSE_AUDIT_STEP_TYPE, STEP_TYPE } from '@app-speed/audit/domain';
 import { StepFormGroup } from './audit-builder-form';
 import { AuditStepComponent } from './audit-step.component';
-import type { StepDetails } from '../step-details';
+import type { Step } from '../step-details';
 
 const meta: Meta<AuditStepComponent> = {
   title: 'Patterns/Audit Builder/Step',
@@ -17,28 +17,56 @@ const meta: Meta<AuditStepComponent> = {
 export default meta;
 type Story = StoryObj<AuditStepComponent>;
 
-const createStory = (type: StepDetails['type']): Story => ({
+const createStory = (step: Step): Story => ({
   render: () => {
-    return { props: { stepControl: new StepFormGroup({ type }) } };
+    return { props: { stepControl: new StepFormGroup(step) } };
   },
 });
 
-export const Empty = createStory('');
-export const StartNavigation = createStory(STEP_TYPE.START_NAVIGATION);
-export const EndNavigation = createStory(STEP_TYPE.END_NAVIGATION);
-export const StartTimespan = createStory(STEP_TYPE.START_TIMESPAN);
-export const EndTimespan = createStory(STEP_TYPE.END_TIMESPAN);
-export const Snapshot = createStory(STEP_TYPE.SNAPSHOT);
-export const WaitForElement = createStory(STEP_TYPE.WAIT_FOR_ELEMENT);
-export const WaitForExpression = createStory(STEP_TYPE.WAIT_FOR_EXPRESSION);
-export const Change = createStory(STEP_TYPE.CHANGE);
-export const Click = createStory(STEP_TYPE.CLICK);
-export const Close = createStory(STEP_TYPE.CLOSE);
-export const DoubleClick = createStory(STEP_TYPE.DOUBLE_CLICK);
-export const EmulateNetworkConditions = createStory(STEP_TYPE.EMULATE_NETWORK_CONDITIONS);
-export const Hover = createStory(STEP_TYPE.HOVER);
-export const KeyDown = createStory(STEP_TYPE.KEY_DOWN);
-export const KeyUp = createStory(STEP_TYPE.KEY_UP);
-export const Navigate = createStory(STEP_TYPE.NAVIGATE);
-export const Scroll = createStory(STEP_TYPE.SCROLL);
-export const SetViewport = createStory(STEP_TYPE.SET_VIEWPORT);
+export const Empty = createStory({ type: '' });
+export const StartNavigation = createStory({
+  type: STEP_TYPE.CUSTOM_STEP,
+  step: LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
+});
+export const EndNavigation = createStory({
+  type: STEP_TYPE.CUSTOM_STEP,
+  step: LIGHTHOUSE_AUDIT_STEP_TYPE.END_NAVIGATION,
+});
+export const StartTimespan = createStory({
+  type: STEP_TYPE.CUSTOM_STEP,
+  step: LIGHTHOUSE_AUDIT_STEP_TYPE.START_TIMESPAN,
+});
+export const EndTimespan = createStory({
+  type: STEP_TYPE.CUSTOM_STEP,
+  step: LIGHTHOUSE_AUDIT_STEP_TYPE.END_TIMESPAN,
+});
+export const Snapshot = createStory({
+  type: STEP_TYPE.CUSTOM_STEP,
+  step: LIGHTHOUSE_AUDIT_STEP_TYPE.SNAPSHOT,
+});
+export const WaitForElement = createStory({ type: STEP_TYPE.WAIT_FOR_ELEMENT, count: 1, selectors: [''] });
+export const WaitForExpression = createStory({ type: STEP_TYPE.WAIT_FOR_EXPRESSION, expression: '' });
+export const Change = createStory({ type: STEP_TYPE.CHANGE, selectors: [''], value: '' });
+export const Click = createStory({ type: STEP_TYPE.CLICK, offsetX: 1, offsetY: 1, selectors: [''] });
+export const Close = createStory({ type: STEP_TYPE.CLOSE });
+export const DoubleClick = createStory({ type: STEP_TYPE.DOUBLE_CLICK, offsetX: 1, offsetY: 1, selectors: [''] });
+export const EmulateNetworkConditions = createStory({
+  type: STEP_TYPE.EMULATE_NETWORK_CONDITIONS,
+  download: 1,
+  latency: 1,
+  upload: 1,
+});
+export const Hover = createStory({ type: STEP_TYPE.HOVER, selectors: [''] });
+export const KeyDown = createStory({ type: STEP_TYPE.KEY_DOWN, key: '' });
+export const KeyUp = createStory({ type: STEP_TYPE.KEY_UP, key: '' });
+export const Navigate = createStory({ type: STEP_TYPE.NAVIGATE, url: '' });
+export const Scroll = createStory({ type: STEP_TYPE.SCROLL, x: 1, y: 1 });
+export const SetViewport = createStory({
+  type: STEP_TYPE.SET_VIEWPORT,
+  deviceScaleFactor: 1,
+  hasTouch: false,
+  height: 1,
+  isLandscape: false,
+  isMobile: false,
+  width: 1,
+});

@@ -1,6 +1,6 @@
 import { Schema } from 'effect';
 
-import { ReplayUserflowAuditSchema } from '@app-speed/audit/domain';
+import { AuditAuthoringSchema } from '@app-speed/audit/domain';
 
 export const AuditTemplateIdSchema = Schema.NonEmptyString.pipe(Schema.brand('AuditTemplateId'));
 export type AuditTemplateId = typeof AuditTemplateIdSchema.Type;
@@ -13,7 +13,7 @@ export type AuditStatus = typeof AuditStatusSchema.Type;
 
 const AuditTemplateRecordSchema = Schema.Struct({
   id: AuditTemplateIdSchema,
-  data: ReplayUserflowAuditSchema,
+  data: AuditAuthoringSchema,
   createAt: Schema.DateFromSelf,
   updatedAt: Schema.DateFromSelf,
 });
@@ -22,7 +22,7 @@ export type AuditTemplateRecord = typeof AuditTemplateRecordSchema.Type;
 const AuditRunRecordSchema = Schema.Struct({
   id: AuditRunIdSchema,
   templateId: AuditTemplateIdSchema,
-  data: ReplayUserflowAuditSchema,
+  data: AuditAuthoringSchema,
   status: AuditStatusSchema,
   createdAt: Schema.DateFromSelf,
   updatedAt: Schema.DateFromSelf,

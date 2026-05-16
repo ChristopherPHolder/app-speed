@@ -1,10 +1,10 @@
 import { signal } from '@angular/core';
 import { AbstractControl, FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
-import { AuditStep, DEVICE_OPTIONS, DeviceType } from '@app-speed/audit/domain';
+import { AuditStep, DeviceType, STEP_TYPE } from '@app-speed/audit/domain';
 import { AuditDetails } from '../audit-details';
 import { InputType } from '../input-type';
 import { PropertyName } from '../property-name';
-import { STEP_OPTIONS, StepDetails, Step } from '../step-details';
+import { EMPTY_STEP, findStepDetails, Step, StepDetails, StepSelection, stepSelectionFromStep } from '../step-details';
 import { StepProperty } from '../step-property.model';
 
 import { stepPropertyFactoryMap } from './step-property';
@@ -28,11 +28,11 @@ export class AuditFormGroup extends FormGroup<{
         validators: [Validators.required],
         nonNullable: true,
       }),
-      device: new FormControl<DeviceType>(DEVICE_OPTIONS[0], {
+      device: new FormControl<DeviceType>(audit.device, {
         validators: [Validators.required],
         nonNullable: true,
       }),
-      timeout: new FormControl<number>(30000, {
+      timeout: new FormControl<number>(audit.timeout ?? 30000, {
         validators: [Validators.required],
         nonNullable: true,
       }),
@@ -50,12 +50,14 @@ export class AuditFormGroup extends FormGroup<{
     this.controls.steps.removeAt(index);
   }
 }
-
 export class StepFormGroup extends FormGroup {
-  readonly fields = signal<PropertyName[]>(['type']);
+  readonly fields = signal<PropertyName[]>([]);
   readonly optionalFields = signal<PropertyName[]>([]);
-
-  stepSchema!: StepDetails;
+  readonly selectionControl = new FormControl<StepSelection | ''>('', {
+    validators: [Validators.required],
+    nonNullable: true,
+  });
+  stepSchema: StepDetails = EMPTY_STEP;
 
   stepProperty<TInputType extends InputType = InputType>(propertyName: PropertyName): StepProperty<TInputType> {
     const stepProperty = this.stepSchema.properties.find((prop) => prop.name === propertyName);
@@ -106,9 +108,9 @@ export class StepFormGroup extends FormGroup {
   }
 
   constructor(step: Step | AuditStep) {
-    const typeControl = stepPropertyFactoryMap.type(step);
-    super({ type: typeControl });
-    this.setupControls(step.type, step);
+    super({});
+    this.selectionControl.setValue(stepSelectionFromStep(step));
+    this.setupControls(this.selectionControl.value, step);
   }
 
   addOptionalField(field: PropertyName): void {
@@ -124,30 +126,43 @@ export class StepFormGroup extends FormGroup {
     this.removeControl(field);
   }
 
-  private setupControls(stepType: string, step?: Step | AuditStep): void {
-    const stepSchema = STEP_OPTIONS.find(({ type }) => type === stepType)!;
+  private setupControls(stepSelection: StepSelection | '', step?: Step | AuditStep): void {
+    const stepSchema = findStepDetails(stepSelection);
     this.stepSchema = stepSchema;
+    this.addControl('type', stepPropertyFactoryMap.type(stepSchema.step));
+
+    if (stepSchema.step.type === STEP_TYPE.CUSTOM_STEP) {
+      this.addControl(
+        'step',
+        new FormControl(stepSchema.step.step, {
+          validators: [Validators.required],
+          nonNullable: true,
+        }),
+      );
+    }
 
     const stepProperties = stepSchema.properties
-      .filter((prop) => prop.name !== 'type')
       .filter((prop) => prop.required || (step && prop.name in step));
     stepProperties.forEach((stepProperty) =>
       this.addControl(stepProperty.name, stepPropertyFactoryMap[stepProperty.name](step)),
     );
 
-    const stepActiveFields: PropertyName[] = ['type', ...stepProperties.map(({ name }) => name)];
+    const stepActiveFields = stepProperties.map(({ name }) => name);
     this.fields.set(stepActiveFields);
     this.optionalFields.set(
       stepSchema.properties.filter(({ name }) => !stepActiveFields.includes(name)).map(({ name }) => name),
     );
   }
 
-  resetStepControls(stepType: string): void {
-    Object.keys(this.controls)
-      .filter((key) => key !== 'type')
-      .forEach((key) => {
-        this.removeControl(key);
-      });
-    this.setupControls(stepType);
+  resetStepControls(stepSelection: StepSelection | ''): void {
+    if (this.selectionControl.value !== stepSelection) {
+      this.selectionControl.setValue(stepSelection, { emitEvent: false });
+    }
+
+    Object.keys(this.controls).forEach((key) => {
+      this.removeControl(key);
+    });
+
+    this.setupControls(stepSelection);
   }
 }

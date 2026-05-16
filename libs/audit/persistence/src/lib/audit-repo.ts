@@ -1,6 +1,6 @@
 import { Context, Effect, Layer, ParseResult } from 'effect';
 
-import { ReplayUserflowAudit } from '@app-speed/audit/domain';
+import { AuditAuthoring } from '@app-speed/audit/domain';
 
 import { DbClient, QueryError } from './db';
 import { createRun, createTemplate, getTemplateById } from './audit-repo/builder';
@@ -21,7 +21,7 @@ import { getResultByRunId, getRunById } from './audit-repo/viewer';
 export class AuditRepo extends Context.Tag('AuditRepo')<
   AuditRepo,
   {
-    createTemplate: (audit: ReplayUserflowAudit) => Effect.Effect<AuditTemplateId, QueryError>;
+    createTemplate: (audit: AuditAuthoring) => Effect.Effect<AuditTemplateId, QueryError>;
     getTemplateById: (
       id: AuditTemplateId,
     ) => Effect.Effect<AuditTemplateRecord | null, QueryError | ParseResult.ParseError>;
@@ -63,7 +63,7 @@ export const AuditRepoLive = Layer.effect(
     const db = yield* DbClient;
 
     return {
-      createTemplate: (audit: ReplayUserflowAudit) => createTemplate(audit).pipe(Effect.provideService(DbClient, db)),
+      createTemplate: (audit: AuditAuthoring) => createTemplate(audit).pipe(Effect.provideService(DbClient, db)),
       getTemplateById: (id: AuditTemplateId) => getTemplateById(id).pipe(Effect.provideService(DbClient, db)),
       createRun: (templateId: AuditTemplateId) => createRun(templateId).pipe(Effect.provideService(DbClient, db)),
       claimNextRun: () => claimNextRun().pipe(Effect.provideService(DbClient, db)),
