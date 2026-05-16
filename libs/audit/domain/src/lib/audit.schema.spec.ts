@@ -4,7 +4,7 @@ import { it } from '@effect/vitest';
 import { LIGHTHOUSE_AUDIT_STEP_TYPE } from './lighthouse-userflow/lighthouse-userflow-step-type';
 import { AuditSchema, PuppeteerReplayUserflowRunnerSchema } from './audit.schema';
 
-describe('ReplayRunnerSchema', () => {
+describe('PuppeteerReplayUserflowRunnerSchema', () => {
   it('should decode to replay schema', () => {
     const recording = {
       title: 'Stub audit title',

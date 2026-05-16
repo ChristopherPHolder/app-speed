@@ -25,7 +25,7 @@ import {
 } from './puppeteer-replay/puppeteer-replay-step';
 import { DeviceSchema } from './shared/device-type';
 
-const AuthoringPuppeteerReplaySteps = [
+const AuditPuppeteerReplaySteps = [
   ChangeStepSchema,
   ClickStepSchema,
   CloseStepSchema,
@@ -41,26 +41,25 @@ const AuthoringPuppeteerReplaySteps = [
   WaitForExpressionStepSchema,
 ];
 
-export const AuditAuthoringStepSchema = Schema.Union(
-  ...AuthoringPuppeteerReplaySteps,
+export const AuditStepSchema = Schema.Union(
+  ...AuditPuppeteerReplaySteps,
   UserflowStartNavigationStepSchema,
   UserflowEndNavigationStepSchema,
   UserflowStartTimespanStepSchema,
   UserflowEndTimespanStepSchema,
   UserflowSnapshotStepSchema,
 ).annotations({
-  title: 'AuditAuthoringStep',
+  title: 'AuditStep',
 });
 
-const RunnerStepSchema = Schema.Union(...AuthoringPuppeteerReplaySteps, UserflowRunnerStepSchema);
+const RunnerStepSchema = Schema.Union(...AuditPuppeteerReplaySteps, UserflowRunnerStepSchema);
 
-export type AuditStep = typeof AuditAuthoringStepSchema.Type;
-const AuditStepsSchema = Schema.NonEmptyArray(AuditAuthoringStepSchema);
+export type AuditStep = typeof AuditStepSchema.Type;
+const AuditStepsSchema = Schema.NonEmptyArray(AuditStepSchema);
 const RunnerStepsSchema = Schema.NonEmptyArray(RunnerStepSchema);
 
 const RequiresAuditStepSchemaFilter = Schema.filter<typeof AuditStepsSchema>(
-  (steps) =>
-    !!steps.filter((step) => Schema.is(UserflowStepSchema)(step)).length || 'Requires at least one audit steps',
+  (steps) => !!steps.filter((step) => Schema.is(UserflowStepSchema)(step)).length || 'Requires at least one audit step',
 );
 
 const NonNegativeIntFromStringSchema = Schema.NumberFromString.pipe(Schema.int(), Schema.nonNegative()).annotations({
@@ -77,7 +76,7 @@ export const AuditSchema = Schema.Struct({
   title: Schema.NonEmptyString,
   device: DeviceSchema,
   timeout: TimeoutSchema,
-  steps: Schema.NonEmptyArray(AuditAuthoringStepSchema)
+  steps: Schema.NonEmptyArray(AuditStepSchema)
     .pipe(RequiresAuditStepSchemaFilter)
     .annotations({ title: 'AuditSteps' }),
 }).annotations({ title: 'Audit' });
@@ -85,7 +84,7 @@ export const AuditSchema = Schema.Struct({
 export type Audit = typeof AuditSchema.Type;
 
 /**
- * The Puppeteer Replay Userflow Runner Schema parseble and executable by puppeteer replay when decoded.
+ * The Puppeteer Replay Userflow Runner Schema parseable and executable by puppeteer replay when decoded.
  */
 export const PuppeteerReplayUserflowRunnerSchema = Schema.Struct({
   ...AuditSchema.fields,
