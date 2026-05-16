@@ -30,4 +30,40 @@ describe('StepFormGroup', () => {
     });
     expect(formGroup.fields()).toEqual(['name']);
   });
+
+  it('selecting clearCache produces a parameterless custom step', () => {
+    const formGroup = new StepFormGroup({ type: '' });
+
+    formGroup.resetStepControls(LIGHTHOUSE_AUDIT_STEP_TYPE.CLEAR_CACHE);
+
+    expect(formGroup.selectionControl.value).toBe(LIGHTHOUSE_AUDIT_STEP_TYPE.CLEAR_CACHE);
+    expect(formGroup.getRawValue()).toEqual({
+      type: 'customStep',
+      step: LIGHTHOUSE_AUDIT_STEP_TYPE.CLEAR_CACHE,
+    });
+    expect(formGroup.fields()).toEqual([]);
+    expect(formGroup.optionalFields()).toEqual([]);
+  });
+
+  it('selecting addCookie exposes required fields first and optional properties separately', () => {
+    const formGroup = new StepFormGroup({ type: '' });
+
+    formGroup.resetStepControls(LIGHTHOUSE_AUDIT_STEP_TYPE.ADD_COOKIE);
+
+    expect(formGroup.selectionControl.value).toBe(LIGHTHOUSE_AUDIT_STEP_TYPE.ADD_COOKIE);
+    expect(formGroup.getRawValue()).toMatchObject({
+      type: 'customStep',
+      step: LIGHTHOUSE_AUDIT_STEP_TYPE.ADD_COOKIE,
+      name: '',
+      value: '',
+      url: '',
+    });
+    expect(formGroup.fields()).toEqual(['name', 'value', 'url']);
+    expect(formGroup.optionalFields()).toEqual(['domain', 'path', 'secure', 'httpOnly', 'sameSite']);
+
+    formGroup.addOptionalField('sameSite');
+
+    expect(formGroup.fields()).toEqual(['name', 'value', 'url', 'sameSite']);
+    expect(formGroup.optionalFields()).toEqual(['domain', 'path', 'secure', 'httpOnly']);
+  });
 });

@@ -1,7 +1,6 @@
 import { afterNextRender, ChangeDetectionStrategy, Component, DestroyRef, inject, input } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
-import { LIGHTHOUSE_AUDIT_STEP_TYPE } from '@app-speed/audit/domain';
 import { StepFormGroup } from './audit-builder-form';
 import { MatFabButton, MatIconButton } from '@angular/material/button';
 import { MatOption, MatOptgroup } from '@angular/material/core';
@@ -12,7 +11,7 @@ import { ArrayField, InputField, OptionsField } from '@app-speed/audit/portal/ui
 import { MatIcon } from '@angular/material/icon';
 import { MatSelect } from '@angular/material/select';
 import { ToTitleCasePipe } from '@app-speed/audit/portal/ui';
-import { STEP_SELECTION_OPTIONS_GROUPED } from '../step-property.model';
+import { AUDIT_STEP_SELECTION_OPTIONS, STEP_SELECTION_OPTIONS_GROUPED } from '../step-property.model';
 
 @Component({
   selector: 'ui-audit-builder-step',
@@ -221,7 +220,7 @@ import { STEP_SELECTION_OPTIONS_GROUPED } from '../step-property.model';
 export class AuditStepComponent {
   stepControl = input.required<StepFormGroup>();
   private readonly destroyRef = inject(DestroyRef);
-  private readonly lighthouseStepTypes = new Set<string>(Object.values(LIGHTHOUSE_AUDIT_STEP_TYPE));
+  private readonly lighthouseStepTypes = new Set<string>(AUDIT_STEP_SELECTION_OPTIONS);
   protected readonly stepTypeOptions = STEP_SELECTION_OPTIONS_GROUPED;
 
   constructor() {

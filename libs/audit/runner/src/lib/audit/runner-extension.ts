@@ -38,6 +38,10 @@ export class UserFlowRunnerExtension extends PuppeteerRunnerExtension {
       case LIGHTHOUSE_AUDIT_STEP_TYPE.END_NAVIGATION:
       case LIGHTHOUSE_AUDIT_STEP_TYPE.END_TIMESPAN:
         return this.flow[step.name]();
+      case LIGHTHOUSE_AUDIT_STEP_TYPE.CLEAR_CACHE:
+        return this.page.createCDPSession().then((session) => session.send('Network.clearBrowserCache'));
+      case LIGHTHOUSE_AUDIT_STEP_TYPE.ADD_COOKIE:
+        return this.page.setCookie(step.parameters);
     }
 
     return assertNever(step);

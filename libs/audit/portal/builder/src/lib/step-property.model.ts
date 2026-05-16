@@ -6,11 +6,29 @@ import {
   PUPPETEER_REPLAY_USER_STEP_TYPE,
 } from '@app-speed/audit/domain';
 
+export const AUDIT_STEP_SELECTION_OPTIONS = [
+  LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
+  LIGHTHOUSE_AUDIT_STEP_TYPE.END_NAVIGATION,
+  LIGHTHOUSE_AUDIT_STEP_TYPE.START_TIMESPAN,
+  LIGHTHOUSE_AUDIT_STEP_TYPE.END_TIMESPAN,
+  LIGHTHOUSE_AUDIT_STEP_TYPE.SNAPSHOT,
+] as const;
+
+export const CUSTOM_STEP_SELECTION_OPTIONS = [
+  LIGHTHOUSE_AUDIT_STEP_TYPE.CLEAR_CACHE,
+  LIGHTHOUSE_AUDIT_STEP_TYPE.ADD_COOKIE,
+] as const;
+
 export const STEP_SELECTION_OPTIONS_GROUPED = [
   {
     label: 'Audit Steps',
     icon: 'lighthouse-badge',
-    options: Object.values(LIGHTHOUSE_AUDIT_STEP_TYPE),
+    options: AUDIT_STEP_SELECTION_OPTIONS,
+  },
+  {
+    label: 'Custom Steps',
+    icon: 'puppeteer-badge',
+    options: CUSTOM_STEP_SELECTION_OPTIONS,
   },
   {
     label: 'Assertion Steps',
@@ -63,6 +81,34 @@ export const timeout = {
 export const value = {
   name: PROPERTY_NAME.VALUE,
   inputType: INPUT_TYPE.STRING,
+} as const satisfies StepProperty;
+
+export const domain = {
+  name: PROPERTY_NAME.DOMAIN,
+  inputType: INPUT_TYPE.STRING,
+} as const satisfies StepProperty;
+
+export const path = {
+  name: PROPERTY_NAME.PATH,
+  inputType: INPUT_TYPE.STRING,
+} as const satisfies StepProperty;
+
+export const secure = {
+  name: PROPERTY_NAME.SECURE,
+  inputType: INPUT_TYPE.BOOLEAN,
+  options: [true, false],
+} as const satisfies StepProperty;
+
+export const httpOnly = {
+  name: PROPERTY_NAME.HTTP_ONLY,
+  inputType: INPUT_TYPE.BOOLEAN,
+  options: [true, false],
+} as const satisfies StepProperty;
+
+export const sameSite = {
+  name: PROPERTY_NAME.SAME_SITE,
+  inputType: INPUT_TYPE.OPTIONS,
+  options: ['Strict', 'Lax', 'None'],
 } as const satisfies StepProperty;
 
 export const selectors = {
@@ -499,6 +545,11 @@ export const STEP_PROPERTY = {
   name,
   timeout,
   value,
+  domain,
+  path,
+  secure,
+  httpOnly,
+  sameSite,
   selectors,
   attributes,
   count,

@@ -33,7 +33,32 @@ interface SnapshotStep {
   name?: string;
 }
 
-type LighthouseStep = StartNavigationStep | EndNavigationStep | StartTimespanStep | EndTimespanStep | SnapshotStep;
+interface ClearCacheStep {
+  type: typeof PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP;
+  step: typeof LIGHTHOUSE_AUDIT_STEP_TYPE.CLEAR_CACHE;
+}
+
+interface AddCookieStep {
+  type: typeof PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP;
+  step: typeof LIGHTHOUSE_AUDIT_STEP_TYPE.ADD_COOKIE;
+  name: string;
+  value: string;
+  url: string;
+  domain?: string;
+  path?: string;
+  secure?: boolean;
+  httpOnly?: boolean;
+  sameSite?: 'Strict' | 'Lax' | 'None';
+}
+
+type LighthouseStep =
+  | StartNavigationStep
+  | EndNavigationStep
+  | StartTimespanStep
+  | EndTimespanStep
+  | SnapshotStep
+  | ClearCacheStep
+  | AddCookieStep;
 
 export type AppSpeedUserFlowStep = PuppeteerReplayStep | LighthouseStep;
 

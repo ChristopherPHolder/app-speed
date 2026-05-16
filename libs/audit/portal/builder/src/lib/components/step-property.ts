@@ -25,6 +25,11 @@ export const stepPropertyFactoryMap = {
   timeout: (step?: { timeout?: number }) =>
     numberFormControlFactory(step?.timeout ?? STEP_PROPERTY.timeout.defaultValue),
   value: (step?: { value?: string }) => stringFormControlFactory(step?.value ?? ''),
+  domain: (step?: { domain?: string }) => stringFormControlFactory(step?.domain ?? ''),
+  path: (step?: { path?: string }) => stringFormControlFactory(step?.path ?? ''),
+  secure: (step?: { secure?: boolean }) => booleanFormControlFactory(step?.secure ?? false),
+  httpOnly: (step?: { httpOnly?: boolean }) => booleanFormControlFactory(step?.httpOnly ?? false),
+  sameSite: (step?: { sameSite?: string }) => stringFormControlFactory(step?.sameSite ?? ''),
   selectors: (step?: { selectors?: string[] }) =>
     new FormArray<FormControl<string>>(
       (step?.selectors ?? ['']).map((selector) => stringFormControlFactory(selector)),

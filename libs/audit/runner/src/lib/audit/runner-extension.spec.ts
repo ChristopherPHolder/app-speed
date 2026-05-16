@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { UserFlow } from 'lighthouse';
+import type { Page } from 'puppeteer';
 import { LIGHTHOUSE_AUDIT_STEP_TYPE } from '@app-speed/audit/domain';
 import { UserFlowRunnerExtension } from './runner-extension';
 
@@ -12,8 +13,16 @@ const createFlow = () =>
     snapshot: vi.fn().mockResolvedValue(undefined),
   }) as unknown as UserFlow;
 
-const createExtension = (flow: UserFlow) =>
-  new UserFlowRunnerExtension({} as never, {} as never, flow);
+const createPage = () =>
+  ({
+    createCDPSession: vi.fn().mockResolvedValue({
+      send: vi.fn().mockResolvedValue(undefined),
+    }),
+    setCookie: vi.fn().mockResolvedValue(undefined),
+  }) as unknown as Page;
+
+const createExtension = (flow: UserFlow, page: Page = createPage()) =>
+  new UserFlowRunnerExtension({} as never, page, flow);
 
 describe('UserFlowRunnerExtension', () => {
   it('dispatches each supported custom step exhaustively', async () => {
@@ -66,6 +75,100 @@ describe('UserFlowRunnerExtension', () => {
     expect(flow.startTimespan).toHaveBeenCalledWith({ name: 'Profile Load' });
     expect(flow.endTimespan).toHaveBeenCalledWith();
     expect(flow.snapshot).toHaveBeenCalledWith({ name: 'After Login' });
+  });
+
+  it('dispatches clearCache custom steps through the current page session', async () => {
+    const flow = createFlow();
+    const page = createPage();
+    const extension = createExtension(flow, page);
+
+    await extension.runStep(
+      {
+        type: 'customStep',
+        name: LIGHTHOUSE_AUDIT_STEP_TYPE.CLEAR_CACHE,
+        parameters: undefined,
+      },
+      {} as never,
+    );
+
+    expect(page.createCDPSession).toHaveBeenCalledWith();
+    const session = await page.createCDPSession();
+    expect(session.send).toHaveBeenCalledWith('Network.clearBrowserCache');
+  });
+
+  it('dispatches addCookie custom steps through page.setCookie', async () => {
+    const flow = createFlow();
+    const page = createPage();
+    const extension = createExtension(flow, page);
+
+    await extension.runStep(
+      {
+        type: 'customStep',
+        name: LIGHTHOUSE_AUDIT_STEP_TYPE.ADD_COOKIE,
+        parameters: {
+          name: 'session',
+          value: 'token',
+          url: 'https://example.com/app',
+          domain: '.example.com',
+          path: '/',
+          secure: true,
+          httpOnly: true,
+          sameSite: 'Strict',
+        },
+      },
+      {} as never,
+    );
+
+    expect(page.setCookie).toHaveBeenCalledWith({
+      name: 'session',
+      value: 'token',
+      url: 'https://example.com/app',
+      domain: '.example.com',
+      path: '/',
+      secure: true,
+      httpOnly: true,
+      sameSite: 'Strict',
+    });
+  });
+
+  it('propagates browser failures for clearCache and addCookie custom steps', async () => {
+    const flow = createFlow();
+    const clearCacheExtension = createExtension(flow, {
+      ...createPage(),
+      createCDPSession: vi.fn().mockResolvedValue({
+        send: vi.fn().mockRejectedValue(new Error('cache clear failed')),
+      }),
+    } as unknown as Page);
+    const addCookieExtension = createExtension(flow, {
+      ...createPage(),
+      setCookie: vi.fn().mockRejectedValue(new Error('cookie write failed')),
+    } as unknown as Page);
+
+    await expect(
+      clearCacheExtension.runStep(
+        {
+          type: 'customStep',
+          name: LIGHTHOUSE_AUDIT_STEP_TYPE.CLEAR_CACHE,
+          parameters: undefined,
+        },
+        {} as never,
+      ),
+    ).rejects.toThrow('cache clear failed');
+
+    await expect(
+      addCookieExtension.runStep(
+        {
+          type: 'customStep',
+          name: LIGHTHOUSE_AUDIT_STEP_TYPE.ADD_COOKIE,
+          parameters: {
+            name: 'session',
+            value: 'token',
+            url: 'https://example.com/app',
+          },
+        },
+        {} as never,
+      ),
+    ).rejects.toThrow('cookie write failed');
   });
 
   it('rejects unsupported replay custom steps without the legacy generic fallback', async () => {
