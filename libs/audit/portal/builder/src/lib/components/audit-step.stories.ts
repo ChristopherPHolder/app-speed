@@ -57,10 +57,10 @@ export const EmulateNetworkConditions = createStory({
   upload: 1,
 });
 export const Hover = createStory({ type: STEP_TYPE.HOVER, selectors: [''] });
-export const KeyDown = createStory({ type: STEP_TYPE.KEY_DOWN, key: '' });
-export const KeyUp = createStory({ type: STEP_TYPE.KEY_UP, key: '' });
+export const KeyDown = createStory({ type: STEP_TYPE.KEY_DOWN, key: 'Enter' });
+export const KeyUp = createStory({ type: STEP_TYPE.KEY_UP, key: 'Enter' });
 export const Navigate = createStory({ type: STEP_TYPE.NAVIGATE, url: '' });
-export const Scroll = createStory({ type: STEP_TYPE.SCROLL, x: 1, y: 1 });
+export const Scroll = createStory({ type: STEP_TYPE.SCROLL, selectors: [''], x: 1, y: 1 });
 export const SetViewport = createStory({
   type: STEP_TYPE.SET_VIEWPORT,
   deviceScaleFactor: 1,
