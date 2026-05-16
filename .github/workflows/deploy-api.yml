@@ -1,6 +1,9 @@
 name: Deploy API
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       environment:
@@ -17,9 +20,77 @@ env:
   PNPM_VERSION: 10.11.0
 
 jobs:
+  determine-deploy-scope:
+    name: Determine API Deploy Scope
+    runs-on: ubuntu-latest
+    outputs:
+      should_deploy: ${{ steps.deploy-scope.outputs.should_deploy }}
+      deploy_env: ${{ steps.deploy-scope.outputs.deploy_env }}
+      affected_projects: ${{ steps.deploy-scope.outputs.affected_projects }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Determine API Deploy Scope
+        id: deploy-scope
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.before }}
+          HEAD_SHA: ${{ github.sha }}
+          MANUAL_DEPLOY_ENV: ${{ github.event.inputs.environment }}
+        run: |
+          set -euo pipefail
+
+          if [ "$EVENT_NAME" = 'workflow_dispatch' ]; then
+            echo 'should_deploy=true' >> "$GITHUB_OUTPUT"
+            echo "deploy_env=${MANUAL_DEPLOY_ENV}" >> "$GITHUB_OUTPUT"
+            echo 'affected_projects=["api"]' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          BASE_REF="$BASE_SHA"
+          if [ -z "$BASE_REF" ] || [ "$BASE_REF" = "0000000000000000000000000000000000000000" ]; then
+            BASE_REF="$(git rev-parse "${HEAD_SHA}^")"
+          fi
+
+          AFFECTED_PROJECTS="$(pnpm exec nx show projects --affected --base="$BASE_REF" --head="$HEAD_SHA" --projects=api --json)"
+
+          echo "base_ref=$BASE_REF" >> "$GITHUB_OUTPUT"
+          echo 'deploy_env=production' >> "$GITHUB_OUTPUT"
+          echo "affected_projects=$AFFECTED_PROJECTS" >> "$GITHUB_OUTPUT"
+
+          if [ "$AFFECTED_PROJECTS" = '["api"]' ]; then
+            echo 'should_deploy=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'should_deploy=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Skip API Deploy
+        if: ${{ github.event_name == 'push' && steps.deploy-scope.outputs.should_deploy != 'true' }}
+        run: echo "Skipping API deploy because api is not affected for ${{ github.sha }}."
+
   deploy-api:
     name: Deploy API
     runs-on: ubuntu-latest
+    needs: determine-deploy-scope
+    if: ${{ needs.determine-deploy-scope.outputs.should_deploy == 'true' }}
+    concurrency:
+      group: deploy-api-ec2-i-016827500a47a80ef
+      cancel-in-progress: false
 
     steps:
       - uses: actions/checkout@v4
@@ -52,7 +123,7 @@ jobs:
       - name: Publish and Deploy API
         env:
           ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
-          DEPLOY_ENV: ${{ github.event.inputs.environment }}
+          DEPLOY_ENV: ${{ needs.determine-deploy-scope.outputs.deploy_env }}
         run: |
           if [ "$DEPLOY_ENV" = "production" ]; then
             IMAGE_REF="${ECR_REGISTRY}/app-speed/api:${GITHUB_SHA::12}"
