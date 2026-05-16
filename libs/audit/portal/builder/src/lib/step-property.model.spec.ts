@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { LIGHTHOUSE_AUDIT_STEP_TYPE } from '@app-speed/audit/domain';
+import { AUDIT_CUSTOM_STEP_TYPE, LIGHTHOUSE_AUDIT_STEP_TYPE } from '@app-speed/audit/domain';
 import { STEP_SELECTION_OPTIONS_GROUPED } from './step-property.model';
 
 describe('STEP_SELECTION_OPTIONS_GROUPED', () => {
@@ -19,7 +19,7 @@ describe('STEP_SELECTION_OPTIONS_GROUPED', () => {
     expect(STEP_SELECTION_OPTIONS_GROUPED).toContainEqual({
       label: 'Custom Steps',
       icon: 'puppeteer-badge',
-      options: [LIGHTHOUSE_AUDIT_STEP_TYPE.CLEAR_CACHE, LIGHTHOUSE_AUDIT_STEP_TYPE.ADD_COOKIE],
+      options: [AUDIT_CUSTOM_STEP_TYPE.CLEAR_CACHE, AUDIT_CUSTOM_STEP_TYPE.ADD_COOKIE],
     });
   });
 });

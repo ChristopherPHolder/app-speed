@@ -1,4 +1,5 @@
 import { Schema } from 'effect';
+import { AUDIT_CUSTOM_STEP_TYPE } from './custom-audit-step-type';
 import { LIGHTHOUSE_AUDIT_STEP_TYPE } from './lighthouse-userflow/lighthouse-userflow-step-type';
 import {
   PUPPETEER_REPLAY_ASSERTION_STEP_TYPE,
@@ -22,15 +23,20 @@ const PuppeteerReplayStepTypeSchema = Schema.Literal(
   PUPPETEER_REPLAY_ASSERTION_STEP_TYPE.WAIT_FOR_EXPRESSION,
 );
 
-export const AuditCustomStepTypeSchema = Schema.Literal(
+export const LighthouseAuditStepTypeSchema = Schema.Literal(
   LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
   LIGHTHOUSE_AUDIT_STEP_TYPE.END_NAVIGATION,
   LIGHTHOUSE_AUDIT_STEP_TYPE.START_TIMESPAN,
   LIGHTHOUSE_AUDIT_STEP_TYPE.END_TIMESPAN,
   LIGHTHOUSE_AUDIT_STEP_TYPE.SNAPSHOT,
-  LIGHTHOUSE_AUDIT_STEP_TYPE.CLEAR_CACHE,
-  LIGHTHOUSE_AUDIT_STEP_TYPE.ADD_COOKIE,
 );
+
+export const AppAuditCustomStepTypeSchema = Schema.Literal(
+  AUDIT_CUSTOM_STEP_TYPE.CLEAR_CACHE,
+  AUDIT_CUSTOM_STEP_TYPE.ADD_COOKIE,
+);
+
+export const AuditCustomStepTypeSchema = Schema.Union(LighthouseAuditStepTypeSchema, AppAuditCustomStepTypeSchema);
 
 export const AuditStepTypeSchema = Schema.Union(
   PuppeteerReplayStepTypeSchema,

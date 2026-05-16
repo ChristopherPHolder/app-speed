@@ -1,10 +1,16 @@
 import { PuppeteerRunnerExtension, Step, UserFlow as UserFlowRecording } from '@puppeteer/replay';
 import type { Browser, Page } from 'puppeteer';
 import type { UserFlow } from 'lighthouse';
-import { LIGHTHOUSE_AUDIT_STEP_TYPE, ReplayUserflowStepSchema } from '@app-speed/audit/domain';
+import {
+  AUDIT_CUSTOM_STEP_TYPE,
+  LIGHTHOUSE_AUDIT_STEP_TYPE,
+  ReplayAuditCustomStepSchema,
+  ReplayUserflowStepSchema,
+} from '@app-speed/audit/domain';
 import { Schema } from 'effect';
 
-const decodeReplayUserflowStep = Schema.decodeUnknownSync(ReplayUserflowStepSchema);
+const ReplayRunnerCustomStepSchema = Schema.Union(ReplayUserflowStepSchema, ReplayAuditCustomStepSchema);
+const decodeReplayRunnerCustomStep = Schema.decodeUnknownSync(ReplayRunnerCustomStepSchema);
 
 export class UserFlowRunnerExtension extends PuppeteerRunnerExtension {
   constructor(
@@ -19,17 +25,17 @@ export class UserFlowRunnerExtension extends PuppeteerRunnerExtension {
   }
 
   override async runStep(
-    step: Step | typeof ReplayUserflowStepSchema.Type,
+    step: Step | typeof ReplayRunnerCustomStepSchema.Type,
     flowRecording: UserFlowRecording,
   ): Promise<void> {
     if (step.type === 'customStep') {
-      return this.runCustomStep(decodeReplayUserflowStep(step));
+      return await this.runCustomStep(decodeReplayRunnerCustomStep(step));
     }
 
-    return super.runStep(step as Step, flowRecording);
+    return await super.runStep(step as Step, flowRecording);
   }
 
-  async runCustomStep(step: typeof ReplayUserflowStepSchema.Type) {
+  async runCustomStep(step: typeof ReplayRunnerCustomStepSchema.Type) {
     switch (step.name) {
       case LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION:
       case LIGHTHOUSE_AUDIT_STEP_TYPE.START_TIMESPAN:
@@ -38,10 +44,10 @@ export class UserFlowRunnerExtension extends PuppeteerRunnerExtension {
       case LIGHTHOUSE_AUDIT_STEP_TYPE.END_NAVIGATION:
       case LIGHTHOUSE_AUDIT_STEP_TYPE.END_TIMESPAN:
         return this.flow[step.name]();
-      case LIGHTHOUSE_AUDIT_STEP_TYPE.CLEAR_CACHE:
-        return this.page.createCDPSession().then((session) => session.send('Network.clearBrowserCache'));
-      case LIGHTHOUSE_AUDIT_STEP_TYPE.ADD_COOKIE:
-        return this.page.setCookie(step.parameters);
+      case AUDIT_CUSTOM_STEP_TYPE.CLEAR_CACHE:
+        return await this.page.createCDPSession().then((client) => client.send('Network.clearBrowserCache'));
+      case AUDIT_CUSTOM_STEP_TYPE.ADD_COOKIE:
+        return await this.page.setCookie(step.parameters);
     }
 
     return assertNever(step);

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { LIGHTHOUSE_AUDIT_STEP_TYPE } from '@app-speed/audit/domain';
+import { AUDIT_CUSTOM_STEP_TYPE, LIGHTHOUSE_AUDIT_STEP_TYPE } from '@app-speed/audit/domain';
 import { StepFormGroup } from './audit-builder-form';
 
 describe('StepFormGroup', () => {
@@ -34,12 +34,12 @@ describe('StepFormGroup', () => {
   it('selecting clearCache produces a parameterless custom step', () => {
     const formGroup = new StepFormGroup({ type: '' });
 
-    formGroup.resetStepControls(LIGHTHOUSE_AUDIT_STEP_TYPE.CLEAR_CACHE);
+    formGroup.resetStepControls(AUDIT_CUSTOM_STEP_TYPE.CLEAR_CACHE);
 
-    expect(formGroup.selectionControl.value).toBe(LIGHTHOUSE_AUDIT_STEP_TYPE.CLEAR_CACHE);
+    expect(formGroup.selectionControl.value).toBe(AUDIT_CUSTOM_STEP_TYPE.CLEAR_CACHE);
     expect(formGroup.getRawValue()).toEqual({
       type: 'customStep',
-      step: LIGHTHOUSE_AUDIT_STEP_TYPE.CLEAR_CACHE,
+      step: AUDIT_CUSTOM_STEP_TYPE.CLEAR_CACHE,
     });
     expect(formGroup.fields()).toEqual([]);
     expect(formGroup.optionalFields()).toEqual([]);
@@ -48,12 +48,12 @@ describe('StepFormGroup', () => {
   it('selecting addCookie exposes required fields first and optional properties separately', () => {
     const formGroup = new StepFormGroup({ type: '' });
 
-    formGroup.resetStepControls(LIGHTHOUSE_AUDIT_STEP_TYPE.ADD_COOKIE);
+    formGroup.resetStepControls(AUDIT_CUSTOM_STEP_TYPE.ADD_COOKIE);
 
-    expect(formGroup.selectionControl.value).toBe(LIGHTHOUSE_AUDIT_STEP_TYPE.ADD_COOKIE);
+    expect(formGroup.selectionControl.value).toBe(AUDIT_CUSTOM_STEP_TYPE.ADD_COOKIE);
     expect(formGroup.getRawValue()).toMatchObject({
       type: 'customStep',
-      step: LIGHTHOUSE_AUDIT_STEP_TYPE.ADD_COOKIE,
+      step: AUDIT_CUSTOM_STEP_TYPE.ADD_COOKIE,
       name: '',
       value: '',
       url: '',

@@ -1,7 +1,5 @@
 import { Schema } from 'effect';
 import {
-  UserflowAddCookieStepSchema,
-  UserflowClearCacheStepSchema,
   UserflowRunnerStepSchema,
   UserflowEndNavigationStepSchema,
   UserflowEndTimespanStepSchema,
@@ -10,6 +8,7 @@ import {
   UserflowStartTimespanStepSchema,
   UserflowStepSchema,
 } from './lighthouse-userflow/lighthouse-userflow-step';
+import { AuditAddCookieStepSchema, AuditClearCacheStepSchema, AuditCustomRunnerStepSchema } from './custom-audit-step';
 import {
   ChangeStepSchema,
   ClickStepSchema,
@@ -50,13 +49,13 @@ export const AuditStepSchema = Schema.Union(
   UserflowStartTimespanStepSchema,
   UserflowEndTimespanStepSchema,
   UserflowSnapshotStepSchema,
-  UserflowClearCacheStepSchema,
-  UserflowAddCookieStepSchema,
+  AuditClearCacheStepSchema,
+  AuditAddCookieStepSchema,
 ).annotations({
   title: 'AuditStep',
 });
 
-const RunnerStepSchema = Schema.Union(...AuditPuppeteerReplaySteps, UserflowRunnerStepSchema);
+const RunnerStepSchema = Schema.Union(...AuditPuppeteerReplaySteps, UserflowRunnerStepSchema, AuditCustomRunnerStepSchema);
 
 export type AuditStep = typeof AuditStepSchema.Type;
 const AuditStepsSchema = Schema.NonEmptyArray(AuditStepSchema);

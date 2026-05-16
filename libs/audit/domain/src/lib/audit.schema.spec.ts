@@ -1,6 +1,7 @@
 import { Schema } from 'effect';
 import { describe } from 'vitest';
 import { it } from '@effect/vitest';
+import { AUDIT_CUSTOM_STEP_TYPE } from './custom-audit-step-type';
 import { LIGHTHOUSE_AUDIT_STEP_TYPE } from './lighthouse-userflow/lighthouse-userflow-step-type';
 import { AuditSchema, PuppeteerReplayUserflowRunnerSchema } from './audit.schema';
 
@@ -38,7 +39,7 @@ describe('PuppeteerReplayUserflowRunnerSchema', () => {
       steps: [
         {
           type: 'customStep',
-          step: 'clearCache',
+          step: AUDIT_CUSTOM_STEP_TYPE.CLEAR_CACHE,
         },
         {
           type: 'customStep',
@@ -56,7 +57,7 @@ describe('PuppeteerReplayUserflowRunnerSchema', () => {
       steps: [
         {
           type: 'customStep',
-          name: 'clearCache',
+          name: AUDIT_CUSTOM_STEP_TYPE.CLEAR_CACHE,
           parameters: undefined,
         },
         {
@@ -75,7 +76,7 @@ describe('PuppeteerReplayUserflowRunnerSchema', () => {
       steps: [
         {
           type: 'customStep',
-          step: 'addCookie',
+          step: AUDIT_CUSTOM_STEP_TYPE.ADD_COOKIE,
           name: 'session',
           value: 'token',
           url: 'https://example.com/app',
@@ -101,7 +102,7 @@ describe('PuppeteerReplayUserflowRunnerSchema', () => {
       steps: [
         {
           type: 'customStep',
-          name: 'addCookie',
+          name: AUDIT_CUSTOM_STEP_TYPE.ADD_COOKIE,
           parameters: {
             name: 'session',
             value: 'token',
@@ -147,7 +148,7 @@ describe('AuditSchema', () => {
         steps: [
           {
             type: 'customStep',
-            step: LIGHTHOUSE_AUDIT_STEP_TYPE.CLEAR_CACHE,
+            step: AUDIT_CUSTOM_STEP_TYPE.CLEAR_CACHE,
           },
           {
             type: 'customStep',
@@ -166,7 +167,7 @@ describe('AuditSchema', () => {
         steps: [
           {
             type: 'customStep',
-            step: LIGHTHOUSE_AUDIT_STEP_TYPE.ADD_COOKIE,
+            step: AUDIT_CUSTOM_STEP_TYPE.ADD_COOKIE,
             name: 'session',
             value: 'token',
             url: 'https://example.com/app',

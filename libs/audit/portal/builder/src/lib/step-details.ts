@@ -1,10 +1,11 @@
-import { AuditStep, LIGHTHOUSE_AUDIT_STEP_TYPE, STEP_TYPE, StepType } from '@app-speed/audit/domain';
+import { AUDIT_CUSTOM_STEP_TYPE, AuditStep, LIGHTHOUSE_AUDIT_STEP_TYPE, STEP_TYPE, StepType } from '@app-speed/audit/domain';
 import { requiredFeature, STEP_PROPERTY, StepProperty } from './step-property.model';
 
-type CustomStepSelection = (typeof LIGHTHOUSE_AUDIT_STEP_TYPE)[keyof typeof LIGHTHOUSE_AUDIT_STEP_TYPE];
+type AuditStepSelection = (typeof LIGHTHOUSE_AUDIT_STEP_TYPE)[keyof typeof LIGHTHOUSE_AUDIT_STEP_TYPE];
+type CustomStepSelection = (typeof AUDIT_CUSTOM_STEP_TYPE)[keyof typeof AUDIT_CUSTOM_STEP_TYPE];
 type ReplayStepSelection = Exclude<StepType, typeof STEP_TYPE.CUSTOM_STEP>;
 
-export type StepSelection = ReplayStepSelection | CustomStepSelection;
+export type StepSelection = ReplayStepSelection | AuditStepSelection | CustomStepSelection;
 export type Step = AuditStep | { type: '' };
 
 export type StepDetails<TStep extends Step = Step> = {
@@ -246,16 +247,16 @@ const SNAPSHOT: StepDetails = {
 };
 
 const CLEAR_CACHE: StepDetails = {
-  selection: LIGHTHOUSE_AUDIT_STEP_TYPE.CLEAR_CACHE,
-  step: { type: STEP_TYPE.CUSTOM_STEP, step: LIGHTHOUSE_AUDIT_STEP_TYPE.CLEAR_CACHE },
+  selection: AUDIT_CUSTOM_STEP_TYPE.CLEAR_CACHE,
+  step: { type: STEP_TYPE.CUSTOM_STEP, step: AUDIT_CUSTOM_STEP_TYPE.CLEAR_CACHE },
   properties: [],
 };
 
 const ADD_COOKIE: StepDetails = {
-  selection: LIGHTHOUSE_AUDIT_STEP_TYPE.ADD_COOKIE,
+  selection: AUDIT_CUSTOM_STEP_TYPE.ADD_COOKIE,
   step: {
     type: STEP_TYPE.CUSTOM_STEP,
-    step: LIGHTHOUSE_AUDIT_STEP_TYPE.ADD_COOKIE,
+    step: AUDIT_CUSTOM_STEP_TYPE.ADD_COOKIE,
     name: '',
     value: '',
     url: '',
