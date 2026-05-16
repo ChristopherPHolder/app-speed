@@ -49,6 +49,17 @@
 - Keep secrets out of the repo; use environment variables and local `.env` overrides.
 - Deployment and CI are managed via GitHub Actions; avoid direct edits to `dist/` artifacts.
 
+## Agent Skills
+
+### Issue Tracker
+- Issues are tracked in GitHub Issues for this repository. See `docs/agents/issue-tracker.md`.
+
+### Triage Labels
+- Triage uses the canonical Matt Pocock label roles, mapped for this repo in `docs/agents/triage-labels.md`.
+
+### Domain Docs
+- Treat this repo as single-context: prefer root `CONTEXT.md` when present and `docs/adr/` for decisions. See `docs/agents/domain.md`.
+
 <!-- opensrc:start -->
 
 ## Source Code Reference

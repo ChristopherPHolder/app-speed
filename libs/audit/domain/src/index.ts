@@ -2,7 +2,15 @@ export { AuditStep, PuppeteerReplayUserflowRunnerSchema, Audit, AuditSchema } fr
 export { STEP_TYPE, StepType } from './lib/step-type';
 export { AppSpeedUserFlow } from './lib/runtime/replay';
 export { DEVICE_TYPE, DeviceType, DEVICE_OPTIONS, DeviceSchema } from './lib/shared/device-type';
+export { AUDIT_CUSTOM_STEP_TYPE } from './lib/custom-audit-step-type';
 export { LIGHTHOUSE_AUDIT_STEP_TYPE } from './lib/lighthouse-userflow/lighthouse-userflow-step-type';
+export {
+  AddCookieParametersSchema,
+  AuditAddCookieStepSchema,
+  AuditClearCacheStepSchema,
+  AuditCustomRunnerStepSchema,
+  ReplayAuditCustomStepSchema,
+} from './lib/custom-audit-step';
 export {
   isReplayUserflowStepWithFlags,
   isReplayUserflowStep,

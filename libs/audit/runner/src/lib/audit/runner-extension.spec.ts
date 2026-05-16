@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { UserFlow } from 'lighthouse';
 import type { Page } from 'puppeteer';
-import { LIGHTHOUSE_AUDIT_STEP_TYPE } from '@app-speed/audit/domain';
+import { AUDIT_CUSTOM_STEP_TYPE, LIGHTHOUSE_AUDIT_STEP_TYPE } from '@app-speed/audit/domain';
 import { UserFlowRunnerExtension } from './runner-extension';
 
 const createFlow = () =>
@@ -15,9 +15,7 @@ const createFlow = () =>
 
 const createPage = () =>
   ({
-    createCDPSession: vi.fn().mockResolvedValue({
-      send: vi.fn().mockResolvedValue(undefined),
-    }),
+    setCacheEnabled: vi.fn().mockResolvedValue(undefined),
     setCookie: vi.fn().mockResolvedValue(undefined),
   }) as unknown as Page;
 
@@ -77,7 +75,7 @@ describe('UserFlowRunnerExtension', () => {
     expect(flow.snapshot).toHaveBeenCalledWith({ name: 'After Login' });
   });
 
-  it('dispatches clearCache custom steps through the current page session', async () => {
+  it('dispatches clearCache custom steps through the current page cache controls', async () => {
     const flow = createFlow();
     const page = createPage();
     const extension = createExtension(flow, page);
@@ -85,15 +83,13 @@ describe('UserFlowRunnerExtension', () => {
     await extension.runStep(
       {
         type: 'customStep',
-        name: LIGHTHOUSE_AUDIT_STEP_TYPE.CLEAR_CACHE,
+        name: AUDIT_CUSTOM_STEP_TYPE.CLEAR_CACHE,
         parameters: undefined,
       },
       {} as never,
     );
 
-    expect(page.createCDPSession).toHaveBeenCalledWith();
-    const session = await page.createCDPSession();
-    expect(session.send).toHaveBeenCalledWith('Network.clearBrowserCache');
+    expect(page.setCacheEnabled).toHaveBeenCalledWith(false);
   });
 
   it('dispatches addCookie custom steps through page.setCookie', async () => {
@@ -104,7 +100,7 @@ describe('UserFlowRunnerExtension', () => {
     await extension.runStep(
       {
         type: 'customStep',
-        name: LIGHTHOUSE_AUDIT_STEP_TYPE.ADD_COOKIE,
+        name: AUDIT_CUSTOM_STEP_TYPE.ADD_COOKIE,
         parameters: {
           name: 'session',
           value: 'token',
@@ -135,9 +131,7 @@ describe('UserFlowRunnerExtension', () => {
     const flow = createFlow();
     const clearCacheExtension = createExtension(flow, {
       ...createPage(),
-      createCDPSession: vi.fn().mockResolvedValue({
-        send: vi.fn().mockRejectedValue(new Error('cache clear failed')),
-      }),
+      setCacheEnabled: vi.fn().mockRejectedValue(new Error('cache clear failed')),
     } as unknown as Page);
     const addCookieExtension = createExtension(flow, {
       ...createPage(),
@@ -148,7 +142,7 @@ describe('UserFlowRunnerExtension', () => {
       clearCacheExtension.runStep(
         {
           type: 'customStep',
-          name: LIGHTHOUSE_AUDIT_STEP_TYPE.CLEAR_CACHE,
+          name: AUDIT_CUSTOM_STEP_TYPE.CLEAR_CACHE,
           parameters: undefined,
         },
         {} as never,
@@ -159,7 +153,7 @@ describe('UserFlowRunnerExtension', () => {
       addCookieExtension.runStep(
         {
           type: 'customStep',
-          name: LIGHTHOUSE_AUDIT_STEP_TYPE.ADD_COOKIE,
+          name: AUDIT_CUSTOM_STEP_TYPE.ADD_COOKIE,
           parameters: {
             name: 'session',
             value: 'token',

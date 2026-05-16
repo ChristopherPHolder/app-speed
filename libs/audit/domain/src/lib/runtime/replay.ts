@@ -1,5 +1,6 @@
 import type { Step as PuppeteerReplayStep, UserFlow as PuppeteerReplayUserFlow } from '@puppeteer/replay';
 import { PUPPETEER_REPLAY_CUSTOM_STEP_TYPE } from '../puppeteer-replay/puppeteer-replay-step-type';
+import { AUDIT_CUSTOM_STEP_TYPE } from '../custom-audit-step-type';
 import { LIGHTHOUSE_AUDIT_STEP_TYPE } from '../lighthouse-userflow/lighthouse-userflow-step-type';
 
 // @TODO Move to global types and explain what it does
@@ -35,12 +36,12 @@ interface SnapshotStep {
 
 interface ClearCacheStep {
   type: typeof PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP;
-  step: typeof LIGHTHOUSE_AUDIT_STEP_TYPE.CLEAR_CACHE;
+  step: typeof AUDIT_CUSTOM_STEP_TYPE.CLEAR_CACHE;
 }
 
 interface AddCookieStep {
   type: typeof PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP;
-  step: typeof LIGHTHOUSE_AUDIT_STEP_TYPE.ADD_COOKIE;
+  step: typeof AUDIT_CUSTOM_STEP_TYPE.ADD_COOKIE;
   name: string;
   value: string;
   url: string;
