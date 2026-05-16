@@ -12,10 +12,12 @@ const createFlow = () =>
     endTimespan: vi.fn().mockResolvedValue(undefined),
     snapshot: vi.fn().mockResolvedValue(undefined),
   }) as unknown as UserFlow;
-
-const createPage = () =>
+const createCdpClient = () => ({
+  send: vi.fn().mockResolvedValue(undefined),
+});
+const createPage = (cdpClient = createCdpClient()) =>
   ({
-    setCacheEnabled: vi.fn().mockResolvedValue(undefined),
+    createCDPSession: vi.fn().mockResolvedValue(cdpClient),
     setCookie: vi.fn().mockResolvedValue(undefined),
   }) as unknown as Page;
 
@@ -77,7 +79,8 @@ describe('UserFlowRunnerExtension', () => {
 
   it('dispatches clearCache custom steps through the current page cache controls', async () => {
     const flow = createFlow();
-    const page = createPage();
+    const cdpClient = createCdpClient();
+    const page = createPage(cdpClient);
     const extension = createExtension(flow, page);
 
     await extension.runStep(
@@ -89,7 +92,8 @@ describe('UserFlowRunnerExtension', () => {
       {} as never,
     );
 
-    expect(page.setCacheEnabled).toHaveBeenCalledWith(false);
+    expect(page.createCDPSession).toHaveBeenCalledWith();
+    expect(cdpClient.send).toHaveBeenCalledWith('Network.clearBrowserCache');
   });
 
   it('dispatches addCookie custom steps through page.setCookie', async () => {
@@ -129,9 +133,12 @@ describe('UserFlowRunnerExtension', () => {
 
   it('propagates browser failures for clearCache and addCookie custom steps', async () => {
     const flow = createFlow();
+    const clearCacheClient = {
+      send: vi.fn().mockRejectedValue(new Error('cache clear failed')),
+    };
     const clearCacheExtension = createExtension(flow, {
       ...createPage(),
-      setCacheEnabled: vi.fn().mockRejectedValue(new Error('cache clear failed')),
+      createCDPSession: vi.fn().mockResolvedValue(clearCacheClient),
     } as unknown as Page);
     const addCookieExtension = createExtension(flow, {
       ...createPage(),
