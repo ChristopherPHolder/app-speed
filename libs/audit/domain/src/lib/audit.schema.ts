@@ -59,7 +59,8 @@ const AuditStepsSchema = Schema.NonEmptyArray(AuditAuthoringStepSchema);
 const RunnerStepsSchema = Schema.NonEmptyArray(RunnerStepSchema);
 
 const RequiresAuditStepSchemaFilter = Schema.filter<typeof AuditStepsSchema>(
-  (steps) => !!steps.filter((step) => Schema.is(UserflowStepSchema)(step)).length || 'Requires at least one audit steps',
+  (steps) =>
+    !!steps.filter((step) => Schema.is(UserflowStepSchema)(step)).length || 'Requires at least one audit steps',
 );
 
 const NonNegativeIntFromStringSchema = Schema.NumberFromString.pipe(Schema.int(), Schema.nonNegative()).annotations({
@@ -72,21 +73,21 @@ const TimeoutSchema = Schema.optional(
   }),
 );
 
-export const AuditAuthoringSchema = Schema.Struct({
+export const AuditSchema = Schema.Struct({
   title: Schema.NonEmptyString,
   device: DeviceSchema,
   timeout: TimeoutSchema,
   steps: Schema.NonEmptyArray(AuditAuthoringStepSchema)
     .pipe(RequiresAuditStepSchemaFilter)
     .annotations({ title: 'AuditSteps' }),
-}).annotations({ title: 'AuditAuthoring' });
+}).annotations({ title: 'Audit' });
 
-export type AuditAuthoring = typeof AuditAuthoringSchema.Type;
+export type Audit = typeof AuditSchema.Type;
 
 /**
  * The Puppeteer Replay Userflow Runner Schema parseble and executable by puppeteer replay when decoded.
  */
 export const PuppeteerReplayUserflowRunnerSchema = Schema.Struct({
-  ...AuditAuthoringSchema.fields,
+  ...AuditSchema.fields,
   steps: RunnerStepsSchema.annotations({ title: 'RunnerSteps' }),
 });

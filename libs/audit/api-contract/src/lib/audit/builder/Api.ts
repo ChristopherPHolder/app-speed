@@ -2,10 +2,10 @@ import { HttpApiEndpoint, HttpApiError, HttpApiSchema } from '@effect/platform';
 import { Schema } from 'effect';
 
 import { AuditId, AuditNotFoundError, AuditRunStatusSchema } from '../Audit';
-import { AuditAuthoringSchema } from '@app-speed/audit/domain';
+import { AuditSchema } from '@app-speed/audit/domain';
 
 export const scheduleEndpoint = HttpApiEndpoint.post('schedule', '/schedule')
-  .setPayload(AuditAuthoringSchema)
+  .setPayload(AuditSchema)
   .addSuccess(
     Schema.Struct({
       auditId: Schema.String,
