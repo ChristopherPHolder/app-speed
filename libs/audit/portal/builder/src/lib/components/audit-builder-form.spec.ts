@@ -3,7 +3,7 @@ import { LIGHTHOUSE_AUDIT_STEP_TYPE } from '@app-speed/audit/domain';
 import { StepFormGroup } from './audit-builder-form';
 
 describe('StepFormGroup', () => {
-  it('derives the unified selector value from custom-step authoring objects', () => {
+  it('derives the unified selector value from custom-step objects', () => {
     const formGroup = new StepFormGroup({
       type: 'customStep',
       step: LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
@@ -18,7 +18,7 @@ describe('StepFormGroup', () => {
     });
   });
 
-  it('selecting a custom step produces the explicit authoring object shape', () => {
+  it('selecting a custom step produces the explicit object shape', () => {
     const formGroup = new StepFormGroup({ type: '' });
 
     formGroup.resetStepControls(LIGHTHOUSE_AUDIT_STEP_TYPE.SNAPSHOT);

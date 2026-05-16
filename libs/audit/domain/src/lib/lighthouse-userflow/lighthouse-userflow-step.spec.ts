@@ -13,7 +13,7 @@ import {
 } from './lighthouse-userflow-step';
 
 describe('UserflowRunnerStepSchema', () => {
-  it.effect('should decode an explicit custom-step authoring schema', () =>
+  it.effect('should decode an explicit custom-step schema', () =>
     Effect.gen(function* () {
       const startNavigationStep = {
         type: 'customStep',
@@ -66,7 +66,7 @@ describe('UserflowRunnerStepSchema', () => {
     }),
   );
 
-  it('rejects replay-shaped custom steps as authoring input', () => {
+  it('rejects replay-shaped custom steps as input', () => {
     expect(
       Schema.is(UserflowStepSchema)({
         type: StepType.CustomStep,
@@ -76,7 +76,7 @@ describe('UserflowRunnerStepSchema', () => {
     ).toBe(false);
   });
 
-  it('validates each explicit authoring schema', () => {
+  it('validates each explicit schema', () => {
     expect(
       Schema.is(UserflowStartNavigationStepSchema)({
         type: 'customStep',
@@ -97,7 +97,7 @@ describe('UserflowRunnerStepSchema', () => {
     ).toBe(true);
   });
 
-  it('exposes replay custom-step output separately from the authoring schemas', () => {
+  it('exposes replay custom-step output separately from the schemas', () => {
     expect(
       Schema.is(ReplayUserflowStepSchema)({
         type: StepType.CustomStep,
