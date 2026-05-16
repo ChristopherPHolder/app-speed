@@ -2,13 +2,13 @@ import { randomUUID } from 'node:crypto';
 import { eq } from 'drizzle-orm';
 import { Clock, Effect } from 'effect';
 
-import { AuditAuthoring } from '@app-speed/audit/domain';
+import { Audit } from '@app-speed/audit/domain';
 
 import { DbClient } from '../db';
 import { auditTemplateTable, auditRunTable } from '../schema';
 import { type AuditTemplateId, type AuditRunId, decodeAuditTemplateRecord } from './shared';
 
-export const createTemplate = Effect.fn('db.auditTemplate.create')(function* (audit: AuditAuthoring) {
+export const createTemplate = Effect.fn('db.auditTemplate.create')(function* (audit: Audit) {
   const db = yield* DbClient;
   const now = new Date(yield* Clock.currentTimeMillis);
   const id = randomUUID() as AuditTemplateId;

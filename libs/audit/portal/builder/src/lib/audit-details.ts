@@ -1,6 +1,6 @@
-import { AuditAuthoring } from '@app-speed/audit/domain';
+import { Audit } from '@app-speed/audit/domain';
 
-export type AuditDetails = AuditAuthoring;
+export type AuditDetails = Audit;
 
 export const DEFAULT_AUDIT_DETAILS = {
   title: '',

@@ -11,7 +11,7 @@ describe('getAuditRequestErrorMessage', () => {
       url: '/api/audit/schedule',
       error: {
         _tag: 'HttpApiDecodeError',
-        message: 'AuditAuthoring\n└─ ["title"]\n   └─ is missing',
+        message: 'Audit\n└─ ["title"]\n   └─ is missing',
         issues: [
           {
             _tag: 'Missing',

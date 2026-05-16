@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { integer, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
-import { type AuditAuthoring } from '@app-speed/audit/domain';
+import { type Audit } from '@app-speed/audit/domain';
 
 export const auditStatusValues = ['SCHEDULED', 'IN_PROGRESS', 'COMPLETE'] as const;
 export type AuditStatus = (typeof auditStatusValues)[number];
@@ -12,7 +12,7 @@ export const auditTemplateTable = sqliteTable(
   'AuditTemplate',
   {
     id: text('id').primaryKey().$defaultFn(randomUUID),
-    data: text('data', { mode: 'json' }).$type<AuditAuthoring>().notNull(),
+    data: text('data', { mode: 'json' }).$type<Audit>().notNull(),
     createdAt: integer('createdAt', { mode: 'timestamp_ms' })
       .notNull()
       .$defaultFn(() => new Date()),

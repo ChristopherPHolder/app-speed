@@ -6,10 +6,10 @@ import path from 'node:path';
 import { auditResultTable, auditRunTable, auditTemplateTable } from './schema';
 
 import { AuditRepo, AuditRepoLive } from './audit-repo';
-import { AuditAuthoring } from '@app-speed/audit/domain';
+import { Audit } from '@app-speed/audit/domain';
 import { DbClient } from './db';
 
-const sampleAudit: AuditAuthoring = {
+const sampleAudit: Audit = {
   title: 'Sample audit',
   device: 'desktop',
   steps: [{ type: 'customStep', step: 'snapshot' }],
