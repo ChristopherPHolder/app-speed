@@ -39,7 +39,7 @@ const TimeoutSchema = Schema.optional(
   }),
 );
 
-const UrlWithHttpsSchema = Schema.String.pipe(
+export const UrlWithHttpsSchema = Schema.String.pipe(
   Schema.pattern(/^https:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9()@:%_+.~#?&/=]*$/),
 ).annotations({ title: 'UrlWithHttps' });
 

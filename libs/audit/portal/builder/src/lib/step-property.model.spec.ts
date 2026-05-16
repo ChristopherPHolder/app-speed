@@ -3,11 +3,23 @@ import { LIGHTHOUSE_AUDIT_STEP_TYPE } from '@app-speed/audit/domain';
 import { STEP_SELECTION_OPTIONS_GROUPED } from './step-property.model';
 
 describe('STEP_SELECTION_OPTIONS_GROUPED', () => {
-  it('keeps custom steps in the unified selector with the audit grouping', () => {
+  it('groups audit and custom steps separately in the selector', () => {
     expect(STEP_SELECTION_OPTIONS_GROUPED).toContainEqual({
       label: 'Audit Steps',
       icon: 'lighthouse-badge',
-      options: Object.values(LIGHTHOUSE_AUDIT_STEP_TYPE),
+      options: [
+        LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
+        LIGHTHOUSE_AUDIT_STEP_TYPE.END_NAVIGATION,
+        LIGHTHOUSE_AUDIT_STEP_TYPE.START_TIMESPAN,
+        LIGHTHOUSE_AUDIT_STEP_TYPE.END_TIMESPAN,
+        LIGHTHOUSE_AUDIT_STEP_TYPE.SNAPSHOT,
+      ],
+    });
+
+    expect(STEP_SELECTION_OPTIONS_GROUPED).toContainEqual({
+      label: 'Custom Steps',
+      icon: 'puppeteer-badge',
+      options: [LIGHTHOUSE_AUDIT_STEP_TYPE.CLEAR_CACHE, LIGHTHOUSE_AUDIT_STEP_TYPE.ADD_COOKIE],
     });
   });
 });

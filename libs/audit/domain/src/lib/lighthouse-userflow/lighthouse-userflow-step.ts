@@ -5,6 +5,7 @@ import {
   PUPPETEER_REPLAY_CUSTOM_STEP_TYPE,
 } from '../puppeteer-replay/puppeteer-replay-step-type';
 import { AuditCustomStepTypeSchema, AuditStepTypeSchema } from '../audit-step.schema';
+import { UrlWithHttpsSchema } from '../puppeteer-replay/puppeteer-replay-step';
 
 export const UserflowStartNavigationStepSchema = Schema.Struct({
   type: AuditStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP)),
@@ -33,12 +34,36 @@ export const UserflowSnapshotStepSchema = Schema.Struct({
   name: Schema.optional(Schema.NonEmptyString),
 });
 
+export const UserflowClearCacheStepSchema = Schema.Struct({
+  type: AuditStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP)),
+  step: AuditCustomStepTypeSchema.pipe(Schema.pickLiteral(LIGHTHOUSE_AUDIT_STEP_TYPE.CLEAR_CACHE)),
+});
+
+const AddCookieParametersSchema = Schema.Struct({
+  name: Schema.NonEmptyString,
+  value: Schema.NonEmptyString,
+  url: UrlWithHttpsSchema,
+  domain: Schema.optional(Schema.NonEmptyString),
+  path: Schema.optional(Schema.NonEmptyString),
+  secure: Schema.optional(Schema.Boolean),
+  httpOnly: Schema.optional(Schema.Boolean),
+  sameSite: Schema.optional(Schema.Literal('Strict', 'Lax', 'None')),
+});
+
+export const UserflowAddCookieStepSchema = Schema.Struct({
+  type: AuditStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP)),
+  step: AuditCustomStepTypeSchema.pipe(Schema.pickLiteral(LIGHTHOUSE_AUDIT_STEP_TYPE.ADD_COOKIE)),
+  ...AddCookieParametersSchema.fields,
+});
+
 export const UserflowStepSchema = Schema.Union(
   UserflowStartNavigationStepSchema,
   UserflowEndNavigationStepSchema,
   UserflowStartTimespanStepSchema,
   UserflowEndTimespanStepSchema,
   UserflowSnapshotStepSchema,
+  UserflowClearCacheStepSchema,
+  UserflowAddCookieStepSchema,
 );
 
 export const isUserflowStep = Schema.is(UserflowStepSchema);
@@ -50,11 +75,16 @@ export const UserflowStepTypeWithStepFlagsLiteral = UserflowAuditStepTypeScheme.
     LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
     LIGHTHOUSE_AUDIT_STEP_TYPE.START_TIMESPAN,
     LIGHTHOUSE_AUDIT_STEP_TYPE.SNAPSHOT,
+    LIGHTHOUSE_AUDIT_STEP_TYPE.ADD_COOKIE,
   ),
 );
 
 export const UserflowStepTypeWithoutStepFlagsLiteral = UserflowAuditStepTypeScheme.pipe(
-  Schema.pickLiteral(LIGHTHOUSE_AUDIT_STEP_TYPE.END_NAVIGATION, LIGHTHOUSE_AUDIT_STEP_TYPE.END_TIMESPAN),
+  Schema.pickLiteral(
+    LIGHTHOUSE_AUDIT_STEP_TYPE.END_NAVIGATION,
+    LIGHTHOUSE_AUDIT_STEP_TYPE.END_TIMESPAN,
+    LIGHTHOUSE_AUDIT_STEP_TYPE.CLEAR_CACHE,
+  ),
 );
 
 const ReplayUserflowStepFlagsSchema = Schema.Struct({
@@ -189,12 +219,70 @@ const UserflowEndTimespanRunnerStepSchema = Schema.transform(
   },
 );
 
+const UserflowClearCacheRunnerStepSchema = Schema.transform(
+  UserflowClearCacheStepSchema,
+  Schema.Struct({
+    type: ReplayUserflowStepWithoutFlagsSchema.fields.type,
+    name: ReplayUserflowStepWithoutFlagsSchema.fields.name.pipe(
+      Schema.pickLiteral(LIGHTHOUSE_AUDIT_STEP_TYPE.CLEAR_CACHE),
+    ),
+    parameters: ReplayUserflowStepWithoutFlagsSchema.fields.parameters,
+  }),
+  {
+    strict: true,
+    decode: () => ({
+      type: PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP,
+      name: LIGHTHOUSE_AUDIT_STEP_TYPE.CLEAR_CACHE,
+      parameters: undefined,
+    }),
+    encode: () => ({
+      type: PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP,
+      step: LIGHTHOUSE_AUDIT_STEP_TYPE.CLEAR_CACHE,
+    }),
+  },
+);
+
+const UserflowAddCookieRunnerStepSchema = Schema.transform(
+  UserflowAddCookieStepSchema,
+  Schema.Struct({
+    type: ReplayUserflowStepWithFlagsSchema.fields.type,
+    name: ReplayUserflowStepWithFlagsSchema.fields.name.pipe(
+      Schema.pickLiteral(LIGHTHOUSE_AUDIT_STEP_TYPE.ADD_COOKIE),
+    ),
+    parameters: AddCookieParametersSchema,
+  }),
+  {
+    strict: true,
+    decode: ({ name, value, url, domain, path, secure, httpOnly, sameSite }) => ({
+      type: PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP,
+      name: LIGHTHOUSE_AUDIT_STEP_TYPE.ADD_COOKIE,
+      parameters: {
+        name,
+        value,
+        url,
+        domain,
+        path,
+        secure,
+        httpOnly,
+        sameSite,
+      },
+    }),
+    encode: ({ parameters }) => ({
+      type: PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP,
+      step: LIGHTHOUSE_AUDIT_STEP_TYPE.ADD_COOKIE,
+      ...parameters,
+    }),
+  },
+);
+
 export const ReplayUserflowStepSchema = Schema.Union(
   Schema.typeSchema(UserflowStartNavigationRunnerStepSchema),
   Schema.typeSchema(UserflowEndNavigationRunnerStepSchema),
   Schema.typeSchema(UserflowStartTimespanRunnerStepSchema),
   Schema.typeSchema(UserflowEndTimespanRunnerStepSchema),
   Schema.typeSchema(UserflowSnapshotRunnerStepSchema),
+  Schema.typeSchema(UserflowClearCacheRunnerStepSchema),
+  Schema.typeSchema(UserflowAddCookieRunnerStepSchema),
 );
 
 export const isReplayUserflowStep = Schema.is(ReplayUserflowStepSchema);
@@ -206,4 +294,6 @@ export const UserflowRunnerStepSchema = Schema.Union(
   UserflowStartTimespanRunnerStepSchema,
   UserflowEndTimespanRunnerStepSchema,
   UserflowSnapshotRunnerStepSchema,
+  UserflowClearCacheRunnerStepSchema,
+  UserflowAddCookieRunnerStepSchema,
 );

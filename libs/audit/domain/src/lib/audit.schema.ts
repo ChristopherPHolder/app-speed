@@ -1,5 +1,7 @@
 import { Schema } from 'effect';
 import {
+  UserflowAddCookieStepSchema,
+  UserflowClearCacheStepSchema,
   UserflowRunnerStepSchema,
   UserflowEndNavigationStepSchema,
   UserflowEndTimespanStepSchema,
@@ -48,6 +50,8 @@ export const AuditStepSchema = Schema.Union(
   UserflowStartTimespanStepSchema,
   UserflowEndTimespanStepSchema,
   UserflowSnapshotStepSchema,
+  UserflowClearCacheStepSchema,
+  UserflowAddCookieStepSchema,
 ).annotations({
   title: 'AuditStep',
 });

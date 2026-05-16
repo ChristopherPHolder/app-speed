@@ -30,6 +30,97 @@ describe('PuppeteerReplayUserflowRunnerSchema', () => {
       ],
     });
   });
+
+  it('should decode clearCache custom steps into parameterless replay custom steps', () => {
+    const recording = {
+      title: 'Stub audit title',
+      device: 'mobile',
+      steps: [
+        {
+          type: 'customStep',
+          step: 'clearCache',
+        },
+        {
+          type: 'customStep',
+          step: LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
+          name: 'Home Page',
+        },
+      ],
+    };
+
+    const decoded = Schema.decodeUnknownSync(PuppeteerReplayUserflowRunnerSchema)(recording);
+
+    expect(decoded).toEqual({
+      title: 'Stub audit title',
+      device: 'mobile',
+      steps: [
+        {
+          type: 'customStep',
+          name: 'clearCache',
+          parameters: undefined,
+        },
+        {
+          type: 'customStep',
+          name: LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
+          parameters: { name: 'Home Page' },
+        },
+      ],
+    });
+  });
+
+  it('should decode addCookie custom steps into replay parameters', () => {
+    const recording = {
+      title: 'Stub audit title',
+      device: 'mobile',
+      steps: [
+        {
+          type: 'customStep',
+          step: 'addCookie',
+          name: 'session',
+          value: 'token',
+          url: 'https://example.com/app',
+          domain: '.example.com',
+          path: '/',
+          secure: true,
+          httpOnly: true,
+          sameSite: 'Strict',
+        },
+        {
+          type: 'customStep',
+          step: LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
+          name: 'Home Page',
+        },
+      ],
+    };
+
+    const decoded = Schema.decodeUnknownSync(PuppeteerReplayUserflowRunnerSchema)(recording);
+
+    expect(decoded).toEqual({
+      title: 'Stub audit title',
+      device: 'mobile',
+      steps: [
+        {
+          type: 'customStep',
+          name: 'addCookie',
+          parameters: {
+            name: 'session',
+            value: 'token',
+            url: 'https://example.com/app',
+            domain: '.example.com',
+            path: '/',
+            secure: true,
+            httpOnly: true,
+            sameSite: 'Strict',
+          },
+        },
+        {
+          type: 'customStep',
+          name: LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
+          parameters: { name: 'Home Page' },
+        },
+      ],
+    });
+  });
 });
 
 describe('AuditSchema', () => {
@@ -39,6 +130,48 @@ describe('AuditSchema', () => {
         title: 'Stub audit title',
         device: 'mobile',
         steps: [
+          {
+            type: 'customStep',
+            step: LIGHTHOUSE_AUDIT_STEP_TYPE.END_NAVIGATION,
+          },
+        ],
+      }),
+    ).toBe(true);
+  });
+
+  it('should accept clearCache persisted custom steps', () => {
+    expect(
+      Schema.is(AuditSchema)({
+        title: 'Stub audit title',
+        device: 'mobile',
+        steps: [
+          {
+            type: 'customStep',
+            step: LIGHTHOUSE_AUDIT_STEP_TYPE.CLEAR_CACHE,
+          },
+          {
+            type: 'customStep',
+            step: LIGHTHOUSE_AUDIT_STEP_TYPE.END_NAVIGATION,
+          },
+        ],
+      }),
+    ).toBe(true);
+  });
+
+  it('should accept addCookie persisted custom steps', () => {
+    expect(
+      Schema.is(AuditSchema)({
+        title: 'Stub audit title',
+        device: 'mobile',
+        steps: [
+          {
+            type: 'customStep',
+            step: LIGHTHOUSE_AUDIT_STEP_TYPE.ADD_COOKIE,
+            name: 'session',
+            value: 'token',
+            url: 'https://example.com/app',
+            sameSite: 'Lax',
+          },
           {
             type: 'customStep',
             step: LIGHTHOUSE_AUDIT_STEP_TYPE.END_NAVIGATION,

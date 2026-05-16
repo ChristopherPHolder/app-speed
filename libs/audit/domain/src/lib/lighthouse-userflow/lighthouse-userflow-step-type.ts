@@ -7,6 +7,7 @@ type CallableKeys<T> = {
   string;
 
 type UserFlowCallSignature = CallableKeys<UserFlow>;
+type RunnerOnlyCustomStep = 'clearCache' | 'addCookie';
 
 type LighthouseSupportedStep = StrictExtract<
   UserFlowCallSignature,
@@ -19,4 +20,6 @@ export const LIGHTHOUSE_AUDIT_STEP_TYPE = {
   START_TIMESPAN: 'startTimespan',
   END_TIMESPAN: 'endTimespan',
   SNAPSHOT: 'snapshot',
-} as const satisfies MapLiteralStep<LighthouseSupportedStep>;
+  CLEAR_CACHE: 'clearCache',
+  ADD_COOKIE: 'addCookie',
+} as const satisfies MapLiteralStep<LighthouseSupportedStep | RunnerOnlyCustomStep>;

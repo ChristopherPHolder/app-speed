@@ -245,7 +245,35 @@ const SNAPSHOT: StepDetails = {
   properties: [requiredFeature(STEP_PROPERTY.name)],
 };
 
+const CLEAR_CACHE: StepDetails = {
+  selection: LIGHTHOUSE_AUDIT_STEP_TYPE.CLEAR_CACHE,
+  step: { type: STEP_TYPE.CUSTOM_STEP, step: LIGHTHOUSE_AUDIT_STEP_TYPE.CLEAR_CACHE },
+  properties: [],
+};
+
+const ADD_COOKIE: StepDetails = {
+  selection: LIGHTHOUSE_AUDIT_STEP_TYPE.ADD_COOKIE,
+  step: {
+    type: STEP_TYPE.CUSTOM_STEP,
+    step: LIGHTHOUSE_AUDIT_STEP_TYPE.ADD_COOKIE,
+    name: '',
+    value: '',
+    url: '',
+  },
+  properties: [
+    requiredFeature(STEP_PROPERTY.name),
+    requiredFeature(STEP_PROPERTY.value),
+    requiredFeature(STEP_PROPERTY.url),
+    STEP_PROPERTY.domain,
+    STEP_PROPERTY.path,
+    STEP_PROPERTY.secure,
+    STEP_PROPERTY.httpOnly,
+    STEP_PROPERTY.sameSite,
+  ],
+};
+
 const AUDIT_STEPS: StepDetails[] = [START_NAVIGATION, END_NAVIGATION, START_TIMESPAN, END_TIMESPAN, SNAPSHOT];
+const CUSTOM_STEPS: StepDetails[] = [CLEAR_CACHE, ADD_COOKIE];
 
 const ASSERTION_STEPS: StepDetails[] = [WAIT_FOR_ELEMENT_STEP, WAIT_FOR_EXPRESSION_STEP];
 
@@ -263,7 +291,7 @@ const USER_STEPS: StepDetails[] = [
   SET_VIEWPORT_STEP,
 ];
 
-export const STEP_OPTIONS = [EMPTY_STEP, ASSERTION_STEPS, USER_STEPS, AUDIT_STEPS].flat();
+export const STEP_OPTIONS = [EMPTY_STEP, ASSERTION_STEPS, USER_STEPS, AUDIT_STEPS, CUSTOM_STEPS].flat();
 
 export const stepSelectionFromStep = (step: Step): StepSelection | '' =>
   step.type === STEP_TYPE.CUSTOM_STEP ? step.step : step.type;
