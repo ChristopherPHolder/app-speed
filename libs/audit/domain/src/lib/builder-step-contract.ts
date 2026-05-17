@@ -4,11 +4,19 @@ import { PuppeteerReplayBuilderStepVariants } from './puppeteer-replay/puppeteer
 import type { BuilderStepVariantDefinition } from './builder-step-variant';
 
 type BuilderScalarValue = string | number | boolean | null;
+export type BuilderFieldValidationContract = {
+  integer?: boolean;
+  minItems?: number;
+  minLength?: number;
+  minimum?: number;
+  pattern?: string;
+};
 
 type BuilderBaseFieldContract = {
   path: string;
   required: boolean;
   defaultValue?: unknown;
+  validation?: BuilderFieldValidationContract;
 };
 
 export type BuilderFieldContract =
@@ -70,10 +78,14 @@ export const deriveBuilderStepContract = (variant: BuilderStepVariantDefinition)
 
 type AstNode = {
   _tag: string;
+  annotations?: Record<PropertyKey, unknown>;
   literal?: unknown;
   types?: AstNode[];
   from?: AstNode;
   to?: AstNode;
+  type?: AstNode;
+  elements?: Array<AstNode | { _tag?: string; type: AstNode }>;
+  rest?: Array<{ type: AstNode }>;
 };
 
 type TypeLiteralAst = AstNode & {
@@ -102,17 +114,25 @@ const deriveFieldContract = ({
   path: string;
   required: boolean;
 }): BuilderFieldContract => {
+  const validation = deriveValidationContract(ast);
   const normalizedAst = normalizeTerminalAst(ast);
 
   switch (normalizedAst._tag) {
     case 'StringKeyword':
-      return { kind: 'string', path, required, defaultValue };
+      return { kind: 'string', path, required, defaultValue, validation };
     case 'NumberKeyword':
-      return { kind: 'number', path, required, defaultValue };
+      return { kind: 'number', path, required, defaultValue, validation };
     case 'BooleanKeyword':
-      return { kind: 'boolean', path, required, defaultValue };
+      return { kind: 'boolean', path, required, defaultValue, validation };
     case 'Literal':
-      return { kind: 'literal', path, required, defaultValue, value: normalizedAst.literal as BuilderScalarValue };
+      return {
+        kind: 'literal',
+        path,
+        required,
+        defaultValue,
+        validation,
+        value: normalizedAst.literal as BuilderScalarValue,
+      };
     case 'Union':
       return deriveUnionFieldContract({
         ast: normalizedAst as AstNode & { types: AstNode[] },
@@ -146,6 +166,7 @@ const deriveUnionFieldContract = ({
   required: boolean;
 }): BuilderFieldContract => {
   const literalOptions = ast.types.map((type) => normalizeTerminalAst(type));
+  const validation = deriveValidationContract(ast);
 
   if (literalOptions.every((type) => type._tag === 'Literal')) {
     return {
@@ -153,20 +174,21 @@ const deriveUnionFieldContract = ({
       path,
       required,
       defaultValue,
+      validation,
       options: literalOptions.map((type) => type.literal as BuilderScalarValue),
     };
   }
 
   if (literalOptions.every((type) => type._tag === 'StringKeyword')) {
-    return { kind: 'string', path, required, defaultValue };
+    return { kind: 'string', path, required, defaultValue, validation };
   }
 
   if (literalOptions.every((type) => type._tag === 'NumberKeyword')) {
-    return { kind: 'number', path, required, defaultValue };
+    return { kind: 'number', path, required, defaultValue, validation };
   }
 
   if (literalOptions.every((type) => type._tag === 'BooleanKeyword')) {
-    return { kind: 'boolean', path, required, defaultValue };
+    return { kind: 'boolean', path, required, defaultValue, validation };
   }
 
   throw new Error(`Unsupported builder union at ${path}`);
@@ -187,6 +209,7 @@ const deriveArrayFieldContract = ({
   required: boolean;
 }): BuilderFieldContract => {
   const tupleElementCount = ast.elements?.length ?? 0;
+  const validation = deriveValidationContract(ast);
 
   if (!ast.rest || ast.rest.length !== 1 || tupleElementCount > 1) {
     throw new Error(`Unsupported builder tuple at ${path}`);
@@ -201,6 +224,7 @@ const deriveArrayFieldContract = ({
     path,
     required,
     defaultValue,
+    validation,
     element: deriveFieldContract({
       ast: elementType,
       defaultValue: undefined,
@@ -221,6 +245,8 @@ const deriveTypeLiteralFieldContract = ({
   path: string;
   required: boolean;
 }): BuilderFieldContract => {
+  const validation = deriveValidationContract(ast);
+
   if (ast.indexSignatures.length > 0) {
     if (ast.propertySignatures.length > 0 || ast.indexSignatures.length !== 1) {
       throw new Error(`Unsupported builder record at ${path}`);
@@ -231,6 +257,7 @@ const deriveTypeLiteralFieldContract = ({
       path,
       required,
       defaultValue,
+      validation,
       value: deriveFieldContract({
         ast: ast.indexSignatures[0].type,
         defaultValue: undefined,
@@ -245,6 +272,7 @@ const deriveTypeLiteralFieldContract = ({
     path,
     required,
     defaultValue,
+    validation,
     fields: ast.propertySignatures.map((property) =>
       deriveFieldContract({
         ast: unwrapOptionalType(property.type),
@@ -271,11 +299,11 @@ const unwrapOptionalType = (ast: AstNode): AstNode => {
 };
 
 const unwrapTupleElementType = (element: AstNode | { _tag?: string; type: AstNode }): AstNode => {
-  if ('type' in element) {
+  if ('type' in element && element.type) {
     return element.type;
   }
 
-  return element;
+  return element as AstNode;
 };
 
 const normalizeTerminalAst = (ast: AstNode): AstNode => {
@@ -293,3 +321,139 @@ const isRootDiscriminator = (name: string, ast: AstNode): ast is AstNode & { lit
   (name === 'type' || name === 'step') && ast._tag === 'Literal';
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null;
+
+const deriveValidationContract = (ast: AstNode): BuilderFieldValidationContract | undefined => {
+  const annotationValidation = deriveAnnotationValidation(ast.annotations);
+
+  switch (ast._tag) {
+    case 'Refinement':
+      return mergeValidationContracts(deriveValidationContract(ast.from as AstNode), annotationValidation);
+    case 'Transformation':
+      return mergeValidationContracts(
+        deriveValidationContract(ast.from as AstNode),
+        deriveValidationContract(ast.to as AstNode),
+        annotationValidation,
+      );
+    case 'Type':
+    case 'OptionalType':
+      return mergeValidationContracts(deriveValidationContract(ast.type as AstNode), annotationValidation);
+    case 'Union': {
+      const definedTypes = (ast.types ?? []).filter((type) => type._tag !== 'UndefinedKeyword');
+
+      if (definedTypes.length === 0) {
+        return annotationValidation;
+      }
+
+      return mergeValidationContracts(intersectValidationContracts(definedTypes.map(deriveValidationContract)), annotationValidation);
+    }
+    case 'TupleType':
+      return mergeValidationContracts(
+        (ast.elements?.length ?? 0) > 0 ? { minItems: ast.elements?.length } : undefined,
+        annotationValidation,
+      );
+    default:
+      return annotationValidation;
+  }
+};
+
+const deriveAnnotationValidation = (
+  annotations: Record<PropertyKey, unknown> | undefined,
+): BuilderFieldValidationContract | undefined => {
+  if (!annotations) {
+    return undefined;
+  }
+
+  const jsonSchemaAnnotation = Object.getOwnPropertySymbols(annotations)
+    .find((symbol) => String(symbol).includes('annotation/JSONSchema'));
+
+  if (!jsonSchemaAnnotation) {
+    return undefined;
+  }
+
+  const jsonSchema = annotations[jsonSchemaAnnotation];
+
+  if (!isRecord(jsonSchema)) {
+    return undefined;
+  }
+
+  const validation: BuilderFieldValidationContract = {};
+
+  if (typeof jsonSchema['minLength'] === 'number') {
+    validation.minLength = jsonSchema['minLength'];
+  }
+
+  if (typeof jsonSchema['minimum'] === 'number') {
+    validation.minimum = jsonSchema['minimum'];
+  }
+
+  if (typeof jsonSchema['pattern'] === 'string') {
+    validation.pattern = jsonSchema['pattern'];
+  }
+
+  if (jsonSchema['type'] === 'integer') {
+    validation.integer = true;
+  }
+
+  return Object.keys(validation).length > 0 ? validation : undefined;
+};
+
+const mergeValidationContracts = (
+  ...contracts: Array<BuilderFieldValidationContract | undefined>
+): BuilderFieldValidationContract | undefined => {
+  const merged = contracts.reduce<BuilderFieldValidationContract>(
+    (result, contract) => ({ ...result, ...contract }),
+    {},
+  );
+
+  return Object.keys(merged).length > 0 ? merged : undefined;
+};
+
+const intersectValidationContracts = (
+  contracts: Array<BuilderFieldValidationContract | undefined>,
+): BuilderFieldValidationContract | undefined => {
+  const definedContracts = contracts.filter((contract): contract is BuilderFieldValidationContract => contract !== undefined);
+
+  if (definedContracts.length === 0) {
+    return undefined;
+  }
+
+  const keys = new Set(definedContracts.flatMap((contract) => Object.keys(contract) as Array<keyof BuilderFieldValidationContract>));
+  const intersection: BuilderFieldValidationContract = {};
+
+  for (const key of keys) {
+    const values = definedContracts.map((contract) => contract[key]);
+    const [firstValue] = values;
+
+    if (firstValue === undefined || values.some((value) => value !== firstValue)) {
+      continue;
+    }
+
+    assignValidationValue(intersection, key, firstValue);
+  }
+
+  return Object.keys(intersection).length > 0 ? intersection : undefined;
+};
+
+const assignValidationValue = (
+  target: BuilderFieldValidationContract,
+  key: keyof BuilderFieldValidationContract,
+  value: BuilderFieldValidationContract[keyof BuilderFieldValidationContract],
+): void => {
+  switch (key) {
+    case 'integer':
+      target.integer = value as boolean;
+      break;
+    case 'minItems':
+      target.minItems = value as number;
+      break;
+    case 'minLength':
+      target.minLength = value as number;
+      break;
+    case 'minimum':
+      target.minimum = value as number;
+      break;
+    case 'pattern':
+      target.pattern = value as string;
+      break;
+  }
+};
