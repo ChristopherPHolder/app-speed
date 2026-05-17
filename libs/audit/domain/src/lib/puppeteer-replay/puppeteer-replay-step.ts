@@ -12,9 +12,8 @@ import type {
   NavigateStep,
   NavigationEvent,
   PointerDeviceType,
-  ScrollStep,
+  Selector,
   SetViewportStep,
-  Step,
   WaitForElementStep,
   WaitForExpressionStep,
 } from '@puppeteer/replay';
@@ -32,6 +31,7 @@ import {
 import { PointerButtonTypeSchema } from './puppeteer-replay-pointer-button-type';
 import { PuppeteerReplayKeySchema } from './puppeteer-replay-key';
 import { SchemaTypeWithEnumLiteralDeep } from '../type-utils';
+import type { BuilderStepVariantDefinition } from '../builder-step-variant';
 
 const TimeoutSchema = Schema.optional(
   Schema.Union(Schema.NonNegativeInt, Schema.NumberFromString.pipe(Schema.int(), Schema.nonNegative())).annotations({
@@ -52,10 +52,17 @@ const AssertedEventsSchema = Schema.Struct({
 }) satisfies SchemaTypeWithEnumLiteralDeep<NavigationEvent>;
 
 const FrameSelectorSchema = Schema.Array(Schema.NonNegativeInt);
-// TODO FIX Selectors is actually more complex, its an array of strings or string arrays.
-// const SelectorSchema = Schema.Union(Schema.String, Schema.Array(Schema.String)); TODO Fix
-const SelectorSchema = Schema.NonEmptyString;
-const SelectorsSchema = Schema.Array(SelectorSchema);
+export const SelectorPathSchema = Schema.Struct({
+  segments: Schema.NonEmptyArray(Schema.NonEmptyString),
+});
+const SelectorsSchema = Schema.Array(SelectorPathSchema);
+const ReplaySelectorSchema = Schema.Union(Schema.NonEmptyString, Schema.NonEmptyArray(Schema.NonEmptyString));
+const ReplaySelectorsSchema = Schema.Array(ReplaySelectorSchema);
+
+type SelectorPath = typeof SelectorPathSchema.Type;
+type NormalizedSelectorStep<TStep extends { selectors: unknown }> = Omit<TStep, 'selectors'> & {
+  selectors: SelectorPath[];
+};
 
 const PointerDeviceTypeSchema = Schema.Literal(
   'mouse',
@@ -71,7 +78,7 @@ export const ChangeStepSchema = Schema.Struct({
   target: Schema.optional(Schema.String),
   timeout: TimeoutSchema,
   value: Schema.NonEmptyString,
-}) satisfies SchemaTypeWithEnumLiteralDeep<ChangeStep>;
+}) satisfies SchemaTypeWithEnumLiteralDeep<NormalizedSelectorStep<ChangeStep>>;
 
 export const ClickStepSchema = Schema.Struct({
   type: PuppeteerReplayStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_USER_STEP_TYPE.CLICK)),
@@ -85,7 +92,7 @@ export const ClickStepSchema = Schema.Struct({
   selectors: SelectorsSchema,
   target: Schema.optional(Schema.String),
   timeout: TimeoutSchema,
-}) satisfies SchemaTypeWithEnumLiteralDeep<ClickStep>;
+}) satisfies SchemaTypeWithEnumLiteralDeep<NormalizedSelectorStep<ClickStep>>;
 
 export const CloseStepSchema = Schema.Struct({
   type: PuppeteerReplayStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_USER_STEP_TYPE.CLOSE)),
@@ -131,7 +138,7 @@ export const DoubleClickStepSchema = Schema.Struct({
   selectors: SelectorsSchema,
   target: Schema.optional(Schema.String),
   timeout: TimeoutSchema,
-}) satisfies SchemaTypeWithEnumLiteralDeep<DoubleClickStep>;
+}) satisfies SchemaTypeWithEnumLiteralDeep<NormalizedSelectorStep<DoubleClickStep>>;
 
 export const EmulateNetworkConditionsStepSchema = Schema.Struct({
   type: PuppeteerReplayStepTypeSchema.pipe(
@@ -151,7 +158,7 @@ export const HoverStepSchema = Schema.Struct({
   selectors: SelectorsSchema,
   target: Schema.optional(Schema.String),
   timeout: TimeoutSchema,
-}) satisfies SchemaTypeWithEnumLiteralDeep<HoverStep>;
+}) satisfies SchemaTypeWithEnumLiteralDeep<NormalizedSelectorStep<HoverStep>>;
 
 export const KeyDownStepSchema = Schema.Struct({
   type: PuppeteerReplayStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_USER_STEP_TYPE.KEY_DOWN)),
@@ -190,7 +197,7 @@ export const ScrollPageStepSchema = Schema.Struct({
 export const ScrollStepSchema = Schema.Struct({
   ...ScrollPageStepSchema.fields,
   selectors: SelectorsSchema,
-}) satisfies SchemaTypeWithEnumLiteralDeep<ScrollStep>;
+});
 
 export const SetViewStepSchema = Schema.Struct({
   type: PuppeteerReplayStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_USER_STEP_TYPE.SET_VIEWPORT)),
@@ -221,7 +228,7 @@ export const WaitForElementStepSchema = Schema.Struct({
   target: Schema.optional(Schema.String),
   timeout: TimeoutSchema,
   visible: Schema.optional(Schema.Boolean),
-}) satisfies SchemaTypeWithEnumLiteralDeep<WaitForElementStep>;
+}) satisfies SchemaTypeWithEnumLiteralDeep<NormalizedSelectorStep<WaitForElementStep>>;
 
 export const WaitForExpressionStepSchema = Schema.Struct({
   type: PuppeteerReplayStepTypeSchema.pipe(
@@ -233,6 +240,206 @@ export const WaitForExpressionStepSchema = Schema.Struct({
   target: Schema.optional(Schema.String),
   timeout: TimeoutSchema,
 }) satisfies SchemaTypeWithEnumLiteralDeep<WaitForExpressionStep>;
+
+const ReplayChangeStepSchema = Schema.Struct({
+  ...ChangeStepSchema.fields,
+  selectors: ReplaySelectorsSchema,
+}) satisfies SchemaTypeWithEnumLiteralDeep<ChangeStep>;
+
+const ReplayClickStepSchema = Schema.Struct({
+  ...ClickStepSchema.fields,
+  selectors: ReplaySelectorsSchema,
+}) satisfies SchemaTypeWithEnumLiteralDeep<ClickStep>;
+
+const ReplayDoubleClickStepSchema = Schema.Struct({
+  ...DoubleClickStepSchema.fields,
+  selectors: ReplaySelectorsSchema,
+}) satisfies SchemaTypeWithEnumLiteralDeep<DoubleClickStep>;
+
+const ReplayHoverStepSchema = Schema.Struct({
+  ...HoverStepSchema.fields,
+  selectors: ReplaySelectorsSchema,
+}) satisfies SchemaTypeWithEnumLiteralDeep<HoverStep>;
+
+const ReplayScrollStepSchema = Schema.Struct({
+  ...ScrollStepSchema.fields,
+  selectors: ReplaySelectorsSchema,
+});
+
+const ReplayWaitForElementStepSchema = Schema.Struct({
+  ...WaitForElementStepSchema.fields,
+  selectors: ReplaySelectorsSchema,
+}) satisfies SchemaTypeWithEnumLiteralDeep<WaitForElementStep>;
+
+const selectorPathToReplaySelector = ({ segments }: SelectorPath): Selector =>
+  segments.length === 1 ? segments[0] : [...segments];
+
+const replaySelectorToSelectorPath = (selector: Selector): SelectorPath => ({
+  segments: (() => {
+    const segments = Array.isArray(selector) ? selector : [selector];
+    const [first, ...rest] = segments;
+
+    if (!first) {
+      throw new Error('Replay selector paths must be non-empty');
+    }
+
+    return [first, ...rest];
+  })(),
+});
+
+const normalizedSelectorsStepRunnerSchema = (
+  authoringSchema: Schema.Schema.AnyNoContext,
+  replaySchema: Schema.Schema.AnyNoContext,
+) =>
+  Schema.transform(
+    authoringSchema as never,
+    replaySchema as never,
+    {
+      strict: true,
+      decode: ({ selectors, ...rest }: { selectors: SelectorPath[] } & Record<string, unknown>) => ({
+        ...rest,
+        selectors: selectors.map(selectorPathToReplaySelector),
+      }),
+      encode: ({ selectors, ...rest }: { selectors: Selector[] } & Record<string, unknown>) => ({
+        ...rest,
+        selectors: selectors.map(replaySelectorToSelectorPath),
+      }),
+    } as never,
+  );
+
+export const ChangeRunnerStepSchema = normalizedSelectorsStepRunnerSchema(ChangeStepSchema, ReplayChangeStepSchema);
+export const ClickRunnerStepSchema = normalizedSelectorsStepRunnerSchema(ClickStepSchema, ReplayClickStepSchema);
+export const DoubleClickRunnerStepSchema = normalizedSelectorsStepRunnerSchema(
+  DoubleClickStepSchema,
+  ReplayDoubleClickStepSchema,
+);
+export const HoverRunnerStepSchema = normalizedSelectorsStepRunnerSchema(HoverStepSchema, ReplayHoverStepSchema);
+export const ScrollRunnerStepSchema = normalizedSelectorsStepRunnerSchema(ScrollStepSchema, ReplayScrollStepSchema);
+export const WaitForElementRunnerStepSchema = normalizedSelectorsStepRunnerSchema(
+  WaitForElementStepSchema,
+  ReplayWaitForElementStepSchema,
+);
+
+export const PuppeteerReplayBuilderStepVariants: readonly BuilderStepVariantDefinition[] = [
+  {
+    id: PUPPETEER_REPLAY_ASSERTION_STEP_TYPE.WAIT_FOR_ELEMENT,
+    schema: WaitForElementStepSchema,
+    defaultValue: {
+      type: PUPPETEER_REPLAY_ASSERTION_STEP_TYPE.WAIT_FOR_ELEMENT,
+      count: 1,
+      selectors: [],
+    },
+  },
+  {
+    id: PUPPETEER_REPLAY_ASSERTION_STEP_TYPE.WAIT_FOR_EXPRESSION,
+    schema: WaitForExpressionStepSchema,
+    defaultValue: {
+      type: PUPPETEER_REPLAY_ASSERTION_STEP_TYPE.WAIT_FOR_EXPRESSION,
+      expression: '',
+    },
+  },
+  {
+    id: PUPPETEER_REPLAY_USER_STEP_TYPE.CHANGE,
+    schema: ChangeStepSchema,
+    defaultValue: {
+      type: PUPPETEER_REPLAY_USER_STEP_TYPE.CHANGE,
+      selectors: [],
+      value: '',
+    },
+  },
+  {
+    id: PUPPETEER_REPLAY_USER_STEP_TYPE.CLICK,
+    schema: ClickStepSchema,
+    defaultValue: {
+      type: PUPPETEER_REPLAY_USER_STEP_TYPE.CLICK,
+      offsetX: 1,
+      offsetY: 1,
+      selectors: [],
+    },
+  },
+  {
+    id: PUPPETEER_REPLAY_USER_STEP_TYPE.CLOSE,
+    schema: CloseStepSchema,
+    defaultValue: {
+      type: PUPPETEER_REPLAY_USER_STEP_TYPE.CLOSE,
+    },
+  },
+  {
+    id: PUPPETEER_REPLAY_USER_STEP_TYPE.DOUBLE_CLICK,
+    schema: DoubleClickStepSchema,
+    defaultValue: {
+      type: PUPPETEER_REPLAY_USER_STEP_TYPE.DOUBLE_CLICK,
+      offsetX: 1,
+      offsetY: 1,
+      selectors: [],
+    },
+  },
+  {
+    id: PUPPETEER_REPLAY_USER_STEP_TYPE.EMULATE_NETWORK_CONDITIONS,
+    schema: EmulateNetworkConditionsStepSchema,
+    defaultValue: {
+      type: PUPPETEER_REPLAY_USER_STEP_TYPE.EMULATE_NETWORK_CONDITIONS,
+      download: 1,
+      latency: 1,
+      upload: 1,
+    },
+  },
+  {
+    id: PUPPETEER_REPLAY_USER_STEP_TYPE.HOVER,
+    schema: HoverStepSchema,
+    defaultValue: {
+      type: PUPPETEER_REPLAY_USER_STEP_TYPE.HOVER,
+      selectors: [],
+    },
+  },
+  {
+    id: PUPPETEER_REPLAY_USER_STEP_TYPE.KEY_DOWN,
+    schema: KeyDownStepSchema,
+    defaultValue: {
+      type: PUPPETEER_REPLAY_USER_STEP_TYPE.KEY_DOWN,
+      key: 'Enter',
+    },
+  },
+  {
+    id: PUPPETEER_REPLAY_USER_STEP_TYPE.KEY_UP,
+    schema: KeyUpStepSchema,
+    defaultValue: {
+      type: PUPPETEER_REPLAY_USER_STEP_TYPE.KEY_UP,
+      key: 'Enter',
+    },
+  },
+  {
+    id: PUPPETEER_REPLAY_USER_STEP_TYPE.NAVIGATE,
+    schema: NavigateStepSchema,
+    defaultValue: {
+      type: PUPPETEER_REPLAY_USER_STEP_TYPE.NAVIGATE,
+      url: '',
+    },
+  },
+  {
+    id: PUPPETEER_REPLAY_USER_STEP_TYPE.SCROLL,
+    schema: ScrollStepSchema,
+    defaultValue: {
+      type: PUPPETEER_REPLAY_USER_STEP_TYPE.SCROLL,
+      selectors: [],
+      x: 1,
+      y: 1,
+    },
+  },
+  {
+    id: PUPPETEER_REPLAY_USER_STEP_TYPE.SET_VIEWPORT,
+    schema: SetViewStepSchema,
+    defaultValue: {
+      type: PUPPETEER_REPLAY_USER_STEP_TYPE.SET_VIEWPORT,
+      deviceScaleFactor: 1,
+      hasTouch: false,
+      height: 1,
+      isLandscape: false,
+      isMobile: false,
+      width: 1,
+    },
+  },
+];
 
 export const PuppeteerReplayStepSchema = Schema.Union(
   ChangeStepSchema,
@@ -249,4 +456,21 @@ export const PuppeteerReplayStepSchema = Schema.Union(
   SetViewStepSchema,
   WaitForElementStepSchema,
   WaitForExpressionStepSchema,
-).annotations({ title: 'PuppeteerReplayStep' }) satisfies SchemaTypeWithEnumLiteralDeep<Step>;
+).annotations({ title: 'PuppeteerReplayStep' });
+
+export const PuppeteerReplayRunnerStepSchema = Schema.Union(
+  ChangeRunnerStepSchema,
+  ClickRunnerStepSchema,
+  CloseStepSchema,
+  CustomStepSchema,
+  DoubleClickRunnerStepSchema,
+  EmulateNetworkConditionsStepSchema,
+  HoverRunnerStepSchema,
+  KeyDownStepSchema,
+  KeyUpStepSchema,
+  NavigateStepSchema,
+  ScrollRunnerStepSchema,
+  SetViewStepSchema,
+  WaitForElementRunnerStepSchema,
+  WaitForExpressionStepSchema,
+);

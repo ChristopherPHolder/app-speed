@@ -5,6 +5,7 @@ import {
   PUPPETEER_REPLAY_CUSTOM_STEP_TYPE,
 } from '../puppeteer-replay/puppeteer-replay-step-type';
 import { AuditStepTypeSchema, LighthouseAuditStepTypeSchema } from '../audit-step.schema';
+import type { BuilderStepVariantDefinition } from '../builder-step-variant';
 
 export const UserflowStartNavigationStepSchema = Schema.Struct({
   type: AuditStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP)),
@@ -207,3 +208,46 @@ export const UserflowRunnerStepSchema = Schema.Union(
   UserflowEndTimespanRunnerStepSchema,
   UserflowSnapshotRunnerStepSchema,
 );
+
+export const UserflowBuilderStepVariants: readonly BuilderStepVariantDefinition[] = [
+  {
+    id: LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
+    schema: UserflowStartNavigationStepSchema,
+    defaultValue: {
+      type: PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP,
+      step: LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
+    },
+  },
+  {
+    id: LIGHTHOUSE_AUDIT_STEP_TYPE.END_NAVIGATION,
+    schema: UserflowEndNavigationStepSchema,
+    defaultValue: {
+      type: PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP,
+      step: LIGHTHOUSE_AUDIT_STEP_TYPE.END_NAVIGATION,
+    },
+  },
+  {
+    id: LIGHTHOUSE_AUDIT_STEP_TYPE.START_TIMESPAN,
+    schema: UserflowStartTimespanStepSchema,
+    defaultValue: {
+      type: PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP,
+      step: LIGHTHOUSE_AUDIT_STEP_TYPE.START_TIMESPAN,
+    },
+  },
+  {
+    id: LIGHTHOUSE_AUDIT_STEP_TYPE.END_TIMESPAN,
+    schema: UserflowEndTimespanStepSchema,
+    defaultValue: {
+      type: PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP,
+      step: LIGHTHOUSE_AUDIT_STEP_TYPE.END_TIMESPAN,
+    },
+  },
+  {
+    id: LIGHTHOUSE_AUDIT_STEP_TYPE.SNAPSHOT,
+    schema: UserflowSnapshotStepSchema,
+    defaultValue: {
+      type: PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP,
+      step: LIGHTHOUSE_AUDIT_STEP_TYPE.SNAPSHOT,
+    },
+  },
+];

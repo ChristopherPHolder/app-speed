@@ -11,17 +11,23 @@ import {
 import { AuditAddCookieStepSchema, AuditClearCacheStepSchema, AuditCustomRunnerStepSchema } from './custom-audit-step';
 import {
   ChangeStepSchema,
+  ChangeRunnerStepSchema,
   ClickStepSchema,
+  ClickRunnerStepSchema,
   CloseStepSchema,
   DoubleClickStepSchema,
+  DoubleClickRunnerStepSchema,
   EmulateNetworkConditionsStepSchema,
   HoverStepSchema,
+  HoverRunnerStepSchema,
   KeyDownStepSchema,
   KeyUpStepSchema,
   NavigateStepSchema,
   ScrollStepSchema,
+  ScrollRunnerStepSchema,
   SetViewStepSchema,
   WaitForElementStepSchema,
+  WaitForElementRunnerStepSchema,
   WaitForExpressionStepSchema,
 } from './puppeteer-replay/puppeteer-replay-step';
 import { DeviceSchema } from './shared/device-type';
@@ -55,7 +61,23 @@ export const AuditStepSchema = Schema.Union(
   title: 'AuditStep',
 });
 
-const RunnerStepSchema = Schema.Union(...AuditPuppeteerReplaySteps, UserflowRunnerStepSchema, AuditCustomRunnerStepSchema);
+const RunnerPuppeteerReplaySteps = [
+  ChangeRunnerStepSchema,
+  ClickRunnerStepSchema,
+  CloseStepSchema,
+  DoubleClickRunnerStepSchema,
+  EmulateNetworkConditionsStepSchema,
+  HoverRunnerStepSchema,
+  KeyDownStepSchema,
+  KeyUpStepSchema,
+  NavigateStepSchema,
+  ScrollRunnerStepSchema,
+  SetViewStepSchema,
+  WaitForElementRunnerStepSchema,
+  WaitForExpressionStepSchema,
+];
+
+const RunnerStepSchema = Schema.Union(...RunnerPuppeteerReplaySteps, UserflowRunnerStepSchema, AuditCustomRunnerStepSchema);
 
 export type AuditStep = typeof AuditStepSchema.Type;
 const AuditStepsSchema = Schema.NonEmptyArray(AuditStepSchema);

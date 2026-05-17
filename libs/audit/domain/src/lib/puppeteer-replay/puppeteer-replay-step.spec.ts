@@ -1,6 +1,6 @@
 import { describe, expect } from 'vitest';
 import { Schema } from 'effect';
-import { NavigateStepSchema, WaitForExpressionStepSchema } from './puppeteer-replay-step';
+import { ChangeStepSchema, NavigateStepSchema, WaitForExpressionStepSchema } from './puppeteer-replay-step';
 
 describe('PuppeteerReplayStepSchema', () => {
   it('should validate NavigateStepSchema', () => {
@@ -24,5 +24,25 @@ describe('PuppeteerReplayStepSchema', () => {
       expression: 'window.__ready === true',
       timeout: 5000,
     });
+  });
+
+  it('accepts normalized selector paths in authoring schemas', () => {
+    expect(
+      Schema.is(ChangeStepSchema)({
+        type: 'change',
+        value: 'updated',
+        selectors: [{ segments: ['aria/Name'] }, { segments: ['form', '#name'] }],
+      }),
+    ).toBe(true);
+  });
+
+  it('rejects legacy replay selector arrays in authoring schemas', () => {
+    expect(
+      Schema.is(ChangeStepSchema)({
+        type: 'change',
+        value: 'updated',
+        selectors: [['aria/Name'], ['form', '#name']],
+      }),
+    ).toBe(false);
   });
 });
