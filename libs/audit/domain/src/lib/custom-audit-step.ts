@@ -6,7 +6,7 @@ import {
   PUPPETEER_REPLAY_CUSTOM_STEP_TYPE,
 } from './puppeteer-replay/puppeteer-replay-step-type';
 import { AUDIT_CUSTOM_STEP_TYPE } from './custom-audit-step-type';
-import type { BuilderStepVariantDefinition } from './builder-step-variant';
+import type { BuilderStepVariantDefinition } from './builder-step-contract';
 
 export const AddCookieParametersSchema = Schema.Struct({
   name: Schema.NonEmptyString,

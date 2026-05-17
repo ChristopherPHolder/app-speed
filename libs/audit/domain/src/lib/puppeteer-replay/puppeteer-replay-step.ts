@@ -31,7 +31,7 @@ import {
 import { PointerButtonTypeSchema } from './puppeteer-replay-pointer-button-type';
 import { PuppeteerReplayKeySchema } from './puppeteer-replay-key';
 import { SchemaTypeWithEnumLiteralDeep } from '../type-utils';
-import type { BuilderStepVariantDefinition } from '../builder-step-variant';
+import type { BuilderStepVariantDefinition } from '../builder-step-contract';
 
 const TimeoutSchema = Schema.optional(
   Schema.Union(Schema.NonNegativeInt, Schema.NumberFromString.pipe(Schema.int(), Schema.nonNegative())).annotations({

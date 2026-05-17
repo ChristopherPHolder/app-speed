@@ -1,4 +1,10 @@
-import { AUDIT_BUILDER_STEP_VARIANTS } from '@app-speed/audit/domain';
+import {
+  AUDIT_BUILDER_STEP_VARIANTS,
+  AUDIT_CUSTOM_STEP_TYPE,
+  LIGHTHOUSE_AUDIT_STEP_TYPE,
+  PUPPETEER_REPLAY_ASSERTION_STEP_TYPE,
+  PUPPETEER_REPLAY_USER_STEP_TYPE,
+} from '@app-speed/audit/domain';
 
 export type ContractStepPresentationGroup = 'Audit Steps' | 'Custom Steps' | 'Assertion Steps' | 'Action Steps';
 export type ContractStepPresentationIcon = 'lighthouse-badge' | 'puppeteer-badge';
@@ -21,11 +27,13 @@ export type ContractStepSelectionOptionGroup = {
   options: readonly string[];
 };
 
+type ContractStepPresentationOverride = {
+  fields?: Record<string, ContractFieldPresentation>;
+  label?: string;
+};
+
 export const AUDIT_BUILDER_STEP_PRESENTATION_REGISTRY = {
   waitForElement: {
-    group: 'Assertion Steps',
-    icon: 'puppeteer-badge',
-    label: 'Wait For Element',
     fields: {
       selectors: {
         description: 'Alternative selector paths that identify the same element.',
@@ -61,9 +69,6 @@ export const AUDIT_BUILDER_STEP_PRESENTATION_REGISTRY = {
     },
   },
   waitForExpression: {
-    group: 'Assertion Steps',
-    icon: 'puppeteer-badge',
-    label: 'Wait For Expression',
     fields: {
       timeout: {
         label: 'Timeout (ms)',
@@ -73,95 +78,7 @@ export const AUDIT_BUILDER_STEP_PRESENTATION_REGISTRY = {
       },
     },
   },
-  change: {
-    group: 'Action Steps',
-    icon: 'puppeteer-badge',
-    label: 'Change',
-  },
-  click: {
-    group: 'Action Steps',
-    icon: 'puppeteer-badge',
-    label: 'Click',
-  },
-  close: {
-    group: 'Action Steps',
-    icon: 'puppeteer-badge',
-    label: 'Close',
-  },
-  doubleClick: {
-    group: 'Action Steps',
-    icon: 'puppeteer-badge',
-    label: 'Double Click',
-  },
-  emulateNetworkConditions: {
-    group: 'Action Steps',
-    icon: 'puppeteer-badge',
-    label: 'Emulate Network Conditions',
-  },
-  hover: {
-    group: 'Action Steps',
-    icon: 'puppeteer-badge',
-    label: 'Hover',
-  },
-  keyDown: {
-    group: 'Action Steps',
-    icon: 'puppeteer-badge',
-    label: 'Key Down',
-  },
-  keyUp: {
-    group: 'Action Steps',
-    icon: 'puppeteer-badge',
-    label: 'Key Up',
-  },
-  navigate: {
-    group: 'Action Steps',
-    icon: 'puppeteer-badge',
-    label: 'Navigate',
-  },
-  scroll: {
-    group: 'Action Steps',
-    icon: 'puppeteer-badge',
-    label: 'Scroll',
-  },
-  setViewport: {
-    group: 'Action Steps',
-    icon: 'puppeteer-badge',
-    label: 'Set Viewport',
-  },
-  startNavigation: {
-    group: 'Audit Steps',
-    icon: 'lighthouse-badge',
-    label: 'Start Navigation',
-  },
-  endNavigation: {
-    group: 'Audit Steps',
-    icon: 'lighthouse-badge',
-    label: 'End Navigation',
-  },
-  startTimespan: {
-    group: 'Audit Steps',
-    icon: 'lighthouse-badge',
-    label: 'Start Timespan',
-  },
-  endTimespan: {
-    group: 'Audit Steps',
-    icon: 'lighthouse-badge',
-    label: 'End Timespan',
-  },
-  snapshot: {
-    group: 'Audit Steps',
-    icon: 'lighthouse-badge',
-    label: 'Snapshot',
-  },
-  clearCache: {
-    group: 'Custom Steps',
-    icon: 'puppeteer-badge',
-    label: 'Clear Cache',
-  },
   addCookie: {
-    group: 'Custom Steps',
-    icon: 'puppeteer-badge',
-    label: 'Add Cookie',
     fields: {
       url: {
         label: 'Cookie Url',
@@ -171,17 +88,24 @@ export const AUDIT_BUILDER_STEP_PRESENTATION_REGISTRY = {
       },
     },
   },
-} as const satisfies Record<string, ContractStepPresentation>;
+} as const satisfies Partial<Record<string, ContractStepPresentationOverride>>;
 
-export const getContractStepPresentation = (variantId: string): ContractStepPresentation =>
-  (AUDIT_BUILDER_STEP_PRESENTATION_REGISTRY as Record<string, ContractStepPresentation>)[variantId] ?? {
-    group: 'Action Steps',
-    icon: 'puppeteer-badge',
-    label: variantId,
+export const getContractStepPresentation = (variantId: string): ContractStepPresentation => {
+  const override =
+    (AUDIT_BUILDER_STEP_PRESENTATION_REGISTRY as Partial<Record<string, ContractStepPresentationOverride>>)[variantId];
+
+  return {
+    group: getContractStepGroup(variantId),
+    icon: getContractStepIcon(variantId),
+    label: override?.label ?? humanizeToken(variantId),
+    fields: override?.fields,
   };
+};
 
 export const getContractFieldPresentation = (variantId: string, fieldPath: string): ContractFieldPresentation | undefined =>
-  (AUDIT_BUILDER_STEP_PRESENTATION_REGISTRY as Record<string, ContractStepPresentation>)[variantId]?.fields?.[fieldPath];
+  (AUDIT_BUILDER_STEP_PRESENTATION_REGISTRY as Partial<Record<string, ContractStepPresentationOverride>>)[variantId]?.fields?.[
+    fieldPath
+  ];
 
 const CONTRACT_STEP_GROUP_ORDER: readonly ContractStepPresentationGroup[] = [
   'Audit Steps',
@@ -209,3 +133,45 @@ export const STEP_SELECTION_OPTIONS_GROUPED: readonly ContractStepSelectionOptio
 
   return groups;
 }, []);
+
+function getContractStepGroup(variantId: string): ContractStepPresentationGroup {
+  if (Object.values(LIGHTHOUSE_AUDIT_STEP_TYPE).includes(variantId as (typeof LIGHTHOUSE_AUDIT_STEP_TYPE)[keyof typeof LIGHTHOUSE_AUDIT_STEP_TYPE])) {
+    return 'Audit Steps';
+  }
+
+  if (Object.values(AUDIT_CUSTOM_STEP_TYPE).includes(variantId as (typeof AUDIT_CUSTOM_STEP_TYPE)[keyof typeof AUDIT_CUSTOM_STEP_TYPE])) {
+    return 'Custom Steps';
+  }
+
+  if (
+    Object.values(PUPPETEER_REPLAY_ASSERTION_STEP_TYPE).includes(
+      variantId as (typeof PUPPETEER_REPLAY_ASSERTION_STEP_TYPE)[keyof typeof PUPPETEER_REPLAY_ASSERTION_STEP_TYPE],
+    )
+  ) {
+    return 'Assertion Steps';
+  }
+
+  if (
+    Object.values(PUPPETEER_REPLAY_USER_STEP_TYPE).includes(
+      variantId as (typeof PUPPETEER_REPLAY_USER_STEP_TYPE)[keyof typeof PUPPETEER_REPLAY_USER_STEP_TYPE],
+    )
+  ) {
+    return 'Action Steps';
+  }
+
+  throw new Error(`Unsupported presentation variant "${variantId}"`);
+}
+
+function getContractStepIcon(variantId: string): ContractStepPresentationIcon {
+  return getContractStepGroup(variantId) === 'Audit Steps' ? 'lighthouse-badge' : 'puppeteer-badge';
+}
+
+function humanizeToken(value: string): string {
+  return value
+    .replace(/\[\]/g, '')
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/^\w/, (character) => character.toUpperCase());
+}

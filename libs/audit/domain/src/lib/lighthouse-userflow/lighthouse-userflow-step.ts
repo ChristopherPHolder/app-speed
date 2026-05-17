@@ -5,7 +5,7 @@ import {
   PUPPETEER_REPLAY_CUSTOM_STEP_TYPE,
 } from '../puppeteer-replay/puppeteer-replay-step-type';
 import { AuditStepTypeSchema, LighthouseAuditStepTypeSchema } from '../audit-step.schema';
-import type { BuilderStepVariantDefinition } from '../builder-step-variant';
+import type { BuilderStepVariantDefinition } from '../builder-step-contract';
 
 export const UserflowStartNavigationStepSchema = Schema.Struct({
   type: AuditStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP)),

@@ -1,9 +1,13 @@
 import { AuditCustomBuilderStepVariants } from './custom-audit-step';
 import { UserflowBuilderStepVariants } from './lighthouse-userflow/lighthouse-userflow-step';
 import { PuppeteerReplayBuilderStepVariants } from './puppeteer-replay/puppeteer-replay-step';
-import type { BuilderStepVariantDefinition } from './builder-step-variant';
 
 type BuilderScalarValue = string | number | boolean | null;
+export type BuilderStepVariantDefinition = {
+  id: string;
+  schema: import('effect').Schema.Schema.AnyNoContext;
+  defaultValue: Record<string, unknown>;
+};
 export type BuilderFieldValidationContract = {
   integer?: boolean;
   minItems?: number;

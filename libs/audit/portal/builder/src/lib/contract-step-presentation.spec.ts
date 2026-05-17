@@ -1,25 +1,41 @@
 import {
   AUDIT_BUILDER_STEP_VARIANTS,
   AUDIT_CUSTOM_STEP_TYPE,
-  deriveBuilderStepContract,
   LIGHTHOUSE_AUDIT_STEP_TYPE,
+  PUPPETEER_REPLAY_ASSERTION_STEP_TYPE,
+  PUPPETEER_REPLAY_USER_STEP_TYPE,
+  deriveBuilderStepContract,
   type BuilderFieldContract,
 } from '@app-speed/audit/domain';
 import { describe, expect, it } from 'vitest';
-import { AUDIT_BUILDER_STEP_PRESENTATION_REGISTRY, STEP_SELECTION_OPTIONS_GROUPED } from './contract-step-presentation';
+import {
+  AUDIT_BUILDER_STEP_PRESENTATION_REGISTRY,
+  STEP_SELECTION_OPTIONS_GROUPED,
+  getContractStepPresentation,
+} from './contract-step-presentation';
 
 describe('contract step presentation registry', () => {
-  it('defines portal presentation for every exported builder variant', () => {
-    expect(Object.keys(AUDIT_BUILDER_STEP_PRESENTATION_REGISTRY)).toEqual(
-      AUDIT_BUILDER_STEP_VARIANTS.map((variant) => variant.id),
-    );
+  it('only defines overrides for exported builder variants', () => {
+    const variantIds = new Set(AUDIT_BUILDER_STEP_VARIANTS.map((variant) => variant.id));
+
+    Object.keys(AUDIT_BUILDER_STEP_PRESENTATION_REGISTRY).forEach((variantId) => {
+      expect(variantIds.has(variantId)).toBe(true);
+    });
   });
 
   it('only overrides field paths that exist on the derived variant contract', () => {
-    AUDIT_BUILDER_STEP_VARIANTS.forEach((variant) => {
+    Object.keys(AUDIT_BUILDER_STEP_PRESENTATION_REGISTRY).forEach((variantId) => {
+      const variant = AUDIT_BUILDER_STEP_VARIANTS.find((candidate) => candidate.id === variantId);
+
+      expect(variant).toBeDefined();
+
+      if (!variant) {
+        throw new Error(`Missing builder variant ${variantId}`);
+      }
+
       const contract = deriveBuilderStepContract(variant);
       const contractPaths = new Set(flattenFieldPaths(contract.fields));
-      const presentation = AUDIT_BUILDER_STEP_PRESENTATION_REGISTRY[variant.id];
+      const presentation = AUDIT_BUILDER_STEP_PRESENTATION_REGISTRY[variantId];
 
       Object.keys(presentation.fields ?? {}).forEach((path) => {
         expect(contractPaths.has(path)).toBe(true);
@@ -44,6 +60,26 @@ describe('contract step presentation registry', () => {
       label: 'Custom Steps',
       icon: 'puppeteer-badge',
       options: [AUDIT_CUSTOM_STEP_TYPE.CLEAR_CACHE, AUDIT_CUSTOM_STEP_TYPE.ADD_COOKIE],
+    });
+  });
+
+  it('derives default labels, groups, and icons from variant ids', () => {
+    expect(getContractStepPresentation(PUPPETEER_REPLAY_ASSERTION_STEP_TYPE.WAIT_FOR_ELEMENT)).toMatchObject({
+      group: 'Assertion Steps',
+      icon: 'puppeteer-badge',
+      label: 'Wait For Element',
+    });
+
+    expect(getContractStepPresentation(PUPPETEER_REPLAY_USER_STEP_TYPE.SET_VIEWPORT)).toMatchObject({
+      group: 'Action Steps',
+      icon: 'puppeteer-badge',
+      label: 'Set Viewport',
+    });
+
+    expect(getContractStepPresentation(LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION)).toMatchObject({
+      group: 'Audit Steps',
+      icon: 'lighthouse-badge',
+      label: 'Start Navigation',
     });
   });
 });
