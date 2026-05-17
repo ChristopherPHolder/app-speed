@@ -2,8 +2,7 @@ import { afterNextRender, ChangeDetectionStrategy, Component, DestroyRef, inject
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
 import { StepFormGroup } from './audit-builder-form';
-import { MatIconButton } from '@angular/material/button';
-import { MatOption, MatOptgroup } from '@angular/material/core';
+import { MatOptgroup, MatOption } from '@angular/material/core';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { distinctUntilChanged, skip, startWith, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -21,11 +20,7 @@ import { ContractStepFieldsComponent } from './contract-step-fields.component';
         <mat-panel-title>
           @if (control.selectionControl.value; as stepType) {
             <span class="step-title">
-              <mat-icon
-                [svgIcon]="getStepPresentation(stepType).icon"
-                class="step-source-icon"
-                aria-hidden="true"
-              />
+              <mat-icon [svgIcon]="getStepPresentation(stepType).icon" class="step-source-icon" aria-hidden="true" />
               <span class="step-title__text">{{ getStepPresentation(stepType).label }}</span>
             </span>
           } @else {
@@ -67,7 +62,6 @@ import { ContractStepFieldsComponent } from './contract-step-fields.component';
     MatExpansionPanelHeader,
     MatExpansionPanelTitle,
     ReactiveFormsModule,
-    MatIconButton,
     MatFormField,
     MatLabel,
     MatSelect,
