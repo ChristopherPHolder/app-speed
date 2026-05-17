@@ -99,6 +99,45 @@ describe('builder step contract', () => {
     });
   });
 
+  it('derives local validation metadata for scalar and container rules', () => {
+    const waitForExpression = deriveBuilderStepContract(findVariant('waitForExpression'));
+    const navigate = deriveBuilderStepContract(findVariant('navigate'));
+    const click = deriveBuilderStepContract(findVariant('click'));
+    const urlField = findField(navigate, 'url');
+
+    expect(findField(waitForExpression, 'expression')).toMatchObject({
+      kind: 'string',
+      validation: { minLength: 1 },
+    });
+    expect(urlField).toMatchObject({ kind: 'string' });
+    expect(urlField.validation?.pattern).toContain('^https:\\/\\/');
+    expect(findField(click, 'offsetX')).toMatchObject({
+      kind: 'number',
+      validation: {
+        integer: true,
+        minimum: 0,
+      },
+    });
+    expect(findField(click, 'selectors')).toMatchObject({
+      kind: 'array',
+      element: {
+        kind: 'group',
+        fields: [
+          {
+            kind: 'array',
+            path: 'selectors[].segments',
+            validation: { minItems: 1 },
+            element: {
+              kind: 'string',
+              path: 'selectors[].segments[]',
+              validation: { minLength: 1 },
+            },
+          },
+        ],
+      },
+    });
+  });
+
   it('keeps root discriminators structural and preserves legacy defaults', () => {
     const startNavigation = deriveBuilderStepContract(findVariant('startNavigation'));
     const addCookie = deriveBuilderStepContract(findVariant('addCookie'));
