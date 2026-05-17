@@ -1,8 +1,63 @@
+import type { BuilderFieldContract } from '@app-speed/audit/domain';
 import { describe, expect, it } from 'vitest';
 import { AUDIT_CUSTOM_STEP_TYPE, LIGHTHOUSE_AUDIT_STEP_TYPE } from '@app-speed/audit/domain';
-import { StepFormGroup } from './audit-builder-form';
+import { AuditFormGroup, StepFormGroup } from './audit-builder-form';
 
 describe('StepFormGroup', () => {
+  it('keeps schema-driven step values serializable through the root audit form value', () => {
+    const auditForm = new AuditFormGroup({
+      title: 'Checkout audit',
+      device: 'mobile',
+      timeout: 30000,
+      steps: [
+        {
+          type: 'waitForElement',
+          selectors: [{ segments: ['[data-testid=checkout-button]'] }],
+          count: 1,
+          assertedEvents: [
+            {
+              type: 'navigation',
+              title: 'Checkout',
+              url: 'https://example.com/checkout',
+            },
+          ],
+          attributes: {
+            role: 'button',
+          },
+          properties: {
+            disabled: 'false',
+          },
+        },
+      ],
+    });
+
+    expect(auditForm.value).toEqual({
+      title: 'Checkout audit',
+      device: 'mobile',
+      timeout: 30000,
+      steps: [
+        {
+          type: 'waitForElement',
+          selectors: [{ segments: ['[data-testid=checkout-button]'] }],
+          count: 1,
+          assertedEvents: [
+            {
+              type: 'navigation',
+              title: 'Checkout',
+              url: 'https://example.com/checkout',
+            },
+          ],
+          attributes: {
+            role: 'button',
+          },
+          properties: {
+            disabled: 'false',
+          },
+        },
+      ],
+    });
+  });
+
   it('derives the unified selector value from custom-step objects', () => {
     const formGroup = new StepFormGroup({
       type: 'customStep',
@@ -28,7 +83,8 @@ describe('StepFormGroup', () => {
       type: 'customStep',
       step: LIGHTHOUSE_AUDIT_STEP_TYPE.SNAPSHOT,
     });
-    expect(formGroup.fields()).toEqual(['name']);
+    expect(formGroup.visibleFields(formGroup.contract.fields, formGroup)).toEqual([]);
+    expect(formGroup.optionalFields(formGroup.contract.fields, formGroup).map((field) => field.path)).toEqual(['name']);
   });
 
   it('selecting clearCache produces a parameterless custom step', () => {
@@ -41,8 +97,8 @@ describe('StepFormGroup', () => {
       type: 'customStep',
       step: AUDIT_CUSTOM_STEP_TYPE.CLEAR_CACHE,
     });
-    expect(formGroup.fields()).toEqual([]);
-    expect(formGroup.optionalFields()).toEqual([]);
+    expect(formGroup.visibleFields(formGroup.contract.fields, formGroup)).toEqual([]);
+    expect(formGroup.optionalFields(formGroup.contract.fields, formGroup)).toEqual([]);
   });
 
   it('selecting addCookie exposes required fields first and optional properties separately', () => {
@@ -58,12 +114,44 @@ describe('StepFormGroup', () => {
       value: '',
       url: '',
     });
-    expect(formGroup.fields()).toEqual(['name', 'value', 'url']);
-    expect(formGroup.optionalFields()).toEqual(['domain', 'path', 'secure', 'httpOnly', 'sameSite']);
+    expect(formGroup.visibleFields(formGroup.contract.fields, formGroup).map((field) => field.path)).toEqual([
+      'name',
+      'value',
+      'url',
+    ]);
+    expect(formGroup.optionalFields(formGroup.contract.fields, formGroup).map((field) => field.path)).toEqual([
+      'domain',
+      'path',
+      'secure',
+      'httpOnly',
+      'sameSite',
+    ]);
 
-    formGroup.addOptionalField('sameSite');
+    formGroup.addOptionalField(formGroup, findField(formGroup.contract.fields, 'sameSite'));
 
-    expect(formGroup.fields()).toEqual(['name', 'value', 'url', 'sameSite']);
-    expect(formGroup.optionalFields()).toEqual(['domain', 'path', 'secure', 'httpOnly']);
+    expect(formGroup.visibleFields(formGroup.contract.fields, formGroup).map((field) => field.path)).toEqual([
+      'name',
+      'value',
+      'url',
+      'sameSite',
+    ]);
+    expect(formGroup.optionalFields(formGroup.contract.fields, formGroup).map((field) => field.path)).toEqual([
+      'domain',
+      'path',
+      'secure',
+      'httpOnly',
+    ]);
   });
 });
+
+function findField(fields: readonly BuilderFieldContract[], path: string): BuilderFieldContract {
+  const field = fields.find((candidate) => candidate.path === path);
+
+  expect(field).toBeDefined();
+
+  if (!field) {
+    throw new Error(`Missing field ${path}`);
+  }
+
+  return field;
+}

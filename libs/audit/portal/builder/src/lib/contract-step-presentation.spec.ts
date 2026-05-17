@@ -1,6 +1,12 @@
-import { AUDIT_BUILDER_STEP_VARIANTS, deriveBuilderStepContract, type BuilderFieldContract } from '@app-speed/audit/domain';
+import {
+  AUDIT_BUILDER_STEP_VARIANTS,
+  AUDIT_CUSTOM_STEP_TYPE,
+  deriveBuilderStepContract,
+  LIGHTHOUSE_AUDIT_STEP_TYPE,
+  type BuilderFieldContract,
+} from '@app-speed/audit/domain';
 import { describe, expect, it } from 'vitest';
-import { AUDIT_BUILDER_STEP_PRESENTATION_REGISTRY } from './contract-step-presentation';
+import { AUDIT_BUILDER_STEP_PRESENTATION_REGISTRY, STEP_SELECTION_OPTIONS_GROUPED } from './contract-step-presentation';
 
 describe('contract step presentation registry', () => {
   it('defines portal presentation for every exported builder variant', () => {
@@ -18,6 +24,26 @@ describe('contract step presentation registry', () => {
       Object.keys(presentation.fields ?? {}).forEach((path) => {
         expect(contractPaths.has(path)).toBe(true);
       });
+    });
+  });
+
+  it('groups audit and custom steps separately in the selector', () => {
+    expect(STEP_SELECTION_OPTIONS_GROUPED).toContainEqual({
+      label: 'Audit Steps',
+      icon: 'lighthouse-badge',
+      options: [
+        LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
+        LIGHTHOUSE_AUDIT_STEP_TYPE.END_NAVIGATION,
+        LIGHTHOUSE_AUDIT_STEP_TYPE.START_TIMESPAN,
+        LIGHTHOUSE_AUDIT_STEP_TYPE.END_TIMESPAN,
+        LIGHTHOUSE_AUDIT_STEP_TYPE.SNAPSHOT,
+      ],
+    });
+
+    expect(STEP_SELECTION_OPTIONS_GROUPED).toContainEqual({
+      label: 'Custom Steps',
+      icon: 'puppeteer-badge',
+      options: [AUDIT_CUSTOM_STEP_TYPE.CLEAR_CACHE, AUDIT_CUSTOM_STEP_TYPE.ADD_COOKIE],
     });
   });
 });
