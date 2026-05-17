@@ -122,6 +122,46 @@ describe('PuppeteerReplayUserflowRunnerSchema', () => {
       ],
     });
   });
+
+  it('should decode normalized selector paths into replay-compatible selectors', () => {
+    const recording = {
+      title: 'Stub audit title',
+      device: 'mobile',
+      steps: [
+        {
+          type: 'customStep',
+          step: LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
+          name: 'Home Page',
+        },
+        {
+          type: 'click',
+          selectors: [{ segments: ['aria/Proceed to checkout'] }, { segments: ['main', '[data-test=checkout]'] }],
+          offsetX: 0,
+          offsetY: 0,
+        },
+      ],
+    };
+
+    const decoded = Schema.decodeUnknownSync(PuppeteerReplayUserflowRunnerSchema)(recording);
+
+    expect(decoded).toEqual({
+      title: 'Stub audit title',
+      device: 'mobile',
+      steps: [
+        {
+          type: 'customStep',
+          name: LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
+          parameters: { name: 'Home Page' },
+        },
+        {
+          type: 'click',
+          selectors: ['aria/Proceed to checkout', ['main', '[data-test=checkout]']],
+          offsetX: 0,
+          offsetY: 0,
+        },
+      ],
+    });
+  });
 });
 
 describe('AuditSchema', () => {

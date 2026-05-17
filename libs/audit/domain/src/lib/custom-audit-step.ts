@@ -6,6 +6,7 @@ import {
   PUPPETEER_REPLAY_CUSTOM_STEP_TYPE,
 } from './puppeteer-replay/puppeteer-replay-step-type';
 import { AUDIT_CUSTOM_STEP_TYPE } from './custom-audit-step-type';
+import type { BuilderStepVariantDefinition } from './builder-step-variant';
 
 export const AddCookieParametersSchema = Schema.Struct({
   name: Schema.NonEmptyString,
@@ -91,3 +92,25 @@ export const ReplayAuditCustomStepSchema = Schema.Union(
 );
 
 export const AuditCustomRunnerStepSchema = Schema.Union(AuditClearCacheRunnerStepSchema, AuditAddCookieRunnerStepSchema);
+
+export const AuditCustomBuilderStepVariants: readonly BuilderStepVariantDefinition[] = [
+  {
+    id: AUDIT_CUSTOM_STEP_TYPE.CLEAR_CACHE,
+    schema: AuditClearCacheStepSchema,
+    defaultValue: {
+      type: PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP,
+      step: AUDIT_CUSTOM_STEP_TYPE.CLEAR_CACHE,
+    },
+  },
+  {
+    id: AUDIT_CUSTOM_STEP_TYPE.ADD_COOKIE,
+    schema: AuditAddCookieStepSchema,
+    defaultValue: {
+      type: PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP,
+      step: AUDIT_CUSTOM_STEP_TYPE.ADD_COOKIE,
+      name: '',
+      value: '',
+      url: '',
+    },
+  },
+];
