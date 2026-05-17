@@ -31,7 +31,7 @@ import { ToTitleCasePipe } from '@app-speed/audit/portal/ui';
 @Component({
   selector: 'ui-audit-builder',
   template: `
-    <form class="grid-container" [formGroup]="formGroup" (ngSubmit)="submitAudit.emit(this.formGroup.value)">
+    <form class="grid-container" [formGroup]="formGroup" (ngSubmit)="submitAudit.emit(auditValue())">
       <mat-card>
         <mat-card-content>
           <div class="row">
@@ -126,8 +126,8 @@ import { ToTitleCasePipe } from '@app-speed/audit/portal/ui';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuditBuilderComponent implements OnInit {
-  public submitAudit = output<any>();
-  public readonly modified = output<any>();
+  public submitAudit = output<AuditDetails>();
+  public readonly modified = output<AuditDetails>();
   initialAudit = input.required<AuditDetails>();
   protected readonly DEVICE_TYPES: readonly string[] = DEVICE_OPTIONS;
   private readonly destroyRef = inject(DestroyRef);
@@ -148,11 +148,15 @@ export class AuditBuilderComponent implements OnInit {
 
     this.formGroup.valueChanges
       .pipe(
-        tap(() => this.modified.emit(this.formGroup.value)),
+        tap(() => this.modified.emit(this.auditValue())),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
   }
   public formGroup!: AuditFormGroup;
   public accordion = viewChild.required(MatAccordion);
+
+  protected auditValue(): AuditDetails {
+    return this.formGroup.getRawValue() as unknown as AuditDetails;
+  }
 }

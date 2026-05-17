@@ -8,7 +8,7 @@ import { MatInput } from '@angular/material/input';
 import { MatOption } from '@angular/material/core';
 import { MatSelect } from '@angular/material/select';
 import type { BuilderFieldContract } from '@app-speed/audit/domain';
-import { contractFieldControlName, ContractStepFormGroup } from '../contract-step-form';
+import { BuilderStepFormGroup, contractFieldControlName } from '../contract-step-form';
 import { getContractFieldPresentation } from '../contract-step-presentation';
 
 type RecordField = Extract<BuilderFieldContract, { kind: 'record' }>;
@@ -454,7 +454,7 @@ export class ContractStepFieldsComponent {
   readonly variantId = input.required<string>();
   readonly fields = input.required<readonly BuilderFieldContract[]>();
   readonly control = input.required<FormGroup>();
-  readonly stepForm = input.required<ContractStepFormGroup>();
+  readonly stepForm = input.required<BuilderStepFormGroup>();
 
   protected readonly visibleFields = computed(() => this.stepForm().visibleFields(this.fields(), this.control()));
   protected readonly optionalFields = computed(() => this.stepForm().optionalFields(this.fields(), this.control()));

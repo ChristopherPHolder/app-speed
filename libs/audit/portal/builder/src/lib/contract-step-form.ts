@@ -16,16 +16,24 @@ import {
   type BuilderStepContract,
 } from '@app-speed/audit/domain';
 
-export class ContractStepFormGroup extends FormGroup {
-  readonly contract: BuilderStepContract;
+export class BuilderStepFormGroup extends FormGroup {
+  private _contract: BuilderStepContract | null;
 
-  constructor(variantId: string, value?: Record<string, unknown>) {
-    const contract = findContract(variantId);
+  constructor(contract?: BuilderStepContract, value?: Record<string, unknown>) {
+    super(contract ? createRootControls(contract, value ?? contract.defaultValue) : {});
+    this._contract = contract ?? null;
+  }
 
-    super(createRootControls(contract, value ?? contract.defaultValue));
+  get contract(): BuilderStepContract {
+    if (!this._contract) {
+      throw new Error('Missing step contract');
+    }
 
-    this.contract = contract;
-    this.disableDiscriminators();
+    return this._contract;
+  }
+
+  get hasContract(): boolean {
+    return this._contract !== null;
   }
 
   optionalFields(fields: readonly BuilderFieldContract[], control: FormGroup): BuilderFieldContract[] {
@@ -83,14 +91,34 @@ export class ContractStepFormGroup extends FormGroup {
     control.updateValueAndValidity();
   }
 
-  private disableDiscriminators(): void {
-    Object.keys(this.contract.discriminators).forEach((key) => {
-      this.get(key)?.disable({ emitEvent: false });
+  protected resetContract(contract?: BuilderStepContract, value?: Record<string, unknown>): void {
+    Object.keys(this.controls).forEach((key) => {
+      this.removeControl(key);
+    });
+
+    this._contract = contract ?? null;
+
+    if (!contract) {
+      return;
+    }
+
+    const controls = createRootControls(contract, value ?? contract.defaultValue);
+
+    Object.entries(controls).forEach(([key, control]) => {
+      this.addControl(key, control);
     });
   }
 }
 
-const findContract = (variantId: string): BuilderStepContract => {
+export class ContractStepFormGroup extends BuilderStepFormGroup {
+  constructor(variantId: string, value?: Record<string, unknown>) {
+    const contract = findContract(variantId);
+
+    super(contract, value);
+  }
+}
+
+export const findContract = (variantId: string): BuilderStepContract => {
   const variant = AUDIT_BUILDER_STEP_VARIANTS.find((candidate) => candidate.id === variantId);
 
   if (!variant) {
@@ -120,7 +148,7 @@ const createRootControls = (
   ),
 });
 
-const createControlForField = (field: BuilderFieldContract, value?: unknown): AbstractControl => {
+export const createControlForField = (field: BuilderFieldContract, value?: unknown): AbstractControl => {
   switch (field.kind) {
     case 'string':
     case 'number':

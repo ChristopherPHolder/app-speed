@@ -1,20 +1,10 @@
-import { signal } from '@angular/core';
-import { AbstractControl, FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
-import { AuditStep, DeviceType, STEP_TYPE } from '@app-speed/audit/domain';
+import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+import type { AuditStep, DeviceType } from '@app-speed/audit/domain';
 import { AuditDetails } from '../audit-details';
-import { InputType } from '../input-type';
-import { PropertyName } from '../property-name';
-import { EMPTY_STEP, findStepDetails, Step, StepDetails, StepSelection, stepSelectionFromStep } from '../step-details';
-import { StepProperty } from '../step-property.model';
+import { BuilderStepFormGroup, findContract } from '../contract-step-form';
 
-import { stepPropertyFactoryMap } from './step-property';
-
-export type StepField<TControl extends AbstractControl = AbstractControl, TInputType extends InputType = InputType> = {
-  name: PropertyName;
-  property: StepProperty<TInputType>;
-  control: TControl;
-  removable: boolean;
-};
+export type StepSelection = string;
+export type Step = AuditStep | { type: '' };
 
 export class AuditFormGroup extends FormGroup<{
   title: FormControl<string>;
@@ -46,123 +36,47 @@ export class AuditFormGroup extends FormGroup<{
   addStepAt(index: number) {
     this.controls.steps.insert(index, new StepFormGroup({ type: '' }));
   }
+
   removeStepAt(index: number) {
     this.controls.steps.removeAt(index);
   }
 }
-export class StepFormGroup extends FormGroup {
-  readonly fields = signal<PropertyName[]>([]);
-  readonly optionalFields = signal<PropertyName[]>([]);
+
+export class StepFormGroup extends BuilderStepFormGroup {
   readonly selectionControl = new FormControl<StepSelection | ''>('', {
     validators: [Validators.required],
     nonNullable: true,
   });
-  stepSchema: StepDetails = EMPTY_STEP;
-
-  stepProperty<TInputType extends InputType = InputType>(propertyName: PropertyName): StepProperty<TInputType> {
-    const stepProperty = this.stepSchema.properties.find((prop) => prop.name === propertyName);
-    if (!stepProperty) {
-      throw new Error('Invalid property name');
-    }
-    // TODO improve inference
-    return stepProperty as StepProperty<TInputType>;
-  }
-
-  field<TControl extends AbstractControl = AbstractControl, TInputType extends InputType = InputType>(
-    propertyName: PropertyName,
-  ): StepField<TControl, TInputType> {
-    const control = this.get(propertyName);
-
-    if (!control) {
-      throw new Error(`Missing control for property "${propertyName}"`);
-    }
-
-    const property = this.stepProperty<TInputType>(propertyName);
-
-    return {
-      name: propertyName,
-      property,
-      control: control as TControl,
-      removable: !property.required,
-    };
-  }
-
-  formControlField(propertyName: PropertyName): StepField<FormControl> {
-    return this.field<FormControl>(propertyName);
-  }
-
-  stringArrayField(propertyName: PropertyName): StepField<FormArray<FormControl<string>>> {
-    return this.field<FormArray<FormControl<string>>>(propertyName);
-  }
-
-  inputField<TInputType extends 'string' | 'number'>(
-    propertyName: PropertyName,
-  ): StepField<FormControl<string | number>, TInputType> {
-    const field = this.field<FormControl<string | number>, TInputType>(propertyName);
-
-    if (field.property.inputType !== 'string' && field.property.inputType !== 'number') {
-      throw new Error(`Expected input field, got ${field.property.inputType}`);
-    }
-
-    return field;
-  }
 
   constructor(step: Step | AuditStep) {
-    super({});
-    this.selectionControl.setValue(stepSelectionFromStep(step));
-    this.setupControls(this.selectionControl.value, step);
+    super();
+
+    const selection = stepSelectionFromStep(step);
+
+    this.selectionControl.setValue(selection);
+    this.resetStepControls(selection, isSelectedStep(step) ? step : undefined);
   }
 
-  addOptionalField(field: PropertyName): void {
-    this.addControl(field, stepPropertyFactoryMap[field]());
-    this.fields.update((x) => x.concat(field));
-    this.optionalFields.update((optionalFields) => optionalFields.filter((optionalField) => field !== optionalField));
-    // handle adding field control
-  }
-
-  removeOptionalField(field: PropertyName): void {
-    this.optionalFields.update((optionalFields) => optionalFields.concat(field));
-    this.fields.update((activeFields) => activeFields.filter((activeField) => activeField !== field));
-    this.removeControl(field);
-  }
-
-  private setupControls(stepSelection: StepSelection | '', step?: Step | AuditStep): void {
-    const stepSchema = findStepDetails(stepSelection);
-    this.stepSchema = stepSchema;
-    this.addControl('type', stepPropertyFactoryMap.type(stepSchema.step));
-
-    if (stepSchema.step.type === STEP_TYPE.CUSTOM_STEP) {
-      this.addControl(
-        'step',
-        new FormControl(stepSchema.step.step, {
-          validators: [Validators.required],
-          nonNullable: true,
-        }),
-      );
-    }
-
-    const stepProperties = stepSchema.properties
-      .filter((prop) => prop.required || (step && prop.name in step));
-    stepProperties.forEach((stepProperty) =>
-      this.addControl(stepProperty.name, stepPropertyFactoryMap[stepProperty.name](step)),
-    );
-
-    const stepActiveFields = stepProperties.map(({ name }) => name);
-    this.fields.set(stepActiveFields);
-    this.optionalFields.set(
-      stepSchema.properties.filter(({ name }) => !stepActiveFields.includes(name)).map(({ name }) => name),
-    );
-  }
-
-  resetStepControls(stepSelection: StepSelection | ''): void {
+  resetStepControls(stepSelection: StepSelection | '', step?: AuditStep): void {
     if (this.selectionControl.value !== stepSelection) {
       this.selectionControl.setValue(stepSelection, { emitEvent: false });
     }
 
-    Object.keys(this.controls).forEach((key) => {
-      this.removeControl(key);
-    });
+    if (!stepSelection) {
+      this.resetContract();
+      return;
+    }
 
-    this.setupControls(stepSelection);
+    this.resetContract(findContract(stepSelection), step as Record<string, unknown> | undefined);
   }
 }
+
+export const stepSelectionFromStep = (step: Step | AuditStep): StepSelection | '' => {
+  if (step.type === '') {
+    return '';
+  }
+
+  return step.type === 'customStep' ? step.step : step.type;
+};
+
+const isSelectedStep = (step: Step | AuditStep): step is AuditStep => step.type !== '';

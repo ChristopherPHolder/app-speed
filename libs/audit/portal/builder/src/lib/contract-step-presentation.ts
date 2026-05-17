@@ -1,3 +1,5 @@
+import { AUDIT_BUILDER_STEP_VARIANTS } from '@app-speed/audit/domain';
+
 export type ContractStepPresentationGroup = 'Audit Steps' | 'Custom Steps' | 'Assertion Steps' | 'Action Steps';
 export type ContractStepPresentationIcon = 'lighthouse-badge' | 'puppeteer-badge';
 
@@ -11,6 +13,12 @@ export type ContractStepPresentation = {
   group: ContractStepPresentationGroup;
   icon: ContractStepPresentationIcon;
   label: string;
+};
+
+export type ContractStepSelectionOptionGroup = {
+  icon: ContractStepPresentationIcon;
+  label: ContractStepPresentationGroup;
+  options: readonly string[];
 };
 
 export const AUDIT_BUILDER_STEP_PRESENTATION_REGISTRY = {
@@ -174,3 +182,30 @@ export const getContractStepPresentation = (variantId: string): ContractStepPres
 
 export const getContractFieldPresentation = (variantId: string, fieldPath: string): ContractFieldPresentation | undefined =>
   (AUDIT_BUILDER_STEP_PRESENTATION_REGISTRY as Record<string, ContractStepPresentation>)[variantId]?.fields?.[fieldPath];
+
+const CONTRACT_STEP_GROUP_ORDER: readonly ContractStepPresentationGroup[] = [
+  'Audit Steps',
+  'Custom Steps',
+  'Assertion Steps',
+  'Action Steps',
+];
+
+export const STEP_SELECTION_OPTIONS_GROUPED: readonly ContractStepSelectionOptionGroup[] = CONTRACT_STEP_GROUP_ORDER.reduce<
+  ContractStepSelectionOptionGroup[]
+>((groups, group) => {
+  const variants = AUDIT_BUILDER_STEP_VARIANTS
+    .map((variant) => variant.id)
+    .filter((variantId) => getContractStepPresentation(variantId).group === group);
+
+  if (variants.length === 0) {
+    return groups;
+  }
+
+  groups.push({
+    label: group,
+    icon: getContractStepPresentation(variants[0] ?? '').icon,
+    options: variants,
+  });
+
+  return groups;
+}, []);
