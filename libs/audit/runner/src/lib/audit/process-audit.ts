@@ -21,7 +21,7 @@ export const runAudit = Effect.fn((audit: Audit) =>
       'audit.device': audit.device,
     });
 
-    const runnerScript = yield* Schema.decode(PuppeteerReplayUserflowRunnerSchema)(audit).pipe(
+    const runnerScript = yield* Schema.decodeUnknown(PuppeteerReplayUserflowRunnerSchema)(audit).pipe(
       Effect.withSpan('runner.audit.decodeRunnerScript'),
     );
     const replayScript = yield* Effect.sync(() => puppeteerReplayParse(runnerScript)).pipe(
