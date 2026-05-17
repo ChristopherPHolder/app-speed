@@ -1,11 +1,11 @@
 export { AuditStep, PuppeteerReplayUserflowRunnerSchema, Audit, AuditSchema } from './lib/audit.schema';
-export { AUDIT_BUILDER_STEP_VARIANTS, deriveBuilderStepContract } from './lib/builder-step-contract';
+export { AUDIT_BUILDER_STEP_VARIANTS, deriveBuilderStepSpec } from './lib/builder-step-spec';
 export type {
-  BuilderFieldContract,
-  BuilderFieldValidationContract,
-  BuilderStepContract,
+  BuilderFieldSpec,
+  BuilderFieldValidationSpec,
+  BuilderStepSpec,
   BuilderStepVariantDefinition,
-} from './lib/builder-step-contract';
+} from './lib/builder-step-spec';
 export { STEP_TYPE, StepType } from './lib/step-type';
 export { AppSpeedUserFlow } from './lib/runtime/replay';
 export { DEVICE_TYPE, DeviceType, DEVICE_OPTIONS, DeviceSchema } from './lib/shared/device-type';
