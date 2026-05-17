@@ -6,7 +6,7 @@ import {
   PUPPETEER_REPLAY_CUSTOM_STEP_TYPE,
 } from './puppeteer-replay/puppeteer-replay-step-type';
 import { AUDIT_CUSTOM_STEP_TYPE } from './custom-audit-step-type';
-import type { BuilderStepVariantDefinition } from './builder-step-contract';
+import type { BuilderStepVariantDefinition } from './builder-step-spec';
 
 export const AddCookieParametersSchema = Schema.Struct({
   name: Schema.NonEmptyString,
@@ -91,7 +91,10 @@ export const ReplayAuditCustomStepSchema = Schema.Union(
   Schema.typeSchema(AuditAddCookieRunnerStepSchema),
 );
 
-export const AuditCustomRunnerStepSchema = Schema.Union(AuditClearCacheRunnerStepSchema, AuditAddCookieRunnerStepSchema);
+export const AuditCustomRunnerStepSchema = Schema.Union(
+  AuditClearCacheRunnerStepSchema,
+  AuditAddCookieRunnerStepSchema,
+);
 
 export const AuditCustomBuilderStepVariants: readonly BuilderStepVariantDefinition[] = [
   {

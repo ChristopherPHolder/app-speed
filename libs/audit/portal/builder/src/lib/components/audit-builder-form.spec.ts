@@ -1,4 +1,4 @@
-import type { BuilderFieldContract } from '@app-speed/audit/domain';
+import type { BuilderFieldSpec } from '@app-speed/audit/domain';
 import { describe, expect, it } from 'vitest';
 import { AUDIT_CUSTOM_STEP_TYPE, LIGHTHOUSE_AUDIT_STEP_TYPE } from '@app-speed/audit/domain';
 import { AuditFormGroup, StepFormGroup } from './audit-builder-form';
@@ -83,8 +83,8 @@ describe('StepFormGroup', () => {
       type: 'customStep',
       step: LIGHTHOUSE_AUDIT_STEP_TYPE.SNAPSHOT,
     });
-    expect(formGroup.visibleFields(formGroup.contract.fields, formGroup)).toEqual([]);
-    expect(formGroup.optionalFields(formGroup.contract.fields, formGroup).map((field) => field.path)).toEqual(['name']);
+    expect(formGroup.visibleFields(formGroup.spec.fields, formGroup)).toEqual([]);
+    expect(formGroup.optionalFields(formGroup.spec.fields, formGroup).map((field) => field.path)).toEqual(['name']);
   });
 
   it('selecting clearCache produces a parameterless custom step', () => {
@@ -97,8 +97,8 @@ describe('StepFormGroup', () => {
       type: 'customStep',
       step: AUDIT_CUSTOM_STEP_TYPE.CLEAR_CACHE,
     });
-    expect(formGroup.visibleFields(formGroup.contract.fields, formGroup)).toEqual([]);
-    expect(formGroup.optionalFields(formGroup.contract.fields, formGroup)).toEqual([]);
+    expect(formGroup.visibleFields(formGroup.spec.fields, formGroup)).toEqual([]);
+    expect(formGroup.optionalFields(formGroup.spec.fields, formGroup)).toEqual([]);
   });
 
   it('selecting addCookie exposes required fields first and optional properties separately', () => {
@@ -114,12 +114,12 @@ describe('StepFormGroup', () => {
       value: '',
       url: '',
     });
-    expect(formGroup.visibleFields(formGroup.contract.fields, formGroup).map((field) => field.path)).toEqual([
+    expect(formGroup.visibleFields(formGroup.spec.fields, formGroup).map((field) => field.path)).toEqual([
       'name',
       'value',
       'url',
     ]);
-    expect(formGroup.optionalFields(formGroup.contract.fields, formGroup).map((field) => field.path)).toEqual([
+    expect(formGroup.optionalFields(formGroup.spec.fields, formGroup).map((field) => field.path)).toEqual([
       'domain',
       'path',
       'secure',
@@ -127,15 +127,15 @@ describe('StepFormGroup', () => {
       'sameSite',
     ]);
 
-    formGroup.addOptionalField(formGroup, findField(formGroup.contract.fields, 'sameSite'));
+    formGroup.addOptionalField(formGroup, findField(formGroup.spec.fields, 'sameSite'));
 
-    expect(formGroup.visibleFields(formGroup.contract.fields, formGroup).map((field) => field.path)).toEqual([
+    expect(formGroup.visibleFields(formGroup.spec.fields, formGroup).map((field) => field.path)).toEqual([
       'name',
       'value',
       'url',
       'sameSite',
     ]);
-    expect(formGroup.optionalFields(formGroup.contract.fields, formGroup).map((field) => field.path)).toEqual([
+    expect(formGroup.optionalFields(formGroup.spec.fields, formGroup).map((field) => field.path)).toEqual([
       'domain',
       'path',
       'secure',
@@ -144,7 +144,7 @@ describe('StepFormGroup', () => {
   });
 });
 
-function findField(fields: readonly BuilderFieldContract[], path: string): BuilderFieldContract {
+function findField(fields: readonly BuilderFieldSpec[], path: string): BuilderFieldSpec {
   const field = fields.find((candidate) => candidate.path === path);
 
   expect(field).toBeDefined();

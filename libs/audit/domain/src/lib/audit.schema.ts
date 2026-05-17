@@ -1,83 +1,23 @@
 import { Schema } from 'effect';
-import {
-  UserflowRunnerStepSchema,
-  UserflowEndNavigationStepSchema,
-  UserflowEndTimespanStepSchema,
-  UserflowSnapshotStepSchema,
-  UserflowStartNavigationStepSchema,
-  UserflowStartTimespanStepSchema,
-  UserflowStepSchema,
-} from './lighthouse-userflow/lighthouse-userflow-step';
+import { UserflowRunnerStepSchema, UserflowStepSchema } from './lighthouse-userflow/lighthouse-userflow-step';
 import { AuditAddCookieStepSchema, AuditClearCacheStepSchema, AuditCustomRunnerStepSchema } from './custom-audit-step';
-import {
-  ChangeStepSchema,
-  ChangeRunnerStepSchema,
-  ClickStepSchema,
-  ClickRunnerStepSchema,
-  CloseStepSchema,
-  DoubleClickStepSchema,
-  DoubleClickRunnerStepSchema,
-  EmulateNetworkConditionsStepSchema,
-  HoverStepSchema,
-  HoverRunnerStepSchema,
-  KeyDownStepSchema,
-  KeyUpStepSchema,
-  NavigateStepSchema,
-  ScrollStepSchema,
-  ScrollRunnerStepSchema,
-  SetViewStepSchema,
-  WaitForElementStepSchema,
-  WaitForElementRunnerStepSchema,
-  WaitForExpressionStepSchema,
-} from './puppeteer-replay/puppeteer-replay-step';
+import { PuppeteerReplayRunnerStepSchema, PuppeteerReplayStepSchema } from './puppeteer-replay/puppeteer-replay-step';
 import { DeviceSchema } from './shared/device-type';
 
-const AuditPuppeteerReplaySteps = [
-  ChangeStepSchema,
-  ClickStepSchema,
-  CloseStepSchema,
-  DoubleClickStepSchema,
-  EmulateNetworkConditionsStepSchema,
-  HoverStepSchema,
-  KeyDownStepSchema,
-  KeyUpStepSchema,
-  NavigateStepSchema,
-  ScrollStepSchema,
-  SetViewStepSchema,
-  WaitForElementStepSchema,
-  WaitForExpressionStepSchema,
-];
-
 export const AuditStepSchema = Schema.Union(
-  ...AuditPuppeteerReplaySteps,
-  UserflowStartNavigationStepSchema,
-  UserflowEndNavigationStepSchema,
-  UserflowStartTimespanStepSchema,
-  UserflowEndTimespanStepSchema,
-  UserflowSnapshotStepSchema,
+  PuppeteerReplayStepSchema,
+  UserflowStepSchema,
   AuditClearCacheStepSchema,
   AuditAddCookieStepSchema,
 ).annotations({
   title: 'AuditStep',
 });
 
-const RunnerPuppeteerReplaySteps = [
-  ChangeRunnerStepSchema,
-  ClickRunnerStepSchema,
-  CloseStepSchema,
-  DoubleClickRunnerStepSchema,
-  EmulateNetworkConditionsStepSchema,
-  HoverRunnerStepSchema,
-  KeyDownStepSchema,
-  KeyUpStepSchema,
-  NavigateStepSchema,
-  ScrollRunnerStepSchema,
-  SetViewStepSchema,
-  WaitForElementRunnerStepSchema,
-  WaitForExpressionStepSchema,
-];
-
-const RunnerStepSchema = Schema.Union(...RunnerPuppeteerReplaySteps, UserflowRunnerStepSchema, AuditCustomRunnerStepSchema);
+const RunnerStepSchema = Schema.Union(
+  UserflowRunnerStepSchema,
+  AuditCustomRunnerStepSchema,
+  PuppeteerReplayRunnerStepSchema,
+);
 
 export type AuditStep = typeof AuditStepSchema.Type;
 const AuditStepsSchema = Schema.NonEmptyArray(AuditStepSchema);
@@ -101,9 +41,7 @@ export const AuditSchema = Schema.Struct({
   title: Schema.NonEmptyString,
   device: DeviceSchema,
   timeout: TimeoutSchema,
-  steps: Schema.NonEmptyArray(AuditStepSchema)
-    .pipe(RequiresAuditStepSchemaFilter)
-    .annotations({ title: 'AuditSteps' }),
+  steps: Schema.NonEmptyArray(AuditStepSchema).pipe(RequiresAuditStepSchemaFilter).annotations({ title: 'AuditSteps' }),
 }).annotations({ title: 'Audit' });
 
 export type Audit = typeof AuditSchema.Type;

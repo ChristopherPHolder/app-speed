@@ -5,7 +5,7 @@ import {
   PUPPETEER_REPLAY_CUSTOM_STEP_TYPE,
 } from '../puppeteer-replay/puppeteer-replay-step-type';
 import { AuditStepTypeSchema, LighthouseAuditStepTypeSchema } from '../audit-step.schema';
-import type { BuilderStepVariantDefinition } from '../builder-step-contract';
+import type { BuilderStepVariantDefinition } from '../builder-step-spec';
 
 export const UserflowStartNavigationStepSchema = Schema.Struct({
   type: AuditStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP)),
@@ -41,8 +41,6 @@ export const UserflowStepSchema = Schema.Union(
   UserflowEndTimespanStepSchema,
   UserflowSnapshotStepSchema,
 );
-
-export const isUserflowStep = Schema.is(UserflowStepSchema);
 
 export const UserflowAuditStepTypeScheme = LighthouseAuditStepTypeSchema;
 

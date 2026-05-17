@@ -1,7 +1,7 @@
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import type { AuditStep, DeviceType } from '@app-speed/audit/domain';
 import { AuditDetails } from '../audit-details';
-import { BuilderStepFormGroup, findContract } from '../contract-step-form';
+import { BuilderStepFormGroup, findStepSpec } from '../step-form';
 
 export type StepSelection = string;
 export type Step = AuditStep | { type: '' };
@@ -63,15 +63,15 @@ export class StepFormGroup extends BuilderStepFormGroup {
     }
 
     if (!stepSelection) {
-      this.resetContract();
+      this.resetSpec();
       return;
     }
 
-    this.resetContract(findContract(stepSelection), step as Record<string, unknown> | undefined);
+    this.resetSpec(findStepSpec(stepSelection), step as Record<string, unknown> | undefined);
   }
 }
 
-export const stepSelectionFromStep = (step: Step | AuditStep): StepSelection | '' => {
+const stepSelectionFromStep = (step: Step | AuditStep): StepSelection | '' => {
   if (step.type === '') {
     return '';
   }

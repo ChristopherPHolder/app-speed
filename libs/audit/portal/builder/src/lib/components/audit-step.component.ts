@@ -8,8 +8,8 @@ import { distinctUntilChanged, skip, startWith, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIcon } from '@angular/material/icon';
 import { MatSelect } from '@angular/material/select';
-import { getContractStepPresentation, STEP_SELECTION_OPTIONS_GROUPED } from '../contract-step-presentation';
-import { ContractStepFieldsComponent } from './contract-step-fields.component';
+import { getStepPresentation, STEP_SELECTION_OPTIONS_GROUPED } from '../step-presentation';
+import { StepFieldsComponent } from './step-fields.component';
 
 @Component({
   selector: 'ui-audit-builder-step',
@@ -47,10 +47,10 @@ import { ContractStepFieldsComponent } from './contract-step-fields.component';
         </mat-select>
       </mat-form-field>
 
-      @if (control.hasContract) {
-        <builder-contract-step-fields
+      @if (control.hasSpec) {
+        <builder-step-fields
           [variantId]="control.selectionControl.value"
-          [fields]="control.contract.fields"
+          [fields]="control.spec.fields"
           [control]="control"
           [stepForm]="control"
         />
@@ -68,7 +68,7 @@ import { ContractStepFieldsComponent } from './contract-step-fields.component';
     MatOption,
     MatOptgroup,
     MatIcon,
-    ContractStepFieldsComponent,
+    StepFieldsComponent,
   ],
   styles: `
     .step-title {
@@ -106,7 +106,7 @@ export class AuditStepComponent {
   }
 
   protected getStepPresentation(stepType: string) {
-    return getContractStepPresentation(stepType);
+    return getStepPresentation(stepType);
   }
 
   private handleStepTypeChange(): void {
