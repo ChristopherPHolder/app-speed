@@ -110,14 +110,6 @@ export class BuilderStepFormGroup extends FormGroup {
   }
 }
 
-export class ContractStepFormGroup extends BuilderStepFormGroup {
-  constructor(variantId: string, value?: Record<string, unknown>) {
-    const contract = findContract(variantId);
-
-    super(contract, value);
-  }
-}
-
 export const findContract = (variantId: string): BuilderStepContract => {
   const variant = AUDIT_BUILDER_STEP_VARIANTS.find((candidate) => candidate.id === variantId);
 

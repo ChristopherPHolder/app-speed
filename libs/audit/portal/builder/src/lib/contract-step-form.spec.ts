@@ -1,11 +1,11 @@
 import { FormArray, FormGroup } from '@angular/forms';
 import type { BuilderFieldContract } from '@app-speed/audit/domain';
 import { describe, expect, it } from 'vitest';
-import { ContractStepFormGroup } from './contract-step-form';
+import { BuilderStepFormGroup, findContract } from './contract-step-form';
 
-describe('ContractStepFormGroup', () => {
+describe('BuilderStepFormGroup', () => {
   it('builds a contract-driven step form and keeps optional fields omittable at root and nested struct arrays', () => {
-    const form = new ContractStepFormGroup('waitForElement');
+    const form = createForm('waitForElement');
     const assertedEventsField = expectArrayField(findField(form.contract.fields, 'assertedEvents'));
 
     expect(form.getRawValue()).toEqual({
@@ -53,9 +53,9 @@ describe('ContractStepFormGroup', () => {
   });
 
   it('derives Angular validators from the domain contract metadata', () => {
-    const waitForExpression = new ContractStepFormGroup('waitForExpression');
-    const navigate = new ContractStepFormGroup('navigate');
-    const click = new ContractStepFormGroup('click');
+    const waitForExpression = createForm('waitForExpression');
+    const navigate = createForm('navigate');
+    const click = createForm('click');
     const selectorsField = expectArrayField(findField(click.contract.fields, 'selectors'));
 
     const expressionControl = waitForExpression.get('expression');
@@ -84,6 +84,10 @@ describe('ContractStepFormGroup', () => {
     expect(segmentsControl?.hasError('minlength')).toBe(true);
   });
 });
+
+function createForm(variantId: string, value?: Record<string, unknown>): BuilderStepFormGroup {
+  return new BuilderStepFormGroup(findContract(variantId), value);
+}
 
 function findField(fields: readonly BuilderFieldContract[], path: string): BuilderFieldContract {
   const field = fields.find((candidate) => candidate.path === path);
