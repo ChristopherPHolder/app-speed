@@ -134,3 +134,5 @@ vitest.config.*.timestamp*
 
 # opensrc - source code for packages
 opensrc/
+
+.claude/worktrees

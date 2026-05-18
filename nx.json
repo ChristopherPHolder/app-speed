@@ -26,7 +26,7 @@
       "cache": true
     },
     "@nx/eslint:lint": {
-      "inputs": ["default", "{workspaceRoot}/.eslintrc.json"],
+      "inputs": ["default", "^default", "{workspaceRoot}/.eslintrc.json", "{workspaceRoot}/tools/eslint-rules/**/*"],
       "cache": true
     },
     "@nx/jest:jest": {
@@ -244,5 +244,6 @@
         "stageChanges": false
       }
     }
-  }
+  },
+  "analytics": true
 }

@@ -4,11 +4,18 @@
   "sourceRoot": "libs/audit/portal/data-access/src",
   "prefix": "lib",
   "projectType": "library",
-  "tags": ["type:domain", "scope:audit", "runtime:web", "layer:data-access"],
+  "tags": [
+    "type:domain",
+    "scope:audit",
+    "runtime:web",
+    "layer:data-access"
+  ],
   "targets": {
     "build": {
       "executor": "@nx/angular:ng-packagr-lite",
-      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "outputs": [
+        "{workspaceRoot}/dist/{projectRoot}"
+      ],
       "options": {
         "project": "libs/audit/portal/data-access/ng-package.json",
         "tsConfig": "libs/audit/portal/data-access/tsconfig.lib.json"
@@ -23,10 +30,12 @@
     },
     "test": {
       "executor": "@nx/vitest:test",
-      "outputs": ["{options.reportsDirectory}"],
+      "outputs": [
+        "{options.reportsDirectory}"
+      ],
       "options": {
         "configFile": "{projectRoot}/vitest.config.mts",
-        "reportsDirectory": "../../../../coverage/libs/audit/portal/data-access",
+        "reportsDirectory": "{projectRoot}/../../../../coverage/libs/audit/portal/data-access",
         "passWithNoTests": true
       }
     },
