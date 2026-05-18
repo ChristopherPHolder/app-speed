@@ -8,8 +8,15 @@ const { stopInstanceMock } = vi.hoisted(() => ({
 }));
 
 vi.mock('@aws-sdk/client-ec2', () => ({
-  EC2Client: vi.fn().mockImplementation(() => ({ send: stopInstanceMock })),
-  StopInstancesCommand: vi.fn().mockImplementation((input: unknown) => input),
+  EC2Client: vi.fn().mockImplementation(function () {
+    return {
+      send: stopInstanceMock,
+    };
+  }),
+
+  StopInstancesCommand: vi.fn().mockImplementation(function (input: unknown) {
+    return input;
+  }),
 }));
 
 const provideHttpClient = (payload: { ok: true; shouldTerminate: boolean }) =>

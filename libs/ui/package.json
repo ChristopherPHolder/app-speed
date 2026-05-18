@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "description": "App Speed UI library",
   "peerDependencies": {
-    "@angular/common": "^15.0.0",
-    "@angular/core": "^15.0.0",
-    "ngx-scrollbar": "^19.1.4"
+    "@angular/common": "21.2.13",
+    "@angular/core": "21.2.13",
+    "ngx-scrollbar": "^14.0.0-beta.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"

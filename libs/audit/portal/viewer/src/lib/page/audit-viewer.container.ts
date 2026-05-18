@@ -20,7 +20,6 @@ import { AuditSummary, AuditSummaryComponent } from '../summary/audit-summary.co
   imports: [AuditSummaryComponent, ViewerStepDetailComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-// eslint-disable-next-line @angular-eslint/component-class-suffix
 export class AuditViewerContainer {
   auditId = input.required<string>();
   activeIndex = model<number>(0);

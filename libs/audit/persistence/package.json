@@ -8,10 +8,10 @@
   "dependencies": {
     "@app-speed/audit/domain": "0.0.1",
     "@nx/vite": "22.7.2",
-    "better-sqlite3": "^12.6.2",
-    "drizzle-kit": "^0.31.9",
-    "drizzle-orm": "^0.45.1",
+    "better-sqlite3": "^12.10.0",
+    "drizzle-kit": "^0.31.10",
+    "drizzle-orm": "^0.45.2",
     "effect": "^3.19.14",
-    "vitest": "^3.2.4"
+    "vitest": "^4.1.6"
   }
 }

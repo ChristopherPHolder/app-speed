@@ -6,13 +6,12 @@
     "default": ["{projectRoot}/**/*", "sharedGlobals"],
     "production": [
       "default",
-      "!{projectRoot}/.eslintrc.json",
-      "!{projectRoot}/eslint.config.js",
       "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
       "!{projectRoot}/tsconfig.spec.json",
       "!{projectRoot}/jest.config.[jt]s",
       "!{projectRoot}/src/test-setup.[jt]s",
-      "!{projectRoot}/test-setup.[jt]s"
+      "!{projectRoot}/test-setup.[jt]s",
+      "!{projectRoot}/eslint.config.mjs"
     ],
     "sharedGlobals": []
   },
@@ -26,7 +25,7 @@
       "cache": true
     },
     "@nx/eslint:lint": {
-      "inputs": ["default", "^default", "{workspaceRoot}/.eslintrc.json", "{workspaceRoot}/tools/eslint-rules/**/*"],
+      "inputs": ["default", "^default", "{workspaceRoot}/tools/eslint-rules/**/*", "{workspaceRoot}/eslint.config.mjs"],
       "cache": true
     },
     "@nx/jest:jest": {

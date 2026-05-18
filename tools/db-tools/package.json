@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "dependencies": {
     "@nx/devkit": "22.5.4",
-    "better-sqlite3": "^12.6.2"
+    "better-sqlite3": "^12.10.0"
   },
   "type": "commonjs",
   "main": "./src/index.js",

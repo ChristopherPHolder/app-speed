@@ -7,7 +7,15 @@ export default {
       files: '**/*.stories.@(js|jsx|ts|tsx)',
     },
   ],
-  addons: ['storybook-design-token', '@storybook/addon-docs'],
+  addons: [
+    {
+      name: 'storybook-design-token',
+      options: {
+        designTokenGlob: 'libs/ui/theme/**/*.{css,scss,less,svg,png,jpeg,gif}',
+      },
+    },
+    '@storybook/addon-docs',
+  ],
   staticDirs: [{ from: '../../portal/src/assets', to: '/' }],
   framework: {
     name: '@storybook/angular',

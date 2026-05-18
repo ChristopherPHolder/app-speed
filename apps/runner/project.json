@@ -1,7 +1,6 @@
 {
   "name": "runner",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "root": "apps/runner",
   "sourceRoot": "apps/runner/src",
   "projectType": "application",
   "tags": ["type:app", "scope:runner", "runtime:node", "app:runner"],
