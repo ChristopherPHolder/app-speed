@@ -6,7 +6,7 @@
     "@app-speed/audit/domain": "0.0.1",
     "effect": "^3.12.5",
     "vite": "7.3.1",
-    "@nx/vite": "22.5.4"
+    "@nx/vite": "22.7.2"
   },
   "sideEffects": false
 }
