@@ -24,8 +24,6 @@ const RunnerShutdownResponseSchema = Schema.Struct({
   ok: Schema.Literal(true),
   shouldTerminate: Schema.Boolean,
 });
-const RunnerHeartbeatStateSchema = Schema.Literal('BUSY', 'IDLE');
-const RunnerShutdownReasonSchema = Schema.Literal('IDLE_TIMEOUT');
 
 const baseUrlConfig = Config.string('RUNNER_API_BASE_URL').pipe(Config.withDefault('http://localhost:3000/api'));
 const runnerIdConfig = Config.string('RUNNER_ID').pipe(Config.option);
@@ -33,8 +31,7 @@ const runnerEc2RegionConfig = Config.string('RUNNER_EC2_REGION').pipe(Config.opt
 const awsRegionConfig = Config.string('AWS_REGION').pipe(Config.option);
 const awsDefaultRegionConfig = Config.string('AWS_DEFAULT_REGION').pipe(Config.option);
 
-type RunnerHeartbeatState = typeof RunnerHeartbeatStateSchema.Type;
-type RunnerShutdownReason = typeof RunnerShutdownReasonSchema.Type;
+type RunnerShutdownReason = 'IDLE_TIMEOUT';
 
 class RunnerTerminationError extends Data.TaggedError('RunnerTerminationError')<{
   readonly message: string;
@@ -154,7 +151,7 @@ export const completeAuditRun = Effect.fn('runner.queue.completeRun')(function* 
 });
 
 export const sendRunnerHeartbeat = Effect.fn('runner.queue.heartbeat')(function* (payload: {
-  state: RunnerHeartbeatState;
+  state: 'BUSY' | 'IDLE';
   idleSince?: number | null;
 }) {
   const apiBaseUrl = yield* getApiBaseUrl;

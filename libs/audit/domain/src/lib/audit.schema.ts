@@ -20,12 +20,7 @@ const RunnerStepSchema = Schema.Union(
 );
 
 export type AuditStep = typeof AuditStepSchema.Type;
-const AuditStepsSchema = Schema.NonEmptyArray(AuditStepSchema);
 const RunnerStepsSchema = Schema.NonEmptyArray(RunnerStepSchema);
-
-const RequiresAuditStepSchemaFilter = Schema.filter<typeof AuditStepsSchema>(
-  (steps) => !!steps.filter((step) => Schema.is(UserflowStepSchema)(step)).length || 'Requires at least one audit step',
-);
 
 const NonNegativeIntFromStringSchema = Schema.NumberFromString.pipe(Schema.int(), Schema.nonNegative()).annotations({
   identifier: 'NonNegativeIntFromString',
@@ -41,7 +36,14 @@ export const AuditSchema = Schema.Struct({
   title: Schema.NonEmptyString,
   device: DeviceSchema,
   timeout: TimeoutSchema,
-  steps: Schema.NonEmptyArray(AuditStepSchema).pipe(RequiresAuditStepSchemaFilter).annotations({ title: 'AuditSteps' }),
+  steps: Schema.NonEmptyArray(AuditStepSchema)
+    .pipe(
+      Schema.filter(
+        (steps) =>
+          !!steps.filter((step) => Schema.is(UserflowStepSchema)(step)).length || 'Requires at least one audit step',
+      ),
+    )
+    .annotations({ title: 'AuditSteps' }),
 }).annotations({ title: 'Audit' });
 
 export type Audit = typeof AuditSchema.Type;
