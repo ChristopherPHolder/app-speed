@@ -7,27 +7,19 @@
   "targets": {
     "build": {
       "executor": "@nx/esbuild:esbuild",
-      "outputs": [
-        "{options.outputPath}"
-      ],
+      "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/libs/audit/persistence",
         "main": "libs/audit/persistence/src/index.ts",
         "tsConfig": "libs/audit/persistence/tsconfig.lib.json",
-        "assets": [
-          "libs/audit/persistence/*.md"
-        ],
-        "format": [
-          "esm"
-        ],
+        "assets": ["libs/audit/persistence/*.md"],
+        "format": ["esm"],
         "generatePackageJson": true
       }
     },
     "lint": {
       "executor": "@nx/eslint:lint",
-      "outputs": [
-        "{options.outputFile}"
-      ]
+      "outputs": ["{options.outputFile}"]
     },
     "migrate": {
       "executor": "@app-speed/db-tools:sqlite-migrate",

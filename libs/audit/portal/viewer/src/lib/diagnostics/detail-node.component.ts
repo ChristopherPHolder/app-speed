@@ -50,8 +50,14 @@ import { ViewerDiagnosticContext } from './viewer-diagnostic.models';
     </div>
 
     @if (overlayOpen() && hasScreenshotPreview() && rect && screenshotData) {
-      <div class="node__overlay" (click)="closeOverlay()">
-        <div class="node__overlay-card" (click)="$event.stopPropagation()">
+      <div class="node__overlay">
+        <button
+          type="button"
+          class="node__overlay-backdrop"
+          (click)="closeOverlay()"
+          aria-label="Close element screenshot"
+        ></button>
+        <div class="node__overlay-card">
           <ui-viewer-element-screenshot
             [screenshot]="screenshotData"
             [rect]="rect"
@@ -130,10 +136,19 @@ import { ViewerDiagnosticContext } from './viewer-diagnostic.models';
       justify-content: center;
       padding: 24px;
       background: color-mix(in srgb, black 72%, transparent);
+    }
+
+    .node__overlay-backdrop {
+      position: absolute;
+      inset: 0;
+      border: 0;
+      padding: 0;
+      background: transparent;
       cursor: zoom-out;
     }
 
     .node__overlay-card {
+      position: relative;
       max-width: 95vw;
       max-height: 90vh;
       cursor: default;
