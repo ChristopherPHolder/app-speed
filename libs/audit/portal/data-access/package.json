@@ -2,7 +2,7 @@
   "name": "@app-speed/audit/portal/data-access",
   "version": "0.0.1",
   "peerDependencies": {
-    "@angular/core": "21.2.1",
+    "@angular/core": "21.2.13",
     "@app-speed/audit/api-contract": "0.0.1",
     "@app-speed/audit/domain": "0.0.1",
     "@effect/platform": "^0.94.1",
