@@ -4,19 +4,33 @@
   "projectType": "application",
   "prefix": "app",
   "sourceRoot": "apps/portal/src",
-  "tags": ["type:app", "scope:portal", "runtime:web", "app:portal"],
+  "tags": [
+    "type:app",
+    "scope:portal",
+    "runtime:web",
+    "app:portal"
+  ],
   "targets": {
     "build": {
       "executor": "@nx/angular:browser-esbuild",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "dist/{projectRoot}",
         "index": "{projectRoot}/src/index.html",
         "main": "{projectRoot}/src/main.ts",
-        "polyfills": ["zone.js"],
+        "polyfills": [
+          "zone.js"
+        ],
         "tsConfig": "{projectRoot}/tsconfig.app.json",
-        "assets": ["{projectRoot}/src/favicon.ico", "{projectRoot}/src/assets"],
-        "styles": ["{workspaceRoot}/libs/ui/theme/styles.scss"]
+        "assets": [
+          "{projectRoot}/src/favicon.ico",
+          "{projectRoot}/src/assets"
+        ],
+        "styles": [
+          "{workspaceRoot}/libs/ui/theme/styles.scss"
+        ]
       },
       "configurations": {
         "production": {
@@ -60,7 +74,9 @@
         "proxyConfig": "apps/portal/proxy.conf.json"
       },
       "continuous": true,
-      "dependsOn": ["api:serve"]
+      "dependsOn": [
+        "api:serve"
+      ]
     },
     "extract-i18n": {
       "executor": "@angular-devkit/build-angular:extract-i18n",
@@ -70,14 +86,18 @@
     },
     "lint": {
       "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"]
+      "outputs": [
+        "{options.outputFile}"
+      ]
     },
     "test": {
       "executor": "@nx/vitest:test",
-      "outputs": ["{options.reportsDirectory}"],
+      "outputs": [
+        "{options.reportsDirectory}"
+      ],
       "options": {
         "configFile": "{projectRoot}/vitest.config.mts",
-        "reportsDirectory": "../../coverage/apps/portal"
+        "reportsDirectory": "{projectRoot}/../../coverage/apps/portal"
       }
     },
     "serve-static": {
@@ -88,7 +108,9 @@
     },
     "deploy": {
       "executor": "@app-speed/aws-deploy:s3-upload",
-      "dependsOn": ["build"],
+      "dependsOn": [
+        "build"
+      ],
       "options": {
         "upload": "dist/{projectRoot}"
       },

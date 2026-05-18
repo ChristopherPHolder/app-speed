@@ -4,11 +4,18 @@
   "projectType": "library",
   "sourceRoot": "libs/ui",
   "prefix": "ui",
-  "tags": ["type:ui", "scope:shared", "runtime:web", "layer:ui"],
+  "tags": [
+    "type:ui",
+    "scope:shared",
+    "runtime:web",
+    "layer:ui"
+  ],
   "targets": {
     "build": {
       "executor": "@nx/angular:ng-packagr-lite",
-      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "outputs": [
+        "{workspaceRoot}/dist/{projectRoot}"
+      ],
       "options": {
         "project": "{workspaceRoot}/{projectRoot}/ng-package.json",
         "tsConfig": "{workspaceRoot}/{projectRoot}/tsconfig.lib.json"
@@ -23,16 +30,20 @@
     },
     "test": {
       "executor": "@nx/vitest:test",
-      "outputs": ["{options.reportsDirectory}"],
+      "outputs": [
+        "{options.reportsDirectory}"
+      ],
       "options": {
         "configFile": "{projectRoot}/vitest.config.mts",
-        "reportsDirectory": "../../coverage/libs/ui",
+        "reportsDirectory": "{projectRoot}/../../coverage/libs/ui",
         "passWithNoTests": true
       }
     },
     "lint": {
       "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"]
+      "outputs": [
+        "{options.outputFile}"
+      ]
     }
   }
 }

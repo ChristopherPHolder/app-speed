@@ -7,14 +7,18 @@
   "targets": {
     "lint": {
       "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"]
+      "outputs": [
+        "{options.outputFile}"
+      ]
     },
     "test": {
       "executor": "@nx/vitest:test",
-      "outputs": ["{options.reportsDirectory}"],
+      "outputs": [
+        "{options.reportsDirectory}"
+      ],
       "options": {
         "configFile": "{projectRoot}/vitest.config.ts",
-        "reportsDirectory": "../../coverage/tools/aws-deploy"
+        "reportsDirectory": "{projectRoot}/../../coverage/tools/aws-deploy"
       }
     },
     "effect:diagnostics": {

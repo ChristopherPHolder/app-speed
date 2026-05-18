@@ -1,15 +1,21 @@
 {
   "name": "audit-portal-viewer",
   "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
-  "root": "libs/audit/portal/viewer",
   "sourceRoot": "libs/audit/portal/viewer/src",
   "prefix": "lib",
   "projectType": "library",
-  "tags": ["type:domain", "scope:audit", "runtime:web", "layer:feature"],
+  "tags": [
+    "type:domain",
+    "scope:audit",
+    "runtime:web",
+    "layer:feature"
+  ],
   "targets": {
     "build": {
       "executor": "@nx/angular:ng-packagr-lite",
-      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "outputs": [
+        "{workspaceRoot}/dist/{projectRoot}"
+      ],
       "options": {
         "project": "{projectRoot}/ng-package.json",
         "tsConfig": "{projectRoot}/tsconfig.lib.json"
@@ -24,10 +30,12 @@
     },
     "test": {
       "executor": "@nx/vitest:test",
-      "outputs": ["{options.reportsDirectory}"],
+      "outputs": [
+        "{options.reportsDirectory}"
+      ],
       "options": {
         "configFile": "{projectRoot}/vitest.config.mts",
-        "reportsDirectory": "../../../../coverage/libs/audit/portal/viewer",
+        "reportsDirectory": "{projectRoot}/../../../../coverage/libs/audit/portal/viewer",
         "passWithNoTests": true
       }
     },
