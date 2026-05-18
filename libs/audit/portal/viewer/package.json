@@ -11,7 +11,7 @@
     "lighthouse": "^13.1.0",
     "rxjs": "^7.8.0",
     "swiper": "^12.1.2",
-    "vitest": "^3.2.4",
+    "vitest": "^4.1.6",
     "@analogjs/vite-plugin-angular": "2.3.1",
     "@nx/vite": "22.7.2",
     "@storybook/angular": "^10.2.10"
