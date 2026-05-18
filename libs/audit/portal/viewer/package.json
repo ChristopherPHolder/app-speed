@@ -2,19 +2,19 @@
   "name": "@app-speed/audit/portal/viewer",
   "version": "0.0.1",
   "peerDependencies": {
-    "@angular/cdk": "21.2.1",
-    "@angular/common": "21.2.1",
-    "@angular/core": "21.2.1",
-    "@angular/material": "21.2.1",
-    "@angular/platform-browser": "21.2.1",
+    "@angular/cdk": "21.2.11",
+    "@angular/common": "21.2.13",
+    "@angular/core": "21.2.13",
+    "@angular/material": "21.2.11",
+    "@angular/platform-browser": "21.2.13",
     "@app-speed/ui": "0.0.0",
     "lighthouse": "^13.1.0",
     "rxjs": "^7.8.0",
-    "swiper": "^12.1.2",
+    "swiper": "^12.1.4",
     "vitest": "^4.1.6",
-    "@analogjs/vite-plugin-angular": "2.3.1",
+    "@analogjs/vite-plugin-angular": "2.5.1",
     "@nx/vite": "22.7.2",
-    "@storybook/angular": "^10.2.10"
+    "@storybook/angular": "^10.4.0"
   },
   "sideEffects": false
 }
