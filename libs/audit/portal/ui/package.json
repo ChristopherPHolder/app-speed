@@ -10,7 +10,7 @@
     "@app-speed/audit/domain": "0.0.1",
     "@nx/vite": "22.7.2",
     "@storybook/angular": "^10.2.10",
-    "vitest": "^3.2.4"
+    "vitest": "^4.1.6"
   },
   "sideEffects": false
 }
