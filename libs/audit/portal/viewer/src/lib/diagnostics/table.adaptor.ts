@@ -370,8 +370,9 @@ function getEntityGroupItems(
   }
 
   const result = [...groupedByEntity.values()];
-  if (details.sortedBy?.length) {
-    result.sort((a, b) => compareTableItems(a, b, details.sortedBy!));
+  const sortedBy = details.sortedBy;
+  if (sortedBy?.length) {
+    result.sort((a, b) => compareTableItems(a, b, sortedBy));
   }
 
   return result;

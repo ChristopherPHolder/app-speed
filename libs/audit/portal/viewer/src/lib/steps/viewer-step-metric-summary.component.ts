@@ -14,7 +14,9 @@ export type MetricSummary = {
   template: `
     <div class="header">
       <span>METRICS</span>
-      <div (click)="toddleDescriptionVisibility()">{{ toggleBtnText() }} view</div>
+      <button type="button" class="header-toggle" (click)="toddleDescriptionVisibility()">
+        {{ toggleBtnText() }} view
+      </button>
     </div>
     <div class="content">
       @for (metric of metricSummary(); track metric.name) {
@@ -55,6 +57,15 @@ export type MetricSummary = {
     .item {
       border-top: 1px solid #ccc;
       padding: 16px 8px;
+    }
+
+    .header-toggle {
+      border: 0;
+      padding: 0;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      font: inherit;
     }
 
     .item-header {
