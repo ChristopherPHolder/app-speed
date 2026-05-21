@@ -110,7 +110,8 @@ describe('builder step spec', () => {
       validation: { minLength: 1 },
     });
     expect(urlField).toMatchObject({ kind: 'string' });
-    expect(urlField.validation?.pattern).toContain('^https:\\/\\/');
+    expect(urlField.validation?.pattern).toContain('about:blank');
+    expect(urlField.validation?.pattern).toContain('https:\\/\\/.+');
     expect(findField(click, 'offsetX')).toMatchObject({
       kind: 'number',
       validation: {

@@ -12,6 +12,22 @@ describe('PuppeteerReplayStepSchema', () => {
     ).toEqual(true);
   });
 
+  it('accepts any https URL and about:blank for navigation', () => {
+    expect(
+      Schema.is(NavigateStepSchema)({
+        type: 'navigate',
+        url: 'https://localhost:4200/test?debug=true#top',
+      }),
+    ).toBe(true);
+
+    expect(
+      Schema.is(NavigateStepSchema)({
+        type: 'navigate',
+        url: 'about:blank',
+      }),
+    ).toBe(true);
+  });
+
   it('should decode string timeouts as numbers for waitForExpression', () => {
     const decoded = Schema.decodeUnknownSync(WaitForExpressionStepSchema)({
       type: 'waitForExpression',

@@ -67,7 +67,9 @@ describe('BuilderStepFormGroup', () => {
     expect(urlControl?.hasError('required')).toBe(true);
     urlControl?.setValue('http://example.com');
     expect(urlControl?.hasError('pattern')).toBe(true);
-    urlControl?.setValue('https://example.com');
+    urlControl?.setValue('https://localhost:4200/example');
+    expect(urlControl?.valid).toBe(true);
+    urlControl?.setValue('about:blank');
     expect(urlControl?.valid).toBe(true);
 
     offsetXControl?.setValue(-1);

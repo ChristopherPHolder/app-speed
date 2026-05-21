@@ -1,6 +1,6 @@
 import { Schema } from 'effect';
 import { AppAuditCustomStepTypeSchema, AuditStepTypeSchema } from './audit-step.schema';
-import { UrlWithHttpsSchema } from './puppeteer-replay/puppeteer-replay-step';
+import { UrlWithHttpsOrAboutBlankSchema } from './puppeteer-replay/puppeteer-replay-step';
 import {
   PuppeteerReplayStepTypeSchema,
   PUPPETEER_REPLAY_CUSTOM_STEP_TYPE,
@@ -11,7 +11,7 @@ import type { BuilderStepVariantDefinition } from './builder-step-spec';
 export const AddCookieParametersSchema = Schema.Struct({
   name: Schema.NonEmptyString,
   value: Schema.NonEmptyString,
-  url: UrlWithHttpsSchema,
+  url: UrlWithHttpsOrAboutBlankSchema,
   domain: Schema.optional(Schema.NonEmptyString),
   path: Schema.optional(Schema.NonEmptyString),
   secure: Schema.optional(Schema.Boolean),

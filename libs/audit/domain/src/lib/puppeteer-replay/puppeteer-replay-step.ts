@@ -39,16 +39,29 @@ const TimeoutSchema = Schema.optional(
   }),
 );
 
-export const UrlWithHttpsSchema = Schema.String.pipe(
-  Schema.pattern(/^https:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9()@:%_+.~#?&/=]*$/),
-).annotations({ title: 'UrlWithHttps' });
+const isValidHttpsOrAboutBlankUrl = (value: string): boolean => {
+  if (value === 'about:blank') {
+    return true;
+  }
+
+  try {
+    return new URL(value).protocol === 'https:';
+  } catch {
+    return false;
+  }
+};
+
+export const UrlWithHttpsOrAboutBlankSchema = Schema.String.pipe(
+  Schema.pattern(/^(?:about:blank|https:\/\/.+)$/),
+  Schema.filter((value) => isValidHttpsOrAboutBlankUrl(value) || 'Expected an https URL or about:blank'),
+).annotations({ title: 'UrlWithHttpsOrAboutBlank' });
 
 const AssertedEventsSchema = Schema.Struct({
   type: PuppeteerReplayAssociatedEventTypeSchema.pipe(
     Schema.pickLiteral(PUPPETEER_REPLAY_ASSERTED_EVENT_TYPE.NAVIGATION),
   ),
   title: Schema.optional(Schema.NonEmptyString),
-  url: Schema.optional(UrlWithHttpsSchema),
+  url: Schema.optional(UrlWithHttpsOrAboutBlankSchema),
 }) satisfies SchemaTypeWithEnumLiteralDeep<NavigationEvent>;
 
 const FrameSelectorSchema = Schema.Array(Schema.NonNegativeInt);
@@ -181,7 +194,7 @@ export const NavigateStepSchema = Schema.Struct({
   assertedEvents: Schema.optional(Schema.Array(AssertedEventsSchema)),
   target: Schema.optional(Schema.String),
   timeout: TimeoutSchema,
-  url: UrlWithHttpsSchema,
+  url: UrlWithHttpsOrAboutBlankSchema,
 }) satisfies SchemaTypeWithEnumLiteralDeep<NavigateStep>;
 
 export const ScrollPageStepSchema = Schema.Struct({
