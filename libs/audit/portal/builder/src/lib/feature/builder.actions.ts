@@ -56,3 +56,27 @@ export const loadAuditDetailsSuccess = createAction(
 );
 
 export const loadAuditDetailsFailed = createAction('[Builder Page] Load Audit Details Failed');
+
+export const loadRunDetails = createAction('[Builder Page] Load Run Details', props<{ auditId: string }>());
+
+export const loadRunDetailsSuccess = createAction(
+  '[Builder Page] Load Run Details Success',
+  props<{
+    auditId: string;
+    audit: AuditDetails;
+    status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETE';
+    resultStatus: 'SUCCESS' | 'FAILURE' | null;
+    queuePosition: number | null;
+    createdAt: string;
+    startedAt: string | null;
+    completedAt: string | null;
+    durationMs: number | null;
+  }>(),
+);
+
+export const loadRunDetailsFailed = createAction(
+  '[Builder Page] Load Run Details Failed',
+  props<{ error: string }>(),
+);
+
+export const forkAudit = createAction('[Builder Page] Fork Audit', props<{ audit: AuditDetails }>());

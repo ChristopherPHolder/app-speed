@@ -1,5 +1,6 @@
 import { HttpApiEndpoint } from '@effect/platform';
 import { Schema } from 'effect';
+import { AuditSchema } from '@app-speed/audit/domain';
 
 import {
   AuditId,
@@ -29,6 +30,18 @@ export const AuditRunSummarySchema = Schema.Struct({
   durationMs: Schema.NullOr(Schema.Number),
 });
 
+export const AuditRunDetailsSchema = Schema.Struct({
+  auditId: AuditId,
+  audit: AuditSchema,
+  status: AuditRunStatusSchema,
+  resultStatus: Schema.NullOr(AuditResultStatusSchema),
+  queuePosition: Schema.NullOr(Schema.NonNegativeInt),
+  createdAt: Schema.String,
+  startedAt: Schema.NullOr(Schema.String),
+  completedAt: Schema.NullOr(Schema.String),
+  durationMs: Schema.NullOr(Schema.Number),
+});
+
 const AuditRunsPageSchema = Schema.Struct({
   items: Schema.Array(AuditRunSummarySchema),
   nextCursor: Schema.NullOr(Schema.String),
@@ -45,5 +58,11 @@ export const listRunsEndpoint = HttpApiEndpoint.get('listRuns', '/runs')
 export const runByIdEndpoint = HttpApiEndpoint.get('runById', '/runs/:id')
   .setPath(Schema.Struct({ id: AuditId }))
   .addSuccess(AuditRunSummarySchema)
+  .addError(AuditRunSummaryNotFoundError)
+  .addError(AuditRunsInternalError);
+
+export const runDetailsByIdEndpoint = HttpApiEndpoint.get('runDetailsById', '/runs/:id/details')
+  .setPath(Schema.Struct({ id: AuditId }))
+  .addSuccess(AuditRunDetailsSchema)
   .addError(AuditRunSummaryNotFoundError)
   .addError(AuditRunsInternalError);

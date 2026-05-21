@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  computed,
   input,
   OnInit,
   output,
@@ -40,15 +41,21 @@ import { ToTitleCasePipe } from '@app-speed/audit/portal/ui';
               <input matInput placeholder="Audit Title" [formControl]="formGroup.controls.title" name="audit title" />
               <mat-error *rxIf="!!formGroup.controls.title.hasError">Title <strong>required</strong></mat-error>
             </mat-form-field>
-            <button
-              class="submit-btn"
-              mat-fab
-              [disabled]="formGroup.disabled || formGroup.invalid"
-              [extended]="true"
-              type="submit"
-            >
-              Analyze
-            </button>
+            @if (primaryAction() === 'analyze') {
+              <button
+                class="submit-btn"
+                mat-fab
+                [disabled]="formGroup.disabled || formGroup.invalid"
+                [extended]="true"
+                type="submit"
+              >
+                Analyze
+              </button>
+            } @else if (primaryAction() === 'fork') {
+              <button class="submit-btn" mat-fab [extended]="true" type="button" (click)="forked.emit()">Fork</button>
+            } @else {
+              <div class="submit-btn submit-btn--placeholder" aria-hidden="true"></div>
+            }
           </div>
           <div class="row">
             <mat-form-field class="full-width col">
@@ -74,7 +81,7 @@ import { ToTitleCasePipe } from '@app-speed/audit/portal/ui';
           </div>
           <mat-accordion [multi]="true">
             @for (step of formGroup.controls.steps.controls; track step) {
-              <ui-audit-builder-step [stepControl]="step">
+              <ui-audit-builder-step [stepControl]="step" [expanded]="stepExpanded()">
                 <div class="toggle-menu">
                   <button
                     type="button"
@@ -128,10 +135,14 @@ import { ToTitleCasePipe } from '@app-speed/audit/portal/ui';
 export class AuditBuilderComponent implements OnInit {
   public submitAudit = output<AuditDetails>();
   public readonly modified = output<AuditDetails>();
+  public readonly forked = output<void>();
   initialAudit = input.required<AuditDetails>();
   protected readonly DEVICE_TYPES: readonly string[] = DEVICE_OPTIONS;
   private readonly destroyRef = inject(DestroyRef);
   public readonly modifying = input.required<boolean>();
+  public readonly primaryAction = input<'analyze' | 'fork' | 'none'>('analyze');
+  public readonly collapseSteps = input(false);
+  protected readonly stepExpanded = computed(() => !this.collapseSteps());
 
   constructor() {
     effect(() => {

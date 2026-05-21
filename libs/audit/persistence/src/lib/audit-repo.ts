@@ -5,8 +5,9 @@ import { Audit } from '@app-speed/audit/domain';
 import { DbClient, QueryError } from './db';
 import { createRun, createTemplate, getTemplateById } from './audit-repo/builder';
 import { claimNextRun, completeRun, getQueuePosition, hasScheduledRuns, markRunInProgress } from './audit-repo/queue';
-import { getRunSummaryById, listRunsPage } from './audit-repo/runs';
+import { getRunDetailsById, getRunSummaryById, listRunsPage } from './audit-repo/runs';
 import {
+  type AuditRunDetailsRecord,
   type AuditRunId,
   type AuditRunListCursor,
   type AuditRunRecord,
@@ -33,6 +34,9 @@ export class AuditRepo extends Context.Tag('AuditRepo')<
     getRunSummaryById: (
       id: AuditRunId,
     ) => Effect.Effect<AuditRunSummaryRecord | null, QueryError | ParseResult.ParseError>;
+    getRunDetailsById: (
+      id: AuditRunId,
+    ) => Effect.Effect<AuditRunDetailsRecord | null, QueryError | ParseResult.ParseError>;
     listRunsPage: (params: {
       limit: number;
       cursor: AuditRunListCursor | null;
@@ -71,6 +75,7 @@ export const AuditRepoLive = Layer.effect(
       markRunInProgress: (id: AuditRunId) => markRunInProgress(id).pipe(Effect.provideService(DbClient, db)),
       getQueuePosition: (id: AuditRunId) => getQueuePosition(id).pipe(Effect.provideService(DbClient, db)),
       getRunSummaryById: (id: AuditRunId) => getRunSummaryById(id).pipe(Effect.provideService(DbClient, db)),
+      getRunDetailsById: (id: AuditRunId) => getRunDetailsById(id).pipe(Effect.provideService(DbClient, db)),
       listRunsPage: (params: {
         limit: number;
         cursor: AuditRunListCursor | null;

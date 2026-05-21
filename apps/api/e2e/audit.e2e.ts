@@ -118,6 +118,22 @@ describe('Audit', () => {
     });
   });
 
+  it('should return run details by id for user-flow hydration', async () => {
+    const scheduleResponse = await ScheduleRequest(MOCK_AUDIT);
+    const res = await fetch(`${AUDIT_API_ENDPOINT}runs/${scheduleResponse.auditId}/details`);
+    const body = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(body).toMatchObject({
+      auditId: scheduleResponse.auditId,
+      audit: MOCK_AUDIT,
+      status: 'SCHEDULED',
+      resultStatus: null,
+    });
+    expect(body).toHaveProperty('queuePosition');
+    expect(body).toHaveProperty('createdAt');
+  });
+
   it('should return run not found for unknown run summary id', async () => {
     const res = await fetch(`${AUDIT_API_ENDPOINT}runs/STUB_ID`);
     const body = await res.json();
@@ -155,7 +171,12 @@ describe('Audit', () => {
 const MOCK_AUDIT = {
   title: 'Example Title',
   device: 'mobile',
-  steps: [{ type: 'startNavigation' }, { type: 'navigate', url: 'https://google.com' }, { type: 'endNavigation' }],
+  timeout: 30000,
+  steps: [
+    { type: 'customStep', step: 'startNavigation', name: 'Initial Navigation' },
+    { type: 'navigate', url: 'https://google.com' },
+    { type: 'customStep', step: 'endNavigation' },
+  ],
 };
 
 const AUDIT_API_ENDPOINT = 'http://localhost:3000/api/audit/';

@@ -6,7 +6,11 @@ import {
   auditResultRequested,
   auditResultSuccess,
   auditStageUpdated,
+  forkAudit,
   loadAuditDetailsSuccess,
+  loadRunDetails,
+  loadRunDetailsFailed,
+  loadRunDetailsSuccess,
   submitAuditRequest,
   submitAuditRequestFailed,
   submitAuditRequestSuccess,
@@ -15,6 +19,7 @@ import {
 import type { StatusDialogModel } from '@app-speed/audit/portal/ui/dialogs';
 import type { FlowResult } from 'lighthouse';
 import type { AuditStage } from './builder.actions';
+import { DEFAULT_AUDIT_DETAILS } from '../audit-details';
 
 export const auditBuilderFeatureKey = 'auditBuilder';
 
@@ -76,6 +81,25 @@ const getLoadingDialog = ({
   }
 
   return null;
+};
+
+const toAuditStage = (
+  status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETE',
+  resultStatus: 'SUCCESS' | 'FAILURE' | null,
+): AuditStage => {
+  if (status === 'SCHEDULED') {
+    return 'scheduled';
+  }
+
+  if (status === 'IN_PROGRESS') {
+    return 'running';
+  }
+
+  if (resultStatus === 'FAILURE') {
+    return 'failed';
+  }
+
+  return 'done';
 };
 
 export interface AuditBuilderState {
@@ -152,8 +176,8 @@ export const auditBuilderReducer = createReducer(
     queuePosition: null,
     listeningToAuditProgress: false,
     auditResult: null,
-    auditResultStatus: 'FAILURE',
-    auditResultError: auditRequestError,
+    auditResultStatus: null,
+    auditResultError: null,
     loadingDialog: null,
   })),
   on(auditStageUpdated, (state, { stage }) => {
@@ -201,7 +225,8 @@ export const auditBuilderReducer = createReducer(
     auditResultStatus: 'FAILURE',
     auditResultError: error,
     auditRequestError: error,
-    modifying: true,
+    modifying: false,
+    auditStage: 'failed',
     loadingDialog: null,
   })),
   on(updateAuditDetails, (state, { audit }) => ({
@@ -212,6 +237,90 @@ export const auditBuilderReducer = createReducer(
   on(loadAuditDetailsSuccess, (state, { audit }) => ({
     ...state,
     audit: audit,
+    modifying: true,
+    submittingRequest: false,
+    requestId: null,
+    queuePosition: null,
+    listeningToAuditProgress: false,
+    auditStage: null,
+    auditResult: null,
+    auditResultStatus: null,
+    auditResultError: null,
+    auditRequestError: null,
+    loadingDialog: null,
+  })),
+  on(loadRunDetails, (state, { auditId }) => ({
+    ...state,
+    audit: null,
+    modifying: false,
+    submittingRequest: true,
+    requestId: auditId,
+    queuePosition: null,
+    listeningToAuditProgress: null,
+    auditStage: 'scheduling',
+    auditResult: null,
+    auditResultStatus: null,
+    auditResultError: null,
+    auditRequestError: null,
+    loadingDialog: getLoadingDialog({
+      auditStage: 'scheduling',
+      queuePosition: null,
+      requestId: auditId,
+      submittingRequest: true,
+    }),
+  })),
+  on(loadRunDetailsSuccess, (state, { auditId, audit, status, resultStatus, queuePosition }) => {
+    const auditStage = toAuditStage(status, resultStatus);
+    const submittingRequest = auditStage === 'scheduled' || auditStage === 'running';
+    const nextState = {
+      ...state,
+      audit,
+      modifying: false,
+      submittingRequest,
+      requestId: auditId,
+      queuePosition,
+      listeningToAuditProgress: submittingRequest,
+      auditStage,
+      auditResult: null,
+      auditResultStatus: resultStatus,
+      auditResultError: resultStatus === 'FAILURE' ? state.auditResultError : null,
+      auditRequestError: resultStatus === 'FAILURE' ? state.auditRequestError : null,
+    };
+
+    return {
+      ...nextState,
+      loadingDialog: getLoadingDialog(nextState),
+    };
+  }),
+  on(loadRunDetailsFailed, (state, { error }) => ({
+    ...state,
+    audit: DEFAULT_AUDIT_DETAILS,
+    modifying: true,
+    submittingRequest: false,
+    requestId: null,
+    queuePosition: null,
+    listeningToAuditProgress: false,
+    auditStage: null,
+    auditResult: null,
+    auditResultStatus: null,
+    auditResultError: null,
+    auditRequestError: error,
+    loadingDialog: null,
+  })),
+  on(forkAudit, (state, { audit }) => ({
+    ...state,
+    audit,
+    modifying: true,
+    submittingRequest: false,
+    requestId: null,
+    queuePosition: null,
+    listeningToAuditProgress: false,
+    auditStage: null,
+    auditResult: null,
+    auditResultStatus: null,
+    auditResultError: null,
+    auditRequestError: null,
+    loadingDialog: null,
   })),
 );
 

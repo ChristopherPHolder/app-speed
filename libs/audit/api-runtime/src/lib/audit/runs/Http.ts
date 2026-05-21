@@ -1,6 +1,7 @@
 import { Effect } from 'effect';
 
 import { AuditRepo } from '@app-speed/audit/persistence';
+import type { Audit } from '@app-speed/audit/domain';
 
 import {
   AuditIdType,
@@ -176,6 +177,28 @@ const toRunSummaryResponse = (run: {
   durationMs: run.durationMs,
 });
 
+const toRunDetailsResponse = (run: {
+  id: AuditIdType;
+  data: Audit;
+  status: AuditRunStatus;
+  resultStatus: 'SUCCESS' | 'FAILURE' | null;
+  queuePosition: number | null;
+  createdAt: Date;
+  startedAt: Date | null;
+  completedAt: Date | null;
+  durationMs: number | null;
+}) => ({
+  auditId: run.id,
+  audit: run.data,
+  status: run.status,
+  resultStatus: run.resultStatus,
+  queuePosition: run.queuePosition,
+  createdAt: run.createdAt.toISOString(),
+  startedAt: run.startedAt ? run.startedAt.toISOString() : null,
+  completedAt: run.completedAt ? run.completedAt.toISOString() : null,
+  durationMs: run.durationMs,
+});
+
 export const listRunsHandler = Effect.fn('api.audit.listRuns')((request) =>
   Effect.gen(function* () {
     const repo = yield* AuditRepo;
@@ -207,4 +230,20 @@ export const runByIdHandler = Effect.fn('api.audit.runById')((request) =>
 
     return toRunSummaryResponse(run);
   }).pipe(Effect.withSpan('api.audit.runById'), Effect.mapError(normalizeRunByIdError)),
+);
+
+export const runDetailsByIdHandler = Effect.fn('api.audit.runDetailsById')((request) =>
+  Effect.gen(function* () {
+    const repo = yield* AuditRepo;
+    const run = yield* repo.getRunDetailsById(request.path.id);
+    if (!run) {
+      return yield* new AuditRunSummaryNotFoundError({
+        code: 'RUN_NOT_FOUND',
+        message: `Audit run ${request.path.id} was not found.`,
+        details: { auditId: request.path.id },
+      });
+    }
+
+    return toRunDetailsResponse(run);
+  }).pipe(Effect.withSpan('api.audit.runDetailsById'), Effect.mapError(normalizeRunByIdError)),
 );
