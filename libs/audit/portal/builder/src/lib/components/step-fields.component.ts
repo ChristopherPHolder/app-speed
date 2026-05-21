@@ -36,7 +36,13 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
   ],
   template: `
     <div class="step-fields">
-      @for (field of visibleFields(); track field.path) {
+      @for (field of visibleRequiredFields(); track field.path) {
+        <ng-container
+          [ngTemplateOutlet]="fieldTemplate"
+          [ngTemplateOutletContext]="{ field, fieldControl: childControl(field) }"
+        />
+      }
+      @for (field of visibleOptionalFields(); track field.path) {
         <ng-container
           [ngTemplateOutlet]="fieldTemplate"
           [ngTemplateOutletContext]="{ field, fieldControl: childControl(field) }"
@@ -470,8 +476,9 @@ export class StepFieldsComponent {
     { initialValue: [] as string[] },
   );
 
-  protected readonly visibleFields = computed(() =>
-    this.fields().filter((field) => field.required || this.fieldControl().includes(stepFieldControlName(field))),
+  protected readonly visibleRequiredFields = computed(() => this.fields().filter((field) => field.required));
+  protected readonly visibleOptionalFields = computed(() =>
+    this.fields().filter((field) => !field.required && this.fieldControl().includes(stepFieldControlName(field))),
   );
   protected readonly optionalFields = computed(() =>
     this.fields().filter((field) => !field.required && !this.fieldControl().includes(stepFieldControlName(field))),
