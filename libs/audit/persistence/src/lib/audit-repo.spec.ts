@@ -82,6 +82,25 @@ layer(TestLayer)('AuditRepo (contract)', (it) => {
     }),
   );
 
+  it.effect('hydrates run details with the submitted audit snapshot', () =>
+    Effect.gen(function* () {
+      yield* resetDb;
+
+      const repo = yield* AuditRepo;
+
+      const templateId = yield* repo.createTemplate(sampleAudit);
+      const runId = yield* repo.createRun(templateId);
+      const runDetails = yield* repo.getRunDetailsById(runId);
+
+      expect(runDetails).not.toBeNull();
+      expect(runDetails?.id).toBe(runId);
+      expect(runDetails?.status).toBe('SCHEDULED');
+      expect(runDetails?.data).toEqual(sampleAudit);
+      expect(runDetails?.queuePosition).toBe(0);
+      expect(runDetails?.resultStatus).toBeNull();
+    }),
+  );
+
   it.effect('claims the next scheduled run and marks it in progress', () =>
     Effect.gen(function* () {
       yield* resetDb;

@@ -10,14 +10,19 @@ export const shellRoutes: Route[] = [
         path: 'user-flow',
         children: [
           {
-            path: 'builder',
+            path: '',
             loadChildren: () => import('@app-speed/audit/portal/builder').then((m) => m.auditBuilderRoutes),
           },
           {
-            path: 'viewer',
-            loadComponent: () => import('@app-speed/audit/portal/viewer').then((m) => m.AuditViewerContainer),
+            path: 'builder',
+            redirectTo: '',
+            pathMatch: 'full',
           },
-          { path: '', redirectTo: 'builder', pathMatch: 'full' },
+          {
+            path: 'viewer',
+            redirectTo: '',
+            pathMatch: 'full',
+          },
         ],
       },
       {

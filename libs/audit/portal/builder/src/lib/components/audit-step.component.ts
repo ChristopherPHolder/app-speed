@@ -14,7 +14,7 @@ import { StepFieldsComponent } from './step-fields.component';
 @Component({
   selector: 'ui-audit-builder-step',
   template: `
-    <mat-expansion-panel [expanded]="true">
+    <mat-expansion-panel [expanded]="expanded()">
       @let control = stepControl();
       <mat-expansion-panel-header>
         <mat-panel-title>
@@ -98,6 +98,7 @@ import { StepFieldsComponent } from './step-fields.component';
 })
 export class AuditStepComponent {
   stepControl = input.required<StepFormGroup>();
+  expanded = input(true);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly stepTypeOptions = STEP_SELECTION_OPTIONS_GROUPED;
 

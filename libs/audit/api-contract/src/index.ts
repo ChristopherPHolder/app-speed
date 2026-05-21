@@ -16,6 +16,7 @@ export {
 export { findByIdEndpoint, scheduleEndpoint, watchByIdEndpoint } from './lib/audit/builder/Api';
 export { AuditRunSummarySchema, AuditRunsQuerySchema, listRunsEndpoint, runByIdEndpoint } from './lib/audit/runs/Api';
 export { reportByIdEndpoint, resultByIdEndpoint } from './lib/audit/viewer/Api';
+export { runDetailsByIdEndpoint } from './lib/audit/runs/Api';
 
 export { HealthApiGroup } from './lib/health/Api';
 export { RunnerApiGroup } from './lib/runner/Api';

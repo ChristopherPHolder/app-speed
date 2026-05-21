@@ -3,7 +3,7 @@ import { Effect } from 'effect';
 import { Api } from '@app-speed/audit/api-contract';
 
 import { findByIdHandler, scheduleHandler, watchByIdHandler } from './builder/Http.js';
-import { listRunsHandler, runByIdHandler } from './runs/Http.js';
+import { listRunsHandler, runByIdHandler, runDetailsByIdHandler } from './runs/Http.js';
 import { reportByIdHandler, resultByIdHandler } from './viewer/Http.js';
 
 export const AuditGroupLive = HttpApiBuilder.group(Api, 'audit', (handlers) =>
@@ -16,6 +16,7 @@ export const AuditGroupLive = HttpApiBuilder.group(Api, 'audit', (handlers) =>
       .handle('schedule', scheduleHandler)
       .handle('listRuns', listRunsHandler)
       .handle('runById', runByIdHandler)
+      .handle('runDetailsById', runDetailsByIdHandler)
       .handle('watchById', watchByIdHandler);
   }),
 );

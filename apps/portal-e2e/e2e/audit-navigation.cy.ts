@@ -32,7 +32,7 @@ const createMockEventSource = () => {
 };
 
 describe('audit builder navigation (mock backend)', () => {
-  it('navigates to viewer with auditId and renders summary', () => {
+  it('navigates to canonical user-flow with auditId and renders summary', () => {
     const auditId = 'audit-smoke-123';
 
     cy.intercept('POST', '/api/audit/schedule', {
@@ -83,7 +83,7 @@ describe('audit builder navigation (mock backend)', () => {
     cy.wait('@schedule');
     cy.wait('@result');
 
-    cy.location('pathname').should('eq', '/user-flow/viewer');
+    cy.location('pathname').should('eq', '/user-flow');
     cy.location('search').should('contain', `auditId=${auditId}`);
     cy.get('ui-audit-summary', { timeout: 20000 }).should('be.visible');
   });

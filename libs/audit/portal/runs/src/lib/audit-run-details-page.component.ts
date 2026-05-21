@@ -68,7 +68,7 @@ export class AuditRunDetailsPageComponent {
 
         if (!this.#hasRedirected && run.status === 'COMPLETE' && run.resultStatus !== null) {
           this.#hasRedirected = true;
-          this.router.navigate(['/user-flow/viewer'], { queryParams: { auditId: run.auditId } });
+          this.router.navigate(['/user-flow'], { queryParams: { auditId: run.auditId } });
         }
       });
 

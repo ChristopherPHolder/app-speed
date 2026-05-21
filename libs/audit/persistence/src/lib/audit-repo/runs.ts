@@ -8,6 +8,7 @@ import {
   type AuditRunListCursor,
   type AuditStatus,
   decodeAuditRunSummaryRecord,
+  decodeAuditRunDetailsRecord,
   resolveAuditTitle,
 } from './shared';
 import { getQueuePosition } from './queue';
@@ -44,6 +45,48 @@ export const getRunSummaryById = Effect.fn('db.auditRun.getSummaryById')(functio
   return yield* decodeAuditRunSummaryRecord({
     id: row.id,
     title: resolveAuditTitle(row.templateData),
+    status: row.status,
+    resultStatus: row.resultStatus ?? null,
+    queuePosition: row.status === 'SCHEDULED' ? (queuePosition ?? 0) : null,
+    createdAt: row.createdAt,
+    startedAt: row.startedAt,
+    completedAt: row.completedAt,
+    durationMs: row.durationMs,
+  });
+});
+
+export const getRunDetailsById = Effect.fn('db.auditRun.getDetailsById')(function* (id: AuditRunId) {
+  const db = yield* DbClient;
+  yield* Effect.annotateCurrentSpan({ 'audit.id': id });
+
+  const row = yield* db.run((client) =>
+    client
+      .select({
+        id: auditRunTable.id,
+        status: auditRunTable.status,
+        createdAt: auditRunTable.createdAt,
+        startedAt: auditRunTable.startedAt,
+        completedAt: auditRunTable.completedAt,
+        durationMs: auditRunTable.durationMs,
+        templateData: auditTemplateTable.data,
+        resultStatus: auditResultTable.status,
+      })
+      .from(auditRunTable)
+      .innerJoin(auditTemplateTable, eq(auditTemplateTable.id, auditRunTable.templateId))
+      .leftJoin(auditResultTable, eq(auditResultTable.runId, auditRunTable.id))
+      .where(eq(auditRunTable.id, id))
+      .get(),
+  );
+
+  if (!row) {
+    return null;
+  }
+
+  const queuePosition = row.status === 'SCHEDULED' ? yield* getQueuePosition(row.id as AuditRunId) : null;
+
+  return yield* decodeAuditRunDetailsRecord({
+    id: row.id,
+    data: row.templateData,
     status: row.status,
     resultStatus: row.resultStatus ?? null,
     queuePosition: row.status === 'SCHEDULED' ? (queuePosition ?? 0) : null,

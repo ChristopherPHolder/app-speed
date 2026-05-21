@@ -17,6 +17,7 @@ const makeAuditRepoStub = (hasScheduledRuns: () => boolean) => ({
   markRunInProgress: () => unusedEffect,
   getQueuePosition: () => unusedEffect,
   getRunSummaryById: () => unusedEffect,
+  getRunDetailsById: () => unusedEffect,
   listRunsPage: () => unusedEffect,
   completeRun: () => unusedEffect,
   getRunById: () => unusedEffect,

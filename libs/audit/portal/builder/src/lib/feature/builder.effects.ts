@@ -6,18 +6,21 @@ import {
   auditResultRequested,
   auditResultSuccess,
   auditStageUpdated,
+  forkAudit,
   listenToAuditProgress,
   loadAuditDetails,
-  loadAuditDetailsFailed,
   loadAuditDetailsSuccess,
+  loadRunDetails,
+  loadRunDetailsFailed,
+  loadRunDetailsSuccess,
   submitAuditRequest,
   submitAuditRequestFailed,
   submitAuditRequestSuccess,
   updateAuditDetails,
 } from './builder.actions';
-import { catchError, debounceTime, distinctUntilChanged, filter, map, of, switchMap, tap } from 'rxjs';
+import { EMPTY, catchError, debounceTime, distinctUntilChanged, filter, map, of, switchMap, tap } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DEFAULT_AUDIT_DETAILS } from '../audit-details';
+import { AuditDetails, DEFAULT_AUDIT_DETAILS } from '../audit-details';
 import { HttpClient } from '@angular/common/http';
 import type { FlowResult } from 'lighthouse';
 import { getAuditRequestErrorMessage } from './builder-error-message';
@@ -28,12 +31,37 @@ type AuditResultResponse =
   | { status: 'SUCCESS'; result: FlowResult }
   | { status: 'FAILURE'; error: { name: string; message: string; stack: string } };
 
+type RunDetailsResponse = {
+  auditId: string;
+  audit: AuditDetails;
+  status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETE';
+  resultStatus: 'SUCCESS' | 'FAILURE' | null;
+  queuePosition: number | null;
+  createdAt: string;
+  startedAt: string | null;
+  completedAt: string | null;
+  durationMs: number | null;
+};
+
 const loadAuditDetailsEffect = createEffect(
-  (actions$ = inject(Actions), activatedRoute = inject(ActivatedRoute)) => {
+  (actions$ = inject(Actions), activatedRoute = inject(ActivatedRoute), router = inject(Router)) => {
     return actions$.pipe(
       ofType(loadAuditDetails),
       map(() => {
+        const auditId = activatedRoute.snapshot.queryParams['auditId'];
         const auditDetailsQuery = activatedRoute.snapshot.queryParams['audit-details'];
+
+        if (auditId) {
+          if (auditDetailsQuery) {
+            router.navigate([], {
+              queryParams: { auditId },
+              replaceUrl: true,
+            });
+          }
+
+          return loadRunDetails({ auditId });
+        }
+
         if (auditDetailsQuery) {
           try {
             return loadAuditDetailsSuccess({ audit: JSON.parse(auditDetailsQuery) });
@@ -41,19 +69,10 @@ const loadAuditDetailsEffect = createEffect(
             // fall through to defaults below
           }
         }
-        return loadAuditDetailsFailed();
+        return loadAuditDetailsSuccess({ audit: DEFAULT_AUDIT_DETAILS });
       }),
     );
   },
-  { functional: true },
-);
-
-const loadAuditDetailsSuccessEffect = createEffect(
-  (actions$ = inject(Actions)) =>
-    actions$.pipe(
-      ofType(loadAuditDetailsSuccess),
-      map(({ audit }) => updateAuditDetails({ audit })),
-    ),
   { functional: true },
 );
 
@@ -65,20 +84,11 @@ const updateAuditDetailsEffect = createEffect(
       tap(({ audit }) =>
         router.navigate([], {
           queryParams: { ['audit-details']: JSON.stringify(audit) },
-          queryParamsHandling: 'replace',
+          replaceUrl: true,
         }),
       ),
     ),
   { functional: true, dispatch: false },
-);
-
-const loadAuditDetailsFailedEffect = createEffect(
-  (actions$ = inject(Actions)) =>
-    actions$.pipe(
-      ofType(loadAuditDetailsFailed),
-      map(() => updateAuditDetails({ audit: DEFAULT_AUDIT_DETAILS })),
-    ),
-  { functional: true },
 );
 
 const submitAuditRequestEffect = createEffect(
@@ -102,11 +112,63 @@ const submitAuditRequestEffect = createEffect(
   { functional: true },
 );
 
-const submitAuditRequestSuccessEffect = createEffect(
+const submitAuditRequestSuccessListenEffect = createEffect(
   (action$ = inject(Actions)) =>
     action$.pipe(
       ofType(submitAuditRequestSuccess),
       map(({ requestId }) => listenToAuditProgress({ requestId })),
+    ),
+  { functional: true },
+);
+
+const submitAuditRequestSuccessNavigateEffect = createEffect(
+  (actions$ = inject(Actions), router = inject(Router)) =>
+    actions$.pipe(
+      ofType(submitAuditRequestSuccess),
+      tap(({ requestId }) => {
+        router.navigate(['/user-flow'], {
+          queryParams: { auditId: requestId },
+        });
+      }),
+    ),
+  { functional: true, dispatch: false },
+);
+
+const loadRunDetailsEffect = createEffect(
+  (actions$ = inject(Actions), http = inject(HttpClient)) =>
+    actions$.pipe(
+      ofType(loadRunDetails),
+      switchMap(({ auditId }) =>
+        http.get<RunDetailsResponse>(`/api/audit/runs/${auditId}/details`).pipe(
+          map((runDetails) => loadRunDetailsSuccess(runDetails)),
+          catchError((error) =>
+            of(
+              loadRunDetailsFailed({
+                error: error?.error?.message ?? 'Unable to load the selected audit run.',
+              }),
+            ),
+          ),
+        ),
+      ),
+    ),
+  { functional: true },
+);
+
+const loadRunDetailsSuccessEffect = createEffect(
+  (actions$ = inject(Actions)) =>
+    actions$.pipe(
+      ofType(loadRunDetailsSuccess),
+      switchMap(({ auditId, status, resultStatus }) => {
+        if (status !== 'COMPLETE') {
+          return of(listenToAuditProgress({ requestId: auditId }));
+        }
+
+        if (resultStatus) {
+          return of(auditResultRequested({ requestId: auditId }));
+        }
+
+        return EMPTY;
+      }),
     ),
   { functional: true },
 );
@@ -184,13 +246,13 @@ const auditResultEffect = createEffect(
   { functional: true },
 );
 
-const auditResultSuccessNavigateEffect = createEffect(
+const forkAuditEffect = createEffect(
   (actions$ = inject(Actions), router = inject(Router)) =>
     actions$.pipe(
-      ofType(auditResultSuccess),
-      tap(({ requestId }) => {
-        router.navigate(['/user-flow/viewer'], {
-          queryParams: { auditId: requestId },
+      ofType(forkAudit),
+      tap(({ audit }) => {
+        router.navigate(['/user-flow'], {
+          queryParams: { ['audit-details']: JSON.stringify(audit) },
         });
       }),
     ),
@@ -202,12 +264,13 @@ export const provideBuilderEffects = () =>
     updateAuditDetailsEffect,
     submitAuditRequestEffect,
     loadAuditDetailsEffect,
-    loadAuditDetailsSuccessEffect,
-    loadAuditDetailsFailedEffect,
-    submitAuditRequestSuccessEffect,
+    loadRunDetailsEffect,
+    loadRunDetailsSuccessEffect,
+    submitAuditRequestSuccessListenEffect,
+    submitAuditRequestSuccessNavigateEffect,
     listenToAuditProgressEffect,
     listenToAuditQueuePositionEffect,
     auditResultRequestedEffect,
     auditResultEffect,
-    auditResultSuccessNavigateEffect,
+    forkAuditEffect,
   });

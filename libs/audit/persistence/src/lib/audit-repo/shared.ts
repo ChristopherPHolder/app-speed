@@ -58,6 +58,19 @@ const AuditRunSummaryRecordSchema = Schema.Struct({
 });
 export type AuditRunSummaryRecord = typeof AuditRunSummaryRecordSchema.Type;
 
+const AuditRunDetailsRecordSchema = Schema.Struct({
+  id: AuditRunIdSchema,
+  data: AuditSchema,
+  status: AuditStatusSchema,
+  resultStatus: Schema.NullOr(AuditResultStatusSchema),
+  queuePosition: Schema.NullOr(Schema.NonNegativeInt),
+  createdAt: Schema.DateFromSelf,
+  startedAt: Schema.NullOr(Schema.DateFromSelf),
+  completedAt: Schema.NullOr(Schema.DateFromSelf),
+  durationMs: Schema.NullOr(Schema.Number),
+});
+export type AuditRunDetailsRecord = typeof AuditRunDetailsRecordSchema.Type;
+
 export const AuditRunListCursorSchema = Schema.Struct({
   createdAtMs: Schema.NonNegativeInt,
   id: Schema.String,
@@ -121,6 +134,29 @@ export const decodeAuditRunSummaryRecord = (run: {
   Schema.decodeUnknown(AuditRunSummaryRecordSchema, { errors: 'all' })({
     id: run.id,
     title: run.title,
+    status: run.status,
+    resultStatus: run.resultStatus,
+    queuePosition: run.queuePosition,
+    createdAt: run.createdAt,
+    startedAt: run.startedAt,
+    completedAt: run.completedAt,
+    durationMs: run.durationMs,
+  });
+
+export const decodeAuditRunDetailsRecord = (run: {
+  id: string;
+  data: unknown;
+  status: AuditStatus;
+  resultStatus: AuditResultStatus | null;
+  queuePosition: number | null;
+  createdAt: Date;
+  startedAt: Date | null;
+  completedAt: Date | null;
+  durationMs: number | null;
+}) =>
+  Schema.decodeUnknown(AuditRunDetailsRecordSchema, { errors: 'all' })({
+    id: run.id,
+    data: run.data,
     status: run.status,
     resultStatus: run.resultStatus,
     queuePosition: run.queuePosition,
