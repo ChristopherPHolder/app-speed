@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, forwardRef, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { AbstractControl, FormArray, FormControl, FormGroup, FormRecord, ReactiveFormsModule } from '@angular/forms';
 import { MatButton, MatFabButton, MatIconButton } from '@angular/material/button';
 import { MatError, MatFormField, MatHint, MatLabel } from '@angular/material/form-field';
@@ -32,7 +32,6 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
     MatLabel,
     MatOption,
     MatSelect,
-    forwardRef(() => StepFieldsComponent),
   ],
   template: `
     <div class="step-fields">
