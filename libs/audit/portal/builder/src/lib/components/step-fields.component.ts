@@ -1,8 +1,8 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, forwardRef, input } from '@angular/core';
-import { ReactiveFormsModule, FormArray, FormControl, FormGroup, FormRecord, AbstractControl } from '@angular/forms';
+import { AbstractControl, FormArray, FormControl, FormGroup, FormRecord, ReactiveFormsModule } from '@angular/forms';
 import { MatButton, MatFabButton, MatIconButton } from '@angular/material/button';
-import { MatFormField, MatHint, MatLabel, MatError } from '@angular/material/form-field';
+import { MatError, MatFormField, MatHint, MatLabel } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
 import { MatOption } from '@angular/material/core';
@@ -10,6 +10,8 @@ import { MatSelect } from '@angular/material/select';
 import type { BuilderFieldSpec } from '@app-speed/audit/domain';
 import { BuilderStepFormGroup, stepFieldControlName } from '../step-form';
 import { getStepFieldPresentation, humanizeStepToken } from '../step-presentation';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { distinctUntilChanged, map, startWith, switchMap } from 'rxjs';
 
 type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
 
@@ -452,8 +454,28 @@ export class StepFieldsComponent {
   readonly control = input.required<FormGroup>();
   readonly stepForm = input.required<BuilderStepFormGroup>();
 
-  protected readonly visibleFields = computed(() => this.stepForm().visibleFields(this.fields(), this.control()));
-  protected readonly optionalFields = computed(() => this.stepForm().optionalFields(this.fields(), this.control()));
+  private fieldControl = toSignal(
+    toObservable(this.control).pipe(
+      switchMap((control) =>
+        control.valueChanges.pipe(
+          startWith(null),
+          map(() => Object.keys(control.controls)),
+          distinctUntilChanged(
+            (a: readonly string[], b: readonly string[]) =>
+              a.length === b.length && a.every((value, index) => value === b[index]),
+          ),
+        ),
+      ),
+    ),
+    { initialValue: [] as string[] },
+  );
+
+  protected readonly visibleFields = computed(() =>
+    this.fields().filter((field) => field.required || this.fieldControl().includes(stepFieldControlName(field))),
+  );
+  protected readonly optionalFields = computed(() =>
+    this.fields().filter((field) => !field.required && !this.fieldControl().includes(stepFieldControlName(field))),
+  );
 
   protected childControl(field: BuilderFieldSpec): AbstractControl {
     const control = this.control().get(stepFieldControlName(field));
