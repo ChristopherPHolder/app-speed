@@ -81,30 +81,12 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
     .audit-status {
       max-width: 960px;
-      margin: 16px auto 0;
-      padding: 20px;
-      border-radius: 16px;
+      margin: auto;
     }
 
     .audit-status--error {
       border-color: #fecaca;
       background: #fff7f7;
-    }
-
-    .audit-status h2 {
-      margin: 0 0 8px;
-      font-size: 1.1rem;
-    }
-
-    .audit-status p {
-      margin: 0;
-      white-space: pre-wrap;
-    }
-
-    .audit-status small {
-      display: block;
-      margin-top: 12px;
-      color: #475569;
     }
   `,
   imports: [
