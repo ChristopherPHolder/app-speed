@@ -7,6 +7,16 @@ import { auditBuilderFeature } from './builder.state';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AuditBuilderComponent } from '../components/audit-builder.component';
 import { AuditViewerContainer } from '@app-speed/audit/portal/viewer';
+import { type StatusDialogModel } from '@app-speed/audit/portal/ui/dialogs';
+import {
+  MatCard,
+  MatCardContent,
+  MatCardFooter,
+  MatCardHeader,
+  MatCardSubtitle,
+  MatCardTitle,
+} from '@angular/material/card';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'audit',
@@ -23,12 +33,25 @@ import { AuditViewerContainer } from '@app-speed/audit/portal/viewer';
       />
 
       @if (loadingDialog(); as status) {
-        <section class="audit-status audit-status--progress" data-testid="audit-progress-status">
-          <h2>{{ status.title }}</h2>
-          <p>{{ status.subtitle }}</p>
-          @if (status.footerText; as footerText) {
-            <small>{{ footerText }}</small>
-          }
+        <section data-testid="audit-progress-status">
+          <mat-card class="status-card audit-status audit-status--progress">
+            <mat-card-header>
+              <mat-card-title>{{ status.title || 'loading...' }}</mat-card-title>
+              @if (status.subtitle) {
+                <mat-card-subtitle>{{ status.subtitle }}</mat-card-subtitle>
+              }
+            </mat-card-header>
+            <mat-card-content [style.padding-top]="'16px'">
+              <mat-spinner [diameter]="64" />
+            </mat-card-content>
+            @if (status.footerText) {
+              <mat-card-footer [style.padding]="'0 16px 0 16px'">
+                <p>
+                  <small>{{ status.footerText }}</small>
+                </p>
+              </mat-card-footer>
+            }
+          </mat-card>
         </section>
       }
 
@@ -51,19 +74,16 @@ import { AuditViewerContainer } from '@app-speed/audit/portal/viewer';
       display: block;
     }
 
-    .audit-status,
-    .audit-results {
+    .status-card {
+      align-items: center;
+      text-align: center;
+    }
+
+    .audit-status {
       max-width: 960px;
       margin: 16px auto 0;
       padding: 20px;
       border-radius: 16px;
-      background: #fff;
-      border: 1px solid #d9e2ec;
-      box-shadow: 0 12px 30px rgb(15 23 42 / 0.08);
-    }
-
-    .audit-status--progress {
-      border-color: #cbd5e1;
     }
 
     .audit-status--error {
@@ -87,7 +107,18 @@ import { AuditViewerContainer } from '@app-speed/audit/portal/viewer';
       color: #475569;
     }
   `,
-  imports: [AsyncPipe, AuditBuilderComponent, AuditViewerContainer],
+  imports: [
+    AsyncPipe,
+    AuditBuilderComponent,
+    AuditViewerContainer,
+    MatCard,
+    MatCardContent,
+    MatCardFooter,
+    MatCardHeader,
+    MatCardSubtitle,
+    MatCardTitle,
+    MatProgressSpinner,
+  ],
 })
 export class BuilderComponent implements OnInit {
   private readonly store = inject(Store);
@@ -95,7 +126,7 @@ export class BuilderComponent implements OnInit {
   public readonly modifying$ = this.store.select(auditBuilderFeature.selectModifying);
   public readonly modifying = toSignal(this.modifying$, { initialValue: true });
   private readonly loadingDialog$ = this.store.select(auditBuilderFeature.selectLoadingDialog);
-  readonly loadingDialog = toSignal(this.loadingDialog$, { initialValue: null });
+  readonly loadingDialog = toSignal<StatusDialogModel | null>(this.loadingDialog$, { initialValue: null });
   private readonly auditRequestError$ = this.store.select(auditBuilderFeature.selectAuditRequestError);
   readonly auditRequestError = toSignal(this.auditRequestError$, { initialValue: null });
   private readonly auditResultStatus$ = this.store.select(auditBuilderFeature.selectAuditResultStatus);
