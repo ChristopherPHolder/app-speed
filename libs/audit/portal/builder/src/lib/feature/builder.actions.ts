@@ -55,8 +55,6 @@ export const loadAuditDetailsSuccess = createAction(
   props<{ audit: AuditDetails }>(),
 );
 
-export const loadAuditDetailsFailed = createAction('[Builder Page] Load Audit Details Failed');
-
 export const loadRunDetails = createAction('[Builder Page] Load Run Details', props<{ auditId: string }>());
 
 export const loadRunDetailsSuccess = createAction(
@@ -74,9 +72,6 @@ export const loadRunDetailsSuccess = createAction(
   }>(),
 );
 
-export const loadRunDetailsFailed = createAction(
-  '[Builder Page] Load Run Details Failed',
-  props<{ error: string }>(),
-);
+export const loadRunDetailsFailed = createAction('[Builder Page] Load Run Details Failed', props<{ error: string }>());
 
 export const forkAudit = createAction('[Builder Page] Fork Audit', props<{ audit: AuditDetails }>());
