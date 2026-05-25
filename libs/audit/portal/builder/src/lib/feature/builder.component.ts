@@ -112,7 +112,7 @@ export class BuilderComponent implements OnInit {
 
     return this.auditResultStatus() ? 'fork' : 'none';
   });
-  readonly collapseSteps = computed(() => this.auditResultStatus() === 'SUCCESS');
+  readonly collapseSteps = computed(() => this.requestId() !== null);
   readonly inlineError = computed(() => {
     if (this.auditResultStatus() === 'FAILURE') {
       return this.auditResultError() ?? this.auditRequestError() ?? 'Audit failed.';
