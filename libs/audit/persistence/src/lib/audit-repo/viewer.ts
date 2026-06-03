@@ -1,9 +1,10 @@
 import { eq } from 'drizzle-orm';
-import { Effect } from 'effect';
+import { Effect, Schema } from 'effect';
 
-import { DbClient } from '../db';
+import { DbClient, QueryError } from '../db';
+import { type RecordPersistence, RecordPersistenceError, RecordPersistenceService } from '../record/service';
 import { auditResultTable, auditRunTable, auditTemplateTable } from '../schema';
-import { type AuditRunId, decodeAuditResultRecord, decodeAuditRunRecord } from './shared';
+import { type AuditResultStatus, type AuditRunId, decodeAuditResultRecord, decodeAuditRunRecord } from './shared';
 
 export const getRunById = Effect.fn('db.auditRun.getById')(function* (id: AuditRunId) {
   const db = yield* DbClient;
@@ -39,6 +40,7 @@ export const getRunById = Effect.fn('db.auditRun.getById')(function* (id: AuditR
 
 export const getResultByRunId = Effect.fn('db.auditResult.getByRunId')(function* (id: AuditRunId) {
   const db = yield* DbClient;
+  const recordPersistence = yield* RecordPersistenceService;
   yield* Effect.annotateCurrentSpan({ 'audit.id': id });
 
   const record = yield* db.run((client) =>
@@ -46,9 +48,9 @@ export const getResultByRunId = Effect.fn('db.auditResult.getByRunId')(function*
       .select({
         runId: auditResultTable.runId,
         status: auditResultTable.status,
-        data: auditResultTable.data,
+        dataRecordKey: auditResultTable.dataRecordKey,
         error: auditResultTable.error,
-        reportHtml: auditResultTable.reportHtml,
+        reportHtmlRecordKey: auditResultTable.reportHtmlRecordKey,
         createdAt: auditResultTable.createdAt,
       })
       .from(auditResultTable)
@@ -60,7 +62,85 @@ export const getResultByRunId = Effect.fn('db.auditResult.getByRunId')(function*
     return null;
   }
 
-  const decoded = yield* decodeAuditResultRecord(record);
+  const hydratedResult =
+    record.status === 'SUCCESS'
+      ? yield* hydrateSuccessResult(record, recordPersistence)
+      : {
+          ...record,
+          data: null,
+          reportHtml: null,
+        };
+
+  const decoded = yield* decodeAuditResultRecord(hydratedResult);
   yield* Effect.annotateCurrentSpan({ 'audit.result_status': decoded.status });
   return decoded;
 });
+
+const toQueryError = (error: RecordPersistenceError) =>
+  new QueryError({
+    message: `Record persistence ${error.operation} failed: ${error.message}`,
+    cause: error,
+  });
+
+const JsonRecordSchema = Schema.parseJson(Schema.Unknown);
+
+const decodeJsonRecord = Schema.decodeUnknown(JsonRecordSchema);
+
+const parseResultData = (value: string) =>
+  decodeJsonRecord(value).pipe(
+    Effect.mapError(
+      (cause) =>
+        new QueryError({
+          message: 'Failed to parse audit result data record.',
+          cause,
+        }),
+    ),
+  );
+
+const requireRecord = (value: string | null, message: string) =>
+  Effect.fromNullable(value).pipe(Effect.orElseFail(() => new QueryError({ message })));
+
+const getRecord = (recordPersistence: RecordPersistence, recordKey: string, missingMessage: string) =>
+  Effect.gen(function* () {
+    const key = yield* recordPersistence.decodeRecordKey(recordKey);
+    const stored = yield* recordPersistence.get(key).pipe(Effect.catchAll(toQueryError));
+    return yield* requireRecord(stored, missingMessage);
+  });
+
+const hydrateSuccessResult = (
+  record: {
+    runId: string;
+    status: AuditResultStatus;
+    dataRecordKey: string | null;
+    error: unknown;
+    reportHtmlRecordKey: string | null;
+    createdAt: Date;
+  },
+  recordPersistence: RecordPersistence,
+) =>
+  Effect.gen(function* () {
+    const dataRecordKey = yield* requireRecord(
+      record.dataRecordKey,
+      'Successful audit result is missing a data record key.',
+    );
+    const serializedData = yield* getRecord(
+      recordPersistence,
+      dataRecordKey,
+      'Referenced audit result data record is missing.',
+    );
+    const data = yield* parseResultData(serializedData);
+    const reportHtml =
+      record.reportHtmlRecordKey === null
+        ? null
+        : yield* getRecord(
+            recordPersistence,
+            record.reportHtmlRecordKey,
+            'Referenced audit result report HTML record is missing.',
+          );
+
+    return {
+      ...record,
+      data,
+      reportHtml,
+    };
+  });

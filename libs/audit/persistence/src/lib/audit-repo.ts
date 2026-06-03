@@ -3,6 +3,7 @@ import { Context, Effect, Layer, ParseResult } from 'effect';
 import { Audit } from '@app-speed/audit/domain';
 
 import { DbClient, QueryError } from './db';
+import { RecordPersistenceService } from './record';
 import { createRun, createTemplate, getTemplateById } from './audit-repo/builder';
 import { claimNextRun, completeRun, getQueuePosition, hasScheduledRuns, markRunInProgress } from './audit-repo/queue';
 import { getRunDetailsById, getRunSummaryById, listRunsPage } from './audit-repo/runs';
@@ -54,7 +55,9 @@ export class AuditRepo extends Context.Tag('AuditRepo')<
       durationMs: number,
     ) => Effect.Effect<void, QueryError>;
     getRunById: (id: AuditRunId) => Effect.Effect<AuditRunRecord | null, QueryError | ParseResult.ParseError>;
-    getResultByRunId: (id: AuditRunId) => Effect.Effect<AuditResultRecord | null, QueryError | ParseResult.ParseError>;
+    getResultByRunId: (
+      id: AuditRunId,
+    ) => Effect.Effect<AuditResultRecord | null, QueryError | ParseResult.ParseError>;
   }
 >() {}
 
@@ -65,6 +68,7 @@ export const AuditRepoLive = Layer.effect(
   AuditRepo,
   Effect.gen(function* () {
     const db = yield* DbClient;
+    const recordPersistence = yield* RecordPersistenceService;
 
     return {
       createTemplate: (audit: Audit) => createTemplate(audit).pipe(Effect.provideService(DbClient, db)),
@@ -85,9 +89,17 @@ export const AuditRepoLive = Layer.effect(
         id: AuditRunId,
         result: { status: 'SUCCESS' | 'FAILURE'; data: unknown; error?: unknown; reportHtml?: string | null },
         durationMs: number,
-      ) => completeRun(id, result, durationMs).pipe(Effect.provideService(DbClient, db)),
+      ) =>
+        completeRun(id, result, durationMs).pipe(
+          Effect.provideService(DbClient, db),
+          Effect.provideService(RecordPersistenceService, recordPersistence),
+        ),
       getRunById: (id: AuditRunId) => getRunById(id).pipe(Effect.provideService(DbClient, db)),
-      getResultByRunId: (id: AuditRunId) => getResultByRunId(id).pipe(Effect.provideService(DbClient, db)),
+      getResultByRunId: (id: AuditRunId) =>
+        getResultByRunId(id).pipe(
+          Effect.provideService(DbClient, db),
+          Effect.provideService(RecordPersistenceService, recordPersistence),
+        ),
     };
   }),
 );

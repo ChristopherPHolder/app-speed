@@ -5,3 +5,7 @@ export {
   AuditRunIdSchema,
 } from './lib/audit-repo';
 export type { AuditRunId } from './lib/audit-repo';
+export {
+  RecordPersistenceLive,
+  RecordPersistenceService,
+} from './lib/record';

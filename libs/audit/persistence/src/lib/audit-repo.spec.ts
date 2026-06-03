@@ -3,11 +3,14 @@ import { expect, layer } from '@effect/vitest';
 import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
+import { eq } from 'drizzle-orm';
 import { auditResultTable, auditRunTable, auditTemplateTable } from './schema';
 
 import { AuditRepo, AuditRepoLive } from './audit-repo';
 import { Audit } from '@app-speed/audit/domain';
 import { DbClient } from './db';
+import { InMemoryRecordPersistenceService } from './record/in-memory';
+import { RecordPersistenceService } from './record/service';
 
 const sampleAudit: Audit = {
   title: 'Sample audit',
@@ -36,7 +39,7 @@ const TestDbLayer = Layer.unwrapEffect(
   }),
 );
 
-const TestLayer = Layer.provideMerge(TestDbLayer)(AuditRepoLive);
+const TestLayer = Layer.provideMerge(Layer.merge(TestDbLayer, InMemoryRecordPersistenceService))(AuditRepoLive);
 
 const resetDb = Effect.gen(function* () {
   const db = yield* DbClient;
@@ -126,11 +129,13 @@ layer(TestLayer)('AuditRepo (contract)', (it) => {
     }),
   );
 
-  it.effect('completes a run and stores the result', () =>
+  it.effect('completes a successful run and stores record keys in SQLite', () =>
     Effect.gen(function* () {
       yield* resetDb;
 
       const repo = yield* AuditRepo;
+      const recordPersistence = yield* RecordPersistenceService;
+      const db = yield* DbClient;
 
       const templateId = yield* repo.createTemplate(sampleAudit);
       const runId = yield* repo.createRun(templateId);
@@ -151,6 +156,102 @@ layer(TestLayer)('AuditRepo (contract)', (it) => {
       expect(result?.data).toEqual({ score: 0.91 });
       expect(result?.error).toBeNull();
       expect(result?.reportHtml).toBe('<html><body>report</body></html>');
+
+      const resultRow = yield* db.run((client) =>
+        client
+          .select({
+            dataRecordKey: auditResultTable.dataRecordKey,
+            reportHtmlRecordKey: auditResultTable.reportHtmlRecordKey,
+            error: auditResultTable.error,
+          })
+          .from(auditResultTable)
+          .where(eq(auditResultTable.runId, runId))
+          .get(),
+      );
+
+      expect(resultRow).toEqual({
+        dataRecordKey: `audit-result-data:${runId}`,
+        reportHtmlRecordKey: `audit-result-report:${runId}`,
+        error: null,
+      });
+      yield* Effect.gen(function* () {
+        expect(yield* recordPersistence.get(recordPersistence.makeRecordKey(`audit-result-data:${runId}`))).toBe(
+          '{"score":0.91}',
+        );
+        expect(yield* recordPersistence.get(recordPersistence.makeRecordKey(`audit-result-report:${runId}`))).toBe(
+          '<html><body>report</body></html>',
+        );
+      });
+    }),
+  );
+
+  it.effect('fails when a referenced success data record is missing', () =>
+    Effect.gen(function* () {
+      yield* resetDb;
+
+      const repo = yield* AuditRepo;
+      const db = yield* DbClient;
+
+      const templateId = yield* repo.createTemplate(sampleAudit);
+      const runId = yield* repo.createRun(templateId);
+      yield* repo.markRunInProgress(runId);
+
+      yield* db.run((client) =>
+        client.transaction((tx) => {
+          tx.update(auditRunTable).set({ status: 'COMPLETE', completedAt: new Date(), updatedAt: new Date() }).run();
+          tx.insert(auditResultTable)
+            .values({
+              runId,
+              status: 'SUCCESS',
+              dataRecordKey: `audit-result-data:${runId}`,
+              error: null,
+              reportHtmlRecordKey: null,
+              createdAt: new Date(),
+            })
+            .run();
+        }),
+      );
+
+      const exit = yield* Effect.exit(repo.getResultByRunId(runId));
+      expect(exit._tag).toBe('Failure');
+      if (exit._tag === 'Failure') {
+        expect(exit.cause.toString()).toContain('Referenced audit result data record is missing');
+      }
+    }),
+  );
+
+  it.effect('stores failure errors inline without record keys', () =>
+    Effect.gen(function* () {
+      yield* resetDb;
+
+      const repo = yield* AuditRepo;
+      const db = yield* DbClient;
+      const error = { message: 'Lighthouse failed' };
+
+      const templateId = yield* repo.createTemplate(sampleAudit);
+      const runId = yield* repo.createRun(templateId);
+
+      yield* repo.markRunInProgress(runId);
+      yield* repo.completeRun(runId, { status: 'FAILURE', data: null, error }, 55);
+
+      const result = yield* repo.getResultByRunId(runId);
+      expect(result?.status).toBe('FAILURE');
+      expect(result?.data).toBeNull();
+      expect(result?.error).toEqual(error);
+      expect(result?.reportHtml).toBeNull();
+
+      const resultRow = yield* db.run((client) =>
+        client
+          .select({
+            dataRecordKey: auditResultTable.dataRecordKey,
+            error: auditResultTable.error,
+            reportHtmlRecordKey: auditResultTable.reportHtmlRecordKey,
+          })
+          .from(auditResultTable)
+          .where(eq(auditResultTable.runId, runId))
+          .get(),
+      );
+      expect(resultRow).toEqual({ dataRecordKey: null, error, reportHtmlRecordKey: null });
     }),
   );
 

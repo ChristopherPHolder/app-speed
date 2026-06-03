@@ -7,6 +7,7 @@
   "types": "./index.d.ts",
   "dependencies": {
     "@app-speed/audit/domain": "0.0.1",
+    "@aws-sdk/client-s3": "^3.1048.0",
     "@nx/vite": "22.7.2",
     "better-sqlite3": "^12.10.0",
     "drizzle-kit": "^0.31.10",
