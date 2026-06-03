@@ -52,9 +52,9 @@ interface AddCookieStep {
   sameSite?: 'Strict' | 'Lax' | 'None';
 }
 
-interface SleepStep {
+interface WaitForTimeStep {
   type: typeof PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP;
-  step: typeof AUDIT_CUSTOM_STEP_TYPE.SLEEP;
+  step: typeof AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_TIME;
   seconds: number;
 }
 
@@ -66,7 +66,7 @@ type LighthouseStep =
   | SnapshotStep
   | ClearCacheStep
   | AddCookieStep
-  | SleepStep;
+  | WaitForTimeStep;
 
 export type AppSpeedUserFlowStep = PuppeteerReplayStep | LighthouseStep;
 

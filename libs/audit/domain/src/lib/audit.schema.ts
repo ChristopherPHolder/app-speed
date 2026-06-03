@@ -4,7 +4,7 @@ import {
   AuditAddCookieStepSchema,
   AuditClearCacheStepSchema,
   AuditCustomRunnerStepSchema,
-  AuditSleepStepSchema,
+  AuditWaitForTimeStepSchema,
 } from './custom-audit-step';
 import { PuppeteerReplayRunnerStepSchema, PuppeteerReplayStepSchema } from './puppeteer-replay/puppeteer-replay-step';
 import { DeviceSchema } from './shared/device-type';
@@ -14,7 +14,7 @@ export const AuditStepSchema = Schema.Union(
   UserflowStepSchema,
   AuditClearCacheStepSchema,
   AuditAddCookieStepSchema,
-  AuditSleepStepSchema,
+  AuditWaitForTimeStepSchema,
 ).annotations({
   title: 'AuditStep',
 });

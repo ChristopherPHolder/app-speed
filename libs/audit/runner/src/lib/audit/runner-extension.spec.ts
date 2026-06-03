@@ -131,7 +131,7 @@ describe('UserFlowRunnerExtension', () => {
     });
   });
 
-  it('dispatches sleep custom steps through a bounded delay', async () => {
+  it('dispatches waitForTime custom steps through a bounded delay', async () => {
     vi.useFakeTimers();
 
     try {
@@ -143,7 +143,7 @@ describe('UserFlowRunnerExtension', () => {
         .runStep(
           {
             type: 'customStep',
-            name: AUDIT_CUSTOM_STEP_TYPE.SLEEP,
+            name: AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_TIME,
             parameters: {
               seconds: 2,
             },

@@ -88,7 +88,7 @@ export const AUDIT_BUILDER_STEP_PRESENTATION_REGISTRY = {
       },
     },
   },
-  sleep: {
+  waitForTime: {
     fields: {
       seconds: {
         label: 'Seconds',

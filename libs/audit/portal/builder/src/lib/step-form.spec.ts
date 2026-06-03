@@ -56,13 +56,13 @@ describe('BuilderStepFormGroup', () => {
     const waitForExpression = createForm('waitForExpression');
     const navigate = createForm('navigate');
     const click = createForm('click');
-    const sleep = createForm(AUDIT_CUSTOM_STEP_TYPE.SLEEP);
+    const waitForTime = createForm(AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_TIME);
     const selectorsField = expectArrayField(findField(click.spec.fields, 'selectors'));
 
     const expressionControl = waitForExpression.get('expression');
     const urlControl = navigate.get('url');
     const offsetXControl = click.get('offsetX');
-    const secondsControl = sleep.get('seconds');
+    const secondsControl = waitForTime.get('seconds');
 
     expect(expressionControl?.hasError('required')).toBe(true);
 
