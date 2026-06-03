@@ -1,6 +1,11 @@
 import { Schema } from 'effect';
 import { UserflowRunnerStepSchema, UserflowStepSchema } from './lighthouse-userflow/lighthouse-userflow-step';
-import { AuditAddCookieStepSchema, AuditClearCacheStepSchema, AuditCustomRunnerStepSchema } from './custom-audit-step';
+import {
+  AuditAddCookieStepSchema,
+  AuditClearCacheStepSchema,
+  AuditCustomRunnerStepSchema,
+  AuditSleepStepSchema,
+} from './custom-audit-step';
 import { PuppeteerReplayRunnerStepSchema, PuppeteerReplayStepSchema } from './puppeteer-replay/puppeteer-replay-step';
 import { DeviceSchema } from './shared/device-type';
 
@@ -9,6 +14,7 @@ export const AuditStepSchema = Schema.Union(
   UserflowStepSchema,
   AuditClearCacheStepSchema,
   AuditAddCookieStepSchema,
+  AuditSleepStepSchema,
 ).annotations({
   title: 'AuditStep',
 });

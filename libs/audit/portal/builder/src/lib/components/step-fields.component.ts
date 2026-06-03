@@ -112,6 +112,9 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
               @if (asFormControl(fieldControl).hasError('min')) {
                 <mat-error>{{ labelFor(field) }} must stay above the minimum value</mat-error>
               }
+              @if (asFormControl(fieldControl).hasError('max')) {
+                <mat-error>{{ labelFor(field) }} must stay below the maximum value</mat-error>
+              }
               @if (asFormControl(fieldControl).hasError('integer')) {
                 <mat-error>{{ labelFor(field) }} must be an integer</mat-error>
               }

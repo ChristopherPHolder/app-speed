@@ -131,6 +131,40 @@ describe('UserFlowRunnerExtension', () => {
     });
   });
 
+  it('dispatches sleep custom steps through a bounded delay', async () => {
+    vi.useFakeTimers();
+
+    try {
+      const flow = createFlow();
+      const extension = createExtension(flow);
+      let completed = false;
+
+      const result = extension
+        .runStep(
+          {
+            type: 'customStep',
+            name: AUDIT_CUSTOM_STEP_TYPE.SLEEP,
+            parameters: {
+              seconds: 2,
+            },
+          },
+          {} as never,
+        )
+        .then(() => {
+          completed = true;
+        });
+
+      await vi.advanceTimersByTimeAsync(1999);
+      expect(completed).toBe(false);
+
+      await vi.advanceTimersByTimeAsync(1);
+      await expect(result).resolves.toBeUndefined();
+      expect(completed).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('propagates browser failures for clearCache and addCookie custom steps', async () => {
     const flow = createFlow();
     const clearCacheClient = {

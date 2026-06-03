@@ -88,6 +88,14 @@ export const AUDIT_BUILDER_STEP_PRESENTATION_REGISTRY = {
       },
     },
   },
+  sleep: {
+    fields: {
+      seconds: {
+        label: 'Seconds',
+        description: 'Duration to wait before the next step.',
+      },
+    },
+  },
 } as const satisfies Partial<Record<string, StepPresentationOverride>>;
 
 export const getStepPresentation = (variantId: string): StepPresentation => {

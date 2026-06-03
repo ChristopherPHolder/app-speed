@@ -1,5 +1,5 @@
 import { FormArray, FormGroup } from '@angular/forms';
-import type { BuilderFieldSpec } from '@app-speed/audit/domain';
+import { AUDIT_CUSTOM_STEP_TYPE, type BuilderFieldSpec } from '@app-speed/audit/domain';
 import { describe, expect, it } from 'vitest';
 import { BuilderStepFormGroup, findStepSpec } from './step-form';
 
@@ -56,11 +56,13 @@ describe('BuilderStepFormGroup', () => {
     const waitForExpression = createForm('waitForExpression');
     const navigate = createForm('navigate');
     const click = createForm('click');
+    const sleep = createForm(AUDIT_CUSTOM_STEP_TYPE.SLEEP);
     const selectorsField = expectArrayField(findField(click.spec.fields, 'selectors'));
 
     const expressionControl = waitForExpression.get('expression');
     const urlControl = navigate.get('url');
     const offsetXControl = click.get('offsetX');
+    const secondsControl = sleep.get('seconds');
 
     expect(expressionControl?.hasError('required')).toBe(true);
 
@@ -76,6 +78,15 @@ describe('BuilderStepFormGroup', () => {
     expect(offsetXControl?.hasError('min')).toBe(true);
     offsetXControl?.setValue(1.5);
     expect(offsetXControl?.hasError('integer')).toBe(true);
+
+    secondsControl?.setValue(0);
+    expect(secondsControl?.hasError('min')).toBe(true);
+    secondsControl?.setValue(61);
+    expect(secondsControl?.hasError('max')).toBe(true);
+    secondsControl?.setValue(1.5);
+    expect(secondsControl?.hasError('integer')).toBe(true);
+    secondsControl?.setValue(60);
+    expect(secondsControl?.valid).toBe(true);
 
     const selectorsControl = click.get('selectors') as FormArray<FormGroup>;
     click.addArrayItem(selectorsControl, selectorsField);

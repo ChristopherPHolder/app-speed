@@ -16,7 +16,9 @@ export {
   AuditAddCookieStepSchema,
   AuditClearCacheStepSchema,
   AuditCustomRunnerStepSchema,
+  AuditSleepStepSchema,
   ReplayAuditCustomStepSchema,
+  SleepParametersSchema,
 } from './lib/custom-audit-step';
 export {
   isReplayUserflowStepWithFlags,
