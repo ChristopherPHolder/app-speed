@@ -1,8 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import { and, asc, eq, lt, or, sql } from 'drizzle-orm';
-import { Clock, Effect } from 'effect';
+import { Clock, Effect, Schema } from 'effect';
 
-import { DbClient } from '../db';
+import { DbClient, QueryError } from '../db';
+import { RecordPersistenceError, RecordPersistenceService } from '../record/service';
 import { auditResultTable, auditRunTable, auditTemplateTable } from '../schema';
 import { type AuditRunId, decodeAuditRunRecord } from './shared';
 
@@ -169,6 +170,20 @@ export const completeRun = (
       'audit.duration_ms': durationMs,
     });
 
+    const resultMetadata =
+      result.status === 'SUCCESS'
+        ? yield* persistSuccessResult(id, {
+            status: 'SUCCESS',
+            data: result.data,
+            error: result.error,
+            reportHtml: result.reportHtml,
+          })
+        : {
+            dataRecordKey: null,
+            error: result.error ?? null,
+            reportHtmlRecordKey: null,
+          };
+
     yield* db.run((client) =>
       client.transaction((tx) => {
         tx.update(auditRunTable)
@@ -186,12 +201,56 @@ export const completeRun = (
             id: randomUUID(),
             runId: id,
             status: result.status,
-            data: result.data ?? null,
-            error: result.error ?? null,
-            reportHtml: result.reportHtml ?? null,
+            ...resultMetadata,
             createdAt: now,
           })
           .run();
       }),
     );
   }).pipe(Effect.withSpan('db.auditRun.complete'), Effect.asVoid);
+
+const toQueryError = (error: RecordPersistenceError) =>
+  new QueryError({
+    message: `Record persistence ${error.operation} failed: ${error.message}`,
+    cause: error,
+  });
+
+const JsonRecordSchema = Schema.parseJson(Schema.Unknown);
+
+const encodeJsonRecord = Schema.encodeUnknown(JsonRecordSchema);
+
+const serializeResultData = (data: unknown) =>
+  encodeJsonRecord(data).pipe(
+    Effect.mapError(
+      (cause) =>
+        new QueryError({
+          message: 'Failed to serialize audit result data record.',
+          cause,
+        }),
+    ),
+  );
+
+const persistSuccessResult = (
+  id: AuditRunId,
+  result: { status: 'SUCCESS'; data: unknown; error?: unknown; reportHtml?: string | null },
+) =>
+  Effect.gen(function* () {
+    const recordPersistence = yield* RecordPersistenceService;
+    const dataRecordKey = recordPersistence.makeRecordKey(`audit-result-data:${id}`);
+    let reportHtmlRecordKey: string | null = null;
+
+    const serializedData = yield* serializeResultData(result.data);
+    yield* recordPersistence.put(dataRecordKey, serializedData).pipe(Effect.catchAll(toQueryError));
+
+    if (result.reportHtml != null) {
+      const key = recordPersistence.makeRecordKey(`audit-result-report:${id}`);
+      reportHtmlRecordKey = key;
+      yield* recordPersistence.put(key, result.reportHtml).pipe(Effect.catchAll(toQueryError));
+    }
+
+    return {
+      dataRecordKey,
+      error: null,
+      reportHtmlRecordKey,
+    };
+  });

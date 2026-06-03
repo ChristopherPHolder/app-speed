@@ -25,7 +25,8 @@
         ],
         "bundle": true,
         "external": [
-          "@aws-sdk/client-ec2"
+          "@aws-sdk/client-ec2",
+          "@aws-sdk/client-s3"
         ],
         "main": "apps/api/src/main.ts",
         "tsConfig": "apps/api/tsconfig.app.json",

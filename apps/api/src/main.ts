@@ -9,7 +9,7 @@ import {
   RunnerLifecycleLive,
   RunnerRegistryLive,
 } from '@app-speed/audit/api-runtime';
-import { AuditRepoLive, DbClient } from '@app-speed/audit/persistence';
+import { AuditRepoLive, DbClient, RecordPersistenceLive } from '@app-speed/audit/persistence';
 import { makeNodeObservabilityLayer } from '@app-speed/platform/observability';
 import { ServerConfig } from './Config/config.js';
 
@@ -23,7 +23,13 @@ const MainLayer = Layer.unwrapEffect(
       onSome: (url) => DevTools.layer(url),
     });
     const RunnerManagerLive = runtimeConfig.runnerManagerMode === 'aws' ? AwsRunnerManagerLive : LocalRunnerManagerLive;
-    const BaseLayer = Layer.mergeAll(DevToolsLive, DbClient.live, ObservabilityLive, RunnerRegistryLive);
+    const BaseLayer = Layer.mergeAll(
+      DevToolsLive,
+      DbClient.live,
+      ObservabilityLive,
+      RunnerRegistryLive,
+      RecordPersistenceLive,
+    );
     const WithAuditRepo = Layer.provideMerge(AuditRepoLive, BaseLayer);
     const WithRunnerManager = Layer.provideMerge(RunnerManagerLive, WithAuditRepo);
     const AppLayer = Layer.provideMerge(RunnerLifecycleLive, WithRunnerManager);

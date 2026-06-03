@@ -52,9 +52,9 @@ export const auditResultTable = sqliteTable(
       .notNull()
       .references(() => auditRunTable.id, { onDelete: 'restrict', onUpdate: 'cascade' }),
     status: text('status', { enum: auditResultStatusValues }).$type<AuditResultStatus>().notNull(),
-    data: text('data', { mode: 'json' }).$type<unknown>(),
+    dataRecordKey: text('dataRecordKey'),
     error: text('error', { mode: 'json' }).$type<unknown>(),
-    reportHtml: text('reportHtml'),
+    reportHtmlRecordKey: text('reportHtmlRecordKey'),
     createdAt: integer('createdAt', { mode: 'timestamp_ms' })
       .notNull()
       .$defaultFn(() => new Date()),
