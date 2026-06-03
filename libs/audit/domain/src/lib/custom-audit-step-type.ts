@@ -1,5 +1,5 @@
 export const AUDIT_CUSTOM_STEP_TYPE = {
   CLEAR_CACHE: 'clearCache',
   ADD_COOKIE: 'addCookie',
-  SLEEP: 'sleep',
+  WAIT_FOR_TIME: 'waitForTime',
 } as const;

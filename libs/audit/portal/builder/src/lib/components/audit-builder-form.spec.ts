@@ -143,15 +143,15 @@ describe('StepFormGroup', () => {
     ]);
   });
 
-  it('selecting sleep produces a bounded required seconds field', () => {
+  it('selecting waitForTime produces a bounded required seconds field', () => {
     const formGroup = new StepFormGroup({ type: '' });
 
-    formGroup.resetStepControls(AUDIT_CUSTOM_STEP_TYPE.SLEEP);
+    formGroup.resetStepControls(AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_TIME);
 
-    expect(formGroup.selectionControl.value).toBe(AUDIT_CUSTOM_STEP_TYPE.SLEEP);
+    expect(formGroup.selectionControl.value).toBe(AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_TIME);
     expect(formGroup.getRawValue()).toEqual({
       type: 'customStep',
-      step: AUDIT_CUSTOM_STEP_TYPE.SLEEP,
+      step: AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_TIME,
       seconds: 1,
     });
     expect(formGroup.visibleFields(formGroup.spec.fields, formGroup).map((field) => field.path)).toEqual(['seconds']);

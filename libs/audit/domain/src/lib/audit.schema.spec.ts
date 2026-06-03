@@ -123,14 +123,14 @@ describe('PuppeteerReplayUserflowRunnerSchema', () => {
     });
   });
 
-  it('should decode sleep custom steps into replay parameters', () => {
+  it('should decode waitForTime custom steps into replay parameters', () => {
     const recording = {
       title: 'Stub audit title',
       device: 'mobile',
       steps: [
         {
           type: 'customStep',
-          step: AUDIT_CUSTOM_STEP_TYPE.SLEEP,
+          step: AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_TIME,
           seconds: 5,
         },
         {
@@ -149,7 +149,7 @@ describe('PuppeteerReplayUserflowRunnerSchema', () => {
       steps: [
         {
           type: 'customStep',
-          name: AUDIT_CUSTOM_STEP_TYPE.SLEEP,
+          name: AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_TIME,
           parameters: {
             seconds: 5,
           },
@@ -262,7 +262,7 @@ describe('AuditSchema', () => {
     ).toBe(true);
   });
 
-  it('should accept sleep persisted custom steps within one to sixty seconds', () => {
+  it('should accept waitForTime persisted custom steps within one to sixty seconds', () => {
     expect(
       Schema.is(AuditSchema)({
         title: 'Stub audit title',
@@ -270,7 +270,7 @@ describe('AuditSchema', () => {
         steps: [
           {
             type: 'customStep',
-            step: AUDIT_CUSTOM_STEP_TYPE.SLEEP,
+            step: AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_TIME,
             seconds: 60,
           },
           {
@@ -282,14 +282,14 @@ describe('AuditSchema', () => {
     ).toBe(true);
   });
 
-  it('should reject sleep persisted custom steps outside one to sixty seconds', () => {
+  it('should reject waitForTime persisted custom steps outside one to sixty seconds', () => {
     const createAudit = (seconds: number) => ({
       title: 'Stub audit title',
       device: 'mobile',
       steps: [
         {
           type: 'customStep',
-          step: AUDIT_CUSTOM_STEP_TYPE.SLEEP,
+          step: AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_TIME,
           seconds,
         },
         {

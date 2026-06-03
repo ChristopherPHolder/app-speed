@@ -19,7 +19,7 @@ export const AddCookieParametersSchema = Schema.Struct({
   sameSite: Schema.optional(Schema.Literal('Strict', 'Lax', 'None')),
 });
 
-export const SleepParametersSchema = Schema.Struct({
+export const WaitForTimeParametersSchema = Schema.Struct({
   seconds: Schema.Number.pipe(Schema.int(), Schema.between(1, 60)),
 });
 
@@ -34,10 +34,10 @@ export const AuditAddCookieStepSchema = Schema.Struct({
   ...AddCookieParametersSchema.fields,
 });
 
-export const AuditSleepStepSchema = Schema.Struct({
+export const AuditWaitForTimeStepSchema = Schema.Struct({
   type: AuditStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP)),
-  step: AppAuditCustomStepTypeSchema.pipe(Schema.pickLiteral(AUDIT_CUSTOM_STEP_TYPE.SLEEP)),
-  ...SleepParametersSchema.fields,
+  step: AppAuditCustomStepTypeSchema.pipe(Schema.pickLiteral(AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_TIME)),
+  ...WaitForTimeParametersSchema.fields,
 });
 
 const ReplayAuditCustomStepWithoutFlagsSchema = Schema.Struct({
@@ -52,10 +52,10 @@ const ReplayAuditCustomStepWithFlagsSchema = Schema.Struct({
   parameters: AddCookieParametersSchema,
 });
 
-const ReplayAuditSleepStepSchema = Schema.Struct({
+const ReplayAuditWaitForTimeStepSchema = Schema.Struct({
   type: PuppeteerReplayStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP)),
-  name: Schema.Literal(AUDIT_CUSTOM_STEP_TYPE.SLEEP),
-  parameters: SleepParametersSchema,
+  name: Schema.Literal(AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_TIME),
+  parameters: WaitForTimeParametersSchema,
 });
 
 const AuditClearCacheRunnerStepSchema = Schema.transform(
@@ -102,30 +102,34 @@ const AuditAddCookieRunnerStepSchema = Schema.transform(
   },
 );
 
-const AuditSleepRunnerStepSchema = Schema.transform(AuditSleepStepSchema, ReplayAuditSleepStepSchema, {
-  strict: true,
-  decode: ({ seconds }) => ({
-    type: PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP,
-    name: AUDIT_CUSTOM_STEP_TYPE.SLEEP,
-    parameters: { seconds },
-  }),
-  encode: ({ parameters }) => ({
-    type: PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP,
-    step: AUDIT_CUSTOM_STEP_TYPE.SLEEP,
-    ...parameters,
-  }),
-});
+const AuditWaitForTimeRunnerStepSchema = Schema.transform(
+  AuditWaitForTimeStepSchema,
+  ReplayAuditWaitForTimeStepSchema,
+  {
+    strict: true,
+    decode: ({ seconds }) => ({
+      type: PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP,
+      name: AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_TIME,
+      parameters: { seconds },
+    }),
+    encode: ({ parameters }) => ({
+      type: PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP,
+      step: AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_TIME,
+      ...parameters,
+    }),
+  },
+);
 
 export const ReplayAuditCustomStepSchema = Schema.Union(
   Schema.typeSchema(AuditClearCacheRunnerStepSchema),
   Schema.typeSchema(AuditAddCookieRunnerStepSchema),
-  Schema.typeSchema(AuditSleepRunnerStepSchema),
+  Schema.typeSchema(AuditWaitForTimeRunnerStepSchema),
 );
 
 export const AuditCustomRunnerStepSchema = Schema.Union(
   AuditClearCacheRunnerStepSchema,
   AuditAddCookieRunnerStepSchema,
-  AuditSleepRunnerStepSchema,
+  AuditWaitForTimeRunnerStepSchema,
 );
 
 export const AuditCustomBuilderStepVariants: readonly BuilderStepVariantDefinition[] = [
@@ -149,11 +153,11 @@ export const AuditCustomBuilderStepVariants: readonly BuilderStepVariantDefiniti
     },
   },
   {
-    id: AUDIT_CUSTOM_STEP_TYPE.SLEEP,
-    schema: AuditSleepStepSchema,
+    id: AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_TIME,
+    schema: AuditWaitForTimeStepSchema,
     defaultValue: {
       type: PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP,
-      step: AUDIT_CUSTOM_STEP_TYPE.SLEEP,
+      step: AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_TIME,
       seconds: 1,
     },
   },
