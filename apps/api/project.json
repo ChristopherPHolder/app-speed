@@ -159,7 +159,13 @@
       },
       "configurations": {
         "development": {},
-        "production": {}
+        "production": {
+          "additionalRunArgs": [
+            "-e RECORD_PERSISTENCE_MODE=s3",
+            "-e RECORD_PERSISTENCE_BUCKET=app-speed-audit-results-prod",
+            "-e AWS_REGION=eu-central-1"
+          ]
+        }
       }
     }
   }
