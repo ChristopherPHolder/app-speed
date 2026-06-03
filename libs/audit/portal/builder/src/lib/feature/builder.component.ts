@@ -33,7 +33,7 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
       />
 
       @if (loadingDialog(); as status) {
-        <section data-testid="audit-progress-status">
+        <section data-testid="audit-progress-status" [style.margin]="'20px'">
           <mat-card class="status-card audit-status audit-status--progress">
             <mat-card-header>
               <mat-card-title>{{ status.title || 'loading...' }}</mat-card-title>
