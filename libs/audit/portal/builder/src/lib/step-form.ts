@@ -252,6 +252,10 @@ const buildScalarValidators = (
     validators.push(Validators.min(validation.minimum));
   }
 
+  if (typeof validation?.maximum === 'number') {
+    validators.push(Validators.max(validation.maximum));
+  }
+
   if (typeof validation?.pattern === 'string') {
     validators.push(Validators.pattern(validation.pattern));
   }

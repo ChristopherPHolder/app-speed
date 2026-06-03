@@ -25,6 +25,7 @@ describe('builder step spec', () => {
       'snapshot',
       'clearCache',
       'addCookie',
+      'sleep',
     ]);
   });
 
@@ -142,6 +143,7 @@ describe('builder step spec', () => {
   it('keeps root discriminators structural and preserves legacy defaults', () => {
     const startNavigation = deriveBuilderStepSpec(findVariant('startNavigation'));
     const addCookie = deriveBuilderStepSpec(findVariant('addCookie'));
+    const sleep = deriveBuilderStepSpec(findVariant('sleep'));
 
     expect(startNavigation.discriminators).toEqual({
       type: 'customStep',
@@ -159,6 +161,20 @@ describe('builder step spec', () => {
       kind: 'enum',
       options: ['Strict', 'Lax', 'None'],
       required: false,
+    });
+    expect(sleep.defaultValue).toEqual({
+      type: 'customStep',
+      step: 'sleep',
+      seconds: 1,
+    });
+    expect(findField(sleep, 'seconds')).toMatchObject({
+      kind: 'number',
+      required: true,
+      validation: {
+        integer: true,
+        minimum: 1,
+        maximum: 60,
+      },
     });
   });
 

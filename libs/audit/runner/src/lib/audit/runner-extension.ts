@@ -8,6 +8,7 @@ import {
   ReplayUserflowStepSchema,
 } from '@app-speed/audit/domain';
 import { Schema } from 'effect';
+import { setTimeout as sleep } from 'node:timers/promises';
 
 const ReplayRunnerCustomStepSchema = Schema.Union(ReplayUserflowStepSchema, ReplayAuditCustomStepSchema);
 const decodeReplayRunnerCustomStep = Schema.decodeUnknownSync(ReplayRunnerCustomStepSchema);
@@ -48,6 +49,8 @@ export class UserFlowRunnerExtension extends PuppeteerRunnerExtension {
         return await this.page.createCDPSession().then((client) => client.send('Network.clearBrowserCache'));
       case AUDIT_CUSTOM_STEP_TYPE.ADD_COOKIE:
         return await this.page.setCookie(step.parameters);
+      case AUDIT_CUSTOM_STEP_TYPE.SLEEP:
+        return await sleep(step.parameters.seconds * 1000);
     }
 
     return assertNever(step);

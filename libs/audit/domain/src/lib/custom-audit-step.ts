@@ -19,6 +19,10 @@ export const AddCookieParametersSchema = Schema.Struct({
   sameSite: Schema.optional(Schema.Literal('Strict', 'Lax', 'None')),
 });
 
+export const SleepParametersSchema = Schema.Struct({
+  seconds: Schema.Number.pipe(Schema.int(), Schema.between(1, 60)),
+});
+
 export const AuditClearCacheStepSchema = Schema.Struct({
   type: AuditStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP)),
   step: AppAuditCustomStepTypeSchema.pipe(Schema.pickLiteral(AUDIT_CUSTOM_STEP_TYPE.CLEAR_CACHE)),
@@ -28,6 +32,12 @@ export const AuditAddCookieStepSchema = Schema.Struct({
   type: AuditStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP)),
   step: AppAuditCustomStepTypeSchema.pipe(Schema.pickLiteral(AUDIT_CUSTOM_STEP_TYPE.ADD_COOKIE)),
   ...AddCookieParametersSchema.fields,
+});
+
+export const AuditSleepStepSchema = Schema.Struct({
+  type: AuditStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP)),
+  step: AppAuditCustomStepTypeSchema.pipe(Schema.pickLiteral(AUDIT_CUSTOM_STEP_TYPE.SLEEP)),
+  ...SleepParametersSchema.fields,
 });
 
 const ReplayAuditCustomStepWithoutFlagsSchema = Schema.Struct({
@@ -40,6 +50,12 @@ const ReplayAuditCustomStepWithFlagsSchema = Schema.Struct({
   type: PuppeteerReplayStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP)),
   name: Schema.Literal(AUDIT_CUSTOM_STEP_TYPE.ADD_COOKIE),
   parameters: AddCookieParametersSchema,
+});
+
+const ReplayAuditSleepStepSchema = Schema.Struct({
+  type: PuppeteerReplayStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP)),
+  name: Schema.Literal(AUDIT_CUSTOM_STEP_TYPE.SLEEP),
+  parameters: SleepParametersSchema,
 });
 
 const AuditClearCacheRunnerStepSchema = Schema.transform(
@@ -86,14 +102,30 @@ const AuditAddCookieRunnerStepSchema = Schema.transform(
   },
 );
 
+const AuditSleepRunnerStepSchema = Schema.transform(AuditSleepStepSchema, ReplayAuditSleepStepSchema, {
+  strict: true,
+  decode: ({ seconds }) => ({
+    type: PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP,
+    name: AUDIT_CUSTOM_STEP_TYPE.SLEEP,
+    parameters: { seconds },
+  }),
+  encode: ({ parameters }) => ({
+    type: PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP,
+    step: AUDIT_CUSTOM_STEP_TYPE.SLEEP,
+    ...parameters,
+  }),
+});
+
 export const ReplayAuditCustomStepSchema = Schema.Union(
   Schema.typeSchema(AuditClearCacheRunnerStepSchema),
   Schema.typeSchema(AuditAddCookieRunnerStepSchema),
+  Schema.typeSchema(AuditSleepRunnerStepSchema),
 );
 
 export const AuditCustomRunnerStepSchema = Schema.Union(
   AuditClearCacheRunnerStepSchema,
   AuditAddCookieRunnerStepSchema,
+  AuditSleepRunnerStepSchema,
 );
 
 export const AuditCustomBuilderStepVariants: readonly BuilderStepVariantDefinition[] = [
@@ -114,6 +146,15 @@ export const AuditCustomBuilderStepVariants: readonly BuilderStepVariantDefiniti
       name: '',
       value: '',
       url: '',
+    },
+  },
+  {
+    id: AUDIT_CUSTOM_STEP_TYPE.SLEEP,
+    schema: AuditSleepStepSchema,
+    defaultValue: {
+      type: PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP,
+      step: AUDIT_CUSTOM_STEP_TYPE.SLEEP,
+      seconds: 1,
     },
   },
 ];

@@ -142,6 +142,21 @@ describe('StepFormGroup', () => {
       'httpOnly',
     ]);
   });
+
+  it('selecting sleep produces a bounded required seconds field', () => {
+    const formGroup = new StepFormGroup({ type: '' });
+
+    formGroup.resetStepControls(AUDIT_CUSTOM_STEP_TYPE.SLEEP);
+
+    expect(formGroup.selectionControl.value).toBe(AUDIT_CUSTOM_STEP_TYPE.SLEEP);
+    expect(formGroup.getRawValue()).toEqual({
+      type: 'customStep',
+      step: AUDIT_CUSTOM_STEP_TYPE.SLEEP,
+      seconds: 1,
+    });
+    expect(formGroup.visibleFields(formGroup.spec.fields, formGroup).map((field) => field.path)).toEqual(['seconds']);
+    expect(formGroup.optionalFields(formGroup.spec.fields, formGroup)).toEqual([]);
+  });
 });
 
 function findField(fields: readonly BuilderFieldSpec[], path: string): BuilderFieldSpec {

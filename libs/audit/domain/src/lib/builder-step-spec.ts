@@ -10,6 +10,7 @@ export type BuilderStepVariantDefinition = {
 };
 export type BuilderFieldValidationSpec = {
   integer?: boolean;
+  maximum?: number;
   minItems?: number;
   minLength?: number;
   minimum?: number;
@@ -394,6 +395,10 @@ const deriveAnnotationValidationSpec = (
     validation.minimum = jsonSchema['minimum'];
   }
 
+  if (typeof jsonSchema['maximum'] === 'number') {
+    validation.maximum = jsonSchema['maximum'];
+  }
+
   if (typeof jsonSchema['pattern'] === 'string') {
     validation.pattern = jsonSchema['pattern'];
   }
@@ -447,6 +452,9 @@ const assignValidationValue = (
   switch (key) {
     case 'integer':
       target.integer = value as boolean;
+      break;
+    case 'maximum':
+      target.maximum = value as number;
       break;
     case 'minItems':
       target.minItems = value as number;

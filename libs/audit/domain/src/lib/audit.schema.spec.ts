@@ -123,6 +123,46 @@ describe('PuppeteerReplayUserflowRunnerSchema', () => {
     });
   });
 
+  it('should decode sleep custom steps into replay parameters', () => {
+    const recording = {
+      title: 'Stub audit title',
+      device: 'mobile',
+      steps: [
+        {
+          type: 'customStep',
+          step: AUDIT_CUSTOM_STEP_TYPE.SLEEP,
+          seconds: 5,
+        },
+        {
+          type: 'customStep',
+          step: LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
+          name: 'Home Page',
+        },
+      ],
+    };
+
+    const decoded = Schema.decodeUnknownSync(PuppeteerReplayUserflowRunnerSchema)(recording);
+
+    expect(decoded).toEqual({
+      title: 'Stub audit title',
+      device: 'mobile',
+      steps: [
+        {
+          type: 'customStep',
+          name: AUDIT_CUSTOM_STEP_TYPE.SLEEP,
+          parameters: {
+            seconds: 5,
+          },
+        },
+        {
+          type: 'customStep',
+          name: LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
+          parameters: { name: 'Home Page' },
+        },
+      ],
+    });
+  });
+
   it('should decode normalized selector paths into replay-compatible selectors', () => {
     const recording = {
       title: 'Stub audit title',
@@ -220,6 +260,48 @@ describe('AuditSchema', () => {
         ],
       }),
     ).toBe(true);
+  });
+
+  it('should accept sleep persisted custom steps within one to sixty seconds', () => {
+    expect(
+      Schema.is(AuditSchema)({
+        title: 'Stub audit title',
+        device: 'mobile',
+        steps: [
+          {
+            type: 'customStep',
+            step: AUDIT_CUSTOM_STEP_TYPE.SLEEP,
+            seconds: 60,
+          },
+          {
+            type: 'customStep',
+            step: LIGHTHOUSE_AUDIT_STEP_TYPE.END_NAVIGATION,
+          },
+        ],
+      }),
+    ).toBe(true);
+  });
+
+  it('should reject sleep persisted custom steps outside one to sixty seconds', () => {
+    const createAudit = (seconds: number) => ({
+      title: 'Stub audit title',
+      device: 'mobile',
+      steps: [
+        {
+          type: 'customStep',
+          step: AUDIT_CUSTOM_STEP_TYPE.SLEEP,
+          seconds,
+        },
+        {
+          type: 'customStep',
+          step: LIGHTHOUSE_AUDIT_STEP_TYPE.END_NAVIGATION,
+        },
+      ],
+    });
+
+    expect(Schema.is(AuditSchema)(createAudit(0))).toBe(false);
+    expect(Schema.is(AuditSchema)(createAudit(61))).toBe(false);
+    expect(Schema.is(AuditSchema)(createAudit(1.5))).toBe(false);
   });
 
   it('should reject replay-shaped custom step input', () => {

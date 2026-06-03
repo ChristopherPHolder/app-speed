@@ -59,7 +59,7 @@ describe('step presentation registry', () => {
     expect(STEP_SELECTION_OPTIONS_GROUPED).toContainEqual({
       label: 'Custom Steps',
       icon: 'puppeteer-badge',
-      options: [AUDIT_CUSTOM_STEP_TYPE.CLEAR_CACHE, AUDIT_CUSTOM_STEP_TYPE.ADD_COOKIE],
+      options: [AUDIT_CUSTOM_STEP_TYPE.CLEAR_CACHE, AUDIT_CUSTOM_STEP_TYPE.ADD_COOKIE, AUDIT_CUSTOM_STEP_TYPE.SLEEP],
     });
   });
 
