@@ -53,8 +53,13 @@ const buildDefaultCommands = (
     'aws ecr get-login-password --region "$REGION" | docker login --username AWS --password-stdin "$REGISTRY"',
     ...(pruneDockerBeforePull
       ? [
+          'echo "Docker disk usage before cleanup"',
+          'docker system df || true',
           `docker rm -f ${shellQuote(containerName)} || true`,
-          'docker image prune -af || true',
+          'docker system prune -af || true',
+          'docker builder prune -af || true',
+          'echo "Docker disk usage after cleanup"',
+          'docker system df || true',
           'docker pull "$IMAGE_REF"',
         ]
       : ['docker pull "$IMAGE_REF"', `docker rm -f ${shellQuote(containerName)} || true`]),
