@@ -68,6 +68,19 @@ describe('auditBuilderReducer loading dialog states', () => {
     });
   });
 
+  it('keeps the loading dialog visible while completed audit results are being finalized', () => {
+    const finalizingState = auditBuilderReducer(
+      auditBuilderReducer(initialState, submitAuditRequestSuccess({ requestId: 'audit-123', queuePosition: 0 })),
+      auditStageUpdated({ stage: 'done' }),
+    );
+
+    expect(finalizingState.loadingDialog).toEqual({
+      title: 'Finalizing audit',
+      subtitle: 'Preparing results.',
+      footerText: 'Audit ID: audit-123',
+    });
+  });
+
   it('keeps the submitted form read-only when a completed run fails', () => {
     const failedState = auditBuilderReducer(
       auditBuilderReducer(initialState, submitAuditRequest({ audit: DEFAULT_AUDIT_DETAILS })),

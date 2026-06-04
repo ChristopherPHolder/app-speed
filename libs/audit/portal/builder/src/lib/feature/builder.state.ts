@@ -72,6 +72,14 @@ const getLoadingDialog = ({
     };
   }
 
+  if (auditStage === 'done') {
+    return {
+      title: 'Finalizing audit',
+      subtitle: 'Preparing results.',
+      footerText: getFooterText(requestId),
+    };
+  }
+
   if (auditStage === 'scheduled' || auditStage === 'scheduling') {
     return {
       title: 'Audit queued',

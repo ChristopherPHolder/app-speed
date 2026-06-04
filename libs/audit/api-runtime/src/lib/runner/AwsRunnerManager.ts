@@ -6,11 +6,12 @@ import {
   waitUntilInstanceRunning,
   waitUntilInstanceStopped,
 } from '@aws-sdk/client-ec2';
-import { Data, Effect, Either, Layer, Option, Schema } from 'effect';
+import { Clock, Data, Effect, Either, Layer, Option, Schema } from 'effect';
 import { RunnerIdSchema, RunnerManager, type ActiveRunnerList } from './RunnerManager.js';
 import { RunnerRegistry } from './RunnerRegistry.js';
 
 const DEFAULT_WAIT_TIMEOUT_MS = 10 * 60 * 1000;
+const DEFAULT_STARTUP_GRACE_MS = 5 * 60 * 1000;
 const AWS_RUNNER_REGION = 'eu-central-1';
 const AWS_RUNNER_INSTANCE_IDS = ['i-049287bf43503d01e'] as const;
 
@@ -30,6 +31,7 @@ const ActiveEc2InstanceLifecycleStateSchema = Schema.Literal('pending', 'running
 const Ec2InstanceStateSchema = Schema.Struct({
   instanceId: Ec2InstanceIdSchema,
   state: Ec2InstanceLifecycleStateSchema,
+  launchedAt: Schema.NullOr(Schema.DateFromSelf),
 });
 
 const AwsRunnerManagerConfigSchema = Schema.Struct({
@@ -37,11 +39,16 @@ const AwsRunnerManagerConfigSchema = Schema.Struct({
   instanceIds: Schema.NonEmptyArray(Ec2InstanceIdSchema),
   startWaitTimeoutMs: Schema.Positive,
   stopWaitTimeoutMs: Schema.Positive,
+  startupGraceMs: Schema.Positive,
 });
 
 type Ec2InstanceId = typeof Ec2InstanceIdSchema.Type;
 type Ec2InstanceState = typeof Ec2InstanceStateSchema.Type;
 type AwsRunnerManagerConfig = typeof AwsRunnerManagerConfigSchema.Type;
+export type AwsRunnerActivationAction =
+  | { action: 'start'; instanceId: Ec2InstanceId }
+  | { action: 'wait' }
+  | { action: 'recycle'; instanceIds: ReadonlyArray<Ec2InstanceId>; targetInstanceId: Ec2InstanceId };
 
 class AwsRunnerManagerError extends Data.TaggedError('AwsRunnerManagerError')<{
   readonly message: string;
@@ -53,6 +60,7 @@ const awsRunnerManagerConfig = Schema.decodeUnknownSync(AwsRunnerManagerConfigSc
   instanceIds: [...AWS_RUNNER_INSTANCE_IDS],
   startWaitTimeoutMs: DEFAULT_WAIT_TIMEOUT_MS,
   stopWaitTimeoutMs: DEFAULT_WAIT_TIMEOUT_MS,
+  startupGraceMs: DEFAULT_STARTUP_GRACE_MS,
 });
 
 const decodeRunnerId = (value: string) => Schema.decodeSync(RunnerIdSchema)(value);
@@ -63,6 +71,43 @@ const decodeActiveLifecycleState = Schema.decodeUnknownEither(ActiveEc2InstanceL
 const toManagedRunnerId = (instanceId: Ec2InstanceId) => decodeRunnerId(`ec2-${instanceId}`);
 const isActiveEc2InstanceState = (state: Ec2InstanceState['state']): boolean =>
   Either.isRight(decodeActiveLifecycleState(state));
+
+export const selectAwsRunnerActivationAction = ({
+  instances,
+  registeredRunnerCount,
+  nowMs,
+  startupGraceMs,
+  targetInstanceId,
+}: {
+  instances: ReadonlyArray<Ec2InstanceState>;
+  registeredRunnerCount: number;
+  nowMs: number;
+  startupGraceMs: number;
+  targetInstanceId: Ec2InstanceId;
+}): AwsRunnerActivationAction => {
+  const activeInstances = instances.filter((instance) => isActiveEc2InstanceState(instance.state));
+
+  if (activeInstances.length === 0) {
+    return { action: 'start', instanceId: targetInstanceId };
+  }
+
+  if (registeredRunnerCount > 0) {
+    return { action: 'wait' };
+  }
+
+  const oldestLaunchMs = Math.min(...activeInstances.map((instance) => instance.launchedAt?.getTime() ?? 0));
+  const hasExceededStartupGrace = nowMs - oldestLaunchMs >= startupGraceMs;
+
+  if (!hasExceededStartupGrace) {
+    return { action: 'wait' };
+  }
+
+  return {
+    action: 'recycle',
+    instanceIds: activeInstances.map((instance) => instance.instanceId),
+    targetInstanceId,
+  };
+};
 
 const parseManagedInstanceId = (runnerId: string): Option.Option<Ec2InstanceId> => {
   const maybeInstanceId = decodeEc2InstanceId(runnerId);
@@ -102,6 +147,7 @@ const describeInstances = (
           const decodedState = decodeEc2InstanceState({
             instanceId: instance.InstanceId,
             state: instance.State?.Name ?? 'unknown',
+            launchedAt: instance.LaunchTime ?? null,
           });
           if (Either.isLeft(decodedState)) {
             return yield* new AwsRunnerManagerError({
@@ -203,22 +249,49 @@ export const AwsRunnerManagerLive = Layer.effect(
     const ensureRunnerActive = Effect.gen(function* () {
       const instances = yield* describeInstances(client, config.region, config.instanceIds);
       const activeInstances = instances.filter((instance) => isActiveEc2InstanceState(instance.state));
+      const registeredRunners = yield* runnerRegistry.listActiveRunners(
+        activeInstances.map((instance) => String(toManagedRunnerId(instance.instanceId))),
+      );
+      const nowMs = yield* Clock.currentTimeMillis;
+      const targetInstanceId = config.instanceIds[0];
+      const activationAction = selectAwsRunnerActivationAction({
+        instances,
+        registeredRunnerCount: registeredRunners.length,
+        nowMs,
+        startupGraceMs: config.startupGraceMs,
+        targetInstanceId,
+      });
+
       yield* Effect.annotateCurrentSpan({
         'runner.manager.mode': 'aws',
         'runner.aws.region': config.region,
         'runner.aws.instance_count': config.instanceIds.length,
         'runner.aws.active_count': activeInstances.length,
+        'runner.aws.registered_count': registeredRunners.length,
+        'runner.aws.activation_action': activationAction.action,
       });
 
-      if (activeInstances.length > 0) {
+      if (activationAction.action === 'wait') {
         return;
       }
 
-      const targetInstanceId = config.instanceIds[0];
+      if (activationAction.action === 'recycle') {
+        for (const instanceId of activationAction.instanceIds) {
+          yield* Effect.logInfo(`Runner lifecycle recycling unresponsive instance ${instanceId}`);
+          yield* stopInstance(client, instanceId, config.stopWaitTimeoutMs);
+          yield* runnerRegistry.markTerminated(String(toManagedRunnerId(instanceId)));
+        }
+      }
+
       yield* Effect.annotateCurrentSpan({
-        'runner.aws.starting_instance_id': targetInstanceId,
+        'runner.aws.starting_instance_id':
+          activationAction.action === 'start' ? activationAction.instanceId : activationAction.targetInstanceId,
       });
-      yield* startInstance(client, targetInstanceId, config.startWaitTimeoutMs);
+      yield* startInstance(
+        client,
+        activationAction.action === 'start' ? activationAction.instanceId : activationAction.targetInstanceId,
+        config.startWaitTimeoutMs,
+      );
     }).pipe(
       Effect.withSpan('runner.manager.ensureActive'),
       Effect.catchAll((error) =>

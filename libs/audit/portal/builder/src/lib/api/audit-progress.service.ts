@@ -91,11 +91,8 @@ export class AuditProgressService {
     fromEvent<Event>(source, 'error')
       .pipe(takeUntil(this.disconnect$))
       .subscribe(() => {
-        source.close();
-        this.currentAuditId = null;
-        if (this.stage$.value !== 'done') {
-          this.stage$.next('failed');
-        }
+        // EventSource reports transient transport failures through `error` and reconnects automatically.
+        // Audit failure is signaled by the `result` event, not by the SSE connection state.
       });
   }
 }
