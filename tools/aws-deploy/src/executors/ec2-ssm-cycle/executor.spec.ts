@@ -75,6 +75,7 @@ describe('ec2-ssm-cycle executor', () => {
       imageRef: '123456789012.dkr.ecr.eu-central-1.amazonaws.com/app-speed/runner:test',
       containerName: 'app-speed-runner',
       additionalRunArgs: ['-e RUNNER_API_BASE_URL=https://dev.appspeed.dev/api'],
+      pruneDockerBeforePull: true,
       stopAfterCompletion: true,
       stopOnlyIfStarted: true,
     });
@@ -89,6 +90,8 @@ describe('ec2-ssm-cycle executor', () => {
     const commands = parameters?.commands ?? [];
     expect(commands).toEqual(
       expect.arrayContaining([
+        'docker system prune -af || true',
+        'docker builder prune -af || true',
         expect.stringContaining('docker run -d --name \'app-speed-runner\' --restart unless-stopped'),
       ]),
     );
