@@ -14,7 +14,7 @@
     "@ngrx/effects": "21.1.0",
     "@ngrx/store": "21.1.0",
     "@rx-angular/template": "21.2.0",
-    "lighthouse": "^13.3.0",
+    "lighthouse": "^13.4.0",
     "rxjs": "^7.8.0",
     "vitest": "^4.1.6",
     "@analogjs/vite-plugin-angular": "2.5.1",
