@@ -102,12 +102,36 @@ export const waitForSsmCommandCompletion = async (
   instanceIds: string[],
   timeoutMs: number,
   pollIntervalMs: number,
+  onProgress?: (message: string) => void,
 ): Promise<SsmCommandCompletionResult> => {
   const maxWaitTime = toWaitSeconds(timeoutMs);
   const delaySeconds = toDelaySeconds(pollIntervalMs);
 
   const statuses = await Promise.all(
     instanceIds.map(async (instanceId) => {
+      let lastProgress = '';
+      let progressInFlight = false;
+      const reportProgress = async (): Promise<void> => {
+        if (!onProgress || progressInFlight) {
+          return;
+        }
+
+        progressInFlight = true;
+        try {
+          const snapshot = await getInvocationSnapshot(client, commandId, instanceId);
+          const progress = formatSnapshots({ [instanceId]: snapshot });
+          if (progress !== lastProgress) {
+            lastProgress = progress;
+            onProgress(`SSM command ${commandId} progress: ${progress}`);
+          }
+        } finally {
+          progressInFlight = false;
+        }
+      };
+
+      await reportProgress();
+      const progressTimer = onProgress ? setInterval(() => void reportProgress(), pollIntervalMs) : undefined;
+
       try {
         await waitUntilCommandExecuted(
           {
@@ -123,6 +147,10 @@ export const waitForSsmCommandCompletion = async (
         );
       } catch {
         // We still fetch the final invocation status below to build a precise message.
+      } finally {
+        if (progressTimer) {
+          clearInterval(progressTimer);
+        }
       }
 
       return [instanceId, await getInvocationSnapshot(client, commandId, instanceId)] as const;

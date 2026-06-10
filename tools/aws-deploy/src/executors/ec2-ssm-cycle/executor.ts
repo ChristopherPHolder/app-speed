@@ -1,7 +1,7 @@
 import { PromiseExecutor } from '@nx/devkit';
 import { EC2Client } from '@aws-sdk/client-ec2';
 import { SendCommandCommand, SSMClient } from '@aws-sdk/client-ssm';
-import { env } from 'node:process';
+import { env, stdout } from 'node:process';
 import { Effect } from 'effect';
 
 import { waitForSsmCommandCompletion } from '../../lib/ssm';
@@ -15,6 +15,11 @@ const DEFAULT_POLL_INTERVAL_MS = 5000;
 const DEFAULT_COMMAND_TIMEOUT_MS = 900000;
 const DEFAULT_START_WAIT_TIMEOUT_MS = 600000;
 const DEFAULT_STOP_WAIT_TIMEOUT_MS = 600000;
+const ECR_LOGIN_TIMEOUT_SECONDS = 60;
+const DOCKER_REMOVE_TIMEOUT_SECONDS = 60;
+const DOCKER_PRUNE_TIMEOUT_SECONDS = 120;
+const DOCKER_PULL_TIMEOUT_SECONDS = 480;
+const DOCKER_RUN_TIMEOUT_SECONDS = 60;
 
 type ExecutorExit = {
   success: boolean;
@@ -24,6 +29,8 @@ type ExecutorExit = {
 
 const shellQuote = (value: string): string => `'${value.replace(/'/g, `'"'"'`)}'`;
 const toTimeoutSeconds = (timeoutMs: number): number => Math.max(1, Math.ceil(timeoutMs / 1000));
+const progressCommand = (message: string): string =>
+  `echo "$(date -Iseconds) [runner-deploy] ${message.replace(/"/g, '\\"')}"`;
 
 const buildDefaultCommands = (
   imageRef: string,
@@ -47,23 +54,44 @@ const buildDefaultCommands = (
 
   return [
     'set -euo pipefail',
-    `IMAGE_REF=${shellQuote(imageRef)}`,
-    `REGION=${shellQuote(region)}`,
-    `REGISTRY=${shellQuote(registry)}`,
-    'aws ecr get-login-password --region "$REGION" | docker login --username AWS --password-stdin "$REGISTRY"',
+    `export IMAGE_REF=${shellQuote(imageRef)}`,
+    `export REGION=${shellQuote(region)}`,
+    `export REGISTRY=${shellQuote(registry)}`,
+    progressCommand('Logging in to ECR'),
+    `timeout --foreground ${ECR_LOGIN_TIMEOUT_SECONDS}s sh -c ` +
+      shellQuote(
+        'aws ecr get-login-password --region "$REGION" | docker login --username AWS --password-stdin "$REGISTRY"',
+      ),
     ...(pruneDockerBeforePull
       ? [
+          progressCommand('Inspecting Docker disk usage before cleanup'),
           'echo "Docker disk usage before cleanup"',
           'docker system df || true',
-          `docker rm -f ${shellQuote(containerName)} || true`,
-          'docker system prune -af || true',
-          'docker builder prune -af || true',
+          progressCommand(`Removing existing container ${containerName}`),
+          `timeout --foreground ${DOCKER_REMOVE_TIMEOUT_SECONDS}s docker rm -f ${shellQuote(containerName)} || true`,
+          progressCommand('Pruning unused Docker resources'),
+          `timeout --foreground ${DOCKER_PRUNE_TIMEOUT_SECONDS}s docker system prune -af || true`,
+          progressCommand('Pruning Docker build cache'),
+          `timeout --foreground ${DOCKER_PRUNE_TIMEOUT_SECONDS}s docker builder prune -af || true`,
+          progressCommand('Inspecting Docker disk usage after cleanup'),
           'echo "Docker disk usage after cleanup"',
           'docker system df || true',
-          'docker pull "$IMAGE_REF"',
+          progressCommand('Pulling runner image'),
+          `timeout --foreground ${DOCKER_PULL_TIMEOUT_SECONDS}s docker pull "$IMAGE_REF"`,
         ]
-      : ['docker pull "$IMAGE_REF"', `docker rm -f ${shellQuote(containerName)} || true`]),
-    [`docker run -d --name ${shellQuote(containerName)} --restart unless-stopped`, `${portFlag}${runArgsSuffix} "$IMAGE_REF"`].join(' '),
+      : [
+          progressCommand('Pulling runner image'),
+          `timeout --foreground ${DOCKER_PULL_TIMEOUT_SECONDS}s docker pull "$IMAGE_REF"`,
+          progressCommand(`Removing existing container ${containerName}`),
+          `timeout --foreground ${DOCKER_REMOVE_TIMEOUT_SECONDS}s docker rm -f ${shellQuote(containerName)} || true`,
+        ]),
+    progressCommand('Starting runner container'),
+    [
+      `timeout --foreground ${DOCKER_RUN_TIMEOUT_SECONDS}s docker run -d`,
+      `--name ${shellQuote(containerName)} --restart unless-stopped`,
+      `${portFlag}${runArgsSuffix} "$IMAGE_REF"`,
+    ].join(' '),
+    progressCommand('Runner deployment completed'),
   ];
 };
 
@@ -166,7 +194,10 @@ const runSsmCommand = (
     );
 
     const result = yield* Effect.tryPromise({
-      try: () => waitForSsmCommandCompletion(ssmClient, commandId, [instanceId], timeoutMs, pollIntervalMs),
+      try: () =>
+        waitForSsmCommandCompletion(ssmClient, commandId, [instanceId], timeoutMs, pollIntervalMs, (message) => {
+          stdout.write(`${message}\n`);
+        }),
       catch: (error) =>
         new Ec2SsmCycleError({
           message: `Failed to wait for SSM command ${commandId}: ${String(error)}`,
@@ -203,12 +234,6 @@ const program = (options: Ec2SsmCycleExecutorSchema): Effect.Effect<ExecutorExit
       });
     }
 
-    const commands = resolveCommands(options, region);
-    const parameters: Record<string, string[]> = {
-      commands,
-      ...(options.parameters ?? {}),
-    };
-
     const timeoutMs = options.timeoutMs ?? DEFAULT_COMMAND_TIMEOUT_MS;
     const pollIntervalMs = options.pollIntervalMs ?? DEFAULT_POLL_INTERVAL_MS;
     const startWaitTimeoutMs = options.startWaitTimeoutMs ?? DEFAULT_START_WAIT_TIMEOUT_MS;
@@ -216,6 +241,12 @@ const program = (options: Ec2SsmCycleExecutorSchema): Effect.Effect<ExecutorExit
     const expectBootstrapShutdown = options.expectBootstrapShutdown === true;
     const stopAfterCompletion = options.stopAfterCompletion !== false;
     const stopOnlyIfStarted = options.stopOnlyIfStarted !== false;
+    const commands = resolveCommands(options, region);
+    const parameters: Record<string, string[]> = {
+      ...(options.parameters ?? {}),
+      commands,
+      ...(documentName === DEFAULT_DOCUMENT_NAME ? { executionTimeout: [String(toTimeoutSeconds(timeoutMs))] } : {}),
+    };
 
     const ec2Client = new EC2Client({ region });
     const ssmClient = new SSMClient({ region });
