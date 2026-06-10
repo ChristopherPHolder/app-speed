@@ -1,4 +1,3 @@
-import { waitUntilCommandExecuted } from '@aws-sdk/client-ssm';
 import type { SSMClient } from '@aws-sdk/client-ssm';
 import { waitForSsmCommandCompletion } from './ssm';
 
@@ -9,11 +8,8 @@ vi.mock('@aws-sdk/client-ssm', () => {
 
   return {
     GetCommandInvocationCommand,
-    waitUntilCommandExecuted: vi.fn(),
   };
 });
-
-const waitUntilCommandExecutedMock = vi.mocked(waitUntilCommandExecuted);
 
 describe('waitForSsmCommandCompletion', () => {
   beforeEach(() => {
@@ -21,8 +17,6 @@ describe('waitForSsmCommandCompletion', () => {
   });
 
   it('includes stderr details for failed invocations', async () => {
-    waitUntilCommandExecutedMock.mockResolvedValue({ state: 'FAILURE' } as never);
-
     const client = {
       send: vi.fn().mockResolvedValue({
         StatusDetails: 'Failed',
@@ -42,8 +36,6 @@ describe('waitForSsmCommandCompletion', () => {
   });
 
   it('includes current status and stdout when the invocation times out', async () => {
-    waitUntilCommandExecutedMock.mockRejectedValue(new Error('timed out'));
-
     const client = {
       send: vi.fn().mockResolvedValue({
         StatusDetails: 'InProgress',
@@ -53,10 +45,10 @@ describe('waitForSsmCommandCompletion', () => {
       }),
     } as unknown as SSMClient;
 
-    const result = await waitForSsmCommandCompletion(client, 'cmd-456', ['i-456'], 900000, 5000);
+    const result = await waitForSsmCommandCompletion(client, 'cmd-456', ['i-456'], 1, 1);
 
     expect(result.success).toBe(false);
-    expect(result.message).toContain('SSM command cmd-456 timed out after 900000ms');
+    expect(result.message).toContain('SSM command cmd-456 timed out after 1ms');
     expect(result.message).toContain('i-456=InProgress');
     expect(result.message).toContain('stdout="Pulling fs layer Pulling fs layer Download complete"');
   });

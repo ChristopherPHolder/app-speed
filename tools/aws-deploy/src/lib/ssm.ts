@@ -1,4 +1,4 @@
-import { GetCommandInvocationCommand, SSMClient, waitUntilCommandExecuted } from '@aws-sdk/client-ssm';
+import { GetCommandInvocationCommand, SSMClient } from '@aws-sdk/client-ssm';
 
 export type SsmCommandCompletionResult = {
   success: boolean;
@@ -26,7 +26,13 @@ const isSuccessful = (status: string): boolean => normalizeStatus(status) === 's
 
 const isInProgress = (status: string): boolean => {
   const normalized = normalizeStatus(status);
-  return normalized === '' || normalized === 'pending' || normalized === 'inprogress' || normalized === 'delayed';
+  return (
+    normalized === '' ||
+    normalized === 'unknown' ||
+    normalized === 'pending' ||
+    normalized === 'inprogress' ||
+    normalized === 'delayed'
+  );
 };
 
 const summarizeOutput = (value?: string): string => {
@@ -61,8 +67,7 @@ const formatSnapshots = (snapshotsByInstance: Record<string, InvocationSnapshot>
     })
     .join(', ');
 
-const toWaitSeconds = (timeoutMs: number): number => Math.max(1, Math.ceil(timeoutMs / 1000));
-const toDelaySeconds = (pollIntervalMs: number): number => Math.max(1, Math.ceil(pollIntervalMs / 1000));
+const delay = (durationMs: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, durationMs));
 
 const getInvocationSnapshot = async (
   client: SSMClient,
@@ -104,56 +109,32 @@ export const waitForSsmCommandCompletion = async (
   pollIntervalMs: number,
   onProgress?: (message: string) => void,
 ): Promise<SsmCommandCompletionResult> => {
-  const maxWaitTime = toWaitSeconds(timeoutMs);
-  const delaySeconds = toDelaySeconds(pollIntervalMs);
+  const deadline = Date.now() + timeoutMs;
 
   const statuses = await Promise.all(
     instanceIds.map(async (instanceId) => {
       let lastProgress = '';
-      let progressInFlight = false;
-      const reportProgress = async (): Promise<void> => {
-        if (!onProgress || progressInFlight) {
-          return;
-        }
-
-        progressInFlight = true;
-        try {
-          const snapshot = await getInvocationSnapshot(client, commandId, instanceId);
+      while (true) {
+        const snapshot = await getInvocationSnapshot(client, commandId, instanceId);
+        if (onProgress) {
           const progress = formatSnapshots({ [instanceId]: snapshot });
           if (progress !== lastProgress) {
             lastProgress = progress;
             onProgress(`SSM command ${commandId} progress: ${progress}`);
           }
-        } finally {
-          progressInFlight = false;
         }
-      };
 
-      await reportProgress();
-      const progressTimer = onProgress ? setInterval(() => void reportProgress(), pollIntervalMs) : undefined;
-
-      try {
-        await waitUntilCommandExecuted(
-          {
-            client,
-            maxWaitTime,
-            minDelay: delaySeconds,
-            maxDelay: delaySeconds,
-          },
-          {
-            CommandId: commandId,
-            InstanceId: instanceId,
-          },
-        );
-      } catch {
-        // We still fetch the final invocation status below to build a precise message.
-      } finally {
-        if (progressTimer) {
-          clearInterval(progressTimer);
+        if (isSuccessful(snapshot.normalizedStatus) || !isInProgress(snapshot.normalizedStatus)) {
+          return [instanceId, snapshot] as const;
         }
+
+        const remainingMs = deadline - Date.now();
+        if (remainingMs <= 0) {
+          return [instanceId, snapshot] as const;
+        }
+
+        await delay(Math.min(pollIntervalMs, remainingMs));
       }
-
-      return [instanceId, await getInvocationSnapshot(client, commandId, instanceId)] as const;
     }),
   );
 
