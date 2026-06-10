@@ -120,7 +120,8 @@ jobs:
         id: ecr-login
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Publish and Deploy Runner
+      - name: Publish Runner Image
+        id: publish-runner
         env:
           ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
           DEPLOY_ENV: ${{ needs.determine-deploy-scope.outputs.deploy_env }}
@@ -132,6 +133,17 @@ jobs:
             IMAGE_REF="${ECR_REGISTRY}/app-speed/runner:dev-${GITHUB_SHA::12}-${RUN_SUFFIX}"
           fi
 
+          echo "image_ref=${IMAGE_REF}" >> "$GITHUB_OUTPUT"
           NX_DOCKER_IMAGE_REF="${IMAGE_REF}" pnpm exec nx release version --group=runner
           pnpm exec nx release publish --group=runner --yes --outputStyle=static
-          RUNNER_IMAGE_REF="${IMAGE_REF}" pnpm exec nx run runner:deploy --configuration="${DEPLOY_ENV}" --outputStyle=static --verbose
+
+      - name: Deploy Runner
+        timeout-minutes: 10
+        env:
+          DEPLOY_ENV: ${{ needs.determine-deploy-scope.outputs.deploy_env }}
+          IMAGE_REF: ${{ steps.publish-runner.outputs.image_ref }}
+        run: |
+          RUNNER_IMAGE_REF="${IMAGE_REF}" pnpm exec nx run runner:deploy \
+            --configuration="${DEPLOY_ENV}" \
+            --outputStyle=stream \
+            --verbose
