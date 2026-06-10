@@ -33,6 +33,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   libxrender1 \
   libxss1 \
   libxtst6 \
+  unzip \
   xdg-utils \
   wget \
   && rm -rf /var/lib/apt/lists/*
