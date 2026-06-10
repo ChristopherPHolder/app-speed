@@ -90,9 +90,11 @@ describe('ec2-ssm-cycle executor', () => {
     const commands = parameters?.commands ?? [];
     expect(commands).toEqual(
       expect.arrayContaining([
-        'docker system prune -af || true',
-        'docker builder prune -af || true',
-        expect.stringContaining('docker run -d --name \'app-speed-runner\' --restart unless-stopped'),
+        expect.stringContaining('timeout --foreground 120s docker system prune -af'),
+        expect.stringContaining('timeout --foreground 120s docker builder prune -af'),
+        expect.stringContaining(
+          "timeout --foreground 60s docker run -d --name 'app-speed-runner' --restart unless-stopped",
+        ),
       ]),
     );
   });
