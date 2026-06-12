@@ -1,0 +1,12 @@
+{
+  "name": "@app-speed/lighthouse-plugin-soft-navigation",
+  "version": "0.0.1",
+  "description": "Lighthouse plugin that reports FCP and LCP for a soft navigation.",
+  "type": "module",
+  "main": "./plugin.js",
+  "types": "./plugin.d.ts",
+  "license": "ISC",
+  "peerDependencies": {
+    "lighthouse": "^13.3.0"
+  }
+}

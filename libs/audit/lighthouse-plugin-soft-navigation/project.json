@@ -1,0 +1,43 @@
+{
+  "name": "lighthouse-plugin-soft-navigation",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/audit/lighthouse-plugin-soft-navigation/src",
+  "projectType": "library",
+  "tags": ["type:domain", "scope:audit", "runtime:node", "layer:application"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/audit/lighthouse-plugin-soft-navigation",
+        "main": "libs/audit/lighthouse-plugin-soft-navigation/src/plugin.ts",
+        "rootDir": "libs/audit/lighthouse-plugin-soft-navigation/src",
+        "tsConfig": "libs/audit/lighthouse-plugin-soft-navigation/tsconfig.lib.json",
+        "assets": [
+          "libs/audit/lighthouse-plugin-soft-navigation/package.json",
+          "libs/audit/lighthouse-plugin-soft-navigation/README.md",
+          "libs/audit/lighthouse-plugin-soft-navigation/LICENSE"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{workspaceRoot}/coverage/libs/audit/lighthouse-plugin-soft-navigation"],
+      "options": {
+        "config": "libs/audit/lighthouse-plugin-soft-navigation/vitest.config.mts"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
+    },
+    "e2e": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "cache": false,
+      "options": {
+        "command": "node libs/audit/lighthouse-plugin-soft-navigation/e2e/run.mjs"
+      }
+    }
+  }
+}
