@@ -19,15 +19,12 @@ export const createTemplate = Effect.fn('db.auditTemplate.create')(function* (au
   });
 
   yield* db.run((client) =>
-    client
-      .insert(auditTemplateTable)
-      .values({
-        id,
-        data: audit,
-        createdAt: now,
-        updatedAt: now,
-      })
-      .run(),
+    client.insert(auditTemplateTable).values({
+      id,
+      data: audit,
+      createdAt: now,
+      updatedAt: now,
+    }),
   );
 
   yield* Effect.annotateCurrentSpan({ 'audit.template_id': id });
@@ -37,8 +34,8 @@ export const createTemplate = Effect.fn('db.auditTemplate.create')(function* (au
 export const getTemplateById = Effect.fn('db.auditTemplate.getById')(function* (id: AuditTemplateId) {
   const db = yield* DbClient;
   yield* Effect.annotateCurrentSpan({ 'audit.template_id': id });
-  const record = yield* db.run((client) =>
-    client.select().from(auditTemplateTable).where(eq(auditTemplateTable.id, id)).get(),
+  const record = yield* db.run(
+    async (client) => (await client.select().from(auditTemplateTable).where(eq(auditTemplateTable.id, id)).limit(1))[0],
   );
 
   if (!record) {
@@ -61,16 +58,13 @@ export const createRun = Effect.fn('db.auditRun.create')(function* (templateId: 
   yield* Effect.annotateCurrentSpan({ 'audit.template_id': templateId });
 
   yield* db.run((client) =>
-    client
-      .insert(auditRunTable)
-      .values({
-        id,
-        templateId,
-        status: 'SCHEDULED',
-        createdAt: now,
-        updatedAt: now,
-      })
-      .run(),
+    client.insert(auditRunTable).values({
+      id,
+      templateId,
+      status: 'SCHEDULED',
+      createdAt: now,
+      updatedAt: now,
+    }),
   );
 
   yield* Effect.annotateCurrentSpan({ 'audit.id': id });

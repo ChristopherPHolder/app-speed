@@ -12,19 +12,22 @@ export const claimNextRun = Effect.fn('db.auditRun.claimNext')(function* () {
   const now = new Date(yield* Clock.currentTimeMillis);
 
   const claimed = yield* db.run((client) =>
-    client.transaction((tx) => {
-      const next = tx
-        .select({ id: auditRunTable.id })
-        .from(auditRunTable)
-        .where(eq(auditRunTable.status, 'SCHEDULED'))
-        .orderBy(asc(auditRunTable.createdAt), asc(auditRunTable.id))
-        .get();
+    client.transaction(async (tx) => {
+      const next = (
+        await tx
+          .select({ id: auditRunTable.id })
+          .from(auditRunTable)
+          .where(eq(auditRunTable.status, 'SCHEDULED'))
+          .orderBy(asc(auditRunTable.createdAt), asc(auditRunTable.id))
+          .limit(1)
+          .for('update', { skipLocked: true })
+      )[0];
 
       if (!next) {
         return null;
       }
 
-      const updated = tx
+      const updated = await tx
         .update(auditRunTable)
         .set({
           status: 'IN_PROGRESS',
@@ -32,28 +35,30 @@ export const claimNextRun = Effect.fn('db.auditRun.claimNext')(function* () {
           updatedAt: now,
         })
         .where(and(eq(auditRunTable.id, next.id), eq(auditRunTable.status, 'SCHEDULED')))
-        .run();
+        .returning({ id: auditRunTable.id });
 
-      if (updated.changes === 0) {
+      if (updated.length === 0) {
         return null;
       }
 
-      return tx
-        .select({
-          id: auditRunTable.id,
-          templateId: auditRunTable.templateId,
-          status: auditRunTable.status,
-          createdAt: auditRunTable.createdAt,
-          updatedAt: auditRunTable.updatedAt,
-          startedAt: auditRunTable.startedAt,
-          completedAt: auditRunTable.completedAt,
-          durationMs: auditRunTable.durationMs,
-          templateData: auditTemplateTable.data,
-        })
-        .from(auditRunTable)
-        .innerJoin(auditTemplateTable, eq(auditTemplateTable.id, auditRunTable.templateId))
-        .where(eq(auditRunTable.id, next.id))
-        .get();
+      return (
+        await tx
+          .select({
+            id: auditRunTable.id,
+            templateId: auditRunTable.templateId,
+            status: auditRunTable.status,
+            createdAt: auditRunTable.createdAt,
+            updatedAt: auditRunTable.updatedAt,
+            startedAt: auditRunTable.startedAt,
+            completedAt: auditRunTable.completedAt,
+            durationMs: auditRunTable.durationMs,
+            templateData: auditTemplateTable.data,
+          })
+          .from(auditRunTable)
+          .innerJoin(auditTemplateTable, eq(auditTemplateTable.id, auditRunTable.templateId))
+          .where(eq(auditRunTable.id, next.id))
+          .limit(1)
+      )[0];
     }),
   );
 
@@ -73,13 +78,15 @@ export const claimNextRun = Effect.fn('db.auditRun.claimNext')(function* () {
 
 export const hasScheduledRuns = Effect.fn('db.auditRun.hasScheduledRuns')(function* () {
   const db = yield* DbClient;
-  const scheduledRun = yield* db.run((client) =>
-    client
-      .select({ id: auditRunTable.id })
-      .from(auditRunTable)
-      .where(eq(auditRunTable.status, 'SCHEDULED'))
-      .limit(1)
-      .get(),
+  const scheduledRun = yield* db.run(
+    async (client) =>
+      (
+        await client
+          .select({ id: auditRunTable.id })
+          .from(auditRunTable)
+          .where(eq(auditRunTable.status, 'SCHEDULED'))
+          .limit(1)
+      )[0],
   );
 
   const hasQueuedWork = scheduledRun !== undefined;
@@ -97,8 +104,7 @@ export const markRunInProgress = (id: AuditRunId) =>
       client
         .update(auditRunTable)
         .set({ status: 'IN_PROGRESS', startedAt: now, updatedAt: now })
-        .where(eq(auditRunTable.id, id))
-        .run(),
+        .where(eq(auditRunTable.id, id)),
     );
   }).pipe(Effect.withSpan('db.auditRun.markInProgress'), Effect.asVoid);
 
@@ -106,16 +112,19 @@ export const getQueuePosition = Effect.fn('db.auditRun.getQueuePosition')(functi
   const db = yield* DbClient;
   yield* Effect.annotateCurrentSpan({ 'audit.id': id });
 
-  const run = yield* db.run((client) =>
-    client
-      .select({
-        id: auditRunTable.id,
-        createdAt: auditRunTable.createdAt,
-        status: auditRunTable.status,
-      })
-      .from(auditRunTable)
-      .where(eq(auditRunTable.id, id))
-      .get(),
+  const run = yield* db.run(
+    async (client) =>
+      (
+        await client
+          .select({
+            id: auditRunTable.id,
+            createdAt: auditRunTable.createdAt,
+            status: auditRunTable.status,
+          })
+          .from(auditRunTable)
+          .where(eq(auditRunTable.id, id))
+          .limit(1)
+      )[0],
   );
 
   if (!run) {
@@ -131,20 +140,23 @@ export const getQueuePosition = Effect.fn('db.auditRun.getQueuePosition')(functi
     return 0;
   }
 
-  const queued = yield* db.run((client) =>
-    client
-      .select({ count: sql<number>`count(*)` })
-      .from(auditRunTable)
-      .where(
-        and(
-          eq(auditRunTable.status, 'SCHEDULED'),
-          or(
-            lt(auditRunTable.createdAt, run.createdAt),
-            and(eq(auditRunTable.createdAt, run.createdAt), lt(auditRunTable.id, run.id)),
-          ),
-        ),
-      )
-      .get(),
+  const queued = yield* db.run(
+    async (client) =>
+      (
+        await client
+          .select({ count: sql<number>`count(*)` })
+          .from(auditRunTable)
+          .where(
+            and(
+              eq(auditRunTable.status, 'SCHEDULED'),
+              or(
+                lt(auditRunTable.createdAt, run.createdAt),
+                and(eq(auditRunTable.createdAt, run.createdAt), lt(auditRunTable.id, run.id)),
+              ),
+            ),
+          )
+          .limit(1)
+      )[0],
   );
 
   const position = Number(queued?.count ?? 0);
@@ -164,10 +176,11 @@ export const completeRun = (
   Effect.gen(function* () {
     const db = yield* DbClient;
     const now = new Date(yield* Clock.currentTimeMillis);
+    const normalizedDurationMs = Math.round(durationMs);
     yield* Effect.annotateCurrentSpan({
       'audit.id': id,
       'audit.status': result.status,
-      'audit.duration_ms': durationMs,
+      'audit.duration_ms': normalizedDurationMs,
     });
 
     const resultMetadata =
@@ -185,26 +198,24 @@ export const completeRun = (
           };
 
     yield* db.run((client) =>
-      client.transaction((tx) => {
-        tx.update(auditRunTable)
+      client.transaction(async (tx) => {
+        await tx
+          .update(auditRunTable)
           .set({
             status: 'COMPLETE',
             completedAt: now,
-            durationMs,
+            durationMs: normalizedDurationMs,
             updatedAt: now,
           })
-          .where(eq(auditRunTable.id, id))
-          .run();
+          .where(eq(auditRunTable.id, id));
 
-        tx.insert(auditResultTable)
-          .values({
-            id: randomUUID(),
-            runId: id,
-            status: result.status,
-            ...resultMetadata,
-            createdAt: now,
-          })
-          .run();
+        await tx.insert(auditResultTable).values({
+          id: randomUUID(),
+          runId: id,
+          status: result.status,
+          ...resultMetadata,
+          createdAt: now,
+        });
       }),
     );
   }).pipe(Effect.withSpan('db.auditRun.complete'), Effect.asVoid);

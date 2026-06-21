@@ -17,23 +17,26 @@ export const getRunSummaryById = Effect.fn('db.auditRun.getSummaryById')(functio
   const db = yield* DbClient;
   yield* Effect.annotateCurrentSpan({ 'audit.id': id });
 
-  const row = yield* db.run((client) =>
-    client
-      .select({
-        id: auditRunTable.id,
-        status: auditRunTable.status,
-        createdAt: auditRunTable.createdAt,
-        startedAt: auditRunTable.startedAt,
-        completedAt: auditRunTable.completedAt,
-        durationMs: auditRunTable.durationMs,
-        templateData: auditTemplateTable.data,
-        resultStatus: auditResultTable.status,
-      })
-      .from(auditRunTable)
-      .innerJoin(auditTemplateTable, eq(auditTemplateTable.id, auditRunTable.templateId))
-      .leftJoin(auditResultTable, eq(auditResultTable.runId, auditRunTable.id))
-      .where(eq(auditRunTable.id, id))
-      .get(),
+  const row = yield* db.run(
+    async (client) =>
+      (
+        await client
+          .select({
+            id: auditRunTable.id,
+            status: auditRunTable.status,
+            createdAt: auditRunTable.createdAt,
+            startedAt: auditRunTable.startedAt,
+            completedAt: auditRunTable.completedAt,
+            durationMs: auditRunTable.durationMs,
+            templateData: auditTemplateTable.data,
+            resultStatus: auditResultTable.status,
+          })
+          .from(auditRunTable)
+          .innerJoin(auditTemplateTable, eq(auditTemplateTable.id, auditRunTable.templateId))
+          .leftJoin(auditResultTable, eq(auditResultTable.runId, auditRunTable.id))
+          .where(eq(auditRunTable.id, id))
+          .limit(1)
+      )[0],
   );
 
   if (!row) {
@@ -59,23 +62,26 @@ export const getRunDetailsById = Effect.fn('db.auditRun.getDetailsById')(functio
   const db = yield* DbClient;
   yield* Effect.annotateCurrentSpan({ 'audit.id': id });
 
-  const row = yield* db.run((client) =>
-    client
-      .select({
-        id: auditRunTable.id,
-        status: auditRunTable.status,
-        createdAt: auditRunTable.createdAt,
-        startedAt: auditRunTable.startedAt,
-        completedAt: auditRunTable.completedAt,
-        durationMs: auditRunTable.durationMs,
-        templateData: auditTemplateTable.data,
-        resultStatus: auditResultTable.status,
-      })
-      .from(auditRunTable)
-      .innerJoin(auditTemplateTable, eq(auditTemplateTable.id, auditRunTable.templateId))
-      .leftJoin(auditResultTable, eq(auditResultTable.runId, auditRunTable.id))
-      .where(eq(auditRunTable.id, id))
-      .get(),
+  const row = yield* db.run(
+    async (client) =>
+      (
+        await client
+          .select({
+            id: auditRunTable.id,
+            status: auditRunTable.status,
+            createdAt: auditRunTable.createdAt,
+            startedAt: auditRunTable.startedAt,
+            completedAt: auditRunTable.completedAt,
+            durationMs: auditRunTable.durationMs,
+            templateData: auditTemplateTable.data,
+            resultStatus: auditResultTable.status,
+          })
+          .from(auditRunTable)
+          .innerJoin(auditTemplateTable, eq(auditTemplateTable.id, auditRunTable.templateId))
+          .leftJoin(auditResultTable, eq(auditResultTable.runId, auditRunTable.id))
+          .where(eq(auditRunTable.id, id))
+          .limit(1)
+      )[0],
   );
 
   if (!row) {
@@ -131,7 +137,7 @@ export const listRunsPage = Effect.fn('db.auditRun.listPage')(function* (params:
       .orderBy(desc(auditRunTable.createdAt), desc(auditRunTable.id))
       .limit(limit + 1);
 
-    return whereClause ? baseQuery.where(whereClause).all() : baseQuery.all();
+    return whereClause ? baseQuery.where(whereClause) : baseQuery;
   });
 
   const pageRows = rows.slice(0, limit);

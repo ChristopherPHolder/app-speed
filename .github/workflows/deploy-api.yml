@@ -120,10 +120,17 @@ jobs:
         id: ecr-login
         uses: aws-actions/amazon-ecr-login@v2
 
+      - name: Run Audit Database Migrations
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_MIGRATION_URL: ${{ secrets.DATABASE_MIGRATION_URL }}
+        run: pnpm exec nx run audit-persistence:migrate
+
       - name: Publish and Deploy API
         env:
           ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
           DEPLOY_ENV: ${{ needs.determine-deploy-scope.outputs.deploy_env }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           if [ "$DEPLOY_ENV" = "production" ]; then
             IMAGE_REF="${ECR_REGISTRY}/app-speed/api:${GITHUB_SHA::12}"

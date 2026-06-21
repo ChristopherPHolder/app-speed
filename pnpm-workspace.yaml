@@ -14,5 +14,4 @@ overrides:
   typescript: 5.9.2
 
 onlyBuiltDependencies:
-  - better-sqlite3
   - puppeteer

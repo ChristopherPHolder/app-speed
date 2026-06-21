@@ -22,9 +22,10 @@
       "outputs": ["{options.outputFile}"]
     },
     "migrate": {
-      "executor": "@app-speed/db-tools:sqlite-migrate",
+      "executor": "@app-speed/db-tools:drizzle-kit",
       "options": {
-        "migrationsDir": "libs/audit/persistence/migrations"
+        "command": "migrate",
+        "config": "libs/audit/persistence/drizzle.config.ts"
       }
     },
     "migrate-generate": {
