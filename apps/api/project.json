@@ -3,36 +3,22 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/api/src",
   "projectType": "application",
-  "tags": [
-    "type:app",
-    "scope:api",
-    "runtime:node",
-    "app:api"
-  ],
+  "tags": ["type:app", "scope:api", "runtime:node", "app:api"],
   "targets": {
     "build": {
       "executor": "@nx/esbuild:esbuild",
-      "outputs": [
-        "{options.outputPath}"
-      ],
+      "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
         "platform": "node",
         "target": "node24",
         "outputPath": "dist/apps/api",
-        "format": [
-          "esm"
-        ],
+        "format": ["esm"],
         "bundle": true,
-        "external": [
-          "@aws-sdk/client-ec2",
-          "@aws-sdk/client-s3"
-        ],
+        "external": ["@aws-sdk/client-ec2", "@aws-sdk/client-s3"],
         "main": "apps/api/src/main.ts",
         "tsConfig": "apps/api/tsconfig.app.json",
-        "assets": [
-          "apps/api/src/assets"
-        ],
+        "assets": ["apps/api/src/assets"],
         "generatePackageJson": true,
         "esbuildOptions": {
           "sourcemap": true,
@@ -54,46 +40,32 @@
       }
     },
     "prune-lockfile": {
-      "dependsOn": [
-        "build"
-      ],
+      "dependsOn": ["build"],
       "cache": true,
       "executor": "@nx/js:prune-lockfile",
-      "outputs": [
-        "{workspaceRoot}/dist/apps/api/package.json",
-        "{workspaceRoot}/dist/apps/api/pnpm-lock.yaml"
-      ],
+      "outputs": ["{workspaceRoot}/dist/apps/api/package.json", "{workspaceRoot}/dist/apps/api/pnpm-lock.yaml"],
       "options": {
         "buildTarget": "build"
       }
     },
     "copy-workspace-modules": {
-      "dependsOn": [
-        "build"
-      ],
+      "dependsOn": ["build"],
       "cache": true,
-      "outputs": [
-        "{workspaceRoot}/dist/apps/api/workspace_modules"
-      ],
+      "outputs": ["{workspaceRoot}/dist/apps/api/workspace_modules"],
       "executor": "@nx/js:copy-workspace-modules",
       "options": {
         "buildTarget": "build"
       }
     },
     "prune": {
-      "dependsOn": [
-        "prune-lockfile",
-        "copy-workspace-modules"
-      ],
+      "dependsOn": ["prune-lockfile", "copy-workspace-modules"],
       "executor": "nx:noop"
     },
     "serve": {
       "continuous": true,
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
-      "dependsOn": [
-        "build"
-      ],
+      "dependsOn": ["build"],
       "options": {
         "buildTarget": "api:build",
         "runBuildTargetDependencies": false
@@ -109,18 +81,14 @@
     },
     "test": {
       "executor": "@nx/vitest:test",
-      "outputs": [
-        "{options.reportsDirectory}"
-      ],
+      "outputs": ["{options.reportsDirectory}"],
       "options": {
         "reportsDirectory": "{projectRoot}/../../coverage/apps/api"
       }
     },
     "e2e": {
       "executor": "@nx/vitest:test",
-      "outputs": [
-        "{options.reportsDirectory}"
-      ],
+      "outputs": ["{options.reportsDirectory}"],
       "options": {
         "configFile": "{projectRoot}/vitest.config.e2e.mts",
         "reportsDirectory": "{projectRoot}/../../coverage/apps/api"
@@ -128,9 +96,7 @@
     },
     "lint": {
       "executor": "@nx/eslint:lint",
-      "outputs": [
-        "{options.outputFile}"
-      ]
+      "outputs": ["{options.outputFile}"]
     },
     "effect:diagnostics": {
       "executor": "@app-speed/effect-tools:diagnostics",
@@ -146,9 +112,7 @@
       "options": {
         "region": "eu-central-1",
         "documentName": "AWS-RunShellScript",
-        "instanceIds": [
-          "i-016827500a47a80ef"
-        ],
+        "instanceIds": ["i-016827500a47a80ef"],
         "containerName": "app-speed-api",
         "hostPort": 3000,
         "containerPort": 3000,
@@ -163,7 +127,8 @@
           "additionalRunArgs": [
             "-e RECORD_PERSISTENCE_MODE=s3",
             "-e RECORD_PERSISTENCE_BUCKET=app-speed-audit-results-prod",
-            "-e AWS_REGION=eu-central-1"
+            "-e AWS_REGION=eu-central-1",
+            "-e DATABASE_URL"
           ]
         }
       }

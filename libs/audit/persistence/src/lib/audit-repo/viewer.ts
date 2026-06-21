@@ -10,23 +10,26 @@ export const getRunById = Effect.fn('db.auditRun.getById')(function* (id: AuditR
   const db = yield* DbClient;
   yield* Effect.annotateCurrentSpan({ 'audit.id': id });
 
-  const record = yield* db.run((client) =>
-    client
-      .select({
-        id: auditRunTable.id,
-        templateId: auditRunTable.templateId,
-        status: auditRunTable.status,
-        createdAt: auditRunTable.createdAt,
-        updatedAt: auditRunTable.updatedAt,
-        startedAt: auditRunTable.startedAt,
-        completedAt: auditRunTable.completedAt,
-        durationMs: auditRunTable.durationMs,
-        templateData: auditTemplateTable.data,
-      })
-      .from(auditRunTable)
-      .innerJoin(auditTemplateTable, eq(auditTemplateTable.id, auditRunTable.templateId))
-      .where(eq(auditRunTable.id, id))
-      .get(),
+  const record = yield* db.run(
+    async (client) =>
+      (
+        await client
+          .select({
+            id: auditRunTable.id,
+            templateId: auditRunTable.templateId,
+            status: auditRunTable.status,
+            createdAt: auditRunTable.createdAt,
+            updatedAt: auditRunTable.updatedAt,
+            startedAt: auditRunTable.startedAt,
+            completedAt: auditRunTable.completedAt,
+            durationMs: auditRunTable.durationMs,
+            templateData: auditTemplateTable.data,
+          })
+          .from(auditRunTable)
+          .innerJoin(auditTemplateTable, eq(auditTemplateTable.id, auditRunTable.templateId))
+          .where(eq(auditRunTable.id, id))
+          .limit(1)
+      )[0],
   );
 
   if (!record) {
@@ -43,19 +46,22 @@ export const getResultByRunId = Effect.fn('db.auditResult.getByRunId')(function*
   const recordPersistence = yield* RecordPersistenceService;
   yield* Effect.annotateCurrentSpan({ 'audit.id': id });
 
-  const record = yield* db.run((client) =>
-    client
-      .select({
-        runId: auditResultTable.runId,
-        status: auditResultTable.status,
-        dataRecordKey: auditResultTable.dataRecordKey,
-        error: auditResultTable.error,
-        reportHtmlRecordKey: auditResultTable.reportHtmlRecordKey,
-        createdAt: auditResultTable.createdAt,
-      })
-      .from(auditResultTable)
-      .where(eq(auditResultTable.runId, id))
-      .get(),
+  const record = yield* db.run(
+    async (client) =>
+      (
+        await client
+          .select({
+            runId: auditResultTable.runId,
+            status: auditResultTable.status,
+            dataRecordKey: auditResultTable.dataRecordKey,
+            error: auditResultTable.error,
+            reportHtmlRecordKey: auditResultTable.reportHtmlRecordKey,
+            createdAt: auditResultTable.createdAt,
+          })
+          .from(auditResultTable)
+          .where(eq(auditResultTable.runId, id))
+          .limit(1)
+      )[0],
   );
 
   if (!record) {
