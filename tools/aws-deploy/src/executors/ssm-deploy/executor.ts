@@ -37,6 +37,23 @@ const parseInstanceIds = (value?: string): string[] =>
     .filter(Boolean);
 
 const shellQuote = (value: string): string => `'${value.replace(/'/g, `'"'"'`)}'`;
+const dockerEnvPassthroughPattern = /^-e\s+([A-Za-z_][A-Za-z0-9_]*)$/;
+
+const resolveAdditionalRunArgs = (additionalRunArgs: string[]): string[] =>
+  additionalRunArgs.map((arg) => {
+    const match = dockerEnvPassthroughPattern.exec(arg);
+    if (!match) {
+      return arg;
+    }
+
+    const envName = match[1];
+    const value = env[envName];
+    if (value === undefined) {
+      fail(`Missing environment variable ${envName} required by Docker run arg "${arg}"`);
+    }
+
+    return `-e ${shellQuote(`${envName}=${value}`)}`;
+  });
 
 const buildDefaultCommands = (
   imageRef: string,
@@ -102,7 +119,9 @@ const runExecutor: PromiseExecutor<SsmDeployExecutorSchema> = async (options): P
   const containerName = options.containerName?.trim() || DEFAULT_CONTAINER_NAME;
   const hostPort = options.hostPort ?? DEFAULT_HOST_PORT;
   const containerPort = options.containerPort ?? DEFAULT_CONTAINER_PORT;
-  const additionalRunArgs = (options.additionalRunArgs ?? []).map((arg) => arg.trim()).filter(Boolean);
+  const additionalRunArgs = resolveAdditionalRunArgs(
+    (options.additionalRunArgs ?? []).map((arg) => arg.trim()).filter(Boolean),
+  );
   const pruneDockerBeforePull = options.pruneDockerBeforePull === true;
 
   const commands = hasCustomCommands
