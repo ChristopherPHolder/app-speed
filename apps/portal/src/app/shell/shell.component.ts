@@ -1,44 +1,31 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { MatIcon } from '@angular/material/icon';
 import { MatIconButton } from '@angular/material/button';
-import { MatListItem, MatNavList } from '@angular/material/list';
-import { MatSidenav, MatSidenavContainer, MatSidenavContent } from '@angular/material/sidenav';
+import { MatSidenavContainer, MatSidenavContent } from '@angular/material/sidenav';
 import { MatToolbar } from '@angular/material/toolbar';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-shell',
-  imports: [
-    MatSidenavContainer,
-    MatSidenav,
-    MatSidenavContent,
-    MatToolbar,
-    MatNavList,
-    MatIcon,
-    MatIconButton,
-    MatListItem,
-    RouterLink,
-    RouterOutlet,
-  ],
+  imports: [MatSidenavContainer, MatSidenavContent, MatToolbar, MatIconButton, RouterOutlet],
   template: `
     <mat-sidenav-container class="sidenav-container">
-      <mat-sidenav #drawer class="sidenav" fixedInViewport [attr.role]="'dialog'" [mode]="'over'">
-        <mat-toolbar>Menu</mat-toolbar>
-        @defer (on immediate) {
-          <mat-nav-list>
-            @for (navItem of sideNavItems; track navItem) {
-              <a mat-list-item [routerLink]="navItem.route" (click)="drawer.close()">{{ navItem.name }}</a>
-            }
-          </mat-nav-list>
-        }
-      </mat-sidenav>
+      <!--      <mat-sidenav #drawer class="sidenav" fixedInViewport [attr.role]="'dialog'" [mode]="'over'">-->
+      <!--        <mat-toolbar>Menu</mat-toolbar>-->
+      <!--        @defer (on immediate) {-->
+      <!--          <mat-nav-list>-->
+      <!--            @for (navItem of sideNavItems; track navItem) {-->
+      <!--              <a mat-list-item [routerLink]="navItem.route" (click)="drawer.close()">{{ navItem.name }}</a>-->
+      <!--            }-->
+      <!--          </mat-nav-list>-->
+      <!--        }-->
+      <!--      </mat-sidenav>-->
       <mat-sidenav-content>
         <mat-toolbar>
-          @defer (on immediate) {
-            <button type="button" aria-label="Toggle sidenav" mat-icon-button (click)="drawer.open()">
-              <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
-            </button>
-          }
+          <!--          @defer (on immediate) {-->
+          <!--            <button type="button" aria-label="Toggle sidenav" mat-icon-button (click)="drawer.open()">-->
+          <!--              <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>-->
+          <!--            </button>-->
+          <!--          }-->
           <span class="toolbar-logo">
             <img src="assets/logo.svg" alt="App Speed Logo" height="150%" width="auto" />
           </span>
@@ -114,9 +101,9 @@ import { RouterLink, RouterOutlet } from '@angular/router';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShellComponent {
-  readonly sideNavItems = [
-    { name: 'Audit Builder', route: 'user-flow' },
-    // { name: 'Audit Viewer', route: 'user-flow/viewer' },
-    { name: 'Audit Runs', route: 'audit-runs' },
-  ];
+  // readonly sideNavItems = [
+  //   { name: 'Audit Builder', route: 'user-flow' },
+  //   // { name: 'Audit Viewer', route: 'user-flow/viewer' },
+  //   { name: 'Audit Runs', route: 'audit-runs' },
+  // ];
 }
