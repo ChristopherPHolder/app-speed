@@ -14,6 +14,7 @@ export type DbClientDatabase = NodePgDatabase<typeof schema>;
 const databaseUrlConfig = Config.string('DATABASE_URL').pipe(
   Config.withDescription('Postgres connection string used by the audit persistence runtime.'),
 );
+const connectionTimeoutMillisConfig = Config.integer('DATABASE_CONNECTION_TIMEOUT_MS').pipe(Config.withDefault(5_000));
 
 export class DbClient extends Context.Tag('DbClient')<
   DbClient,
@@ -26,7 +27,8 @@ export class DbClient extends Context.Tag('DbClient')<
     Effect.acquireRelease(
       Effect.gen(function* () {
         const databaseUrl = yield* databaseUrlConfig;
-        const pool = new Pool({ connectionString: databaseUrl });
+        const connectionTimeoutMillis = yield* connectionTimeoutMillisConfig;
+        const pool = new Pool({ connectionString: databaseUrl, connectionTimeoutMillis });
         const db = drizzle(pool, { schema });
 
         yield* Effect.logInfo('Initialized audit Postgres connection pool from DATABASE_URL');
