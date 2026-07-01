@@ -65,9 +65,7 @@ describe('AuditRunsPageComponent', () => {
       durationMs: 1200,
     });
 
-    expect(navigate).toHaveBeenCalledWith(['/user-flow'], {
-      queryParams: { auditId: 'complete-audit' },
-    });
+    expect(navigate).toHaveBeenCalledWith(['/user-flow', 'results', 'complete-audit']);
 
     component.openRun({
       auditId: 'running-audit',

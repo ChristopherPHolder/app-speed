@@ -26,6 +26,7 @@ import type { FlowResult } from 'lighthouse';
 import { getAuditRequestErrorMessage } from './builder-error-message';
 import { AuditProgressService } from '../api/audit-progress.service';
 import { ApiClient } from '@app-speed/audit/portal/data-access';
+import { ActivatedRouteSnapshot } from '@angular/router';
 
 type AuditResultResponse =
   | { status: 'SUCCESS'; result: FlowResult }
@@ -43,22 +44,31 @@ type RunDetailsResponse = {
   durationMs: number | null;
 };
 
+const findRouteParam = (route: ActivatedRouteSnapshot, paramName: string): string | null => {
+  const value = route.paramMap.get(paramName);
+  if (value) {
+    return value;
+  }
+
+  for (const child of route.children) {
+    const childValue = findRouteParam(child, paramName);
+    if (childValue) {
+      return childValue;
+    }
+  }
+
+  return null;
+};
+
 const loadAuditDetailsEffect = createEffect(
   (actions$ = inject(Actions), activatedRoute = inject(ActivatedRoute), router = inject(Router)) => {
     return actions$.pipe(
       ofType(loadAuditDetails),
       map(() => {
-        const auditId = activatedRoute.snapshot.queryParams['auditId'];
+        const auditId = findRouteParam(router.routerState.snapshot.root, 'id');
         const auditDetailsQuery = activatedRoute.snapshot.queryParams['audit-details'];
 
         if (auditId) {
-          if (auditDetailsQuery) {
-            router.navigate([], {
-              queryParams: { auditId },
-              replaceUrl: true,
-            });
-          }
-
           return loadRunDetails({ auditId });
         }
 
@@ -81,12 +91,16 @@ const updateAuditDetailsEffect = createEffect(
     actions$.pipe(
       ofType(updateAuditDetails),
       debounceTime(500),
-      tap(({ audit }) =>
+      tap(({ audit }) => {
+        if (findRouteParam(router.routerState.snapshot.root, 'id')) {
+          return;
+        }
+
         router.navigate([], {
           queryParams: { ['audit-details']: JSON.stringify(audit) },
           replaceUrl: true,
-        }),
-      ),
+        });
+      }),
     ),
   { functional: true, dispatch: false },
 );
@@ -126,9 +140,7 @@ const submitAuditRequestSuccessNavigateEffect = createEffect(
     actions$.pipe(
       ofType(submitAuditRequestSuccess),
       tap(({ requestId }) => {
-        router.navigate(['/user-flow'], {
-          queryParams: { auditId: requestId },
-        });
+        router.navigate(['/user-flow', 'results', requestId]);
       }),
     ),
   { functional: true, dispatch: false },

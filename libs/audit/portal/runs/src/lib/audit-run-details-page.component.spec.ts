@@ -56,8 +56,6 @@ describe('AuditRunDetailsPageComponent', () => {
 
     await vi.advanceTimersByTimeAsync(5000);
 
-    expect(navigate).toHaveBeenCalledWith(['/user-flow'], {
-      queryParams: { auditId: 'complete-audit' },
-    });
+    expect(navigate).toHaveBeenCalledWith(['/user-flow', 'results', 'complete-audit']);
   });
 });

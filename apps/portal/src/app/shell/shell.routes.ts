@@ -18,11 +18,6 @@ export const shellRoutes: Route[] = [
             redirectTo: '',
             pathMatch: 'full',
           },
-          {
-            path: 'viewer',
-            redirectTo: '',
-            pathMatch: 'full',
-          },
         ],
       },
       {

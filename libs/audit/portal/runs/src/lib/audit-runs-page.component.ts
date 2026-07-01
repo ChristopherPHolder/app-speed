@@ -118,7 +118,7 @@ export class AuditRunsPageComponent {
 
   openRun(run: AuditRunSummary) {
     if (run.status === 'COMPLETE') {
-      this.router.navigate(['/user-flow'], { queryParams: { auditId: run.auditId } });
+      this.router.navigate(['/user-flow', 'results', run.auditId]);
       return;
     }
 
