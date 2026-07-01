@@ -19,7 +19,6 @@ import {
 import type { StatusDialogModel } from '@app-speed/audit/portal/ui/dialogs';
 import type { FlowResult } from 'lighthouse';
 import type { AuditStage } from './builder.actions';
-import { DEFAULT_AUDIT_DETAILS } from '../audit-details';
 
 export const auditBuilderFeatureKey = 'auditBuilder';
 
@@ -294,16 +293,15 @@ export const auditBuilderReducer = createReducer(
   }),
   on(loadRunDetailsFailed, (state, { error }) => ({
     ...state,
-    audit: DEFAULT_AUDIT_DETAILS,
-    modifying: true,
+    audit: null,
+    modifying: false,
     submittingRequest: false,
-    requestId: null,
     queuePosition: null,
     listeningToAuditProgress: false,
-    auditStage: null,
+    auditStage: 'failed',
     auditResult: null,
-    auditResultStatus: null,
-    auditResultError: null,
+    auditResultStatus: 'FAILURE',
+    auditResultError: error,
     auditRequestError: error,
     loadingDialog: null,
   })),

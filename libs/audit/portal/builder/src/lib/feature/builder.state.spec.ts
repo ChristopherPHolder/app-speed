@@ -5,6 +5,8 @@ import {
   auditResultFailure,
   auditStageUpdated,
   forkAudit,
+  loadRunDetails,
+  loadRunDetailsFailed,
   submitAuditRequest,
   submitAuditRequestSuccess,
 } from './builder.actions';
@@ -92,5 +94,19 @@ describe('auditBuilderReducer loading dialog states', () => {
     expect(forkedState.requestId).toBeNull();
     expect(forkedState.auditResultStatus).toBeNull();
     expect(forkedState.auditResultError).toBeNull();
+  });
+
+  it('keeps result routes read-only when run details cannot be loaded', () => {
+    const failedState = auditBuilderReducer(
+      auditBuilderReducer(initialState, loadRunDetails({ auditId: 'missing-run' })),
+      loadRunDetailsFailed({ error: 'Run not found.' }),
+    );
+
+    expect(failedState.audit).toBeNull();
+    expect(failedState.modifying).toBe(false);
+    expect(failedState.requestId).toBe('missing-run');
+    expect(failedState.auditStage).toBe('failed');
+    expect(failedState.auditResultStatus).toBe('FAILURE');
+    expect(failedState.auditResultError).toBe('Run not found.');
   });
 });
