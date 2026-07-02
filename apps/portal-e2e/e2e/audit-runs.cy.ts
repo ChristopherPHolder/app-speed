@@ -1,5 +1,5 @@
 describe('audit runs page', () => {
-  it('renders list, paginates, and opens run details', () => {
+  it('renders history, paginates, and opens runs through the canonical result route', () => {
     cy.intercept('GET', /\/api\/audit\/runs(\?.*)?$/, (req) => {
       const cursor = req.query.cursor as string | undefined;
 
@@ -49,11 +49,16 @@ describe('audit runs page', () => {
       });
     }).as('listRuns');
 
-    cy.intercept('GET', '/api/audit/runs/audit-running', {
+    cy.intercept('GET', '/api/audit/runs/audit-running/details', {
       statusCode: 200,
       body: {
         auditId: 'audit-running',
-        title: 'Running audit',
+        audit: {
+          title: 'Running audit',
+          url: 'https://example.com',
+          timeout: 30,
+          steps: [],
+        },
         status: 'IN_PROGRESS',
         resultStatus: null,
         queuePosition: null,
@@ -64,11 +69,36 @@ describe('audit runs page', () => {
       },
     }).as('runDetails');
 
-    cy.visit('/audit-runs');
+    cy.intercept('GET', '/api/audit/runs/audit-complete/details', {
+      statusCode: 200,
+      body: {
+        auditId: 'audit-complete',
+        audit: {
+          title: 'Completed audit',
+          url: 'https://example.com',
+          timeout: 30,
+          steps: [],
+        },
+        status: 'COMPLETE',
+        resultStatus: null,
+        queuePosition: null,
+        createdAt: '2026-03-03T10:00:00.000Z',
+        startedAt: '2026-03-03T10:00:30.000Z',
+        completedAt: '2026-03-03T10:01:30.000Z',
+        durationMs: 60000,
+      },
+    }).as('completedRunDetails');
 
+    cy.visit('/user-flow/results');
+
+    cy.location('pathname').should('eq', '/user-flow/results/history');
     cy.wait('@listRuns');
-    cy.contains('td', 'Completed audit').should('be.visible');
+    cy.contains('td', 'Completed audit').should('be.visible').click();
+    cy.location('pathname').should('eq', '/user-flow/results/audit-complete');
+    cy.wait('@completedRunDetails');
 
+    cy.visit('/user-flow/results/history');
+    cy.wait('@listRuns');
     cy.contains('button', 'Refresh').click();
     cy.wait('@listRuns');
 
@@ -76,8 +106,7 @@ describe('audit runs page', () => {
     cy.wait('@listRuns');
     cy.contains('td', 'Running audit').click();
 
-    cy.location('pathname').should('eq', '/audit-runs/audit-running');
+    cy.location('pathname').should('eq', '/user-flow/results/audit-running');
     cy.wait('@runDetails');
-    cy.contains('mat-card-title', 'Running audit').should('be.visible');
   });
 });

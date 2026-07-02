@@ -9,5 +9,4 @@ export {
   type ListAuditRunsParams,
   DEFAULT_AUDIT_RUN_FILTER,
 } from './lib/api/audit-runs.models';
-export { AuditRunDetailsComponent } from './lib/components/audit-run-details.component';
 export { AuditRunsTableComponent } from './lib/components/audit-runs-table.component';

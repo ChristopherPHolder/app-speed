@@ -52,7 +52,7 @@ describe('AuditRunsPageComponent', () => {
     vi.useRealTimers();
   });
 
-  it('navigates completed runs to the canonical user-flow route and active runs to details page', () => {
+  it('navigates every run to the canonical user-flow result route', () => {
     component.openRun({
       auditId: 'complete-audit',
       title: 'Complete',
@@ -79,6 +79,6 @@ describe('AuditRunsPageComponent', () => {
       durationMs: null,
     });
 
-    expect(navigate).toHaveBeenCalledWith(['/audit-runs', 'running-audit']);
+    expect(navigate).toHaveBeenCalledWith(['/user-flow', 'results', 'running-audit']);
   });
 });

@@ -65,6 +65,25 @@ describe('auditBuilderRoutes', () => {
     http.verify();
   });
 
+  it('redirects the bare results route to history', async () => {
+    await configureRouteTestingModule();
+
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/user-flow/results');
+
+    expect(TestBed.inject(Router).url).toBe('/user-flow/results/history');
+
+    const http = TestBed.inject(HttpTestingController);
+    const request = http.expectOne('/api/audit/runs?limit=25');
+    expect(request.request.method).toBe('GET');
+    request.flush({
+      items: [],
+      nextCursor: null,
+      limit: 25,
+    });
+    http.verify();
+  });
+
   it('shows an inline error instead of the draft builder when the result id cannot be loaded', async () => {
     await configureRouteTestingModule();
 

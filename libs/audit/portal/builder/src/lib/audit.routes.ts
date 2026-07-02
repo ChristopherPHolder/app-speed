@@ -13,6 +13,15 @@ const provideAuditBuilderRoute = () => [
 
 export const auditBuilderRoutes: Routes = [
   {
+    path: 'results',
+    redirectTo: 'results/history',
+    pathMatch: 'full',
+  },
+  {
+    path: 'results/history',
+    loadChildren: () => import('@app-speed/audit/portal/runs').then((m) => m.auditRunsRoutes),
+  },
+  {
     path: 'results/:id',
     component: BuilderComponent,
     providers: provideAuditBuilderRoute(),
