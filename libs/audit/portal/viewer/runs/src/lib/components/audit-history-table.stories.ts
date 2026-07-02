@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/angular';
-import { AuditRunsTableComponent } from './audit-runs-table.component';
-import { AuditRunSummary, DEFAULT_AUDIT_RUN_FILTER } from '../api/audit-runs.models';
+import { AuditHistoryTableComponent } from './audit-history-table.component';
+import { AuditRunSummary, DEFAULT_AUDIT_RUN_FILTER } from '../api/audit-history.models';
 
 const sampleRuns: ReadonlyArray<AuditRunSummary> = [
   {
@@ -38,9 +38,9 @@ const sampleRuns: ReadonlyArray<AuditRunSummary> = [
   },
 ];
 
-const meta: Meta<AuditRunsTableComponent> = {
-  title: 'Patterns/Audit Runs/Table',
-  component: AuditRunsTableComponent,
+const meta: Meta<AuditHistoryTableComponent> = {
+  title: 'Patterns/Audit History/Table',
+  component: AuditHistoryTableComponent,
   args: {
     runs: sampleRuns,
     loading: false,
@@ -55,7 +55,7 @@ const meta: Meta<AuditRunsTableComponent> = {
 };
 
 export default meta;
-type Story = StoryObj<AuditRunsTableComponent>;
+type Story = StoryObj<AuditHistoryTableComponent>;
 
 export const Default: Story = {};
 
@@ -74,6 +74,6 @@ export const Empty: Story = {
 
 export const Error: Story = {
   args: {
-    errorMessage: 'Unable to load audit runs. Please try again.',
+    errorMessage: 'Unable to load audit history. Please try again.',
   },
 };

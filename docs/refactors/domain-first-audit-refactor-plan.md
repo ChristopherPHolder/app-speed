@@ -5,6 +5,7 @@
 The current repository structure is organized primarily by delivery mechanism and technical layer instead of by the dominant business domain. The main audit workflow is spread across frontend feature libraries, frontend data-access libraries, backend application modules, runner libraries, database libraries, and shared schema libraries. That split makes the codebase harder to reason about because one conceptual change to the audit product crosses several top-level areas that appear unrelated even though they belong to the same lifecycle.
 
 The result is architectural drag:
+
 - `portal`, `api`, and `runner` behave like thin deployable shells in practice, but the surrounding library layout treats them as if they were the primary architectural boundaries.
 - Audit authoring, scheduling, execution, persistence, result viewing, and run history all use the same vocabulary and lifecycle, yet they are scattered across unrelated top-level library groups.
 - Nx project tags and dependency constraints do not currently express the intended boundaries, so the structure is mostly conventional rather than enforced.
@@ -17,6 +18,7 @@ This refactor should improve module boundaries, ownership, and co-location witho
 Adopt a domain-first architecture centered on a single `Audit` bounded context, because the current codebase is dominated by one cohesive audit lifecycle rather than multiple independent product domains.
 
 Within that model:
+
 - `portal`, `api`, and `runner` remain thin applications and composition roots, not bounded contexts.
 - Audit-specific code is reorganized under a single audit domain umbrella with colocated slices for domain model, contracts/schema, persistence, API handlers, runner execution, and portal-facing features.
 - Cross-cutting technical modules remain horizontal only where they are truly generic, such as design system primitives, shared visual components that are not audit-specific, observability, and low-level infrastructure foundations.
@@ -111,7 +113,7 @@ Within that model:
 
 - Nx project-scoped test runs should be used throughout the migration so each moved slice can stay green independently. Affected lint, test, and build runs should be used at phase boundaries before removing compatibility exports.
 
-- Useful prior art already exists in the current repository: schema tests, audit repository contract tests, runner queue tests, runner lifecycle tests, builder state tests, viewer tests, and audit-runs page tests. Those should be preserved and repointed before writing substantial new coverage.
+- Useful prior art already exists in the current repository: schema tests, audit repository contract tests, runner queue tests, runner lifecycle tests, builder state tests, viewer tests, and audit-history page tests. Those should be preserved and repointed before writing substantial new coverage.
 
 ## Out of Scope
 
@@ -135,7 +137,7 @@ Within that model:
 
 - Temporary compatibility exports are important for keeping the migration reviewable, but they should be short-lived. Once the last consumer of an old boundary is removed, the old boundary should be deleted rather than left as a permanent alias.
 
-- Existing architecture notes about audit runs and the user-flow audit feature remain valuable as domain knowledge, but they should be updated or superseded once the new domain-first structure is established.
+- Existing architecture notes about audit history and the user-flow audit feature remain valuable as domain knowledge, but they should be updated or superseded once the new domain-first structure is established.
 
 - Companion documents:
   - `docs/adr/ADR-0004-domain-first-audit-architecture.md`

@@ -2,16 +2,16 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { AuditRunStatus, AuditRunSummary, DEFAULT_AUDIT_RUN_FILTER } from './api/audit-runs.models';
-import { AuditRunsApiService } from './api/audit-runs-api.service';
-import { AuditRunsTableComponent } from './components/audit-runs-table.component';
+import { AuditRunStatus, AuditRunSummary, DEFAULT_AUDIT_RUN_FILTER } from './api/audit-history.models';
+import { AuditHistoryApiService } from './api/audit-history-api.service';
+import { AuditHistoryTableComponent } from './components/audit-history-table.component';
 
 @Component({
-  selector: 'portal-audit-runs-page',
+  selector: 'portal-audit-history-page',
   standalone: true,
-  imports: [CommonModule, AuditRunsTableComponent],
+  imports: [CommonModule, AuditHistoryTableComponent],
   template: `
-    <ui-audit-runs-table
+    <ui-audit-history-table
       [runs]="runs()"
       [loading]="loading()"
       [errorMessage]="errorMessage()"
@@ -27,9 +27,9 @@ import { AuditRunsTableComponent } from './components/audit-runs-table.component
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AuditRunsPageComponent {
+export class AuditHistoryPageComponent {
   private readonly destroyRef = inject(DestroyRef);
-  private readonly api = inject(AuditRunsApiService);
+  private readonly api = inject(AuditHistoryApiService);
   private readonly router = inject(Router);
 
   readonly runs = signal<ReadonlyArray<AuditRunSummary>>([]);
@@ -56,7 +56,7 @@ export class AuditRunsPageComponent {
     const useStatusFilter = selectedStatuses.length === DEFAULT_AUDIT_RUN_FILTER.length ? undefined : selectedStatuses;
 
     this.api
-      .listRuns({
+      .listHistory({
         limit: this.#limit,
         cursor: this.#currentCursor(),
         status: useStatusFilter,
@@ -70,7 +70,7 @@ export class AuditRunsPageComponent {
         },
         error: () => {
           this.loading.set(false);
-          this.errorMessage.set('Unable to load audit runs. Please try again.');
+          this.errorMessage.set('Unable to load audit history. Please try again.');
         },
       });
   }

@@ -1,4 +1,4 @@
-describe('audit runs page', () => {
+describe('audit history page', () => {
   it('renders history, paginates, and opens runs through the canonical result route', () => {
     cy.intercept('GET', /\/api\/audit\/runs(\?.*)?$/, (req) => {
       const cursor = req.query.cursor as string | undefined;

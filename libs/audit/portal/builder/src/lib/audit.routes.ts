@@ -19,7 +19,7 @@ export const auditBuilderRoutes: Routes = [
   },
   {
     path: 'results/history',
-    loadChildren: () => import('@app-speed/audit/portal/runs').then((m) => m.auditRunsRoutes),
+    loadChildren: () => import('@app-speed/audit/portal/viewer/runs').then((m) => m.auditHistoryRoutes),
   },
   {
     path: 'results/:id',
