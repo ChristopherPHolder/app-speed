@@ -59,7 +59,6 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
       <section class="audit-status audit-status--error" data-testid="audit-inline-error" role="alert">
         <mat-card class="error-card">
           <mat-card-header>
-            <div class="error-mark" aria-hidden="true">!</div>
             <mat-card-title>{{ inlineErrorTitle() }}</mat-card-title>
             @if (requestId(); as auditId) {
               <mat-card-subtitle>Audit ID: {{ auditId }}</mat-card-subtitle>
