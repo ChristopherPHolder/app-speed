@@ -1,14 +1,12 @@
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { describe, beforeEach, expect, it, vi } from 'vitest';
-import { AuditRunsTableComponent } from './components/audit-runs-table.component';
+import { AuditHistoryTableComponent } from './components/audit-history-table.component';
 
 @Component({
   standalone: true,
-  imports: [AuditRunsTableComponent],
-  template: `
-    <ui-audit-runs-table [runs]="runs" (runSelected)="onRunSelected($event)" />
-  `,
+  imports: [AuditHistoryTableComponent],
+  template: ` <ui-audit-history-table [runs]="runs" (runSelected)="onRunSelected($event)" /> `,
 })
 class TestHostComponent {
   runs = [
@@ -28,7 +26,7 @@ class TestHostComponent {
   onRunSelected = vi.fn();
 }
 
-describe('AuditRunsTableComponent', () => {
+describe('AuditHistoryTableComponent', () => {
   let fixture: ComponentFixture<TestHostComponent>;
   let host: TestHostComponent;
 

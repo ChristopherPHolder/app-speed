@@ -1,18 +1,18 @@
-# Design Document: Audit Runs Feature
+# Design Document: Audit History
 
 Status: Active  
 Owner: Christopher Holder  
-Last Updated: 2026-03-27
+Last Updated: 2026-07-02
 
 ## Summary
 
-The Audit Runs feature adds a top-level experience for browsing queued, running, and completed audits from newest to oldest. The page is available at `/audit-runs` and uses a paginated table with a dedicated run details route at `/audit-runs/:id`.
+Audit History provides the result-history experience for browsing queued, running, and completed audits from newest to oldest. The page is available at `/user-flow/results/history`; every row opens the canonical result route at `/user-flow/results/:id`.
 
 ## Goals
 
 - Show all run states (`SCHEDULED`, `IN_PROGRESS`, `COMPLETE`) in one list.
 - Expose stable pagination under active inserts.
-- Allow quick drill-down from list rows.
+- Allow quick drill-down from list rows into the canonical result view.
 - Keep the feature inside the audit domain rather than split across top-level horizontal portal libraries.
 
 ## Non-Goals
@@ -25,32 +25,31 @@ The Audit Runs feature adds a top-level experience for browsing queued, running,
 
 - New API endpoints:
   - `GET /api/audit/runs`
-  - `GET /api/audit/runs/:id`
+  - `GET /api/audit/runs/:id/details`
 - `libs/audit/api-runtime` owns the route handlers and HTTP contract.
-- `libs/audit/persistence` provides paginated summaries via `listRunsPage` and detail lookups via `getRunSummaryById`.
+- `libs/audit/persistence` provides paginated summaries via `listRunsPage` and result-route hydration via `getRunDetailsById`.
 - Cursor uses `(createdAtMs, id)` with descending order (`createdAt desc`, `id desc`).
 - Queue position is computed only for `SCHEDULED`.
 
 ## Frontend Architecture
 
-- `libs/audit/portal/runs`:
-  - Exposes `auditRunsRoutes` for the portal shell.
-  - Owns the route-level page components for list and detail.
+- `libs/audit/portal/viewer/runs`:
+  - Exposes `auditHistoryRoutes` as a secondary entry point of the viewer package.
+  - Owns the route-level page component for history.
   - Owns the API client and DTOs under `src/lib/api`.
   - Owns reusable presentational components under `src/lib/components`.
-- `apps/portal` remains the composition root and lazy-loads the runs module from `@app-speed/audit/portal/runs`.
+- `libs/audit/portal/builder` owns the `/user-flow/results/*` route tree and lazy-loads the history entry point from `@app-speed/audit/portal/viewer/runs`.
 
 ## Routing
 
-- `/audit-runs`: list page
-- `/audit-runs/:id`: active run details page
-- Completed rows navigate to `/user-flow/results/<id>`.
+- `/user-flow/results`: redirects to `/user-flow/results/history`.
+- `/user-flow/results/history`: history page.
+- `/user-flow/results/:id`: canonical result route for every run state.
 
 ## Runtime Behavior
 
 - Default page size is `25`.
 - Status filters default to all statuses.
-- Poll interval is `5` seconds while viewing page 1.
 - Manual refresh is always available.
 
 ## Error Handling

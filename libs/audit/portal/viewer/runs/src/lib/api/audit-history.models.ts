@@ -19,13 +19,13 @@ export interface AuditRunSummary {
   durationMs: number | null;
 }
 
-export interface AuditRunsPage {
+export interface AuditHistoryPage {
   items: ReadonlyArray<AuditRunSummary>;
   nextCursor: string | null;
   limit: number;
 }
 
-export interface ListAuditRunsParams {
+export interface ListAuditHistoryParams {
   limit?: number;
   cursor?: string | null;
   status?: ReadonlyArray<AuditRunStatus>;

@@ -8,6 +8,15 @@
     "types": [],
     "moduleResolution": "bundler"
   },
-  "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts", "src/**/*.stories.ts", "src/**/*.stories.js"],
-  "include": ["src/**/*.ts"]
+  "exclude": [
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts",
+    "src/**/*.stories.ts",
+    "src/**/*.stories.js",
+    "runs/src/**/*.spec.ts",
+    "runs/src/**/*.test.ts",
+    "runs/src/**/*.stories.ts",
+    "runs/src/**/*.stories.js"
+  ],
+  "include": ["src/**/*.ts", "runs/src/**/*.ts"]
 }

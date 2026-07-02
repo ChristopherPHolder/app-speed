@@ -8,7 +8,6 @@
     "@angular/material": "21.2.11",
     "@angular/router": "21.2.13",
     "@app-speed/audit/portal/data-access": "0.0.1",
-    "@app-speed/audit/portal/runs": "0.0.1",
     "@app-speed/audit/portal/ui": "0.0.1",
     "@app-speed/audit/portal/viewer": "0.0.1",
     "@app-speed/audit/domain": "0.0.1",

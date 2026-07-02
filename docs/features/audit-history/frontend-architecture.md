@@ -1,16 +1,15 @@
-# Frontend Architecture: Audit Runs
+# Frontend Architecture: Audit History
 
 Status: Active  
 Owner: Christopher Holder  
-Last Updated: 2026-03-27
+Last Updated: 2026-07-02
 
 ## Module Layout
 
-- `libs/audit/portal/runs/src/lib/audit-runs.routes.ts`: exported routes for `/audit-runs`.
-- `libs/audit/portal/runs/src/lib/audit-runs-page.component.ts`: list-page orchestration.
-- `libs/audit/portal/runs/src/lib/audit-run-details-page.component.ts`: detail-page orchestration.
-- `libs/audit/portal/runs/src/lib/api`: list/detail HTTP client and DTOs.
-- `libs/audit/portal/runs/src/lib/components`: presentational table and details components.
+- `libs/audit/portal/viewer/runs/src/lib/audit-history.routes.ts`: exported routes for `/user-flow/results/history`.
+- `libs/audit/portal/viewer/runs/src/lib/audit-history-page.component.ts`: history-page orchestration.
+- `libs/audit/portal/viewer/runs/src/lib/api`: run-history HTTP client and DTOs.
+- `libs/audit/portal/viewer/runs/src/lib/components`: presentational history table.
 
 ## Responsibilities
 
@@ -18,14 +17,13 @@ Last Updated: 2026-03-27
 
 - Own page state and route navigation.
 - Trigger refresh, pagination, and status filtering.
-- Poll every 5 seconds when cursor is `null` (page 1).
 - Handle row click behavior:
   - `COMPLETE` -> `/user-flow/results/:id`
-  - `SCHEDULED|IN_PROGRESS` -> `/audit-runs/:id`
+  - `SCHEDULED|IN_PROGRESS` -> `/user-flow/results/:id`
 
 ### API Layer
 
-- Encodes query params for list/detail endpoints.
+- Encodes query params for the run-history list endpoint.
 - Exposes typed interfaces used by the route pages and presentational components.
 - Keeps transport details out of UI components.
 
@@ -43,4 +41,4 @@ Last Updated: 2026-03-27
 
 - Page unit tests verify polling cadence and routing decisions.
 - Component test verifies render + event emission without `HttpClient`.
-- Cypress test verifies list render, pagination, and detail navigation.
+- Cypress test verifies redirect, history render, pagination, and canonical result navigation.

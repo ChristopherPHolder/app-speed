@@ -7,6 +7,7 @@ Last Updated: 2026-03-27
 ## Purpose
 
 This document makes the refactor target concrete. It defines:
+
 - the top-level workspace shape
 - the target project naming and import taxonomy
 - the Nx tag taxonomy
@@ -56,6 +57,7 @@ libs/
 ```
 
 Rules implied by that shape:
+
 - `apps/*` own bootstrap, wiring, runtime config, and composition only.
 - New audit business logic should go under `libs/audit/**`, not under `apps/api`, `apps/runner`, `libs/portal`, `libs/server`, `libs/shared`, or `libs/runner`.
 - Generic technical concerns belong under `libs/platform/**` or `libs/ui/**` only if they are genuinely reusable outside audit.
@@ -67,35 +69,34 @@ The target projects below are intentionally concrete enough to drive naming, pat
 
 ### Applications
 
-| Project | Suggested Import Role | Responsibility | Target Tags |
-| --- | --- | --- | --- |
-| `portal` | none | Angular bootstrap, top-level routing, app-wide providers | `type:app`, `runtime:web`, `app:portal` |
-| `api` | none | Node bootstrap, effect layer wiring, HTTP server composition | `type:app`, `runtime:node`, `app:api` |
-| `runner` | none | Node CLI bootstrap and runner composition | `type:app`, `runtime:node`, `app:runner` |
-| `design-system` | none | Storybook host for shared UI | `type:app`, `runtime:web`, `app:design-system` |
+| Project         | Suggested Import Role | Responsibility                                               | Target Tags                                    |
+| --------------- | --------------------- | ------------------------------------------------------------ | ---------------------------------------------- |
+| `portal`        | none                  | Angular bootstrap, top-level routing, app-wide providers     | `type:app`, `runtime:web`, `app:portal`        |
+| `api`           | none                  | Node bootstrap, effect layer wiring, HTTP server composition | `type:app`, `runtime:node`, `app:api`          |
+| `runner`        | none                  | Node CLI bootstrap and runner composition                    | `type:app`, `runtime:node`, `app:runner`       |
+| `design-system` | none                  | Storybook host for shared UI                                 | `type:app`, `runtime:web`, `app:design-system` |
 
 ### Audit Domain
 
-| Project | Suggested Import Alias | Responsibility | Target Tags |
-| --- | --- | --- | --- |
-| `audit-domain` | `@app-speed/audit/domain` | Audit value objects, constants, default values, shared domain vocabulary | `type:domain`, `scope:audit`, `runtime:agnostic`, `layer:model` |
-| `audit-api-contract` | `@app-speed/audit/api-contract` | Schemas, contract types, wire-facing audit structures | `type:domain`, `scope:audit`, `runtime:agnostic`, `layer:contract` |
-| `audit-persistence` | `@app-speed/audit/persistence` | Audit repositories, audit DB schema, query behavior, persistence contract tests | `type:domain`, `scope:audit`, `runtime:node`, `layer:persistence` |
-| `audit-api-runtime` | `@app-speed/audit/api-runtime` | Audit HTTP API groups, runner lifecycle orchestration, server-side audit application logic | `type:domain`, `scope:audit`, `runtime:node`, `layer:application` |
-| `audit-runner` | `@app-speed/audit/runner` | Audit execution, queue claim/complete/heartbeat logic, runner-side orchestration | `type:domain`, `scope:audit`, `runtime:node`, `layer:application` |
-| `audit-portal-builder` | `@app-speed/audit/portal/builder` | Portal builder flow, builder state, builder routes, builder-specific UI | `type:domain`, `scope:audit`, `runtime:web`, `layer:feature` |
-| `audit-portal-viewer` | `@app-speed/audit/portal/viewer` | Portal viewer flow, result rendering, diagnostics, viewer-specific UI | `type:domain`, `scope:audit`, `runtime:web`, `layer:feature` |
-| `audit-portal-runs` | `@app-speed/audit/portal/runs` | Portal run-history list/detail flow, polling, navigation, run-history UI | `type:domain`, `scope:audit`, `runtime:web`, `layer:feature` |
+| Project                | Suggested Import Alias                                                  | Responsibility                                                                             | Target Tags                                                        |
+| ---------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| `audit-domain`         | `@app-speed/audit/domain`                                               | Audit value objects, constants, default values, shared domain vocabulary                   | `type:domain`, `scope:audit`, `runtime:agnostic`, `layer:model`    |
+| `audit-api-contract`   | `@app-speed/audit/api-contract`                                         | Schemas, contract types, wire-facing audit structures                                      | `type:domain`, `scope:audit`, `runtime:agnostic`, `layer:contract` |
+| `audit-persistence`    | `@app-speed/audit/persistence`                                          | Audit repositories, audit DB schema, query behavior, persistence contract tests            | `type:domain`, `scope:audit`, `runtime:node`, `layer:persistence`  |
+| `audit-api-runtime`    | `@app-speed/audit/api-runtime`                                          | Audit HTTP API groups, runner lifecycle orchestration, server-side audit application logic | `type:domain`, `scope:audit`, `runtime:node`, `layer:application`  |
+| `audit-runner`         | `@app-speed/audit/runner`                                               | Audit execution, queue claim/complete/heartbeat logic, runner-side orchestration           | `type:domain`, `scope:audit`, `runtime:node`, `layer:application`  |
+| `audit-portal-builder` | `@app-speed/audit/portal/builder`                                       | Portal builder flow, builder state, builder routes, builder-specific UI                    | `type:domain`, `scope:audit`, `runtime:web`, `layer:feature`       |
+| `audit-portal-viewer`  | `@app-speed/audit/portal/viewer`, `@app-speed/audit/portal/viewer/runs` | Portal viewer flow, result rendering, diagnostics, run-history UI                          | `type:domain`, `scope:audit`, `runtime:web`, `layer:feature`       |
 
 ### Cross-Cutting Technical Modules
 
-| Project | Suggested Import Alias | Responsibility | Target Tags |
-| --- | --- | --- | --- |
-| `platform-observability` | `@app-speed/platform/observability` | Shared tracing/logging bootstrap and runtime helpers | `type:platform`, `scope:shared`, `runtime:node` |
-| `platform-sqlite` | `@app-speed/platform/sqlite` | Optional generic DB client/runtime extraction if audit persistence needs it | `type:platform`, `scope:shared`, `runtime:node` |
-| `ui-status-badge` | `@app-speed/ui/status-badge` | Reusable status pill primitive | `type:ui`, `scope:shared`, `runtime:web`, `layer:ui` |
-| `ui-scroll-container` | `@app-speed/ui/scroll-container` | Reusable scroll container primitive | `type:ui`, `scope:shared`, `runtime:web`, `layer:ui` |
-| `ui-radial-chart` | `@app-speed/ui/radial-chart` | Reusable chart primitive | `type:ui`, `scope:shared`, `runtime:web`, `layer:ui` |
+| Project                  | Suggested Import Alias              | Responsibility                                                              | Target Tags                                          |
+| ------------------------ | ----------------------------------- | --------------------------------------------------------------------------- | ---------------------------------------------------- |
+| `platform-observability` | `@app-speed/platform/observability` | Shared tracing/logging bootstrap and runtime helpers                        | `type:platform`, `scope:shared`, `runtime:node`      |
+| `platform-sqlite`        | `@app-speed/platform/sqlite`        | Optional generic DB client/runtime extraction if audit persistence needs it | `type:platform`, `scope:shared`, `runtime:node`      |
+| `ui-status-badge`        | `@app-speed/ui/status-badge`        | Reusable status pill primitive                                              | `type:ui`, `scope:shared`, `runtime:web`, `layer:ui` |
+| `ui-scroll-container`    | `@app-speed/ui/scroll-container`    | Reusable scroll container primitive                                         | `type:ui`, `scope:shared`, `runtime:web`, `layer:ui` |
+| `ui-radial-chart`        | `@app-speed/ui/radial-chart`        | Reusable chart primitive                                                    | `type:ui`, `scope:shared`, `runtime:web`, `layer:ui` |
 
 ## What Stays App-Local
 
@@ -120,6 +121,7 @@ The current `portal-feature-shell` should be retired rather than preserved as a 
 Keep a UI module horizontal only if it can be reused outside audit without dragging audit vocabulary, audit routes, audit DTOs, or audit semantics with it.
 
 Conservative target classification:
+
 - keep horizontal
   - `status-badge`
   - `scroll-container`
@@ -127,7 +129,7 @@ Conservative target classification:
 - move under audit domain
   - `audit-builder`
   - `audit-summary`
-  - `audit-runs`
+  - `audit-history`
   - `viewer-diagnostics`
   - `fractional-result-chip`
 
@@ -172,6 +174,7 @@ Use four tag dimensions.
 - `app:design-system`
 
 Not every project needs every dimension. The important point is consistency:
+
 - all applications get `type:app`
 - all audit modules get `scope:audit`
 - all reusable technical modules get `scope:shared`
@@ -230,34 +233,35 @@ These rules are the intended architectural guardrails.
 
 ## Current To Target Mapping
 
-| Current Module | Target Module | Notes |
-| --- | --- | --- |
-| `libs/shared/user-flow-replay` | `audit-domain` | Move domain vocabulary and defaults here |
-| `libs/shared/user-flow-replay/schema` | `audit-api-contract` | Move schemas and contract-facing types here |
-| `libs/server/db` | `audit-persistence` plus optional `platform-sqlite` | Split only if generic DB runtime concerns become clear |
-| `apps/api/src/Audit/**` | `audit-api-runtime` | Keep endpoint shapes unchanged |
-| `apps/api/src/Runner/**` | `audit-api-runtime` | Runner lifecycle is still audit-specific control-plane logic |
-| `libs/runner/user-flow-replay` | `audit-runner` | Rename around domain ownership rather than runtime bucket |
-| `libs/portal/feature-audit` | `audit-portal-builder` and `audit-portal-viewer` | Split by portal feature responsibility |
-| `libs/portal/feature-audit-runs` | `audit-portal-runs` | Keep as part of the same audit bounded context |
-| `libs/portal/data-access` | absorbed into audit portal modules | Do not keep a top-level horizontal data-access bucket |
-| `libs/portal/data-access-audit-runs` | absorbed into audit portal modules | Same rule as above |
-| `libs/portal/ui/audit-builder` | `audit-portal-builder` | Audit-specific UI should live with the feature |
-| `libs/portal/ui/audit-summary` | `audit-portal-viewer` | Audit-specific UI should live with the feature |
-| `libs/portal/ui/audit-runs` | `audit-portal-runs` | Audit-specific UI should live with the feature |
-| `libs/portal/ui/viewer-diagnostics` | `audit-portal-viewer` | Audit-specific UI should live with the feature |
-| `libs/portal/ui/fractional-result-chip` | `audit-portal-viewer` | Treat as audit-specific unless a broader use case appears |
-| `libs/portal/ui/status-badge` | `ui-status-badge` | Keep as shared UI primitive |
-| `libs/portal/ui/scroll-container` | `ui-scroll-container` | Keep as shared UI primitive |
-| `libs/portal/ui/radial-chart` | `ui-radial-chart` | Keep as shared UI primitive |
-| `libs/shared/observability` | `platform-observability` | Rename to reflect cross-cutting platform ownership |
-| `libs/portal/feature-shell` | move into `apps/portal` | App shell, not domain library |
+| Current Module                          | Target Module                                       | Notes                                                                        |
+| --------------------------------------- | --------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `libs/shared/user-flow-replay`          | `audit-domain`                                      | Move domain vocabulary and defaults here                                     |
+| `libs/shared/user-flow-replay/schema`   | `audit-api-contract`                                | Move schemas and contract-facing types here                                  |
+| `libs/server/db`                        | `audit-persistence` plus optional `platform-sqlite` | Split only if generic DB runtime concerns become clear                       |
+| `apps/api/src/Audit/**`                 | `audit-api-runtime`                                 | Keep endpoint shapes unchanged                                               |
+| `apps/api/src/Runner/**`                | `audit-api-runtime`                                 | Runner lifecycle is still audit-specific control-plane logic                 |
+| `libs/runner/user-flow-replay`          | `audit-runner`                                      | Rename around domain ownership rather than runtime bucket                    |
+| `libs/portal/feature-audit`             | `audit-portal-builder` and `audit-portal-viewer`    | Split by portal feature responsibility                                       |
+| `libs/portal/feature-audit-runs`        | `audit-portal-viewer/runs`                          | Keep as part of the same audit bounded context and result-viewing route tree |
+| `libs/portal/data-access`               | absorbed into audit portal modules                  | Do not keep a top-level horizontal data-access bucket                        |
+| `libs/portal/data-access-audit-runs`    | absorbed into audit portal modules                  | Same rule as above                                                           |
+| `libs/portal/ui/audit-builder`          | `audit-portal-builder`                              | Audit-specific UI should live with the feature                               |
+| `libs/portal/ui/audit-summary`          | `audit-portal-viewer`                               | Audit-specific UI should live with the feature                               |
+| `libs/portal/ui/audit-runs`             | `audit-portal-viewer/runs`                          | Audit-specific history UI should live with the result viewer feature         |
+| `libs/portal/ui/viewer-diagnostics`     | `audit-portal-viewer`                               | Audit-specific UI should live with the feature                               |
+| `libs/portal/ui/fractional-result-chip` | `audit-portal-viewer`                               | Treat as audit-specific unless a broader use case appears                    |
+| `libs/portal/ui/status-badge`           | `ui-status-badge`                                   | Keep as shared UI primitive                                                  |
+| `libs/portal/ui/scroll-container`       | `ui-scroll-container`                               | Keep as shared UI primitive                                                  |
+| `libs/portal/ui/radial-chart`           | `ui-radial-chart`                                   | Keep as shared UI primitive                                                  |
+| `libs/shared/observability`             | `platform-observability`                            | Rename to reflect cross-cutting platform ownership                           |
+| `libs/portal/feature-shell`             | move into `apps/portal`                             | App shell, not domain library                                                |
 
 ## Naming Guidance
 
 Prefer names that describe domain ownership first and runtime second.
 
 Good examples:
+
 - `audit-domain`
 - `audit-api-contract`
 - `audit-persistence`
@@ -266,6 +270,7 @@ Good examples:
 - `audit-portal-builder`
 
 Avoid names that make the runtime or technical layer the primary identity when the module is really audit-specific:
+
 - `shared-user-flow-replay`
 - `server-db`
 - `runner-user-flow-replay`

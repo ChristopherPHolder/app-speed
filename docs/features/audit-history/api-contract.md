@@ -1,20 +1,23 @@
-# API Contract: Audit Runs
+# API Contract: Audit History
 
-Status: Draft  
+Status: Active  
 Owner: Christopher Holder  
-Last Updated: 2026-03-03
+Last Updated: 2026-07-02
 
 ## Endpoints
 
 ### `GET /api/audit/runs`
+
 Returns a cursor-paginated page of run summaries ordered by `createdAt desc, id desc`.
 
 #### Query Params
+
 - `limit` (optional): integer in `[1, 100]`, default `25`
 - `cursor` (optional): opaque base64url cursor from previous response
 - `status` (optional): comma-separated statuses from `SCHEDULED|IN_PROGRESS|COMPLETE`
 
 #### Success Response
+
 ```json
 {
   "items": [
@@ -35,14 +38,21 @@ Returns a cursor-paginated page of run summaries ordered by `createdAt desc, id 
 }
 ```
 
-### `GET /api/audit/runs/:id`
-Returns one run summary for details hydration.
+### `GET /api/audit/runs/:id/details`
+
+Returns one run with its audit definition for canonical result route hydration.
 
 #### Success Response
+
 ```json
 {
   "auditId": "string",
-  "title": "string",
+  "audit": {
+    "title": "string",
+    "url": "https://example.com",
+    "timeout": 30,
+    "steps": []
+  },
   "status": "IN_PROGRESS",
   "resultStatus": null,
   "queuePosition": null,
@@ -54,6 +64,7 @@ Returns one run summary for details hydration.
 ```
 
 ## Error Response
+
 ```json
 {
   "code": "INVALID_QUERY",
@@ -65,13 +76,16 @@ Returns one run summary for details hydration.
 ```
 
 ### Error Codes
+
 - `INVALID_QUERY` (400)
 - `INVALID_CURSOR` (400)
 - `RUN_NOT_FOUND` (404)
 - `INTERNAL_ERROR` (500)
 
 ## Compatibility
+
 Existing endpoints remain unchanged:
+
 - `GET /api/audit/:id`
 - `GET /api/audit/:id/result`
 - `GET /api/audit/:id/events`

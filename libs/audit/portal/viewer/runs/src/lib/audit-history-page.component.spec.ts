@@ -2,17 +2,17 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { of } from 'rxjs';
-import { AuditRunsPageComponent } from './audit-runs-page.component';
-import { AuditRunsApiService } from './api/audit-runs-api.service';
-import { AuditRunsPage } from './api/audit-runs.models';
+import { AuditHistoryPageComponent } from './audit-history-page.component';
+import { AuditHistoryApiService } from './api/audit-history-api.service';
+import { AuditHistoryPage } from './api/audit-history.models';
 
-describe('AuditRunsPageComponent', () => {
-  let fixture: ComponentFixture<AuditRunsPageComponent>;
-  let component: AuditRunsPageComponent;
-  const listRuns = vi.fn();
+describe('AuditHistoryPageComponent', () => {
+  let fixture: ComponentFixture<AuditHistoryPageComponent>;
+  let component: AuditHistoryPageComponent;
+  const listHistory = vi.fn();
   const navigate = vi.fn();
 
-  const stubPage: AuditRunsPage = {
+  const stubPage: AuditHistoryPage = {
     items: [
       {
         auditId: 'audit-1',
@@ -32,19 +32,19 @@ describe('AuditRunsPageComponent', () => {
 
   beforeEach(async () => {
     vi.useFakeTimers();
-    listRuns.mockReset();
-    listRuns.mockReturnValue(of(stubPage));
+    listHistory.mockReset();
+    listHistory.mockReturnValue(of(stubPage));
     navigate.mockReset();
 
     await TestBed.configureTestingModule({
-      imports: [AuditRunsPageComponent],
+      imports: [AuditHistoryPageComponent],
       providers: [
-        { provide: AuditRunsApiService, useValue: { listRuns } },
+        { provide: AuditHistoryApiService, useValue: { listHistory } },
         { provide: Router, useValue: { navigate } },
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(AuditRunsPageComponent);
+    fixture = TestBed.createComponent(AuditHistoryPageComponent);
     component = fixture.componentInstance;
   });
 

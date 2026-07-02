@@ -5,14 +5,14 @@ import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
-import { AuditRunStatus, AuditRunSummary, DEFAULT_AUDIT_RUN_FILTER } from '../api/audit-runs.models';
+import { AuditRunStatus, AuditRunSummary, DEFAULT_AUDIT_RUN_FILTER } from '../api/audit-history.models';
 
 @Component({
-  selector: 'ui-audit-runs-table',
+  selector: 'ui-audit-history-table',
   standalone: true,
   imports: [CommonModule, MatButtonModule, MatCardModule, MatCheckboxModule, MatProgressSpinnerModule, MatTableModule],
   template: `
-    <section class="audit-runs">
+    <section class="audit-history">
       <mat-card appearance="outlined">
         <mat-card-content class="content">
           <header class="toolbar">
@@ -36,7 +36,7 @@ import { AuditRunStatus, AuditRunSummary, DEFAULT_AUDIT_RUN_FILTER } from '../ap
           @if (loading) {
             <div class="loading-state">
               <mat-spinner diameter="24" />
-              <span>Loading audit runs...</span>
+              <span>Loading audit history...</span>
             </div>
           }
 
@@ -87,7 +87,7 @@ import { AuditRunStatus, AuditRunSummary, DEFAULT_AUDIT_RUN_FILTER } from '../ap
           </div>
 
           @if (!loading && runs.length === 0) {
-            <p class="state-message">No audit runs found for the selected filters.</p>
+            <p class="state-message">No audit history entries found for the selected filters.</p>
           }
         </mat-card-content>
       </mat-card>
@@ -98,7 +98,7 @@ import { AuditRunStatus, AuditRunSummary, DEFAULT_AUDIT_RUN_FILTER } from '../ap
       display: block;
     }
 
-    .audit-runs {
+    .audit-history {
       max-width: 1200px;
       margin: 24px auto;
       padding: 0 16px;
@@ -149,7 +149,7 @@ import { AuditRunStatus, AuditRunSummary, DEFAULT_AUDIT_RUN_FILTER } from '../ap
     }
 
     @media (max-width: 768px) {
-      .audit-runs {
+      .audit-history {
         margin: 16px auto;
         padding: 0 12px;
       }
@@ -165,7 +165,7 @@ import { AuditRunStatus, AuditRunSummary, DEFAULT_AUDIT_RUN_FILTER } from '../ap
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AuditRunsTableComponent {
+export class AuditHistoryTableComponent {
   @Input({ required: true }) runs: ReadonlyArray<AuditRunSummary> = [];
   @Input() loading = false;
   @Input() errorMessage: string | null = null;

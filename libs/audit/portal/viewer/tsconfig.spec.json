@@ -21,6 +21,15 @@
     "**/*.spec.js",
     "**/*.test.jsx",
     "**/*.spec.jsx",
-    "**/*.d.ts"
+    "**/*.d.ts",
+    "runs/src/**/*.test.ts",
+    "runs/src/**/*.spec.ts",
+    "runs/src/**/*.test.tsx",
+    "runs/src/**/*.spec.tsx",
+    "runs/src/**/*.test.js",
+    "runs/src/**/*.spec.js",
+    "runs/src/**/*.test.jsx",
+    "runs/src/**/*.spec.jsx",
+    "runs/src/**/*.d.ts"
   ]
 }

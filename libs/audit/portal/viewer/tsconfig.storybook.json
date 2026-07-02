@@ -5,5 +5,5 @@
     "moduleResolution": "bundler"
   },
   "include": ["./**/*.stories.ts", "./**/*.stories.tsx"],
-  "exclude": ["./src/**/*.spec.ts", "./src/**/*.test.ts"]
+  "exclude": ["./src/**/*.spec.ts", "./src/**/*.test.ts", "./runs/src/**/*.spec.ts", "./runs/src/**/*.test.ts"]
 }
