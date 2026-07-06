@@ -3,7 +3,10 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { ActivatedRoute, Router } from '@angular/router';
+import { By } from '@angular/platform-browser';
 import type { FlowResult } from 'lighthouse';
+import { BehaviorSubject } from 'rxjs';
 import { AuditViewerContainer } from './audit-viewer.container';
 
 @Component({
@@ -39,11 +42,28 @@ const successfulResult = {
 describe('AuditViewerContainer', () => {
   let fixture: ComponentFixture<TestHostComponent>;
   let http: HttpTestingController;
+  let fragment$: BehaviorSubject<string | null>;
+  let navigate: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
+    fragment$ = new BehaviorSubject<string | null>(null);
+    navigate = vi.fn();
+
     await TestBed.configureTestingModule({
       imports: [TestHostComponent],
-      providers: [provideNoopAnimations(), provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideNoopAnimations(),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        {
+          provide: ActivatedRoute,
+          useValue: { fragment: fragment$.asObservable() },
+        },
+        {
+          provide: Router,
+          useValue: { navigate },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TestHostComponent);
@@ -69,5 +89,59 @@ describe('AuditViewerContainer', () => {
 
     expect(fixture.nativeElement.querySelector('[data-testid="audit-results-loading"]')).toBeNull();
     expect(fixture.nativeElement.textContent).toContain('Home page');
+  });
+
+  it('selects the step encoded in the URL fragment once results load', async () => {
+    fragment$.next('step-2');
+    await fixture.whenStable();
+
+    const request = http.expectOne('/api/audit/run-123/result');
+    request.flush({
+      status: 'SUCCESS',
+      result: {
+        steps: [
+          successfulResult.steps[0],
+          {
+            ...successfulResult.steps[0],
+            name: 'Checkout page',
+          },
+        ],
+      },
+    });
+    await fixture.whenStable();
+
+    const container = fixture.debugElement.query(By.directive(AuditViewerContainer)).componentInstance as AuditViewerContainer;
+    expect(container.activeIndex()).toBe(1);
+  });
+
+  it('writes the visible step to the URL fragment', async () => {
+    await fixture.whenStable();
+
+    const request = http.expectOne('/api/audit/run-123/result');
+    request.flush({
+      status: 'SUCCESS',
+      result: {
+        steps: [
+          successfulResult.steps[0],
+          {
+            ...successfulResult.steps[0],
+            name: 'Checkout page',
+          },
+        ],
+      },
+    });
+    await fixture.whenStable();
+
+    const container = fixture.debugElement.query(By.directive(AuditViewerContainer)).componentInstance as AuditViewerContainer;
+    container.activeIndex.set(1);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(navigate).toHaveBeenLastCalledWith([], {
+      relativeTo: TestBed.inject(ActivatedRoute),
+      fragment: 'step-2',
+      queryParamsHandling: 'preserve',
+      replaceUrl: true,
+    });
   });
 });
