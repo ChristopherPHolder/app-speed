@@ -101,6 +101,50 @@ describe('auditBuilderRoutes', () => {
     http.verify();
   });
 
+  it('does not schedule an audit when the loaded result form submits with Fork as the primary action', async () => {
+    await configureRouteTestingModule();
+
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/user-flow/results/run-123', BuilderComponent);
+
+    const http = TestBed.inject(HttpTestingController);
+    const request = http.expectOne('/api/audit/runs/run-123/details');
+    request.flush({
+      auditId: 'run-123',
+      audit: DEFAULT_AUDIT_DETAILS,
+      status: 'SCHEDULED',
+      resultStatus: null,
+      queuePosition: 2,
+      createdAt: '2026-03-03T10:00:00.000Z',
+      startedAt: null,
+      completedAt: null,
+      durationMs: null,
+    });
+    await harness.fixture.whenStable();
+
+    const root = harness.fixture.nativeElement as HTMLElement;
+    root.querySelector('form')?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    harness.fixture.detectChanges();
+
+    expect(scheduleAudit).not.toHaveBeenCalled();
+    http.verify();
+  });
+
+  it('ignores repeated submit attempts while scheduling is already in flight', async () => {
+    await configureRouteTestingModule();
+    const submitResponse$ = new Subject<{ auditId: string; auditQueuePosition: number }>();
+    scheduleAudit.mockReturnValue(submitResponse$);
+
+    const harness = await RouterTestingHarness.create();
+    const builder = await harness.navigateByUrl('/user-flow', BuilderComponent);
+
+    builder.submitAudit(DEFAULT_AUDIT_DETAILS);
+    builder.submitAudit(DEFAULT_AUDIT_DETAILS);
+
+    expect(scheduleAudit).toHaveBeenCalledTimes(1);
+    submitResponse$.complete();
+  });
+
   it('redirects the bare results route to history', async () => {
     await configureRouteTestingModule();
 

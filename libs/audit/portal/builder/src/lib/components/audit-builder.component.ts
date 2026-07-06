@@ -32,7 +32,7 @@ import { ToTitleCasePipe } from '@app-speed/audit/portal/ui';
 @Component({
   selector: 'ui-audit-builder',
   template: `
-    <form class="grid-container" [formGroup]="formGroup" (ngSubmit)="submitAudit.emit(auditValue())">
+    <form class="grid-container" [formGroup]="formGroup" (ngSubmit)="submitCurrentAudit()">
       <mat-card class="audit-card" [class.audit-card--readonly]="!modifying()" data-testid="audit-builder-card">
         <mat-card-content>
           <div class="row">
@@ -45,7 +45,7 @@ import { ToTitleCasePipe } from '@app-speed/audit/portal/ui';
               <button
                 class="submit-btn"
                 mat-fab
-                [disabled]="formGroup.disabled || formGroup.invalid"
+                [disabled]="!canSubmitAudit()"
                 [extended]="true"
                 type="submit"
               >
@@ -142,6 +142,7 @@ export class AuditBuilderComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   public readonly modifying = input.required<boolean>();
   public readonly primaryAction = input<'analyze' | 'fork' | 'none'>('analyze');
+  public readonly submittingRequest = input(false);
   public readonly collapseSteps = input(false);
   protected readonly stepExpanded = computed(() => !this.collapseSteps());
 
@@ -167,6 +168,24 @@ export class AuditBuilderComponent implements OnInit {
 
   protected auditValue(): AuditDetails {
     return this.formGroup.getRawValue() as unknown as AuditDetails;
+  }
+
+  protected submitCurrentAudit(): void {
+    if (!this.canSubmitAudit()) {
+      return;
+    }
+
+    this.submitAudit.emit(this.auditValue());
+  }
+
+  protected canSubmitAudit(): boolean {
+    return (
+      this.primaryAction() === 'analyze' &&
+      this.modifying() &&
+      !this.submittingRequest() &&
+      this.formGroup?.enabled === true &&
+      this.formGroup.valid
+    );
   }
 
   private syncFormMode(modifying: boolean): void {
