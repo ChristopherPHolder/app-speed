@@ -1,12 +1,13 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, model } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, input, model } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { filter, map, Observable, shareReplay, switchMap } from 'rxjs';
+import { combineLatest, distinctUntilChanged, filter, map, Observable, shareReplay, switchMap } from 'rxjs';
 import type { FlowResult } from 'lighthouse';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ViewerStepDetailComponent } from '../steps/viewer-step-details.component';
 import { calculateCategoryFraction, shouldDisplayAsFraction } from '../lighthouse-report-utils';
 import { AuditSummary, AuditSummaryComponent } from '../summary/audit-summary.component';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'viewer-container',
@@ -47,6 +48,9 @@ export class AuditViewerContainer {
   auditId = input.required<string>();
   activeIndex = model<number>(0);
   readonly #api = inject(HttpClient);
+  readonly #destroyRef = inject(DestroyRef);
+  readonly #route = inject(ActivatedRoute);
+  readonly #router = inject(Router);
 
   flowResult$: Observable<FlowResult> = toObservable(this.auditId).pipe(
     switchMap((auditId) => {
@@ -95,4 +99,43 @@ export class AuditViewerContainer {
     }
     return results.steps[activeStep];
   });
+
+  constructor() {
+    combineLatest([this.#route.fragment, this.flowResult$])
+      .pipe(
+        map(([fragment, results]) => this.fragmentToStepIndex(fragment, results.steps.length) ?? 0),
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.#destroyRef),
+      )
+      .subscribe((index) => this.activeIndex.set(index));
+
+    effect(() => {
+      const results = this.results();
+      const index = this.activeIndex();
+      if (!results || !results.steps[index]) {
+        return;
+      }
+
+      void this.#router.navigate([], {
+        relativeTo: this.#route,
+        fragment: this.stepIndexToFragment(index),
+        queryParamsHandling: 'preserve',
+        replaceUrl: true,
+      });
+    });
+  }
+
+  private fragmentToStepIndex(fragment: string | null, stepCount: number): number | null {
+    const match = fragment?.match(/^step-(\d+)$/);
+    if (!match) {
+      return null;
+    }
+
+    const index = Number(match[1]) - 1;
+    return Number.isInteger(index) && index >= 0 && index < stepCount ? index : null;
+  }
+
+  private stepIndexToFragment(index: number): string {
+    return `step-${index + 1}`;
+  }
 }

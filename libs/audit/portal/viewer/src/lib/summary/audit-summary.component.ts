@@ -1,4 +1,4 @@
-import { Component, inject, input, model } from '@angular/core';
+import { Component, computed, inject, input, model } from '@angular/core';
 import { SwiperComponent } from './swiper.component';
 import { FractionalResultChipComponent } from './fractional-result-chip.component';
 import { SwiperOptions } from 'swiper/types';
@@ -26,7 +26,7 @@ export type AuditSummary = {
   selector: 'ui-audit-summary',
   imports: [SwiperComponent, RadialChartComponent, FractionalResultChipComponent],
   template: `
-    <ui-swiper class="swiper" [swiperOptions]="swiperConfig">
+    <ui-swiper class="swiper" [swiperOptions]="swiperConfig()">
       @for (step of auditSummary(); track step) {
         <div class="swiper-slide">
           <div style="display: block; position: relative">
@@ -199,12 +199,13 @@ export class AuditSummaryComponent {
   activeIndex = model<number>(0);
   #breakpointObserver = inject(BreakpointObserver);
   isMobile = this.#breakpointObserver.isMatched([Breakpoints.Small, Breakpoints.XSmall]);
-  swiperConfig: SwiperOptions = {
+  swiperConfig = computed<SwiperOptions>(() => ({
     centeredSlides: true,
+    initialSlide: this.activeIndex(),
+    slideToClickedSlide: true,
     slidesPerView: this.isMobile ? 1 : 3,
     on: {
-      init: () => this.activeIndex.set(0),
       activeIndexChange: (swiper) => this.activeIndex.set(swiper.activeIndex),
     },
-  };
+  }));
 }
