@@ -15,7 +15,8 @@ type AuditSnapshot = {
 type AuditSseEvent =
   | { event: 'position'; data: { auditId: string; position: number } }
   | { event: 'status'; data: { auditId: string; status: AuditSnapshot['status'] } }
-  | { event: 'result'; data: { auditId: string; status: 'SUCCESS' | 'FAILURE' } };
+  | { event: 'result'; data: { auditId: string; status: 'SUCCESS' | 'FAILURE' } }
+  | { event: 'heartbeat'; data: { auditId: string } };
 
 const encoder = new TextEncoder();
 const encodeSse = (event: AuditSseEvent) =>
@@ -116,6 +117,9 @@ export const watchByIdHandler = Effect.fn('api.audit.watchById')((request) =>
         }
         if (next.resultStatus && (!prev || next.resultStatus !== prev.resultStatus)) {
           events.push({ event: 'result', data: { auditId, status: next.resultStatus } });
+        }
+        if (events.length === 0) {
+          events.push({ event: 'heartbeat', data: { auditId } });
         }
         return [next, events];
       }),

@@ -91,10 +91,8 @@ export class AuditProgressService {
     fromEvent<Event>(source, 'error')
       .pipe(takeUntil(this.disconnect$))
       .subscribe(() => {
-        source.close();
-        this.currentAuditId = null;
-        if (this.stage$.value !== 'done') {
-          this.stage$.next('failed');
+        if (source.readyState === EventSource.CLOSED) {
+          this.currentAuditId = null;
         }
       });
   }
