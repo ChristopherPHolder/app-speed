@@ -1,11 +1,11 @@
-import { Component, computed, inject, OnInit } from '@angular/core';
+import { NgComponentOutlet } from '@angular/common';
+import { Component, computed, effect, inject, OnInit, signal, Type } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { forkAudit, loadAuditDetails, submitAuditRequest, updateAuditDetails } from './builder.actions';
 import { AuditDetails } from '../audit-details';
 import { auditBuilderFeature } from './builder.state';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AuditBuilderComponent } from '../components/audit-builder.component';
-import { AuditViewerContainer } from '@app-speed/audit/portal/viewer';
 import { type StatusDialogModel } from '@app-speed/audit/portal/ui/dialogs';
 import {
   MatCard,
@@ -73,7 +73,9 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
     @if (showResults()) {
       <section class="audit-results" data-testid="audit-inline-results">
-        <viewer-container [auditId]="requestId()!" />
+        @if (auditViewerComponent(); as auditViewerComponent) {
+          <ng-container *ngComponentOutlet="auditViewerComponent; inputs: auditViewerInputs()" />
+        }
       </section>
     }
   `,
@@ -133,7 +135,6 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
   `,
   imports: [
     AuditBuilderComponent,
-    AuditViewerContainer,
     MatCard,
     MatCardContent,
     MatCardFooter,
@@ -141,6 +142,7 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
     MatCardSubtitle,
     MatCardTitle,
     MatProgressSpinner,
+    NgComponentOutlet,
   ],
 })
 export class BuilderComponent implements OnInit {
@@ -159,6 +161,8 @@ export class BuilderComponent implements OnInit {
   readonly auditResultError = toSignal(this.auditResultError$, { initialValue: null });
   private readonly requestId$ = this.store.select(auditBuilderFeature.selectRequestId);
   readonly requestId = toSignal(this.requestId$, { initialValue: null });
+  readonly auditViewerComponent = signal<Type<unknown> | null>(null);
+  readonly auditViewerInputs = computed(() => ({ auditId: this.requestId() }));
   readonly showResults = computed(() => this.auditResultStatus() === 'SUCCESS' && this.requestId() !== null);
   readonly primaryAction = computed<'analyze' | 'fork' | 'none'>(() => {
     if (this.modifying()) {
@@ -187,6 +191,14 @@ export class BuilderComponent implements OnInit {
     return 'Audit failed';
   });
 
+  constructor() {
+    effect(() => {
+      if (this.showResults()) {
+        void this.loadAuditViewer();
+      }
+    });
+  }
+
   ngOnInit() {
     this.store.dispatch(loadAuditDetails());
   }
@@ -201,5 +213,14 @@ export class BuilderComponent implements OnInit {
 
   forkCurrentAudit(audit: AuditDetails): void {
     this.store.dispatch(forkAudit({ audit }));
+  }
+
+  private async loadAuditViewer(): Promise<void> {
+    if (this.auditViewerComponent()) {
+      return;
+    }
+
+    const { AuditViewerContainer } = await import('@app-speed/audit/portal/viewer');
+    this.auditViewerComponent.set(AuditViewerContainer);
   }
 }
