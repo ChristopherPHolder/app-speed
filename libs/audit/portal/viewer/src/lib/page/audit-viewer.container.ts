@@ -1,23 +1,43 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, model } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { filter, map, Observable, switchMap } from 'rxjs';
-import { FlowResult } from 'lighthouse';
+import { filter, map, Observable, shareReplay, switchMap } from 'rxjs';
+import type { FlowResult } from 'lighthouse';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ViewerStepDetailComponent } from '../steps/viewer-step-details.component';
 import { calculateCategoryFraction, shouldDisplayAsFraction } from '../lighthouse-report-utils';
 import { AuditSummary, AuditSummaryComponent } from '../summary/audit-summary.component';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'viewer-container',
   template: `
-    @if (auditSummary(); as summary) {
-      <ui-audit-summary [(activeIndex)]="activeIndex" [auditSummary]="summary" />
-    }
-    @if (auditStep(); as step) {
-      <viewer-step-detail [stepDetails]="step" />
+    @if (loading()) {
+      <div class="loading-state" data-testid="audit-results-loading" role="status" aria-live="polite">
+        <mat-spinner diameter="32" />
+        <span>Loading audit results...</span>
+      </div>
+    } @else {
+      @if (auditSummary(); as summary) {
+        <ui-audit-summary [(activeIndex)]="activeIndex" [auditSummary]="summary" />
+      }
+      @if (auditStep(); as step) {
+        <viewer-step-detail [stepDetails]="step" />
+      }
     }
   `,
-  imports: [AuditSummaryComponent, ViewerStepDetailComponent],
+  styles: `
+    :host {
+      display: block;
+    }
+
+    .loading-state {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin: 24px 16px;
+    }
+  `,
+  imports: [AuditSummaryComponent, ViewerStepDetailComponent, MatProgressSpinner],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuditViewerContainer {
@@ -32,36 +52,38 @@ export class AuditViewerContainer {
         map((response) => response.result),
       );
     }),
-  );
-
-  auditSummary = toSignal<AuditSummary>(
-    this.flowResult$.pipe(
-      filter(Boolean),
-      map(({ steps }) => {
-        return steps.map(({ lhr: { fullPageScreenshot, categories, gatherMode, audits }, name }) => ({
-          screenShot: fullPageScreenshot?.screenshot.data || '',
-          title: name,
-          subTitle: gatherMode,
-          shouldDisplayAsFraction: shouldDisplayAsFraction(gatherMode),
-          categoryScores: Object.values(categories).map((category) => {
-            const extendedCategory = {
-              ...category,
-              auditRefs: category.auditRefs.map((ref) => {
-                return { ...ref, result: audits[ref.id] };
-              }),
-            };
-            return {
-              name: category.title,
-              asFraction: calculateCategoryFraction(extendedCategory),
-              score: parseInt(((category.score || 0) * 100).toFixed(0), 10),
-            };
-          }),
-        }));
-      }),
-    ),
+    shareReplay({ bufferSize: 1, refCount: true }),
   );
 
   results = toSignal(this.flowResult$.pipe(filter(Boolean)));
+  loading = computed(() => !this.results());
+  auditSummary = computed<AuditSummary | undefined>(() => {
+    const results = this.results();
+    if (!results) {
+      return undefined;
+    }
+
+    return results.steps.map(({ lhr: { fullPageScreenshot, categories, gatherMode, audits }, name }) => ({
+      screenShot: fullPageScreenshot?.screenshot.data || '',
+      title: name,
+      subTitle: gatherMode,
+      shouldDisplayAsFraction: shouldDisplayAsFraction(gatherMode),
+      categoryScores: Object.values(categories).map((category) => {
+        const extendedCategory = {
+          ...category,
+          auditRefs: category.auditRefs.map((ref) => {
+            return { ...ref, result: audits[ref.id] };
+          }),
+        };
+        return {
+          name: category.title,
+          asFraction: calculateCategoryFraction(extendedCategory),
+          score: parseInt(((category.score || 0) * 100).toFixed(0), 10),
+        };
+      }),
+    }));
+  });
+
   auditStep = computed(() => {
     const results = this.results();
     const activeStep = this.activeIndex();
