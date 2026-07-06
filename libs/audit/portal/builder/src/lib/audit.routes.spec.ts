@@ -65,6 +65,42 @@ describe('auditBuilderRoutes', () => {
     http.verify();
   });
 
+  it('renders loaded result route audit details as read-only with a fork action', async () => {
+    await configureRouteTestingModule();
+
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/user-flow/results/run-123', BuilderComponent);
+
+    const http = TestBed.inject(HttpTestingController);
+    const request = http.expectOne('/api/audit/runs/run-123/details');
+    request.flush({
+      auditId: 'run-123',
+      audit: DEFAULT_AUDIT_DETAILS,
+      status: 'SCHEDULED',
+      resultStatus: null,
+      queuePosition: 2,
+      createdAt: '2026-03-03T10:00:00.000Z',
+      startedAt: null,
+      completedAt: null,
+      durationMs: null,
+    });
+    await harness.fixture.whenStable();
+
+    const root = harness.fixture.nativeElement as HTMLElement;
+    const auditCard = root.querySelector('[data-testid="audit-builder-card"]');
+    const auditTitle = root.querySelector<HTMLInputElement>('input[name="audit title"]');
+
+    expect(auditCard?.classList.contains('audit-card--readonly')).toBe(true);
+    expect(root.textContent).toContain('Fork');
+    expect(root.textContent).not.toContain('Analyze');
+    expect(auditTitle?.disabled).toBe(true);
+    expect(root.querySelector('button[aria-label="Toggle menu"]')).toBeNull();
+    expect(root.querySelector('button[aria-label="Add property to step"]')).toBeNull();
+    expect(root.querySelector('button[aria-label="Delete property from step"]')).toBeNull();
+
+    http.verify();
+  });
+
   it('redirects the bare results route to history', async () => {
     await configureRouteTestingModule();
 

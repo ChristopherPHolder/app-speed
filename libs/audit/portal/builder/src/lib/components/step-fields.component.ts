@@ -49,7 +49,7 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
       }
 
       @let optional = optionalFields();
-      @if (optional.length > 0) {
+      @if (control().enabled && optional.length > 0) {
         <div class="optional-fields">
           <h4>Optional Properties</h4>
           <div class="optional-fields__actions">
@@ -86,7 +86,7 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
                 <mat-error>{{ labelFor(field) }} does not match the expected format</mat-error>
               }
             </mat-form-field>
-            @if (!field.required) {
+            @if (control().enabled && !field.required) {
               <button
                 mat-icon-button
                 aria-label="Delete property from step"
@@ -119,7 +119,7 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
                 <mat-error>{{ labelFor(field) }} must be an integer</mat-error>
               }
             </mat-form-field>
-            @if (!field.required) {
+            @if (control().enabled && !field.required) {
               <button
                 mat-icon-button
                 aria-label="Delete property from step"
@@ -143,7 +143,7 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
                 <mat-hint>{{ description }}</mat-hint>
               }
             </mat-form-field>
-            @if (!field.required) {
+            @if (control().enabled && !field.required) {
               <button
                 mat-icon-button
                 aria-label="Delete property from step"
@@ -171,7 +171,7 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
                 <mat-error>{{ labelFor(field) }} is required</mat-error>
               }
             </mat-form-field>
-            @if (!field.required) {
+            @if (control().enabled && !field.required) {
               <button
                 mat-icon-button
                 aria-label="Delete property from step"
@@ -203,7 +203,7 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
                   <p>{{ description }}</p>
                 }
               </div>
-              @if (!field.required) {
+              @if (control().enabled && !field.required) {
                 <button
                   mat-icon-button
                   aria-label="Delete property from step"
@@ -232,15 +232,17 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
                 }
               </div>
               <div class="group-field__actions">
-                <button
-                  mat-icon-button
-                  aria-label="Add property to step"
-                  type="button"
-                  (click)="stepForm().addArrayItem(asFormArray(fieldControl), field)"
-                >
-                  <mat-icon>library_add</mat-icon>
-                </button>
-                @if (!field.required) {
+                @if (asFormArray(fieldControl).enabled) {
+                  <button
+                    mat-icon-button
+                    aria-label="Add property to step"
+                    type="button"
+                    (click)="stepForm().addArrayItem(asFormArray(fieldControl), field)"
+                  >
+                    <mat-icon>library_add</mat-icon>
+                  </button>
+                }
+                @if (control().enabled && !field.required) {
                   <button
                     mat-icon-button
                     aria-label="Delete property from step"
@@ -262,14 +264,16 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
                 <section class="array-item">
                   <div class="array-item__header">
                     <h5>{{ labelFor(field) }} {{ $index + 1 }}</h5>
-                    <button
-                      mat-icon-button
-                      aria-label="Delete property from step"
-                      type="button"
-                      (click)="stepForm().removeArrayItem(asFormArray(fieldControl), $index)"
-                    >
-                      <mat-icon>delete</mat-icon>
-                    </button>
+                    @if (asFormArray(fieldControl).enabled) {
+                      <button
+                        mat-icon-button
+                        aria-label="Delete property from step"
+                        type="button"
+                        (click)="stepForm().removeArrayItem(asFormArray(fieldControl), $index)"
+                      >
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    }
                   </div>
                   <builder-step-fields
                     [variantId]="variantId()"
@@ -290,14 +294,16 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
                       [type]="field.element.kind === 'number' ? 'number' : 'text'"
                     />
                   </mat-form-field>
-                  <button
-                    mat-icon-button
-                    aria-label="Delete property from step"
-                    type="button"
-                    (click)="stepForm().removeArrayItem(asFormArray(fieldControl), $index)"
-                  >
-                    <mat-icon>delete</mat-icon>
-                  </button>
+                  @if (asFormArray(fieldControl).enabled) {
+                    <button
+                      mat-icon-button
+                      aria-label="Delete property from step"
+                      type="button"
+                      (click)="stepForm().removeArrayItem(asFormArray(fieldControl), $index)"
+                    >
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  }
                 </div>
               }
             }
@@ -312,7 +318,7 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
                   <p>{{ description }}</p>
                 }
               </div>
-              @if (!field.required) {
+              @if (control().enabled && !field.required) {
                 <button
                   mat-icon-button
                   aria-label="Delete property from step"
@@ -335,26 +341,30 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
                     [type]="field.value.kind === 'number' ? 'number' : 'text'"
                   />
                 </mat-form-field>
-                <button
-                  mat-icon-button
-                  aria-label="Delete property from step"
-                  type="button"
-                  (click)="stepForm().removeRecordEntry(asFormRecord(fieldControl), entry.key)"
-                >
-                  <mat-icon>delete</mat-icon>
-                </button>
+                @if (asFormRecord(fieldControl).enabled) {
+                  <button
+                    mat-icon-button
+                    aria-label="Delete property from step"
+                    type="button"
+                    (click)="stepForm().removeRecordEntry(asFormRecord(fieldControl), entry.key)"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                }
               </div>
             }
 
-            <div class="field-row field-row--record-add">
-              <mat-form-field class="field-row__control">
-                <mat-label>New Key</mat-label>
-                <input #recordKey matInput type="text" />
-              </mat-form-field>
-              <button mat-button type="button" (click)="addRecordEntry(field, asFormRecord(fieldControl), recordKey)">
-                Add Entry
-              </button>
-            </div>
+            @if (asFormRecord(fieldControl).enabled) {
+              <div class="field-row field-row--record-add">
+                <mat-form-field class="field-row__control">
+                  <mat-label>New Key</mat-label>
+                  <input #recordKey matInput type="text" />
+                </mat-form-field>
+                <button mat-button type="button" (click)="addRecordEntry(field, asFormRecord(fieldControl), recordKey)">
+                  Add Entry
+                </button>
+              </div>
+            }
           </section>
         }
       }

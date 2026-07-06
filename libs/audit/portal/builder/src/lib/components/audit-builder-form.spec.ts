@@ -157,6 +157,43 @@ describe('StepFormGroup', () => {
     expect(formGroup.visibleFields(formGroup.spec.fields, formGroup).map((field) => field.path)).toEqual(['seconds']);
     expect(formGroup.optionalFields(formGroup.spec.fields, formGroup)).toEqual([]);
   });
+
+  it('does not add or remove steps while the root audit form is disabled', () => {
+    const auditForm = new AuditFormGroup({
+      title: 'Checkout audit',
+      device: 'mobile',
+      timeout: 30000,
+      steps: [{ type: 'customStep', step: AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_TIME, seconds: 1 }],
+    });
+
+    auditForm.disable();
+    auditForm.addStepAt(0);
+    auditForm.removeStepAt(0);
+
+    expect(auditForm.controls.steps.length).toBe(1);
+    expect(auditForm.getRawValue().steps).toEqual([
+      { type: 'customStep', step: AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_TIME, seconds: 1 },
+    ]);
+  });
+
+  it('disables the step type selector and refuses type resets while the step form is disabled', () => {
+    const formGroup = new StepFormGroup({
+      type: 'customStep',
+      step: AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_TIME,
+      seconds: 1,
+    });
+
+    formGroup.disable();
+    formGroup.resetStepControls(AUDIT_CUSTOM_STEP_TYPE.CLEAR_CACHE);
+
+    expect(formGroup.selectionControl.disabled).toBe(true);
+    expect(formGroup.selectionControl.value).toBe(AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_TIME);
+    expect(formGroup.getRawValue()).toEqual({
+      type: 'customStep',
+      step: AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_TIME,
+      seconds: 1,
+    });
+  });
 });
 
 function findField(fields: readonly BuilderFieldSpec[], path: string): BuilderFieldSpec {

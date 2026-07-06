@@ -33,7 +33,7 @@ import { ToTitleCasePipe } from '@app-speed/audit/portal/ui';
   selector: 'ui-audit-builder',
   template: `
     <form class="grid-container" [formGroup]="formGroup" (ngSubmit)="submitAudit.emit(auditValue())">
-      <mat-card>
+      <mat-card class="audit-card" [class.audit-card--readonly]="!modifying()" data-testid="audit-builder-card">
         <mat-card-content>
           <div class="row">
             <mat-form-field class="full-width">
@@ -82,25 +82,26 @@ import { ToTitleCasePipe } from '@app-speed/audit/portal/ui';
           <mat-accordion [multi]="true">
             @for (step of formGroup.controls.steps.controls; track step) {
               <ui-audit-builder-step [stepControl]="step" [expanded]="stepExpanded()">
-                <div class="toggle-menu">
-                  <button
-                    type="button"
-                    mat-icon-button
-                    class="toggle_menu"
-                    aria-label="Toggle menu"
-                    [matMenuTriggerFor]="menu"
-                    [disabled]="formGroup.disabled"
-                  >
-                    <mat-icon>more_vert</mat-icon>
-                  </button>
-                  <mat-menu #menu="matMenu" xPosition="before">
-                    <button type="button" mat-menu-item (click)="formGroup.removeStepAt($index)">Remove Step</button>
-                    <button type="button" mat-menu-item (click)="formGroup.addStepAt($index)">Add Step Before</button>
-                    <button type="button" mat-menu-item (click)="formGroup.addStepAt($index + 1)">
-                      Add Step After
+                @if (formGroup.enabled) {
+                  <div class="toggle-menu">
+                    <button
+                      type="button"
+                      mat-icon-button
+                      class="toggle_menu"
+                      aria-label="Toggle menu"
+                      [matMenuTriggerFor]="menu"
+                    >
+                      <mat-icon>more_vert</mat-icon>
                     </button>
-                  </mat-menu>
-                </div>
+                    <mat-menu #menu="matMenu" xPosition="before">
+                      <button type="button" mat-menu-item (click)="formGroup.removeStepAt($index)">Remove Step</button>
+                      <button type="button" mat-menu-item (click)="formGroup.addStepAt($index)">Add Step Before</button>
+                      <button type="button" mat-menu-item (click)="formGroup.addStepAt($index + 1)">
+                        Add Step After
+                      </button>
+                    </mat-menu>
+                  </div>
+                }
               </ui-audit-builder-step>
             }
           </mat-accordion>
@@ -146,16 +147,13 @@ export class AuditBuilderComponent implements OnInit {
 
   constructor() {
     effect(() => {
-      if (this.modifying()) {
-        this.formGroup.enable();
-      } else {
-        this.formGroup.disable();
-      }
+      this.syncFormMode(this.modifying());
     });
   }
 
   ngOnInit(): void {
     this.formGroup = new AuditFormGroup(this.initialAudit());
+    this.syncFormMode(this.modifying());
 
     this.formGroup.valueChanges
       .pipe(
@@ -169,5 +167,17 @@ export class AuditBuilderComponent implements OnInit {
 
   protected auditValue(): AuditDetails {
     return this.formGroup.getRawValue() as unknown as AuditDetails;
+  }
+
+  private syncFormMode(modifying: boolean): void {
+    if (!this.formGroup) {
+      return;
+    }
+
+    if (modifying) {
+      this.formGroup.enable();
+    } else {
+      this.formGroup.disable();
+    }
   }
 }

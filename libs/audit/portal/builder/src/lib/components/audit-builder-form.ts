@@ -34,10 +34,18 @@ export class AuditFormGroup extends FormGroup<{
   }
 
   addStepAt(index: number) {
+    if (this.disabled || this.controls.steps.disabled) {
+      return;
+    }
+
     this.controls.steps.insert(index, new StepFormGroup({ type: '' }));
   }
 
   removeStepAt(index: number) {
+    if (this.disabled || this.controls.steps.disabled) {
+      return;
+    }
+
     this.controls.steps.removeAt(index);
   }
 }
@@ -58,6 +66,10 @@ export class StepFormGroup extends BuilderStepFormGroup {
   }
 
   resetStepControls(stepSelection: StepSelection | '', step?: AuditStep): void {
+    if (this.disabled) {
+      return;
+    }
+
     if (this.selectionControl.value !== stepSelection) {
       this.selectionControl.setValue(stepSelection, { emitEvent: false });
     }
@@ -68,6 +80,16 @@ export class StepFormGroup extends BuilderStepFormGroup {
     }
 
     this.resetSpec(findStepSpec(stepSelection), step as Record<string, unknown> | undefined);
+  }
+
+  override disable(opts?: { onlySelf?: boolean; emitEvent?: boolean }): void {
+    super.disable(opts);
+    this.selectionControl.disable(opts);
+  }
+
+  override enable(opts?: { onlySelf?: boolean; emitEvent?: boolean }): void {
+    super.enable(opts);
+    this.selectionControl.enable(opts);
   }
 }
 
