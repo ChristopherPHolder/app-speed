@@ -31,10 +31,13 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
     }
 
     .loading-state {
-      display: inline-flex;
+      display: flex;
       align-items: center;
+      justify-content: center;
       gap: 10px;
-      margin: 24px 16px;
+      min-height: 320px;
+      margin: 24px 0;
+      text-align: center;
     }
   `,
   imports: [AuditSummaryComponent, ViewerStepDetailComponent, MatProgressSpinner],
