@@ -45,11 +45,19 @@ export class BuilderStepFormGroup extends FormGroup {
   }
 
   addOptionalField(control: FormGroup, field: BuilderFieldSpec): void {
+    if (control.disabled) {
+      return;
+    }
+
     control.addControl(fieldControlName(field), createControlForField(field));
     control.updateValueAndValidity();
   }
 
   removeOptionalField(control: FormGroup, field: BuilderFieldSpec): void {
+    if (control.disabled) {
+      return;
+    }
+
     control.removeControl(fieldControlName(field));
     control.updateValueAndValidity();
   }
@@ -59,11 +67,19 @@ export class BuilderStepFormGroup extends FormGroup {
     field: Extract<BuilderFieldSpec, { kind: 'array' }>,
     value?: unknown,
   ): void {
+    if (control.disabled) {
+      return;
+    }
+
     control.push(createControlForField(field.element, value));
     control.updateValueAndValidity();
   }
 
   removeArrayItem(control: FormArray<AbstractControl>, index: number): void {
+    if (control.disabled) {
+      return;
+    }
+
     control.removeAt(index);
     control.updateValueAndValidity();
   }
@@ -74,6 +90,10 @@ export class BuilderStepFormGroup extends FormGroup {
     key: string,
     value?: unknown,
   ): boolean {
+    if (control.disabled) {
+      return false;
+    }
+
     const normalizedKey = key.trim();
 
     if (normalizedKey.length === 0 || hasControl(control, normalizedKey)) {
@@ -87,6 +107,10 @@ export class BuilderStepFormGroup extends FormGroup {
   }
 
   removeRecordEntry(control: FormRecord<AbstractControl>, key: string): void {
+    if (control.disabled) {
+      return;
+    }
+
     control.removeControl(key);
     control.updateValueAndValidity();
   }

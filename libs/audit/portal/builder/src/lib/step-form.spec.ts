@@ -1,4 +1,4 @@
-import { FormArray, FormGroup } from '@angular/forms';
+import { FormArray, FormGroup, FormRecord } from '@angular/forms';
 import { AUDIT_CUSTOM_STEP_TYPE, type BuilderFieldSpec } from '@app-speed/audit/domain';
 import { describe, expect, it } from 'vitest';
 import { BuilderStepFormGroup, findStepSpec } from './step-form';
@@ -96,6 +96,54 @@ describe('BuilderStepFormGroup', () => {
 
     expect(segmentsControl?.hasError('minlength')).toBe(true);
   });
+
+  it('does not add or remove optional fields when the target group is disabled', () => {
+    const form = createForm(AUDIT_CUSTOM_STEP_TYPE.ADD_COOKIE);
+    const sameSiteField = findField(form.spec.fields, 'sameSite');
+
+    form.disable();
+    form.addOptionalField(form, sameSiteField);
+
+    expect(form.get('sameSite')).toBeNull();
+
+    form.enable();
+    form.addOptionalField(form, sameSiteField);
+    form.disable();
+    form.removeOptionalField(form, sameSiteField);
+
+    expect(form.get('sameSite')).not.toBeNull();
+  });
+
+  it('does not add or remove array items when the target array is disabled', () => {
+    const form = createForm('click');
+    const selectorsField = expectArrayField(findField(form.spec.fields, 'selectors'));
+    const selectorsControl = form.get('selectors') as FormArray<FormGroup>;
+
+    form.addArrayItem(selectorsControl, selectorsField);
+    selectorsControl.disable();
+    form.addArrayItem(selectorsControl, selectorsField);
+    form.removeArrayItem(selectorsControl, 0);
+
+    expect(selectorsControl.length).toBe(1);
+  });
+
+  it('does not add or remove record entries when the target record is disabled', () => {
+    const form = createForm('waitForElement');
+    const propertiesField = expectRecordField(findField(form.spec.fields, 'properties'));
+
+    form.addOptionalField(form, propertiesField);
+    const propertiesControl = form.get('properties') as FormRecord;
+
+    expect(form.addRecordEntry(propertiesControl, propertiesField, 'disabled', 'false')).toBe(true);
+
+    propertiesControl.disable();
+
+    expect(form.addRecordEntry(propertiesControl, propertiesField, 'hidden', 'true')).toBe(false);
+
+    form.removeRecordEntry(propertiesControl, 'disabled');
+
+    expect(propertiesControl.getRawValue()).toEqual({ disabled: 'false' });
+  });
 });
 
 function createForm(variantId: string, value?: Record<string, unknown>): BuilderStepFormGroup {
@@ -129,6 +177,16 @@ function expectGroupField(field: BuilderFieldSpec): Extract<BuilderFieldSpec, { 
 
   if (field.kind !== 'group') {
     throw new Error(`Expected group field, got ${field.kind}`);
+  }
+
+  return field;
+}
+
+function expectRecordField(field: BuilderFieldSpec): Extract<BuilderFieldSpec, { kind: 'record' }> {
+  expect(field.kind).toBe('record');
+
+  if (field.kind !== 'record') {
+    throw new Error(`Expected record field, got ${field.kind}`);
   }
 
   return field;

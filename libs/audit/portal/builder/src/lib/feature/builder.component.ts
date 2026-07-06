@@ -169,7 +169,7 @@ export class BuilderComponent implements OnInit {
       return 'analyze';
     }
 
-    return this.auditResultStatus() ? 'fork' : 'none';
+    return this.auditDetails() ? 'fork' : 'none';
   });
   readonly collapseSteps = computed(() => this.requestId() !== null);
   readonly inlineError = computed(() => {
