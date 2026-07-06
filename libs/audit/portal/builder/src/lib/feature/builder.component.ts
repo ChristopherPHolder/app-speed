@@ -26,6 +26,7 @@ import { MatProgressSpinner } from '@angular/material/progress-spinner';
         (modified)="updateAuditDetails($event)"
         [initialAudit]="auditDetails"
         [primaryAction]="primaryAction()"
+        [submittingRequest]="submittingRequest()"
         [collapseSteps]="collapseSteps()"
         (submitAudit)="submitAudit($event)"
         (forked)="forkCurrentAudit(auditDetails)"
@@ -150,6 +151,8 @@ export class BuilderComponent implements OnInit {
   public readonly auditDetails$ = this.store.select(auditBuilderFeature.selectAudit);
   public readonly modifying$ = this.store.select(auditBuilderFeature.selectModifying);
   public readonly modifying = toSignal(this.modifying$, { initialValue: true });
+  private readonly submittingRequest$ = this.store.select(auditBuilderFeature.selectSubmittingRequest);
+  readonly submittingRequest = toSignal(this.submittingRequest$, { initialValue: false });
   private readonly loadingDialog$ = this.store.select(auditBuilderFeature.selectLoadingDialog);
   readonly loadingDialog = toSignal<StatusDialogModel | null>(this.loadingDialog$, { initialValue: null });
   readonly auditDetails = toSignal(this.auditDetails$, { initialValue: null });
@@ -204,6 +207,10 @@ export class BuilderComponent implements OnInit {
   }
 
   submitAudit(audit: AuditDetails): void {
+    if (this.primaryAction() !== 'analyze' || !this.modifying() || this.submittingRequest()) {
+      return;
+    }
+
     this.store.dispatch(submitAuditRequest({ audit }));
   }
 

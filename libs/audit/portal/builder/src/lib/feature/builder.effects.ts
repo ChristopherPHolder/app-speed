@@ -18,7 +18,7 @@ import {
   submitAuditRequestSuccess,
   updateAuditDetails,
 } from './builder.actions';
-import { EMPTY, catchError, debounceTime, distinctUntilChanged, filter, map, of, switchMap, tap } from 'rxjs';
+import { EMPTY, catchError, debounceTime, distinctUntilChanged, exhaustMap, filter, map, of, switchMap, tap } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuditDetails, DEFAULT_AUDIT_DETAILS } from '../audit-details';
 import { HttpClient } from '@angular/common/http';
@@ -109,7 +109,7 @@ const submitAuditRequestEffect = createEffect(
   (actions$ = inject(Actions), api = inject(ApiClient)) =>
     actions$.pipe(
       ofType(submitAuditRequest),
-      switchMap(({ audit }) =>
+      exhaustMap(({ audit }) =>
         api.scheduleAudit(audit).pipe(
           map((response) =>
             submitAuditRequestSuccess({
