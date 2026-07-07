@@ -37,6 +37,7 @@ export class AuditProgressService {
         this.stage$.next('failed');
         this.resultKey$.next(auditId);
         this.eventSource?.close();
+        this.currentAuditId = null;
       },
     });
   }
@@ -91,8 +92,13 @@ export class AuditProgressService {
     fromEvent<Event>(source, 'error')
       .pipe(takeUntil(this.disconnect$))
       .subscribe(() => {
-        if (source.readyState === EventSource.CLOSED) {
-          this.currentAuditId = null;
+        if (
+          source.readyState === EventSource.CLOSED &&
+          this.currentAuditId === auditId &&
+          this.stage$.value !== 'done' &&
+          this.stage$.value !== 'failed'
+        ) {
+          this.fetchResultAndFinalize(auditId);
         }
       });
   }
