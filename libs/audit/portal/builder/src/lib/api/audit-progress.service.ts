@@ -32,8 +32,18 @@ export class AuditProgressService {
 
   private fetchResultAndFinalize(auditId: string) {
     this.http.get<AuditResultResponse>(`/api/audit/${auditId}/result`).subscribe({
-      next: (result) => this.finalizeWithStatus(auditId, result.status),
+      next: (result) => {
+        if (this.currentAuditId !== auditId) {
+          return;
+        }
+
+        this.finalizeWithStatus(auditId, result.status);
+      },
       error: () => {
+        if (this.currentAuditId !== auditId) {
+          return;
+        }
+
         this.stage$.next('failed');
         this.resultKey$.next(auditId);
         this.eventSource?.close();
