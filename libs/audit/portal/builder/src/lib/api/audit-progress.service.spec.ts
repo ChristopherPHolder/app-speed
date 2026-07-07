@@ -84,4 +84,32 @@ describe('AuditProgressService', () => {
     stageSubscription.unsubscribe();
     keySubscription.unsubscribe();
   });
+
+  it('ignores stale fallback result responses after another audit starts', () => {
+    const service = TestBed.inject(AuditProgressService);
+    const http = TestBed.inject(HttpTestingController);
+    const stages: string[] = [];
+    const resultKeys: string[] = [];
+    const stageSubscription = service.stageName$.subscribe((stage) => stages.push(stage));
+    const keySubscription = service.key$.subscribe((key) => resultKeys.push(key));
+
+    service.watchAudit('audit-a');
+    const auditASource = MockEventSource.instances[0];
+    auditASource.dispatchEvent(new MessageEvent('status', { data: JSON.stringify({ status: 'IN_PROGRESS' }) }));
+    auditASource.readyState = MockEventSource.CLOSED;
+    auditASource.dispatchEvent(new Event('error'));
+    const auditAResultRequest = http.expectOne('/api/audit/audit-a/result');
+
+    service.watchAudit('audit-b');
+    const auditBSource = MockEventSource.instances[1];
+    auditBSource.dispatchEvent(new MessageEvent('status', { data: JSON.stringify({ status: 'IN_PROGRESS' }) }));
+    auditAResultRequest.flush({ status: 'SUCCESS', result: {} });
+
+    expect(stages.at(-1)).toBe('running');
+    expect(resultKeys).toEqual([]);
+    expect(auditBSource.closed).toBe(false);
+
+    stageSubscription.unsubscribe();
+    keySubscription.unsubscribe();
+  });
 });
