@@ -7,6 +7,10 @@ import { RadialChartComponent } from './radial-chart.component';
 
 export type AuditSummary = {
   screenShot: string;
+  screenShotSize: {
+    width: number;
+    height: number;
+  };
   title: string;
   subTitle: string;
   shouldDisplayAsFraction: boolean;
@@ -21,6 +25,18 @@ export type AuditSummary = {
     score: number;
   }[];
 }[];
+
+const SCREENSHOT_PREVIEW_MAX_SIZE = 250;
+
+export function fitScreenshotPreview(width: number, height: number): { width: number; height: number } {
+  if (width <= 0 || height <= 0) {
+    return { width: 0, height: 0 };
+  }
+
+  return width >= height
+    ? { width: SCREENSHOT_PREVIEW_MAX_SIZE, height: (SCREENSHOT_PREVIEW_MAX_SIZE * height) / width }
+    : { width: (SCREENSHOT_PREVIEW_MAX_SIZE * width) / height, height: SCREENSHOT_PREVIEW_MAX_SIZE };
+}
 
 @Component({
   selector: 'ui-audit-summary',
@@ -43,7 +59,13 @@ export type AuditSummary = {
             </div>
             <span>
               <div class="screen-shot-box">
-                <img class="screen-shot" [src]="step.screenShot" alt="" />
+                <img
+                  class="screen-shot"
+                  [src]="step.screenShot"
+                  [style.width.px]="step.screenShotSize.width"
+                  [style.height.px]="step.screenShotSize.height"
+                  alt=""
+                />
               </div>
             </span>
           </div>
@@ -77,8 +99,9 @@ export type AuditSummary = {
       display: flex;
       justify-content: center;
       align-items: center;
-      width: 125px;
+      width: 250px;
       height: 250px;
+      max-width: 100%;
       margin: auto;
     }
 
@@ -86,18 +109,18 @@ export type AuditSummary = {
       border-radius: 8px;
       transition:
         transform 0.2s ease,
-        height 100ms ease,
-        width 100ms ease,
         box-shadow 0.2s ease;
       margin: auto;
       display: block;
-      width: 50%;
-      height: 50%;
+      max-width: 100%;
+      max-height: 100%;
+      position: relative;
+      z-index: 2;
+      transform: scale(0.5);
 
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       .swiper-slide-active & {
-        height: 100%;
-        width: 100%;
+        transform: scale(1);
         border: groove blue;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       }

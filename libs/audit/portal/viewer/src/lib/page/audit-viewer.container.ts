@@ -5,7 +5,7 @@ import type { FlowResult } from 'lighthouse';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ViewerStepDetailComponent } from '../steps/viewer-step-details.component';
 import { calculateCategoryFraction, shouldDisplayAsFraction } from '../lighthouse-report-utils';
-import { AuditSummary, AuditSummaryComponent } from '../summary/audit-summary.component';
+import { AuditSummary, AuditSummaryComponent, fitScreenshotPreview } from '../summary/audit-summary.component';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -70,25 +70,29 @@ export class AuditViewerContainer {
       return undefined;
     }
 
-    return results.steps.map(({ lhr: { fullPageScreenshot, categories, gatherMode, audits }, name }) => ({
-      screenShot: fullPageScreenshot?.screenshot.data || '',
-      title: name,
-      subTitle: gatherMode,
-      shouldDisplayAsFraction: shouldDisplayAsFraction(gatherMode),
-      categoryScores: Object.values(categories).map((category) => {
-        const extendedCategory = {
-          ...category,
-          auditRefs: category.auditRefs.map((ref) => {
-            return { ...ref, result: audits[ref.id] };
-          }),
-        };
-        return {
-          name: category.title,
-          asFraction: calculateCategoryFraction(extendedCategory),
-          score: parseInt(((category.score || 0) * 100).toFixed(0), 10),
-        };
-      }),
-    }));
+    return results.steps.map(({ lhr: { fullPageScreenshot, categories, gatherMode, audits }, name }) => {
+      const screenshot = fullPageScreenshot?.screenshot;
+      return {
+        screenShot: screenshot?.data || '',
+        screenShotSize: fitScreenshotPreview(screenshot?.width ?? 0, screenshot?.height ?? 0),
+        title: name,
+        subTitle: gatherMode,
+        shouldDisplayAsFraction: shouldDisplayAsFraction(gatherMode),
+        categoryScores: Object.values(categories).map((category) => {
+          const extendedCategory = {
+            ...category,
+            auditRefs: category.auditRefs.map((ref) => {
+              return { ...ref, result: audits[ref.id] };
+            }),
+          };
+          return {
+            name: category.title,
+            asFraction: calculateCategoryFraction(extendedCategory),
+            score: parseInt(((category.score || 0) * 100).toFixed(0), 10),
+          };
+        }),
+      };
+    });
   });
 
   auditStep = computed(() => {

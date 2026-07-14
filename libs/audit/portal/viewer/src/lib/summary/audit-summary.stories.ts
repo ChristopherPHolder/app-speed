@@ -15,6 +15,7 @@ export const MultiStep: Story = {
     auditSummary: [
       {
         screenShot: DUMMY_IMG,
+        screenShotSize: { width: 250, height: 140.625 },
         title: 'Audit Title',
         subTitle: 'Step',
         shouldDisplayAsFraction: false,
@@ -53,6 +54,7 @@ export const MultiStep: Story = {
       },
       {
         screenShot: DUMMY_IMG,
+        screenShotSize: { width: 125, height: 250 },
         title: 'Audit Title',
         subTitle: 'Step',
         shouldDisplayAsFraction: true,
@@ -91,6 +93,7 @@ export const MultiStep: Story = {
       },
       {
         screenShot: DUMMY_IMG,
+        screenShotSize: { width: 250, height: 140.625 },
         title: 'Audit Title',
         subTitle: 'Step',
         shouldDisplayAsFraction: false,
