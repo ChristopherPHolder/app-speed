@@ -19,10 +19,11 @@ const createPage = (cdpClient = createCdpClient()) =>
   ({
     createCDPSession: vi.fn().mockResolvedValue(cdpClient),
     setCookie: vi.fn().mockResolvedValue(undefined),
+    waitForNetworkIdle: vi.fn().mockResolvedValue(undefined),
   }) as unknown as Page;
 
-const createExtension = (flow: UserFlow, page: Page = createPage()) =>
-  new UserFlowRunnerExtension({} as never, page, flow);
+const createExtension = (flow: UserFlow, page: Page = createPage(), timeout?: number) =>
+  new UserFlowRunnerExtension({} as never, page, flow, timeout === undefined ? undefined : { timeout });
 
 describe('UserFlowRunnerExtension', () => {
   it('dispatches each supported custom step exhaustively', async () => {
@@ -163,6 +164,60 @@ describe('UserFlowRunnerExtension', () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it('dispatches waitForNetworkIdle through the current page with audit timeout inheritance', async () => {
+    const page = createPage();
+    const extension = createExtension(createFlow(), page, 12_000);
+
+    await extension.runStep(
+      {
+        type: 'customStep',
+        name: AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_NETWORK_IDLE,
+        parameters: { idleTime: 750, concurrency: 2 },
+      },
+      {} as never,
+    );
+
+    expect(page.waitForNetworkIdle).toHaveBeenCalledWith({
+      idleTime: 750,
+      concurrency: 2,
+      timeout: 12_000,
+    });
+  });
+
+  it.each([5_000, 0])('lets waitForNetworkIdle step timeout %s override the audit timeout', async (timeout) => {
+    const page = createPage();
+    const extension = createExtension(createFlow(), page, 12_000);
+
+    await extension.runStep(
+      {
+        type: 'customStep',
+        name: AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_NETWORK_IDLE,
+        parameters: { timeout },
+      },
+      {} as never,
+    );
+
+    expect(page.waitForNetworkIdle).toHaveBeenCalledWith({ timeout });
+  });
+
+  it('uses the audit default and propagates waitForNetworkIdle browser failures', async () => {
+    const failure = new Error('network idle failed');
+    const page = createPage();
+    vi.mocked(page.waitForNetworkIdle).mockRejectedValue(failure);
+
+    await expect(
+      createExtension(createFlow(), page).runStep(
+        {
+          type: 'customStep',
+          name: AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_NETWORK_IDLE,
+          parameters: {},
+        },
+        {} as never,
+      ),
+    ).rejects.toThrow('network idle failed');
+    expect(page.waitForNetworkIdle).toHaveBeenCalledWith({ timeout: 30_000 });
   });
 
   it('propagates browser failures for clearCache and addCookie custom steps', async () => {

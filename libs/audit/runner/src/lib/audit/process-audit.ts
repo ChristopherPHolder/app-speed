@@ -35,7 +35,7 @@ export const runAudit = Effect.fn((audit: Audit) =>
       startFlow(page, { name: audit.title, config: runnerDeviceConfiguration.lighthousePreset }),
     ).pipe(Effect.withSpan('runner.audit.startFlow'));
 
-    const runnerExtension = new UserFlowRunnerExtension(browser, page, flow);
+    const runnerExtension = new UserFlowRunnerExtension(browser, page, flow, { timeout: audit.timeout ?? 30_000 });
 
     yield* Effect.tryPromise({
       try: () => createRunner(replayScript, runnerExtension).then((runner) => runner.run()),

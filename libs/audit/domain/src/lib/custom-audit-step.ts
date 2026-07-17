@@ -23,6 +23,12 @@ export const WaitForTimeParametersSchema = Schema.Struct({
   seconds: Schema.Number.pipe(Schema.int(), Schema.between(1, 60)),
 });
 
+export const WaitForNetworkIdleParametersSchema = Schema.Struct({
+  idleTime: Schema.optional(Schema.NonNegativeInt),
+  timeout: Schema.optional(Schema.NonNegativeInt),
+  concurrency: Schema.optional(Schema.NonNegativeInt),
+});
+
 export const AuditClearCacheStepSchema = Schema.Struct({
   type: AuditStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP)),
   step: AppAuditCustomStepTypeSchema.pipe(Schema.pickLiteral(AUDIT_CUSTOM_STEP_TYPE.CLEAR_CACHE)),
@@ -38,6 +44,12 @@ export const AuditWaitForTimeStepSchema = Schema.Struct({
   type: AuditStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP)),
   step: AppAuditCustomStepTypeSchema.pipe(Schema.pickLiteral(AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_TIME)),
   ...WaitForTimeParametersSchema.fields,
+});
+
+export const AuditWaitForNetworkIdleStepSchema = Schema.Struct({
+  type: AuditStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP)),
+  step: AppAuditCustomStepTypeSchema.pipe(Schema.pickLiteral(AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_NETWORK_IDLE)),
+  ...WaitForNetworkIdleParametersSchema.fields,
 });
 
 const ReplayAuditCustomStepWithoutFlagsSchema = Schema.Struct({
@@ -56,6 +68,12 @@ const ReplayAuditWaitForTimeStepSchema = Schema.Struct({
   type: PuppeteerReplayStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP)),
   name: Schema.Literal(AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_TIME),
   parameters: WaitForTimeParametersSchema,
+});
+
+const ReplayAuditWaitForNetworkIdleStepSchema = Schema.Struct({
+  type: PuppeteerReplayStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP)),
+  name: Schema.Literal(AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_NETWORK_IDLE),
+  parameters: WaitForNetworkIdleParametersSchema,
 });
 
 const AuditClearCacheRunnerStepSchema = Schema.transform(
@@ -120,16 +138,40 @@ const AuditWaitForTimeRunnerStepSchema = Schema.transform(
   },
 );
 
+const AuditWaitForNetworkIdleRunnerStepSchema = Schema.transform(
+  AuditWaitForNetworkIdleStepSchema,
+  ReplayAuditWaitForNetworkIdleStepSchema,
+  {
+    strict: true,
+    decode: ({ idleTime, timeout, concurrency }) => ({
+      type: PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP,
+      name: AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_NETWORK_IDLE,
+      parameters: {
+        ...(idleTime === undefined ? {} : { idleTime }),
+        ...(timeout === undefined ? {} : { timeout }),
+        ...(concurrency === undefined ? {} : { concurrency }),
+      },
+    }),
+    encode: ({ parameters }) => ({
+      type: PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP,
+      step: AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_NETWORK_IDLE,
+      ...parameters,
+    }),
+  },
+);
+
 export const ReplayAuditCustomStepSchema = Schema.Union(
   Schema.typeSchema(AuditClearCacheRunnerStepSchema),
   Schema.typeSchema(AuditAddCookieRunnerStepSchema),
   Schema.typeSchema(AuditWaitForTimeRunnerStepSchema),
+  Schema.typeSchema(AuditWaitForNetworkIdleRunnerStepSchema),
 );
 
 export const AuditCustomRunnerStepSchema = Schema.Union(
   AuditClearCacheRunnerStepSchema,
   AuditAddCookieRunnerStepSchema,
   AuditWaitForTimeRunnerStepSchema,
+  AuditWaitForNetworkIdleRunnerStepSchema,
 );
 
 export const AuditCustomBuilderStepVariants: readonly BuilderStepVariantDefinition[] = [
@@ -159,6 +201,14 @@ export const AuditCustomBuilderStepVariants: readonly BuilderStepVariantDefiniti
       type: PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP,
       step: AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_TIME,
       seconds: 1,
+    },
+  },
+  {
+    id: AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_NETWORK_IDLE,
+    schema: AuditWaitForNetworkIdleStepSchema,
+    defaultValue: {
+      type: PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP,
+      step: AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_NETWORK_IDLE,
     },
   },
 ];

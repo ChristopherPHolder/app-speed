@@ -17,8 +17,10 @@ export {
   AuditClearCacheStepSchema,
   AuditCustomRunnerStepSchema,
   AuditWaitForTimeStepSchema,
+  AuditWaitForNetworkIdleStepSchema,
   ReplayAuditCustomStepSchema,
   WaitForTimeParametersSchema,
+  WaitForNetworkIdleParametersSchema,
 } from './lib/custom-audit-step';
 export {
   isReplayUserflowStepWithFlags,

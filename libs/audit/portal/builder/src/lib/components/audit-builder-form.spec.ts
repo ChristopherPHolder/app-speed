@@ -158,6 +158,23 @@ describe('StepFormGroup', () => {
     expect(formGroup.optionalFields(formGroup.spec.fields, formGroup)).toEqual([]);
   });
 
+  it('selecting waitForNetworkIdle produces a zero-configuration step with optional settings', () => {
+    const formGroup = new StepFormGroup({ type: '' });
+
+    formGroup.resetStepControls(AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_NETWORK_IDLE);
+
+    expect(formGroup.getRawValue()).toEqual({
+      type: 'customStep',
+      step: AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_NETWORK_IDLE,
+    });
+    expect(formGroup.visibleFields(formGroup.spec.fields, formGroup)).toEqual([]);
+    expect(formGroup.optionalFields(formGroup.spec.fields, formGroup).map((field) => field.path)).toEqual([
+      'idleTime',
+      'timeout',
+      'concurrency',
+    ]);
+  });
+
   it('does not add or remove steps while the root audit form is disabled', () => {
     const auditForm = new AuditFormGroup({
       title: 'Checkout audit',
