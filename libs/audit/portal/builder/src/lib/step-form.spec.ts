@@ -57,12 +57,25 @@ describe('BuilderStepFormGroup', () => {
     const navigate = createForm('navigate');
     const click = createForm('click');
     const waitForTime = createForm(AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_TIME);
+    const waitForNetworkIdle = createForm(AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_NETWORK_IDLE);
     const selectorsField = expectArrayField(findField(click.spec.fields, 'selectors'));
 
     const expressionControl = waitForExpression.get('expression');
     const urlControl = navigate.get('url');
     const offsetXControl = click.get('offsetX');
     const secondsControl = waitForTime.get('seconds');
+
+    for (const field of waitForNetworkIdle.spec.fields) {
+      waitForNetworkIdle.addOptionalField(waitForNetworkIdle, field);
+      const control = waitForNetworkIdle.get(field.path);
+
+      control?.setValue(-1);
+      expect(control?.hasError('min')).toBe(true);
+      control?.setValue(1.5);
+      expect(control?.hasError('integer')).toBe(true);
+      control?.setValue(0);
+      expect(control?.valid).toBe(true);
+    }
 
     expect(expressionControl?.hasError('required')).toBe(true);
 

@@ -163,6 +163,49 @@ describe('PuppeteerReplayUserflowRunnerSchema', () => {
     });
   });
 
+  it('should decode waitForNetworkIdle custom steps into replay parameters', () => {
+    const createRecording = (step: Record<string, unknown>) => ({
+      title: 'Stub audit title',
+      device: 'mobile',
+      steps: [
+        step,
+        {
+          type: 'customStep',
+          step: LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
+          name: 'Home Page',
+        },
+      ],
+    });
+
+    expect(
+      Schema.decodeUnknownSync(PuppeteerReplayUserflowRunnerSchema)(
+        createRecording({
+          type: 'customStep',
+          step: AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_NETWORK_IDLE,
+        }),
+      ).steps[0],
+    ).toEqual({
+      type: 'customStep',
+      name: AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_NETWORK_IDLE,
+      parameters: {},
+    });
+    expect(
+      Schema.decodeUnknownSync(PuppeteerReplayUserflowRunnerSchema)(
+        createRecording({
+          type: 'customStep',
+          step: AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_NETWORK_IDLE,
+          idleTime: 750,
+          timeout: 0,
+          concurrency: 2,
+        }),
+      ).steps[0],
+    ).toEqual({
+      type: 'customStep',
+      name: AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_NETWORK_IDLE,
+      parameters: { idleTime: 750, timeout: 0, concurrency: 2 },
+    });
+  });
+
   it('should decode normalized selector paths into replay-compatible selectors', () => {
     const recording = {
       title: 'Stub audit title',
@@ -303,6 +346,50 @@ describe('AuditSchema', () => {
     expect(Schema.is(AuditSchema)(createAudit(61))).toBe(false);
     expect(Schema.is(AuditSchema)(createAudit(1.5))).toBe(false);
   });
+
+  it('should accept zero-configuration and populated waitForNetworkIdle persisted custom steps', () => {
+    const createAudit = (step: Record<string, unknown>) => ({
+      title: 'Stub audit title',
+      device: 'mobile',
+      steps: [step, { type: 'customStep', step: LIGHTHOUSE_AUDIT_STEP_TYPE.END_NAVIGATION }],
+    });
+
+    expect(
+      Schema.is(AuditSchema)(createAudit({ type: 'customStep', step: AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_NETWORK_IDLE })),
+    ).toBe(true);
+    expect(
+      Schema.is(AuditSchema)(
+        createAudit({
+          type: 'customStep',
+          step: AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_NETWORK_IDLE,
+          idleTime: 500,
+          timeout: 0,
+          concurrency: 2,
+        }),
+      ),
+    ).toBe(true);
+  });
+
+  it.each(['idleTime', 'timeout', 'concurrency'])(
+    'should reject negative and fractional waitForNetworkIdle %s values',
+    (property) => {
+      const createAudit = (value: number) => ({
+        title: 'Stub audit title',
+        device: 'mobile',
+        steps: [
+          {
+            type: 'customStep',
+            step: AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_NETWORK_IDLE,
+            [property]: value,
+          },
+          { type: 'customStep', step: LIGHTHOUSE_AUDIT_STEP_TYPE.END_NAVIGATION },
+        ],
+      });
+
+      expect(Schema.is(AuditSchema)(createAudit(-1))).toBe(false);
+      expect(Schema.is(AuditSchema)(createAudit(1.5))).toBe(false);
+    },
+  );
 
   it('should reject replay-shaped custom step input', () => {
     expect(

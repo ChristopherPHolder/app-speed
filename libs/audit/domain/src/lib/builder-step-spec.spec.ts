@@ -26,6 +26,33 @@ describe('builder step spec', () => {
       'clearCache',
       'addCookie',
       'waitForTime',
+      'waitForNetworkIdle',
+    ]);
+  });
+
+  it('derives an optional non-negative integer spec for waitForNetworkIdle', () => {
+    const waitForNetworkIdle = deriveBuilderStepSpec(findVariant('waitForNetworkIdle'));
+
+    expect(waitForNetworkIdle.defaultValue).toEqual({
+      type: 'customStep',
+      step: 'waitForNetworkIdle',
+    });
+    expect(waitForNetworkIdle.fields).toEqual([
+      expect.objectContaining({
+        path: 'idleTime',
+        required: false,
+        validation: { integer: true, minimum: 0 },
+      }),
+      expect.objectContaining({
+        path: 'timeout',
+        required: false,
+        validation: { integer: true, minimum: 0 },
+      }),
+      expect.objectContaining({
+        path: 'concurrency',
+        required: false,
+        validation: { integer: true, minimum: 0 },
+      }),
     ]);
   });
 

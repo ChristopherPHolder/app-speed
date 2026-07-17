@@ -63,7 +63,30 @@ describe('step presentation registry', () => {
         AUDIT_CUSTOM_STEP_TYPE.CLEAR_CACHE,
         AUDIT_CUSTOM_STEP_TYPE.ADD_COOKIE,
         AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_TIME,
+        AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_NETWORK_IDLE,
       ],
+    });
+  });
+
+  it('presents waitForNetworkIdle settings with the agreed labels and descriptions', () => {
+    expect(getStepPresentation(AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_NETWORK_IDLE)).toEqual({
+      group: 'Custom Steps',
+      icon: 'puppeteer-badge',
+      label: 'Wait For Network Idle',
+      fields: {
+        idleTime: {
+          label: 'Idle Time (ms)',
+          description: 'Duration network activity must stay within the allowed concurrency; Puppeteer default: 500 ms.',
+        },
+        timeout: {
+          label: 'Timeout (ms)',
+          description: 'Maximum wait; defaults to the audit timeout; 0 disables the timeout.',
+        },
+        concurrency: {
+          label: 'Allowed Concurrent Requests',
+          description: 'Maximum active request count still considered idle; Puppeteer default: 0.',
+        },
+      },
     });
   });
 

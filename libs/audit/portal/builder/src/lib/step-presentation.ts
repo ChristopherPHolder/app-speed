@@ -96,6 +96,23 @@ export const AUDIT_BUILDER_STEP_PRESENTATION_REGISTRY = {
       },
     },
   },
+  waitForNetworkIdle: {
+    label: 'Wait For Network Idle',
+    fields: {
+      idleTime: {
+        label: 'Idle Time (ms)',
+        description: 'Duration network activity must stay within the allowed concurrency; Puppeteer default: 500 ms.',
+      },
+      timeout: {
+        label: 'Timeout (ms)',
+        description: 'Maximum wait; defaults to the audit timeout; 0 disables the timeout.',
+      },
+      concurrency: {
+        label: 'Allowed Concurrent Requests',
+        description: 'Maximum active request count still considered idle; Puppeteer default: 0.',
+      },
+    },
+  },
 } as const satisfies Partial<Record<string, StepPresentationOverride>>;
 
 export const getStepPresentation = (variantId: string): StepPresentation => {

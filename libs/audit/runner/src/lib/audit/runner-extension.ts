@@ -23,7 +23,10 @@ export class UserFlowRunnerExtension extends PuppeteerRunnerExtension {
     },
   ) {
     super(browser, page, opts);
+    this.auditTimeout = opts?.timeout ?? 30_000;
   }
+
+  private readonly auditTimeout: number;
 
   override async runStep(
     step: Step | typeof ReplayRunnerCustomStepSchema.Type,
@@ -51,6 +54,11 @@ export class UserFlowRunnerExtension extends PuppeteerRunnerExtension {
         return await this.page.setCookie(step.parameters);
       case AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_TIME:
         return await waitForTime(step.parameters.seconds * 1000);
+      case AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_NETWORK_IDLE:
+        return await this.page.waitForNetworkIdle({
+          ...step.parameters,
+          timeout: step.parameters.timeout ?? this.auditTimeout,
+        });
     }
 
     return assertNever(step);

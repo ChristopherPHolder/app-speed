@@ -35,6 +35,7 @@ export const AppAuditCustomStepTypeSchema = Schema.Literal(
   AUDIT_CUSTOM_STEP_TYPE.CLEAR_CACHE,
   AUDIT_CUSTOM_STEP_TYPE.ADD_COOKIE,
   AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_TIME,
+  AUDIT_CUSTOM_STEP_TYPE.WAIT_FOR_NETWORK_IDLE,
 );
 
 export const AuditCustomStepTypeSchema = Schema.Union(LighthouseAuditStepTypeSchema, AppAuditCustomStepTypeSchema);
