@@ -1,0 +1,33 @@
+{
+  "name": "audit-core-persistence",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/audit/core/persistence/src",
+  "projectType": "library",
+  "tags": ["type:domain", "scope:audit", "feature:audit-core", "runtime:node", "layer:persistence"],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/audit/core/persistence",
+        "main": "libs/audit/core/persistence/src/index.ts",
+        "tsConfig": "libs/audit/core/persistence/tsconfig.lib.json",
+        "assets": ["libs/audit/core/persistence/*.md"],
+        "format": ["esm"],
+        "generatePackageJson": true
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
+    },
+    "effect:diagnostics": {
+      "executor": "@app-speed/effect-tools:diagnostics",
+      "options": {
+        "tsConfig": "{projectRoot}/tsconfig.lib.json",
+        "format": "text",
+        "severity": "error,warning,message"
+      }
+    }
+  }
+}

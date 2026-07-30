@@ -1,0 +1,23 @@
+import type { UserFlow } from 'lighthouse';
+import type { MapLiteralStep, StrictExtract } from '@app-speed/audit/core/domain';
+
+type CallableKeys<T> = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [K in keyof T]-?: T[K] extends (...args: any[]) => any ? K : never;
+}[keyof T] &
+  string;
+
+type UserFlowCallSignature = CallableKeys<UserFlow>;
+
+type LighthouseSupportedStep = StrictExtract<
+  UserFlowCallSignature,
+  'startNavigation' | 'endNavigation' | 'startTimespan' | 'endTimespan' | 'snapshot'
+>;
+
+export const LIGHTHOUSE_AUDIT_STEP_TYPE = {
+  START_NAVIGATION: 'startNavigation',
+  END_NAVIGATION: 'endNavigation',
+  START_TIMESPAN: 'startTimespan',
+  END_TIMESPAN: 'endTimespan',
+  SNAPSHOT: 'snapshot',
+} as const satisfies MapLiteralStep<LighthouseSupportedStep>;

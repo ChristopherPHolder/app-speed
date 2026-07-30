@@ -1,0 +1,31 @@
+{
+  "name": "audit-user-flow-persistence",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/audit/user-flow/persistence/src",
+  "projectType": "library",
+  "tags": ["type:domain", "scope:audit", "feature:audit-user-flow", "runtime:node", "layer:persistence"],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/audit/user-flow/persistence",
+        "main": "{projectRoot}/src/index.ts",
+        "tsConfig": "{projectRoot}/tsconfig.lib.json",
+        "format": ["esm"],
+        "generatePackageJson": true
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "effect:diagnostics": {
+      "executor": "@app-speed/effect-tools:diagnostics",
+      "options": {
+        "tsConfig": "{projectRoot}/tsconfig.lib.json",
+        "format": "text",
+        "severity": "error,warning,message"
+      }
+    }
+  }
+}

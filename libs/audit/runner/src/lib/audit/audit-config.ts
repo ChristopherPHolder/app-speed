@@ -1,7 +1,7 @@
 import { defaultConfig, desktopConfig } from 'lighthouse';
 import type Config from 'lighthouse/types/config.js';
 
-import { DEVICE_TYPE, DeviceSchema, type DeviceType } from '@app-speed/audit/domain';
+import { DEVICE_TYPE, DeviceSchema, type DeviceType } from '@app-speed/audit/core/domain';
 import { softNavigationConfig, softNavigationPerformanceAuditRefs } from '../soft-nav/config';
 import { Effect, Schema, ParseResult } from 'effect';
 

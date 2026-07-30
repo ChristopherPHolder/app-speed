@@ -40,7 +40,7 @@ describe('portal', () => {
   it('should submit an audit', function () {
     this.timeout(180000);
     waitForBackend();
-    cy.intercept('POST', '/api/audit/schedule').as('schedule');
+    cy.intercept('POST', '/api/audits/user-flow/schedule').as('schedule');
 
     cy.get('input[placeholder="Audit Title"]').clear();
     cy.get('input[placeholder="Audit Title"]').type('E2E Audit');

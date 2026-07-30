@@ -13,7 +13,7 @@ pnpm exec nx serve api
 The API resolves runtime config through Effect `Config` in:
 
 - `src/Config/config.ts`
-- `@app-speed/audit/persistence`
+- `@app-speed/audit/core/persistence`
 
 Runtime env vars:
 
@@ -21,7 +21,7 @@ Runtime env vars:
 - `RUNNER_MANAGER_MODE` (optional): `local` or `aws` (default is hardcoded to `aws`)
 - `DEVTOOLS_URL` (optional)
 
-Database migrations are run through the `audit-persistence:migrate` Nx target. Set `DATABASE_MIGRATION_URL` when
+Database migrations are run through the `api:migrate` Nx target. Set `DATABASE_MIGRATION_URL` when
 the migration/admin connection string differs from `DATABASE_URL`.
 
 ### Local Mode

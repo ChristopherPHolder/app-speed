@@ -1,0 +1,12 @@
+{
+  "name": "@app-speed/audit/user-flow/persistence",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@app-speed/audit/core/persistence": "0.0.1",
+    "@app-speed/audit/user-flow/domain": "0.0.1",
+    "drizzle-orm": "^0.45.2",
+    "effect": "^3.19.14"
+  }
+}

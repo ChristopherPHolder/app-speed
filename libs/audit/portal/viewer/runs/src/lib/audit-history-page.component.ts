@@ -117,6 +117,6 @@ export class AuditHistoryPageComponent {
   }
 
   openRun(run: AuditRunSummary) {
-    this.router.navigate(['/user-flow', 'results', run.auditId]);
+    this.router.navigate(['/audits/user-flow', 'results', run.auditId]);
   }
 }

@@ -65,7 +65,7 @@ describe('AuditHistoryPageComponent', () => {
       durationMs: 1200,
     });
 
-    expect(navigate).toHaveBeenCalledWith(['/user-flow', 'results', 'complete-audit']);
+    expect(navigate).toHaveBeenCalledWith(['/audits/user-flow', 'results', 'complete-audit']);
 
     component.openRun({
       auditId: 'running-audit',
@@ -79,6 +79,6 @@ describe('AuditHistoryPageComponent', () => {
       durationMs: null,
     });
 
-    expect(navigate).toHaveBeenCalledWith(['/user-flow', 'results', 'running-audit']);
+    expect(navigate).toHaveBeenCalledWith(['/audits/user-flow', 'results', 'running-audit']);
   });
 });

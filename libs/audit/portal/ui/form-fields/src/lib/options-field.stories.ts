@@ -2,11 +2,10 @@ import { FormControl } from '@angular/forms';
 import { applicationConfig, type Meta, type StoryObj } from '@storybook/angular';
 import { provideAuditBuilderIcons } from '@app-speed/audit/portal/ui/icons';
 import {
-  LIGHTHOUSE_AUDIT_STEP_TYPE,
   PUPPETEER_REPLAY_ASSERTION_STEP_TYPE,
   PUPPETEER_REPLAY_USER_STEP_TYPE,
   STEP_TYPE,
-} from '@app-speed/audit/domain';
+} from '@app-speed/audit/core/domain';
 import type { OptionsFieldModel } from './field.model';
 import { OptionsField } from './options-field';
 
@@ -24,7 +23,7 @@ const TYPE_PROPERTY: OptionsFieldModel['property'] = {
     {
       label: 'Audit Steps',
       icon: 'lighthouse-badge',
-      options: Object.values(LIGHTHOUSE_AUDIT_STEP_TYPE),
+      options: ['startMeasurement', 'endMeasurement'],
     },
     {
       label: 'Assertion Steps',

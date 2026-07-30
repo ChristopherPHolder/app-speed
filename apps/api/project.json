@@ -106,6 +106,27 @@
         "severity": "error,warning,message"
       }
     },
+    "migrate": {
+      "executor": "@app-speed/db-tools:drizzle-kit",
+      "options": {
+        "command": "migrate",
+        "config": "apps/api/drizzle.config.ts"
+      }
+    },
+    "migrate-generate": {
+      "executor": "@app-speed/db-tools:drizzle-kit",
+      "options": {
+        "command": "generate",
+        "config": "apps/api/drizzle.config.ts"
+      }
+    },
+    "studio": {
+      "executor": "@app-speed/db-tools:drizzle-kit",
+      "options": {
+        "command": "studio",
+        "config": "apps/api/drizzle.config.ts"
+      }
+    },
     "deploy": {
       "executor": "@app-speed/aws-deploy:ssm-deploy",
       "defaultConfiguration": "development",

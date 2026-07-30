@@ -1,0 +1,26 @@
+{
+  "name": "@app-speed/audit/user-flow/feature-builder",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/common": "21.2.13",
+    "@angular/core": "21.2.13",
+    "@angular/forms": "21.2.13",
+    "@angular/material": "21.2.11",
+    "@angular/router": "21.2.13",
+    "@app-speed/audit/user-flow/portal-data-access": "0.0.1",
+    "@app-speed/audit/portal/ui": "0.0.1",
+    "@app-speed/audit/portal/viewer": "0.0.1",
+    "@app-speed/audit/user-flow/domain": "0.0.1",
+    "@ngrx/effects": "21.1.0",
+    "@ngrx/store": "21.1.0",
+    "@rx-angular/template": "21.2.0",
+    "lighthouse": "^13.4.0",
+    "rxjs": "^7.8.0",
+    "vitest": "^4.1.6",
+    "@analogjs/vite-plugin-angular": "2.5.1",
+    "@nx/vite": "22.7.2",
+    "@storybook/angular": "^10.4.0",
+    "@app-speed/audit/core/domain": "0.0.1"
+  },
+  "sideEffects": false
+}
