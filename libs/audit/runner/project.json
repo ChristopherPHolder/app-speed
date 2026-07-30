@@ -3,7 +3,7 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/audit/runner/src",
   "projectType": "library",
-  "tags": ["type:domain", "scope:audit", "runtime:node", "layer:application"],
+  "tags": ["type:domain", "scope:audit", "feature:audit-user-flow", "runtime:node", "layer:application"],
   "targets": {
     "build": {
       "executor": "@nx/esbuild:esbuild",

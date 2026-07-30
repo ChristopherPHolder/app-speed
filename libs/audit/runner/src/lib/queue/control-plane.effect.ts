@@ -1,11 +1,15 @@
 import { EC2Client, StopInstancesCommand } from '@aws-sdk/client-ec2';
 import { HttpClient, HttpClientRequest, HttpClientResponse } from '@effect/platform';
 import { Clock, Config, Data, Effect, Match, Option, Schema } from 'effect';
-import { AuditSchema } from '@app-speed/audit/domain';
+import {
+  USER_FLOW_AUDIT_KIND_LITERAL,
+  UserFlowAuditDefinitionSchema,
+  UserFlowAuditKindSchema,
+} from '@app-speed/audit/user-flow/domain';
 
 export const AuditRequestSchema = Schema.Struct({
   auditId: Schema.String,
-  auditDetails: AuditSchema,
+  auditDetails: UserFlowAuditDefinitionSchema,
 });
 export type AuditRequest = typeof AuditRequestSchema.Type;
 
@@ -14,7 +18,8 @@ const RunnerClaimResponseSchema = Schema.Union(
   Schema.Struct({
     available: Schema.Literal(true),
     auditId: Schema.String,
-    auditDetails: AuditSchema,
+    kind: UserFlowAuditKindSchema,
+    definition: Schema.Unknown,
   }),
 );
 
@@ -107,7 +112,11 @@ export const claimNextAudit = Effect.gen(function* () {
     'runner.claim_available': true,
     'audit.id': response.auditId,
   });
-  return { auditId: response.auditId, auditDetails: response.auditDetails } as AuditRequest;
+  const auditDetails = yield* Match.value(response.kind).pipe(
+    Match.when(USER_FLOW_AUDIT_KIND_LITERAL, () => Schema.decodeUnknown(UserFlowAuditDefinitionSchema)(response.definition)),
+    Match.exhaustive,
+  );
+  return { auditId: response.auditId, auditDetails } as AuditRequest;
 }).pipe(Effect.withSpan('runner.queue.claimNext'));
 
 export const completeAuditRun = Effect.fn('runner.queue.completeRun')(function* (

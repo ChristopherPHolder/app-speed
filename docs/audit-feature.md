@@ -28,8 +28,8 @@ This document defines the architecture for scheduling user flow audits, executin
 ## Current Code Locations
 
 - `apps/api` is the application shell for the Effect-based control plane.
-- `libs/audit/api-runtime` owns audit HTTP handlers, API groups, SSE progress, and runner lifecycle orchestration.
-- `libs/audit/persistence` owns audit templates, runs, results, queue operations, and DB-backed query logic.
+- `libs/audit/core/api-runtime` owns shared audit HTTP handlers, API groups, SSE progress, and runner lifecycle orchestration.
+- `libs/audit/user-flow/persistence` owns user-flow templates, scheduling, queue operations, and DB-backed query logic.
 - `apps/runner` is the application shell for the runner process.
 - `libs/audit/runner` owns queue polling, heartbeat/shutdown requests, and audit execution.
 - `libs/audit/portal/{builder,viewer,runs}` own the portal-facing audit flows.
@@ -62,7 +62,7 @@ Pull-based runner orchestration with a dedicated `RunnerManager`.
 
 ## Core Data Model
 
-These records are implemented in `libs/audit/persistence` and align with the required flow.
+These records are implemented across `libs/audit/core/persistence` and `libs/audit/user-flow/persistence`.
 
 - `AuditTemplate` stores the audit definition.
 - `AuditRun` tracks status and timestamps.
@@ -80,7 +80,7 @@ All client communication is HTTP, with SSE for progress. This keeps the browser 
 
 ### Submit Audit
 
-- `POST /api/audit/schedule`
+- `POST /api/audits/user-flow/schedule`
 - Request body: `ReplayUserflowAudit`.
 - Response: `{ auditId, auditQueuePosition }`.
 
@@ -175,7 +175,7 @@ Local process management is implemented using the `Command` API and a `CommandEx
 
 The Angular app uses HTTP for submission and SSE for status updates.
 
-- Schedule: HTTP `POST /api/audit/schedule`.
+- Schedule: HTTP `POST /api/audits/user-flow/schedule`.
 - Progress: SSE `GET /api/audit/:id/events`.
 - Result: HTTP `GET /api/audit/:id/result`.
 
@@ -204,10 +204,11 @@ Phase 1 focuses on stability and local-first flow. Phase 2 introduces EC2 lifecy
 ### Phase 1
 
 - Keep `apps/api` and `apps/runner` as thin application shells.
-- Implement SSE progress based on DB-backed queue position in `libs/audit/api-runtime`.
+- Implement SSE progress based on DB-backed queue position in `libs/audit/core/api-runtime`.
 - Keep `RunnerManager` as a `Context.Tag` interface with local and AWS-backed implementations.
 - Use `libs/audit/runner` to pull audits and report results through the API.
-- Keep persistence and queue semantics in `libs/audit/persistence`.
+- Keep shared persistence contracts in `libs/audit/core/persistence` and user-flow queue semantics in
+  `libs/audit/user-flow/persistence`.
 
 ### Phase 2
 

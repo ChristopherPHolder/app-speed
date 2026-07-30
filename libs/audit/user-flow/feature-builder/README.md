@@ -1,0 +1,14 @@
+# @app-speed/audit/user-flow/feature-builder
+
+Vertical audit builder module for the portal.
+
+Exports:
+- `auditBuilderRoutes`
+- `BuilderComponent`
+- `AuditProgressService`
+- `AuditBuilderComponent`
+
+Internal structure:
+- `src/lib/feature`: NgRx state, effects, and route-level builder orchestration
+- `src/lib/api`: builder-specific HTTP and audit progress services
+- `src/lib/components`: reusable builder form and field components

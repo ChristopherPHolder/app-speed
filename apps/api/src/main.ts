@@ -3,15 +3,16 @@ import { Effect, Layer, Option } from 'effect';
 import { DevTools } from '@effect/experimental';
 import {
   AwsRunnerManagerLive,
-  HttpLive,
   LocalRunnerManagerLive,
   RunnerIdleReaperLive,
   RunnerLifecycleLive,
   RunnerRegistryLive,
-} from '@app-speed/audit/api-runtime';
-import { AuditRepoLive, DbClient, RecordPersistenceLive } from '@app-speed/audit/persistence';
+} from '@app-speed/audit/core/api-runtime';
+import { DbClient, RecordPersistenceLive } from '@app-speed/audit/core/persistence';
+import { UserFlowAuditRepoLive, UserFlowAuditSchedulerLive } from '@app-speed/audit/user-flow/persistence';
 import { makeNodeObservabilityLayer } from '@app-speed/platform/observability';
 import { ServerConfig } from './Config/config.js';
+import { HttpLive } from './http/Http.js';
 
 const ObservabilityLive = makeNodeObservabilityLayer({ serviceName: 'api' });
 const MainLayer = Layer.unwrapEffect(
@@ -30,8 +31,9 @@ const MainLayer = Layer.unwrapEffect(
       RunnerRegistryLive,
       RecordPersistenceLive,
     );
-    const WithAuditRepo = Layer.provideMerge(AuditRepoLive, BaseLayer);
-    const WithRunnerManager = Layer.provideMerge(RunnerManagerLive, WithAuditRepo);
+    const WithAuditRepo = Layer.provideMerge(UserFlowAuditRepoLive, BaseLayer);
+    const WithUserFlowScheduler = Layer.provideMerge(UserFlowAuditSchedulerLive, WithAuditRepo);
+    const WithRunnerManager = Layer.provideMerge(RunnerManagerLive, WithUserFlowScheduler);
     const AppLayer = Layer.provideMerge(RunnerLifecycleLive, WithRunnerManager);
     const RuntimeLayer = Layer.mergeAll(HttpLive, RunnerIdleReaperLive);
 

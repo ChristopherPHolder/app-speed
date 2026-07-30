@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 
 describe('Audit', () => {
   async function ScheduleRequest(payload: unknown) {
-    const r = await fetch(`${AUDIT_API_ENDPOINT}schedule`, {
+    const r = await fetch(USER_FLOW_SCHEDULE_ENDPOINT, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
@@ -180,6 +180,7 @@ const MOCK_AUDIT = {
 };
 
 const AUDIT_API_ENDPOINT = 'http://localhost:3000/api/audit/';
+const USER_FLOW_SCHEDULE_ENDPOINT = 'http://localhost:3000/api/audits/user-flow/schedule';
 
 export async function subscribeSSE(url: string, onData: (c: string) => void) {
   const res = await fetch(url, {

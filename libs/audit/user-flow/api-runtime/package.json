@@ -1,0 +1,14 @@
+{
+  "name": "@app-speed/audit/user-flow/api-runtime",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@app-speed/audit/core/api-runtime": "0.0.1",
+    "@app-speed/audit/core/persistence": "0.0.1",
+    "@app-speed/audit/user-flow/api-contract": "0.0.1",
+    "@app-speed/audit/user-flow/persistence": "0.0.1",
+    "@effect/platform": "^0.94.1",
+    "effect": "^3.19.14"
+  }
+}

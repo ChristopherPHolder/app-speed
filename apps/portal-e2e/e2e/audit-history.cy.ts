@@ -89,15 +89,15 @@ describe('audit history page', () => {
       },
     }).as('completedRunDetails');
 
-    cy.visit('/user-flow/results');
+    cy.visit('/audits/user-flow/results');
 
-    cy.location('pathname').should('eq', '/user-flow/results/history');
+    cy.location('pathname').should('eq', '/audits/user-flow/results/history');
     cy.wait('@listRuns');
     cy.contains('td', 'Completed audit').should('be.visible').click();
-    cy.location('pathname').should('eq', '/user-flow/results/audit-complete');
+    cy.location('pathname').should('eq', '/audits/user-flow/results/audit-complete');
     cy.wait('@completedRunDetails');
 
-    cy.visit('/user-flow/results/history');
+    cy.visit('/audits/user-flow/results/history');
     cy.wait('@listRuns');
     cy.contains('button', 'Refresh').click();
     cy.wait('@listRuns');
@@ -106,7 +106,7 @@ describe('audit history page', () => {
     cy.wait('@listRuns');
     cy.contains('td', 'Running audit').click();
 
-    cy.location('pathname').should('eq', '/user-flow/results/audit-running');
+    cy.location('pathname').should('eq', '/audits/user-flow/results/audit-running');
     cy.wait('@runDetails');
   });
 });

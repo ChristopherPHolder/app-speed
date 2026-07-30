@@ -7,20 +7,15 @@ export const shellRoutes: Route[] = [
     component: ShellComponent,
     children: [
       {
-        path: 'user-flow',
+        path: 'audits',
         children: [
           {
-            path: '',
-            loadChildren: () => import('@app-speed/audit/portal/builder').then((m) => m.auditBuilderRoutes),
-          },
-          {
-            path: 'builder',
-            redirectTo: '',
-            pathMatch: 'full',
+            path: 'user-flow',
+            loadChildren: () => import('@app-speed/audit/user-flow/feature-builder').then((m) => m.auditBuilderRoutes),
           },
         ],
       },
-      { path: '', redirectTo: 'user-flow', pathMatch: 'full' },
+      { path: '', redirectTo: 'audits/user-flow', pathMatch: 'full' },
       { path: '**', redirectTo: 'results-viewer' },
     ],
   },

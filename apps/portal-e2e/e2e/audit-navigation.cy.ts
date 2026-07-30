@@ -35,7 +35,7 @@ describe('audit builder navigation (mock backend)', () => {
   it('navigates to canonical user-flow with auditId and renders summary', () => {
     const auditId = 'audit-smoke-123';
 
-    cy.intercept('POST', '/api/audit/schedule', {
+    cy.intercept('POST', '/api/audits/user-flow/schedule', {
       statusCode: 200,
       body: {
         auditId,
@@ -53,7 +53,7 @@ describe('audit builder navigation (mock backend)', () => {
       }).as('result');
     });
 
-    cy.visit('/user-flow', {
+    cy.visit('/audits/user-flow', {
       onBeforeLoad(win) {
         win.EventSource = createMockEventSource();
       },
@@ -83,7 +83,7 @@ describe('audit builder navigation (mock backend)', () => {
     cy.wait('@schedule');
     cy.wait('@result');
 
-    cy.location('pathname').should('eq', '/user-flow');
+    cy.location('pathname').should('eq', '/audits/user-flow');
     cy.location('search').should('contain', `auditId=${auditId}`);
     cy.get('ui-audit-summary', { timeout: 20000 }).should('be.visible');
   });

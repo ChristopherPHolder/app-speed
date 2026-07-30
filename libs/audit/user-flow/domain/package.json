@@ -1,0 +1,10 @@
+{
+  "name": "@app-speed/audit/user-flow/domain",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@app-speed/audit/core/domain": "0.0.1",
+    "effect": "^3.19.14",
+    "lighthouse": "^13.4.0"
+  },
+  "sideEffects": false
+}

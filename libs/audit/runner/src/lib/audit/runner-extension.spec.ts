@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { UserFlow } from 'lighthouse';
 import type { Page } from 'puppeteer';
-import { AUDIT_CUSTOM_STEP_TYPE, LIGHTHOUSE_AUDIT_STEP_TYPE } from '@app-speed/audit/domain';
+import { AUDIT_CUSTOM_STEP_TYPE } from '@app-speed/audit/core/domain';
+import { LIGHTHOUSE_AUDIT_STEP_TYPE } from '@app-speed/audit/user-flow/domain';
 import { UserFlowRunnerExtension } from './runner-extension';
 
 const createFlow = () =>

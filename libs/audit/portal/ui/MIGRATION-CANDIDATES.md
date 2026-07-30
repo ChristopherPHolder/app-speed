@@ -1,11 +1,12 @@
 # Audit Portal Builder Migration Candidates
 
-This note evaluates which pieces from `libs/audit/portal/builder` are good candidates for the domain-scoped `layer:ui` library at `libs/audit/portal/ui`.
+This note evaluates which pieces from `libs/audit/user-flow/feature-builder` are good candidates for the
+domain-scoped `layer:ui` library at `libs/audit/portal/ui`.
 
 ## Boundary
 
 - `audit-portal-ui` is tagged `layer:ui`, so it should follow the Nx UI-library pattern: presentational components, UI-only helpers, and visual assets.
-- Keep routing, NgRx state, HTTP/SSE, and workflow orchestration in `libs/audit/portal/builder`.
+- Keep routing, NgRx state, HTTP/SSE, and workflow orchestration in `libs/audit/user-flow/feature-builder`.
 - The workspace dependency rules already allow a `layer:ui` library to depend on `layer:model` and `layer:contract`, so audit model/contracts imports are acceptable here when they are only used to render UI.
 
 ## Strong Candidates
@@ -113,7 +114,7 @@ Recommended move path:
 
 ## Not Good UI-Lib Moves
 
-These should stay in `libs/audit/portal/builder` or move somewhere other than the base UI library:
+These should stay in `libs/audit/user-flow/feature-builder` or move somewhere other than the base UI library:
 
 - `feature/*`
   - NgRx state, effects, dialog orchestration, and navigation logic.

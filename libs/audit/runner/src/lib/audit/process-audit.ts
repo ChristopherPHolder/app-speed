@@ -2,7 +2,10 @@ import { Effect, Schema } from 'effect';
 import { createRunner, parse as puppeteerReplayParse } from '@puppeteer/replay';
 import { generateReport, startFlow } from 'lighthouse';
 
-import { Audit, PuppeteerReplayUserflowRunnerSchema } from '@app-speed/audit/domain';
+import {
+  type UserFlowAuditDefinition,
+  PuppeteerReplayUserflowRunnerSchema,
+} from '@app-speed/audit/user-flow/domain';
 
 import { AuditConfig } from './audit-config';
 import { RunnerContext } from './runner-context';
@@ -14,7 +17,7 @@ class RunnerError extends Schema.TaggedError<RunnerError>()('RunnerFailed', {
   cause: Schema.optional(Schema.Unknown),
 }) {}
 
-export const runAudit = Effect.fn((audit: Audit) =>
+export const runAudit = Effect.fn((audit: UserFlowAuditDefinition) =>
   Effect.gen(function* () {
     yield* Effect.annotateCurrentSpan({
       'audit.title': audit.title,

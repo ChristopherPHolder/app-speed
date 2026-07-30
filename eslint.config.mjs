@@ -48,6 +48,14 @@ export default [
               onlyDependOnLibsWithTags: ['scope:audit', 'scope:shared'],
             },
             {
+              sourceTag: 'feature:audit-core',
+              onlyDependOnLibsWithTags: ['feature:audit-core', 'scope:shared'],
+            },
+            {
+              sourceTag: 'feature:audit-user-flow',
+              onlyDependOnLibsWithTags: ['feature:audit-user-flow', 'feature:audit-core', 'scope:shared'],
+            },
+            {
               sourceTag: 'scope:portal',
               onlyDependOnLibsWithTags: ['scope:portal', 'scope:audit', 'scope:shared'],
             },

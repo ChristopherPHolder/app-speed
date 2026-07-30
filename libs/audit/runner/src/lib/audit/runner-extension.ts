@@ -3,10 +3,12 @@ import type { Browser, Page } from 'puppeteer';
 import type { UserFlow } from 'lighthouse';
 import {
   AUDIT_CUSTOM_STEP_TYPE,
-  LIGHTHOUSE_AUDIT_STEP_TYPE,
   ReplayAuditCustomStepSchema,
+} from '@app-speed/audit/core/domain';
+import {
+  LIGHTHOUSE_AUDIT_STEP_TYPE,
   ReplayUserflowStepSchema,
-} from '@app-speed/audit/domain';
+} from '@app-speed/audit/user-flow/domain';
 import { Schema } from 'effect';
 import { setTimeout as waitForTime } from 'node:timers/promises';
 

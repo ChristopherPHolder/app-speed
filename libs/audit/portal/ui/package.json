@@ -7,7 +7,7 @@
     "@angular/material": "21.2.11",
     "@angular/platform-browser": "21.2.13",
     "@angular/core": "21.2.13",
-    "@app-speed/audit/domain": "0.0.1",
+    "@app-speed/audit/core/domain": "0.0.1",
     "@nx/vite": "22.7.2",
     "@storybook/angular": "^10.4.0",
     "vitest": "^4.1.6"
