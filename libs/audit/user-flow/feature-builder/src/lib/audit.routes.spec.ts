@@ -4,8 +4,8 @@ import { auditBuilderRoutes } from './audit.routes';
 import { BuilderComponent } from './feature/builder.component';
 
 describe('auditBuilderRoutes', () => {
-  it('uses the canonical builder, history, and result paths', () => {
-    expect(auditBuilderRoutes.map((route) => route.path)).toEqual(['history', ':id', '']);
+  it('uses the canonical builder and result paths', () => {
+    expect(auditBuilderRoutes.map((route) => route.path)).toEqual([':id', '']);
     expect(auditBuilderRoutes.at(-1)?.component).toBe(BuilderComponent);
   });
 

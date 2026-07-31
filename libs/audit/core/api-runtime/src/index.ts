@@ -1,4 +1,5 @@
 export { AuditGroupLive } from './lib/audit/Http';
+export { historyHandler } from './lib/audit/history/Http';
 export { HealthGroupLive } from './lib/health/Http';
 export { RunnerGroupLive } from './lib/runner/Http';
 export { AwsRunnerManagerLive } from './lib/runner/AwsRunnerManager';

@@ -4,6 +4,7 @@ import { AuditRunSummary, DEFAULT_AUDIT_RUN_FILTER } from '../api/audit-history.
 
 const sampleRuns: ReadonlyArray<AuditRunSummary> = [
   {
+    kind: 'user-flow',
     auditId: 'audit-001',
     title: 'Homepage performance audit',
     status: 'SCHEDULED',
@@ -15,6 +16,7 @@ const sampleRuns: ReadonlyArray<AuditRunSummary> = [
     durationMs: null,
   },
   {
+    kind: 'user-flow',
     auditId: 'audit-002',
     title: 'Checkout flow accessibility audit',
     status: 'IN_PROGRESS',
@@ -26,6 +28,7 @@ const sampleRuns: ReadonlyArray<AuditRunSummary> = [
     durationMs: null,
   },
   {
+    kind: 'user-flow',
     auditId: 'audit-003',
     title: 'Search journey regression audit',
     status: 'COMPLETE',

@@ -6,8 +6,7 @@ import { AuditHistoryPage, DEFAULT_AUDIT_RUN_FILTER, ListAuditHistoryParams } fr
 @Injectable({ providedIn: 'root' })
 export class AuditHistoryApiService {
   private readonly http = inject(HttpClient);
-
-  listHistory(params: ListAuditHistoryParams = {}): Observable<AuditHistoryPage> {
+  listHistory(endpoint: string, params: ListAuditHistoryParams = {}): Observable<AuditHistoryPage> {
     const limit = params.limit ?? 25;
     let queryParams = new HttpParams().set('limit', `${limit}`);
 
@@ -19,6 +18,6 @@ export class AuditHistoryApiService {
       queryParams = queryParams.set('status', params.status.join(','));
     }
 
-    return this.http.get<AuditHistoryPage>('/api/audit/runs', { params: queryParams });
+    return this.http.get<AuditHistoryPage>(endpoint, { params: queryParams });
   }
 }

@@ -10,7 +10,6 @@
     "@app-speed/audit/user-flow/portal-data-access": "0.0.1",
     "@app-speed/audit/portal/ui": "0.0.1",
     "@app-speed/audit/user-flow/feature-viewer": "0.0.1",
-    "@app-speed/audit/core/feature-history": "0.0.1",
     "@app-speed/audit/user-flow/domain": "0.0.1",
     "@ngrx/effects": "21.1.0",
     "@ngrx/store": "21.1.0",

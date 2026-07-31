@@ -2,20 +2,18 @@ export { AuditRepo, AuditRunIdSchema } from './lib/audit-repo';
 export type { AuditRunId } from './lib/audit-repo';
 export { AuditRepoLive } from './lib/audit-repo-live';
 export { AuditHistoryRepo } from './lib/audit-history-repo';
+export { AuditHistoryRepoLive } from './lib/audit-history-repo-live';
 export {
   AuditRunListCursorSchema,
   AuditStatusSchema,
   decodeAuditResultRecord,
-  decodeAuditRunDetailsRecord,
   decodeAuditRunRecord,
   decodeAuditRunSummaryRecord,
-  resolveAuditTitle,
   AuditTemplateIdSchema,
 } from './lib/audit-record';
 export type {
   AuditResultRecord,
   AuditResultStatus,
-  AuditRunDetailsRecord,
   AuditRunListCursor,
   AuditRunRecord,
   AuditRunSummaryRecord,

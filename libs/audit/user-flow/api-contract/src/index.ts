@@ -4,6 +4,7 @@ import { Schema } from 'effect';
 import { UserFlowAuditDefinitionSchema } from '@app-speed/audit/user-flow/domain';
 import {
   findByIdEndpoint,
+  historyEndpoint,
   reportByIdEndpoint,
   resultByIdEndpoint,
   watchByIdEndpoint,
@@ -26,6 +27,7 @@ export class UserFlowAuditApiGroup extends HttpApiGroup.make('userFlowAudit')
   .add(watchByIdEndpoint)
   .add(resultByIdEndpoint)
   .add(reportByIdEndpoint)
+  .add(historyEndpoint)
   .prefix('/audits/user-flow') {}
 
 export class UserFlowApi extends HttpApi.make('api').add(UserFlowAuditApiGroup).prefix('/api') {}

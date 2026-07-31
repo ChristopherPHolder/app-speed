@@ -51,6 +51,16 @@ import { AuditRunStatus, AuditRunSummary, DEFAULT_AUDIT_RUN_FILTER } from '../ap
                 <td mat-cell *matCellDef="let run">{{ run.status }}</td>
               </ng-container>
 
+              <ng-container matColumnDef="kind">
+                <th mat-header-cell *matHeaderCellDef>Feature</th>
+                <td mat-cell *matCellDef="let run">{{ run.kind }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="auditId">
+                <th mat-header-cell *matHeaderCellDef>Audit ID</th>
+                <td mat-cell *matCellDef="let run">{{ run.auditId }}</td>
+              </ng-container>
+
               <ng-container matColumnDef="title">
                 <th mat-header-cell *matHeaderCellDef>Title</th>
                 <td mat-cell *matCellDef="let run">{{ run.title }}</td>
@@ -59,6 +69,16 @@ import { AuditRunStatus, AuditRunSummary, DEFAULT_AUDIT_RUN_FILTER } from '../ap
               <ng-container matColumnDef="createdAt">
                 <th mat-header-cell *matHeaderCellDef>Created</th>
                 <td mat-cell *matCellDef="let run">{{ run.createdAt | date: 'medium' }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="startedAt">
+                <th mat-header-cell *matHeaderCellDef>Started</th>
+                <td mat-cell *matCellDef="let run">{{ (run.startedAt | date: 'medium') ?? 'N/A' }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="completedAt">
+                <th mat-header-cell *matHeaderCellDef>Completed</th>
+                <td mat-cell *matCellDef="let run">{{ (run.completedAt | date: 'medium') ?? 'N/A' }}</td>
               </ng-container>
 
               <ng-container matColumnDef="durationMs">
@@ -131,7 +151,7 @@ import { AuditRunStatus, AuditRunSummary, DEFAULT_AUDIT_RUN_FILTER } from '../ap
 
     table {
       width: 100%;
-      min-width: 760px;
+      min-width: 1200px;
     }
 
     .clickable-row {
@@ -182,8 +202,12 @@ export class AuditHistoryTableComponent {
   readonly statuses = DEFAULT_AUDIT_RUN_FILTER;
   readonly displayedColumns: ReadonlyArray<string> = [
     'status',
+    'kind',
+    'auditId',
     'title',
     'createdAt',
+    'startedAt',
+    'completedAt',
     'durationMs',
     'queuePosition',
     'resultStatus',

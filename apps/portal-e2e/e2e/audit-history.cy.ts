@@ -1,6 +1,6 @@
 describe('audit history page', () => {
   it('renders history, paginates, and opens runs through the canonical result route', () => {
-    cy.intercept('GET', /\/api\/audit\/runs(\?.*)?$/, (req) => {
+    cy.intercept('GET', /\/api\/audits\/(user-flow\/)?history(\?.*)?$/, (req) => {
       const cursor = req.query.cursor as string | undefined;
 
       if (cursor === 'cursor-2') {
@@ -9,6 +9,7 @@ describe('audit history page', () => {
           body: {
             items: [
               {
+                kind: 'user-flow',
                 auditId: 'audit-running',
                 title: 'Running audit',
                 status: 'IN_PROGRESS',
@@ -32,6 +33,7 @@ describe('audit history page', () => {
         body: {
           items: [
             {
+              kind: 'user-flow',
               auditId: 'audit-complete',
               title: 'Completed audit',
               status: 'COMPLETE',
@@ -66,5 +68,15 @@ describe('audit history page', () => {
     cy.contains('td', 'Running audit').click();
 
     cy.location('pathname').should('eq', '/audits/user-flow/audit-running');
+  });
+
+  it('redirects the audits root to combined history', () => {
+    cy.intercept('GET', /\/api\/audits\/history(\?.*)?$/, {
+      statusCode: 200,
+      body: { items: [], nextCursor: null, limit: 25 },
+    });
+
+    cy.visit('/audits');
+    cy.location('pathname').should('eq', '/audits/history');
   });
 });

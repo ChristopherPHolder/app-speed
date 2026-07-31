@@ -11,6 +11,7 @@ import { AuditHistoryTableComponent } from './components/audit-history-table.com
 class TestHostComponent {
   runs = [
     {
+      kind: 'user-flow',
       auditId: 'audit-1',
       title: 'UI Audit',
       status: 'SCHEDULED' as const,
@@ -37,10 +38,13 @@ describe('AuditHistoryTableComponent', () => {
 
     fixture = TestBed.createComponent(TestHostComponent);
     host = fixture.componentInstance;
-    fixture.detectChanges();
+    await fixture.whenStable();
   });
 
   it('renders without HttpClient providers and emits row selection', () => {
+    expect(fixture.nativeElement.textContent).toContain('user-flow');
+    expect(fixture.nativeElement.textContent).toContain('audit-1');
+
     const row = fixture.nativeElement.querySelector('tr.mat-mdc-row') as HTMLTableRowElement;
     row.click();
     expect(host.onRunSelected).toHaveBeenCalledTimes(1);

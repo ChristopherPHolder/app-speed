@@ -11,7 +11,7 @@ Exports:
 
 Internal structure:
 
-- `src/lib/page`: inline result container rendered by `/user-flow/results/:id`
+- `src/lib/page`: inline result container rendered by `/audits/user-flow/:id`
 - `src/lib/summary`: audit overview and score presentation
 - `src/lib/steps`: step-level result rendering, filmstrip, and metric summaries
 - `src/lib/diagnostics`: detailed diagnostic panels and supporting visualizers

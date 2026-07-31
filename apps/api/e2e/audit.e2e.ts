@@ -67,82 +67,59 @@ describe('Audit', () => {
     expect(receivedChunk.length).toBeGreaterThan(0);
   });
 
-  it('should list audit runs with cursor envelope', async () => {
+  it('should list combined audit history with cursor envelope', async () => {
     await ScheduleRequest(MOCK_AUDIT);
     await ScheduleRequest({ ...MOCK_AUDIT, title: 'Another audit' });
 
-    const res = await fetch(`${AUDIT_API_ENDPOINT}runs?limit=1`);
+    const res = await fetch(`${AUDIT_HISTORY_ENDPOINT}?limit=1`);
     expect(res.status).toBe(200);
     const body = await res.json();
 
     expect(Array.isArray(body.items)).toBe(true);
     expect(body.limit).toBe(1);
     expect(body.items[0]).toHaveProperty('auditId');
+    expect(body.items[0]).toHaveProperty('kind', 'user-flow');
     expect(body.items[0]).toHaveProperty('title');
     expect(body.items[0]).toHaveProperty('status');
     expect(body).toHaveProperty('nextCursor');
   });
 
   it('should return structured invalid query errors for bad list limits', async () => {
-    const res = await fetch(`${AUDIT_API_ENDPOINT}runs?limit=0`);
+    const res = await fetch(`${AUDIT_HISTORY_ENDPOINT}?limit=0`);
     const body = await res.json();
 
     expect(res.status).toBe(400);
     expect(body).toMatchObject({
-      _tag: 'AuditRunsInvalidQueryError',
+      _tag: 'AuditHistoryInvalidQueryError',
       code: 'INVALID_QUERY',
     });
   });
 
   it('should return structured invalid cursor errors', async () => {
-    const res = await fetch(`${AUDIT_API_ENDPOINT}runs?cursor=bad-cursor`);
+    const res = await fetch(`${AUDIT_HISTORY_ENDPOINT}?cursor=bad-cursor`);
     const body = await res.json();
 
     expect(res.status).toBe(400);
     expect(body).toMatchObject({
-      _tag: 'AuditRunsInvalidCursorError',
+      _tag: 'AuditHistoryInvalidCursorError',
       code: 'INVALID_CURSOR',
     });
   });
 
-  it('should return run summary by id', async () => {
+  it('should enforce the user-flow filter on feature history', async () => {
     const scheduleResponse = await ScheduleRequest(MOCK_AUDIT);
-    const res = await fetch(`${AUDIT_API_ENDPOINT}runs/${scheduleResponse.auditId}`);
+    const res = await fetch(`${USER_FLOW_API_ENDPOINT}history`);
     const body = await res.json();
 
     expect(res.status).toBe(200);
-    expect(body).toMatchObject({
-      auditId: scheduleResponse.auditId,
-      title: MOCK_AUDIT.title,
-      status: 'SCHEDULED',
-    });
+    expect(body.items).toContainEqual(
+      expect.objectContaining({ auditId: scheduleResponse.auditId, kind: 'user-flow', title: MOCK_AUDIT.title }),
+    );
   });
 
-  it('should return run details by id for user-flow hydration', async () => {
-    const scheduleResponse = await ScheduleRequest(MOCK_AUDIT);
-    const res = await fetch(`${AUDIT_API_ENDPOINT}runs/${scheduleResponse.auditId}/details`);
-    const body = await res.json();
-
-    expect(res.status).toBe(200);
-    expect(body).toMatchObject({
-      auditId: scheduleResponse.auditId,
-      audit: MOCK_AUDIT,
-      status: 'SCHEDULED',
-      resultStatus: null,
-    });
-    expect(body).toHaveProperty('queuePosition');
-    expect(body).toHaveProperty('createdAt');
-  });
-
-  it('should return run not found for unknown run summary id', async () => {
-    const res = await fetch(`${AUDIT_API_ENDPOINT}runs/STUB_ID`);
-    const body = await res.json();
-
-    expect(res.status).toBe(404);
-    expect(body).toMatchObject({
-      _tag: 'AuditRunSummaryNotFoundError',
-      code: 'RUN_NOT_FOUND',
-    });
+  it('does not expose the legacy audit run endpoints', async () => {
+    expect((await fetch('http://localhost:3000/api/audit/runs')).status).toBe(404);
+    expect((await fetch('http://localhost:3000/api/audit/runs/STUB_ID')).status).toBe(404);
   });
 
   it('should return stored lighthouse html report', async () => {
@@ -182,7 +159,7 @@ const MOCK_AUDIT = {
   ],
 };
 
-const AUDIT_API_ENDPOINT = 'http://localhost:3000/api/audit/';
+const AUDIT_HISTORY_ENDPOINT = 'http://localhost:3000/api/audits/history';
 const USER_FLOW_SCHEDULE_ENDPOINT = 'http://localhost:3000/api/audits/user-flow/schedule';
 const USER_FLOW_API_ENDPOINT = 'http://localhost:3000/api/audits/user-flow/';
 

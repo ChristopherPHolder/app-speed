@@ -27,8 +27,8 @@ const ApiErrorDetailsSchema = Schema.optional(
   }),
 );
 
-export class AuditRunsInvalidQueryError extends Schema.TaggedError<AuditRunsInvalidQueryError>()(
-  'AuditRunsInvalidQueryError',
+export class AuditHistoryInvalidQueryError extends Schema.TaggedError<AuditHistoryInvalidQueryError>()(
+  'AuditHistoryInvalidQueryError',
   {
     code: Schema.Literal('INVALID_QUERY'),
     message: Schema.String,
@@ -37,8 +37,8 @@ export class AuditRunsInvalidQueryError extends Schema.TaggedError<AuditRunsInva
   HttpApiSchema.annotations({ status: 400 }),
 ) {}
 
-export class AuditRunsInvalidCursorError extends Schema.TaggedError<AuditRunsInvalidCursorError>()(
-  'AuditRunsInvalidCursorError',
+export class AuditHistoryInvalidCursorError extends Schema.TaggedError<AuditHistoryInvalidCursorError>()(
+  'AuditHistoryInvalidCursorError',
   {
     code: Schema.Literal('INVALID_CURSOR'),
     message: Schema.String,
@@ -47,18 +47,8 @@ export class AuditRunsInvalidCursorError extends Schema.TaggedError<AuditRunsInv
   HttpApiSchema.annotations({ status: 400 }),
 ) {}
 
-export class AuditRunSummaryNotFoundError extends Schema.TaggedError<AuditRunSummaryNotFoundError>()(
-  'AuditRunSummaryNotFoundError',
-  {
-    code: Schema.Literal('RUN_NOT_FOUND'),
-    message: Schema.String,
-    details: ApiErrorDetailsSchema,
-  },
-  HttpApiSchema.annotations({ status: 404 }),
-) {}
-
-export class AuditRunsInternalError extends Schema.TaggedError<AuditRunsInternalError>()(
-  'AuditRunsInternalError',
+export class AuditHistoryInternalError extends Schema.TaggedError<AuditHistoryInternalError>()(
+  'AuditHistoryInternalError',
   {
     code: Schema.Literal('INTERNAL_ERROR'),
     message: Schema.String,

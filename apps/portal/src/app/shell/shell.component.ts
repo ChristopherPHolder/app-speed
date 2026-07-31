@@ -100,9 +100,4 @@ import { RouterOutlet } from '@angular/router';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ShellComponent {
-  // readonly sideNavItems = [
-  //   { name: 'Audit Builder', route: 'user-flow' },
-  //   { name: 'Audit History', route: 'user-flow/results/history' },
-  // ];
-}
+export class ShellComponent {}
