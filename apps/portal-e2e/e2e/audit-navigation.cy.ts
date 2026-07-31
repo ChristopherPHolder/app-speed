@@ -44,7 +44,7 @@ describe('audit builder navigation (mock backend)', () => {
     }).as('schedule');
 
     cy.fixture('flow-result.json').then((flowResult) => {
-      cy.intercept('GET', `/api/audit/${auditId}/result`, {
+      cy.intercept('GET', `/api/audits/user-flow/${auditId}/result`, {
         statusCode: 200,
         body: {
           status: 'SUCCESS',
@@ -83,8 +83,7 @@ describe('audit builder navigation (mock backend)', () => {
     cy.wait('@schedule');
     cy.wait('@result');
 
-    cy.location('pathname').should('eq', '/audits/user-flow');
-    cy.location('search').should('contain', `auditId=${auditId}`);
+    cy.location('pathname').should('eq', `/audits/user-flow/${auditId}`);
     cy.get('ui-audit-summary', { timeout: 20000 }).should('be.visible');
   });
 });

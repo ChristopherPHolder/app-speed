@@ -9,17 +9,10 @@ import { RunnerRegistry } from './RunnerRegistry.js';
 const unusedEffect = Effect.dieMessage('unused test stub');
 
 const makeAuditRepoStub = (hasScheduledRuns: () => boolean) => ({
-  createTemplate: () => unusedEffect,
-  getTemplateById: () => unusedEffect,
-  createRun: () => unusedEffect,
   claimNextRun: () => unusedEffect,
   hasScheduledRuns: () => Effect.succeed(hasScheduledRuns()),
-  markRunInProgress: () => unusedEffect,
   getQueuePosition: () => unusedEffect,
-  getRunSummaryById: () => unusedEffect,
-  getRunDetailsById: () => unusedEffect,
-  listRunsPage: () => unusedEffect,
-  completeRun: () => unusedEffect,
+  completeFailure: () => unusedEffect,
   getRunById: () => unusedEffect,
   getResultByRunId: () => unusedEffect,
 });

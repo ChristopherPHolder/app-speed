@@ -1,5 +1,7 @@
 export { AuditRepo, AuditRunIdSchema } from './lib/audit-repo';
 export type { AuditRunId } from './lib/audit-repo';
+export { AuditRepoLive } from './lib/audit-repo-live';
+export { AuditHistoryRepo } from './lib/audit-history-repo';
 export {
   AuditRunListCursorSchema,
   AuditStatusSchema,
@@ -8,6 +10,7 @@ export {
   decodeAuditRunRecord,
   decodeAuditRunSummaryRecord,
   resolveAuditTitle,
+  AuditTemplateIdSchema,
 } from './lib/audit-record';
 export type {
   AuditResultRecord,

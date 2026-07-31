@@ -23,7 +23,6 @@ const AuditRunRecordSchema = Schema.Struct({
   id: AuditRunIdSchema,
   templateId: AuditTemplateIdSchema,
   kind: AuditKindSchema,
-  definition: Schema.Unknown,
   status: AuditStatusSchema,
   createdAt: Schema.DateFromSelf,
   updatedAt: Schema.DateFromSelf,
@@ -37,11 +36,10 @@ export const AuditResultStatusSchema = Schema.Literal('SUCCESS', 'FAILURE');
 export type AuditResultStatus = typeof AuditResultStatusSchema.Type;
 
 const AuditResultRecordSchema = Schema.Struct({
+  id: Schema.NonEmptyString,
   runId: AuditRunIdSchema,
-  data: Schema.Unknown,
   status: AuditResultStatusSchema,
   error: Schema.NullOr(Schema.Unknown),
-  reportHtml: Schema.NullOr(Schema.String),
   createdAt: Schema.DateFromSelf,
 });
 export type AuditResultRecord = typeof AuditResultRecordSchema.Type;
@@ -78,12 +76,7 @@ export const AuditRunListCursorSchema = Schema.Struct({
 });
 export type AuditRunListCursor = typeof AuditRunListCursorSchema.Type;
 
-export const decodeAuditTemplateRecord = (template: {
-  id: string;
-  kind: string;
-  createAt: Date;
-  updatedAt: Date;
-}) =>
+export const decodeAuditTemplateRecord = (template: { id: string; kind: string; createAt: Date; updatedAt: Date }) =>
   Schema.decodeUnknown(AuditTemplateRecordSchema, { errors: 'all' })(template);
 
 export const decodeAuditRunRecord = (run: {
@@ -96,13 +89,11 @@ export const decodeAuditRunRecord = (run: {
   completedAt: Date | null;
   durationMs: number | null;
   kind: string;
-  definition: unknown;
 }) =>
   Schema.decodeUnknown(AuditRunRecordSchema, { errors: 'all' })({
     id: run.id,
     templateId: run.templateId,
     kind: run.kind,
-    definition: run.definition,
     status: run.status,
     createdAt: run.createdAt,
     updatedAt: run.updatedAt,
@@ -112,19 +103,17 @@ export const decodeAuditRunRecord = (run: {
   });
 
 export const decodeAuditResultRecord = (result: {
+  id: string;
   runId: string;
   status: AuditResultStatus;
-  data: unknown;
   error: unknown;
-  reportHtml: string | null;
   createdAt: Date;
 }) =>
   Schema.decodeUnknown(AuditResultRecordSchema, { errors: 'all' })({
+    id: result.id,
     runId: result.runId,
     status: result.status,
-    data: result.data ?? null,
     error: result.error ?? null,
-    reportHtml: result.reportHtml ?? null,
     createdAt: result.createdAt,
   });
 

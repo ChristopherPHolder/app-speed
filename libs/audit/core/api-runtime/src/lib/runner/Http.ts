@@ -4,6 +4,7 @@ import { CoreApi } from '@app-speed/audit/core/api-contract';
 import { AuditRepo } from '@app-speed/audit/core/persistence';
 import { RunnerLifecycle } from './RunnerLifecycle.js';
 import { RunnerRegistry } from './RunnerRegistry.js';
+import { InstalledAuditFeatures } from './InstalledAuditFeatures.js';
 
 export const RunnerGroupLive = HttpApiBuilder.group(CoreApi, 'runner', (handlers) =>
   Effect.gen(function* () {
@@ -11,6 +12,7 @@ export const RunnerGroupLive = HttpApiBuilder.group(CoreApi, 'runner', (handlers
     const repo = yield* AuditRepo;
     const runnerLifecycle = yield* RunnerLifecycle;
     const runnerRegistry = yield* RunnerRegistry;
+    const installedFeatures = yield* InstalledAuditFeatures;
 
     return handlers
       .handle(
@@ -19,14 +21,18 @@ export const RunnerGroupLive = HttpApiBuilder.group(CoreApi, 'runner', (handlers
           Effect.gen(function* () {
             yield* Effect.annotateCurrentSpan({ 'runner.id': request.payload.runnerId });
             const run = yield* repo.claimNextRun();
-            const response = Match.value(run).pipe(
-              Match.when(null, () => ({ available: false as const })),
-              Match.orElse((nextRun) => ({
-                available: true as const,
-                auditId: nextRun.id,
-                kind: nextRun.kind,
-                definition: nextRun.definition,
-              })),
+            const response = yield* Match.value(run).pipe(
+              Match.when(null, () => Effect.succeed({ available: false as const })),
+              Match.orElse((nextRun) =>
+                installedFeatures.getDefinition(nextRun.kind, nextRun.templateId).pipe(
+                  Effect.map((definition) => ({
+                    available: true as const,
+                    auditId: nextRun.id,
+                    kind: nextRun.kind,
+                    definition,
+                  })),
+                ),
+              ),
             );
 
             yield* runnerRegistry.recordClaimResult(request.payload.runnerId, response.available);
@@ -46,19 +52,6 @@ export const RunnerGroupLive = HttpApiBuilder.group(CoreApi, 'runner', (handlers
         'complete',
         Effect.fn('api.runner.complete')((request) =>
           Effect.gen(function* () {
-            const result = Match.value(request.payload).pipe(
-              Match.when({ status: 'SUCCESS' }, (payload) => ({
-                status: payload.status,
-                data: payload.result,
-                reportHtml: payload.reportHtml,
-              })),
-              Match.when({ status: 'FAILURE' }, (payload) => ({
-                status: payload.status,
-                data: null,
-                error: payload.error,
-              })),
-              Match.exhaustive,
-            );
             yield* Effect.annotateCurrentSpan({
               'runner.id': request.payload.runnerId,
               'audit.id': request.payload.auditId,
@@ -70,9 +63,16 @@ export const RunnerGroupLive = HttpApiBuilder.group(CoreApi, 'runner', (handlers
               `Runner ${request.payload.runnerId} completed ${request.payload.auditId} in ${request.payload.durationMs} with status ${request.payload.status}`,
             );
 
-            yield* repo
-              .completeRun(request.payload.auditId, result, request.payload.durationMs)
-              .pipe(Effect.catchTag('QueryError', () => new HttpApiError.BadRequest()));
+            yield* Match.value(request.payload).pipe(
+              Match.when({ status: 'SUCCESS' }, (payload) =>
+                installedFeatures.completeSuccess(payload.kind, payload.auditId, payload.result, payload.durationMs),
+              ),
+              Match.when({ status: 'FAILURE' }, (payload) =>
+                repo.completeFailure(payload.auditId, payload.error, payload.durationMs),
+              ),
+              Match.exhaustive,
+              Effect.catchTag('QueryError', () => new HttpApiError.BadRequest()),
+            );
             yield* runnerRegistry.recordCompletion(request.payload.runnerId);
 
             return { ok: true as const };

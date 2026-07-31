@@ -49,55 +49,14 @@ describe('audit history page', () => {
       });
     }).as('listRuns');
 
-    cy.intercept('GET', '/api/audit/runs/audit-running/details', {
-      statusCode: 200,
-      body: {
-        auditId: 'audit-running',
-        audit: {
-          title: 'Running audit',
-          url: 'https://example.com',
-          timeout: 30,
-          steps: [],
-        },
-        status: 'IN_PROGRESS',
-        resultStatus: null,
-        queuePosition: null,
-        createdAt: '2026-03-03T10:01:00.000Z',
-        startedAt: '2026-03-03T10:02:00.000Z',
-        completedAt: null,
-        durationMs: null,
-      },
-    }).as('runDetails');
+    cy.visit('/audits/user-flow/history');
 
-    cy.intercept('GET', '/api/audit/runs/audit-complete/details', {
-      statusCode: 200,
-      body: {
-        auditId: 'audit-complete',
-        audit: {
-          title: 'Completed audit',
-          url: 'https://example.com',
-          timeout: 30,
-          steps: [],
-        },
-        status: 'COMPLETE',
-        resultStatus: null,
-        queuePosition: null,
-        createdAt: '2026-03-03T10:00:00.000Z',
-        startedAt: '2026-03-03T10:00:30.000Z',
-        completedAt: '2026-03-03T10:01:30.000Z',
-        durationMs: 60000,
-      },
-    }).as('completedRunDetails');
-
-    cy.visit('/audits/user-flow/results');
-
-    cy.location('pathname').should('eq', '/audits/user-flow/results/history');
+    cy.location('pathname').should('eq', '/audits/user-flow/history');
     cy.wait('@listRuns');
     cy.contains('td', 'Completed audit').should('be.visible').click();
-    cy.location('pathname').should('eq', '/audits/user-flow/results/audit-complete');
-    cy.wait('@completedRunDetails');
+    cy.location('pathname').should('eq', '/audits/user-flow/audit-complete');
 
-    cy.visit('/audits/user-flow/results/history');
+    cy.visit('/audits/user-flow/history');
     cy.wait('@listRuns');
     cy.contains('button', 'Refresh').click();
     cy.wait('@listRuns');
@@ -106,7 +65,6 @@ describe('audit history page', () => {
     cy.wait('@listRuns');
     cy.contains('td', 'Running audit').click();
 
-    cy.location('pathname').should('eq', '/audits/user-flow/results/audit-running');
-    cy.wait('@runDetails');
+    cy.location('pathname').should('eq', '/audits/user-flow/audit-running');
   });
 });
