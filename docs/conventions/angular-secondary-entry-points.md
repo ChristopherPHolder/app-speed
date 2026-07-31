@@ -10,23 +10,23 @@ Secondary entry points must follow one canonical naming rule:
 
 ## Canonical Example
 
-For `libs/audit/portal/ui`:
+For `libs/audit/core/portal-ui`:
 
-- root package name in `libs/audit/portal/ui/package.json`:
-  - `@app-speed/audit/portal/ui`
+- root package name in `libs/audit/core/portal-ui/package.json`:
+  - `@app-speed/audit/core/portal-ui`
 - secondary entry point folder:
   - `icons`
 - required TypeScript path aliases:
-  - `@app-speed/audit/portal/ui`
-  - `@app-speed/audit/portal/ui/icons`
+  - `@app-speed/audit/core/portal-ui`
+  - `@app-speed/audit/core/portal-ui/icons`
 - required consumer import:
-  - `@app-speed/audit/portal/ui/icons`
+  - `@app-speed/audit/core/portal-ui/icons`
 
 Do not mix naming schemes.
 
 Invalid examples:
 
-- `@app-speed/audit-portal-ui-icons`
+- `@app-speed/audit-core-portal-ui-icons`
 - `@app-speed/audit/portal-ui/icons`
 - `@app-speed/audit/portal/icons`
 
@@ -93,14 +93,14 @@ This is the quickest way to tell whether the issue is stale Nx incremental state
 For the audit portal UI package, the correct imports are:
 
 ```ts
-import { provideAuditBuilderIcons } from '@app-speed/audit/portal/ui/icons';
+import { provideAuditBuilderIcons } from '@app-speed/audit/core/portal-ui/icons';
 ```
 
 The correct aliases are:
 
 ```json
 {
-  "@app-speed/audit/portal/ui": ["libs/audit/portal/ui/src/index.ts"],
-  "@app-speed/audit/portal/ui/icons": ["libs/audit/portal/ui/icons/src/index.ts"]
+  "@app-speed/audit/core/portal-ui": ["libs/audit/core/portal-ui/src/index.ts"],
+  "@app-speed/audit/core/portal-ui/icons": ["libs/audit/core/portal-ui/icons/src/index.ts"]
 }
 ```

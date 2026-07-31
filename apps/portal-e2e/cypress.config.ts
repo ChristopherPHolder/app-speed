@@ -31,7 +31,7 @@ const ensureBackend = async () => {
       stdio: 'inherit',
       env: {
         ...process.env,
-        RUNNER_MODE: 'local',
+        RUNNER_MANAGER_MODE: 'local',
         RUNNER_HEADLESS: 'true',
       },
     });

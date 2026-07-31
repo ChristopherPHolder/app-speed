@@ -16,14 +16,14 @@ It describes what that means in the current `viewer-step-detail` implementation,
 
 Primary component:
 
-- `libs/audit/portal/viewer/src/lib/steps/viewer-step-details.component.ts`
+- `libs/audit/user-flow/feature-viewer/src/lib/steps/viewer-step-details.component.ts`
 
 Supporting components that drive most of the rendered layout:
 
-- `libs/audit/portal/viewer/src/lib/steps/viewer-step-metric-summary.component.ts`
-- `libs/audit/portal/viewer/src/lib/steps/viewer-film-strip.component.ts`
-- `libs/audit/portal/viewer/src/lib/diagnostics/viewer-diagnostic.component.ts`
-- `libs/audit/portal/viewer/src/lib/diagnostics/viewer-diagnostic-panel.component.ts`
+- `libs/audit/user-flow/feature-viewer/src/lib/steps/viewer-step-metric-summary.component.ts`
+- `libs/audit/user-flow/feature-viewer/src/lib/steps/viewer-film-strip.component.ts`
+- `libs/audit/user-flow/feature-viewer/src/lib/diagnostics/viewer-diagnostic.component.ts`
+- `libs/audit/user-flow/feature-viewer/src/lib/diagnostics/viewer-diagnostic-panel.component.ts`
 
 ## What "Lacks a Stronger Responsive Layout Strategy" Means
 

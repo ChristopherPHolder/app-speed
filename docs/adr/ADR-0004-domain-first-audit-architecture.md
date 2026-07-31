@@ -61,7 +61,6 @@ The team also wants better co-location between frontend code, backend code, and 
 - Positive: applications become simpler composition roots with less embedded domain logic.
 - Positive: Nx constraints can prevent architectural drift once the migration is complete.
 - Positive: audit-specific UI can stop masquerading as generic shared UI.
-- Negative: the migration will temporarily increase indirection because compatibility exports and old/new modules will coexist.
-- Negative: project names, import aliases, and file ownership will change substantially.
-- Negative: some existing “shared” or “server” modules will need to be split before they can move cleanly.
+- Negative: the completed migration changed project names, import aliases, and file ownership substantially.
+- Negative: feature-neutral core and feature-specific projects add more explicit boundaries to navigate.
 - Negative: this ADR intentionally does not define multiple bounded contexts beyond `Audit`; if the domain later proves more complex, additional ADRs may be required.

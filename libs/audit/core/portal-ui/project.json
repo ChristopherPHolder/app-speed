@@ -1,7 +1,7 @@
 {
-  "name": "audit-portal-ui",
+  "name": "audit-core-portal-ui",
   "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/audit/portal/ui",
+  "sourceRoot": "libs/audit/core/portal-ui",
   "prefix": "b-ui",
   "projectType": "library",
   "tags": [
@@ -18,12 +18,12 @@
         "{workspaceRoot}/dist/{projectRoot}"
       ],
       "options": {
-        "project": "libs/audit/portal/ui/ng-package.json",
-        "tsConfig": "libs/audit/portal/ui/tsconfig.lib.json"
+        "project": "libs/audit/core/portal-ui/ng-package.json",
+        "tsConfig": "libs/audit/core/portal-ui/tsconfig.lib.json"
       },
       "configurations": {
         "production": {
-          "tsConfig": "libs/audit/portal/ui/tsconfig.lib.prod.json"
+          "tsConfig": "libs/audit/core/portal-ui/tsconfig.lib.prod.json"
         },
         "development": {}
       },
@@ -36,7 +36,7 @@
       ],
       "options": {
         "configFile": "{projectRoot}/vitest.config.mts",
-        "reportsDirectory": "{projectRoot}/../../../../coverage/libs/audit/portal/ui",
+        "reportsDirectory": "{projectRoot}/../../../../coverage/libs/audit/core/portal-ui",
         "passWithNoTests": true
       }
     },

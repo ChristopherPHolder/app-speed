@@ -17,10 +17,13 @@ Implement Audit Runs as a dedicated Nx feature slice:
 This ADR captured the pre-migration frontend direction for Audit Runs.
 The repository no longer follows this horizontal portal split.
 
-Audit history now lives inside the audit viewer package as a secondary entry point:
+Audit history now lives in the feature-neutral audit core:
 
-- `libs/audit/portal/viewer/runs`
-- `@app-speed/audit/portal/viewer/runs`
+- `libs/audit/core/feature-history`
+- `@app-speed/audit/core/feature-history`
+
+The portal installs it at `/audits/history` and `/audits/user-flow/history`, while user-flow result navigation targets
+`/audits/user-flow/:id`.
 
 The broader architectural decision is recorded in `ADR-0004: Domain-First Audit Architecture`.
 

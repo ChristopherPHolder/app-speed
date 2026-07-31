@@ -46,7 +46,7 @@ describe('Audit', () => {
   });
 
   it('should return error if no audit found', async () => {
-    const res = await fetch(`${USER_FLOW_API_ENDPOINT}STUB_ID`);
+    const res = await fetch(`${USER_FLOW_API_ENDPOINT}00000000-0000-4000-8000-000000000000`);
     expect(res.status).toBe(404);
     expect(await res.json()).toHaveProperty('_tag', 'AuditNotFoundError');
   });

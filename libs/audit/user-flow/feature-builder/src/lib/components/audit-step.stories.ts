@@ -1,5 +1,5 @@
 import { applicationConfig, type Meta, type StoryObj } from '@storybook/angular';
-import { provideAuditBuilderIcons } from '@app-speed/audit/portal/ui/icons';
+import { provideAuditBuilderIcons } from '@app-speed/audit/core/portal-ui/icons';
 import { STEP_TYPE } from '@app-speed/audit/core/domain';
 import { LIGHTHOUSE_AUDIT_STEP_TYPE } from '@app-speed/audit/user-flow/domain';
 import { Step, StepFormGroup } from './audit-builder-form';
