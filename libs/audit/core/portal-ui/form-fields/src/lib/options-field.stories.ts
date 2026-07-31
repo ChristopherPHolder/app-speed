@@ -1,6 +1,6 @@
 import { FormControl } from '@angular/forms';
 import { applicationConfig, type Meta, type StoryObj } from '@storybook/angular';
-import { provideAuditBuilderIcons } from '@app-speed/audit/portal/ui/icons';
+import { provideAuditBuilderIcons } from '@app-speed/audit/core/portal-ui/icons';
 import {
   PUPPETEER_REPLAY_ASSERTION_STEP_TYPE,
   PUPPETEER_REPLAY_USER_STEP_TYPE,

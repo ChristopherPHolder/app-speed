@@ -2,61 +2,47 @@
 
 Status: Active  
 Owner: Christopher Holder  
-Last Updated: 2026-07-02
+Last Updated: 2026-07-31
 
 ## Summary
 
-Audit History provides the result-history experience for browsing queued, running, and completed audits from newest to oldest. The page is available at `/user-flow/results/history`; every row opens the canonical result route at `/user-flow/results/:id`.
+Audit History lists scheduled, running, and completed audits from newest to oldest. The shared history feature serves
+both the cross-feature route at `/audits/history` and the user-flow route at `/audits/user-flow/history`. Every row
+navigates to the installed feature's canonical lifecycle/result page; for user-flow audits that route is
+`/audits/user-flow/:id`.
 
-## Goals
+## Ownership
 
-- Show all run states (`SCHEDULED`, `IN_PROGRESS`, `COMPLETE`) in one list.
-- Expose stable pagination under active inserts.
-- Allow quick drill-down from list rows into the canonical result view.
-- Keep the feature inside the audit domain rather than split across top-level horizontal portal libraries.
+- `libs/audit/core/api-contract` defines the canonical history contract at `GET /api/audits/history`.
+- `libs/audit/core/api-runtime` implements the shared history handler.
+- `libs/audit/core/persistence` owns cursor pagination over shared run lifecycle records.
+- `libs/audit/core/feature-history` owns the reusable Angular history page, API client, and table.
+- `libs/audit/user-flow/api-contract` exposes the feature-filtered contract at
+  `GET /api/audits/user-flow/history`.
+- `libs/audit/user-flow/api-runtime` installs the user-flow history handler by filtering shared history by feature kind.
+- `libs/audit/user-flow/feature-viewer` owns `/audits/user-flow/:id` and the user-flow result experience.
+- `apps/api` composes the core and user-flow HTTP groups, while `apps/portal` supplies the endpoint and result-route
+  configuration to the shared history feature.
 
-## Non-Goals
-
-- Retry/cancel run actions.
-- Authorization changes.
-- Data model migrations.
-
-## Backend Architecture
-
-- New API endpoints:
-  - `GET /api/audit/runs`
-  - `GET /api/audit/runs/:id/details`
-- `libs/audit/api-runtime` owns the route handlers and HTTP contract.
-- `libs/audit/persistence` provides paginated summaries via `listRunsPage` and result-route hydration via `getRunDetailsById`.
-- Cursor uses `(createdAtMs, id)` with descending order (`createdAt desc`, `id desc`).
-- Queue position is computed only for `SCHEDULED`.
-
-## Frontend Architecture
-
-- `libs/audit/portal/viewer/runs`:
-  - Exposes `auditHistoryRoutes` as a secondary entry point of the viewer package.
-  - Owns the route-level page component for history.
-  - Owns the API client and DTOs under `src/lib/api`.
-  - Owns reusable presentational components under `src/lib/components`.
-- `libs/audit/portal/builder` owns the `/user-flow/results/*` route tree and lazy-loads the history entry point from `@app-speed/audit/portal/viewer/runs`.
+The shared `libs/audit/core/*` projects do not import the user-flow implementation. Application composition maps the
+feature-neutral history row (`kind`, `auditId`) to an installed feature route.
 
 ## Routing
 
-- `/user-flow/results`: redirects to `/user-flow/results/history`.
-- `/user-flow/results/history`: history page.
-- `/user-flow/results/:id`: canonical result route for every run state.
+- `/audits/history`: all installed audit kinds, backed by `GET /api/audits/history`.
+- `/audits/user-flow/history`: user-flow audits, backed by `GET /api/audits/user-flow/history`.
+- `/audits/user-flow/:id`: canonical user-flow lifecycle and result page.
+- `/audits` redirects to `/audits/history`.
 
 ## Runtime Behavior
 
-- Default page size is `25`.
-- Status filters default to all statuses.
-- Manual refresh is always available.
+- Runs are ordered by `(createdAt, id)` descending.
+- The default page size is `25`; accepted limits are `1` through `100`.
+- Status filters default to `SCHEDULED`, `IN_PROGRESS`, and `COMPLETE`.
+- Queue position is populated only for scheduled runs.
+- Manual refresh and cursor-based next/previous navigation are available.
 
 ## Error Handling
 
-- Structured API errors for new endpoints:
-  - `INVALID_QUERY`
-  - `INVALID_CURSOR`
-  - `RUN_NOT_FOUND`
-  - `INTERNAL_ERROR`
-- UI renders actionable messaging and avoids hard failures on transient network errors.
+The history endpoints return structured `INVALID_QUERY`, `INVALID_CURSOR`, and `INTERNAL_ERROR` responses. The UI
+renders actionable errors and preserves the current page state when a transient request fails.

@@ -31,7 +31,7 @@ const waitForAuditResult = (auditId: string, attempts = 180): Cypress.Chainable 
 };
 
 describe('portal', () => {
-  beforeEach(() => cy.visit('/'));
+  beforeEach(() => cy.visit('/audits/user-flow'));
 
   it('should show the audit builder', () => {
     getAuditBuilder().should('be.visible');

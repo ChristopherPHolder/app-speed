@@ -1,5 +1,5 @@
 {
-  "name": "@app-speed/audit/portal/ui",
+  "name": "@app-speed/audit/core/portal-ui",
   "version": "0.0.1",
   "peerDependencies": {
     "@analogjs/vite-plugin-angular": "2.5.1",

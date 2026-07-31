@@ -1,285 +1,98 @@
-# Domain-First Audit Target Taxonomy
+# Domain-First Audit Project Taxonomy
 
-Status: Draft  
+Status: Active
 Owner: Christopher Holder  
-Last Updated: 2026-03-27
+Last Updated: 2026-07-31
 
 ## Purpose
 
-This document makes the refactor target concrete. It defines:
+This document records the implemented audit project layout, import taxonomy, tags, and dependency rules. The workspace
+uses one audit bounded context with a feature-neutral core and feature-specific implementations.
 
-- the top-level workspace shape
-- the target project naming and import taxonomy
-- the Nx tag taxonomy
-- the intended dependency rules
-- the migration map from the current structure to the target structure
-
-It is a companion to the domain-first audit refactor plan and the domain-first architecture ADR draft.
-
-## Top-Level Workspace Shape
-
-The workspace should be organized around three concepts:
-
-- Applications
-  - deployable entrypoints and composition roots only
-- Domain modules
-  - product behavior organized by bounded context
-- Cross-cutting technical modules
-  - generic infrastructure or UI primitives that are reusable outside a single domain
-
-Target top-level shape:
+## Workspace Shape
 
 ```text
 apps/
-  api/
-  portal/
-  runner/
-  design-system/
+  api/       # Effect HTTP composition root
+  portal/    # Angular route and provider composition root
+  runner/    # Effect runner composition root
 
 libs/
   audit/
-    model/
-    contracts/
-    persistence/
-    control-plane/
-    runner/
-    portal/
-      builder/
-      viewer/
-      runs/
+    core/
+      api-contract/
+      api-runtime/
+      domain/
+      feature-history/
+      persistence/
+      portal-ui/
+      runner/
+    user-flow/
+      api-contract/
+      api-runtime/
+      domain/
+      feature-builder/
+      feature-viewer/
+      persistence/
+      portal-data-access/
+      runner/
   platform/
-    observability/
-    sqlite/           (only if generic DB runtime concerns are extracted)
   ui/
-    status-badge/
-    scroll-container/
-    radial-chart/
 ```
 
-Rules implied by that shape:
+`apps/*` contain bootstrap, runtime configuration, and final feature wiring. Audit behavior belongs in `libs/audit/*`.
+Generic infrastructure belongs in `libs/platform/*`; generic visual primitives belong in `libs/ui/*`.
 
-- `apps/*` own bootstrap, wiring, runtime config, and composition only.
-- New audit business logic should go under `libs/audit/**`, not under `apps/api`, `apps/runner`, `libs/portal`, `libs/server`, `libs/shared`, or `libs/runner`.
-- Generic technical concerns belong under `libs/platform/**` or `libs/ui/**` only if they are genuinely reusable outside audit.
-- No new audit code should be added under the current horizontal buckets once migration starts.
+## Core Projects
 
-## Target Projects
+| Project | Import | Responsibility | Layer |
+| --- | --- | --- | --- |
+| `audit-core-domain` | `@app-speed/audit/core/domain` | Shared audit identity and lifecycle vocabulary | `model` |
+| `audit-core-api-contract` | `@app-speed/audit/core/api-contract` | Shared HTTP schemas and endpoints | `contract` |
+| `audit-core-persistence` | `@app-speed/audit/core/persistence` | Shared templates, queue, runs, results, and history | `persistence` |
+| `audit-core-api-runtime` | `@app-speed/audit/core/api-runtime` | Shared HTTP handlers and runner lifecycle | `application` |
+| `audit-core-runner` | `@app-speed/audit/core/runner` | Feature-neutral queue polling and execution protocol | `application` |
+| `audit-core-feature-history` | `@app-speed/audit/core/feature-history` | Reusable audit history UI | `feature` |
+| `audit-core-portal-ui` | `@app-speed/audit/core/portal-ui` | Shared audit UI, icons, dialogs, and form fields | `ui` |
 
-The target projects below are intentionally concrete enough to drive naming, path aliases, and Nx tags.
+The portal UI secondary entry points are:
 
-### Applications
+- `@app-speed/audit/core/portal-ui/icons`
+- `@app-speed/audit/core/portal-ui/dialogs`
+- `@app-speed/audit/core/portal-ui/form-fields`
 
-| Project         | Suggested Import Role | Responsibility                                               | Target Tags                                    |
-| --------------- | --------------------- | ------------------------------------------------------------ | ---------------------------------------------- |
-| `portal`        | none                  | Angular bootstrap, top-level routing, app-wide providers     | `type:app`, `runtime:web`, `app:portal`        |
-| `api`           | none                  | Node bootstrap, effect layer wiring, HTTP server composition | `type:app`, `runtime:node`, `app:api`          |
-| `runner`        | none                  | Node CLI bootstrap and runner composition                    | `type:app`, `runtime:node`, `app:runner`       |
-| `design-system` | none                  | Storybook host for shared UI                                 | `type:app`, `runtime:web`, `app:design-system` |
+## User-Flow Projects
 
-### Audit Domain
+The user-flow feature mirrors the relevant layers under `libs/audit/user-flow/*` and uses imports rooted at
+`@app-speed/audit/user-flow/*`. It owns the user-flow definition, persistence subtype, API installation, builder,
+viewer, portal data access, and runner executor.
 
-| Project                | Suggested Import Alias                                                  | Responsibility                                                                             | Target Tags                                                        |
-| ---------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------ |
-| `audit-domain`         | `@app-speed/audit/domain`                                               | Audit value objects, constants, default values, shared domain vocabulary                   | `type:domain`, `scope:audit`, `runtime:agnostic`, `layer:model`    |
-| `audit-api-contract`   | `@app-speed/audit/api-contract`                                         | Schemas, contract types, wire-facing audit structures                                      | `type:domain`, `scope:audit`, `runtime:agnostic`, `layer:contract` |
-| `audit-persistence`    | `@app-speed/audit/persistence`                                          | Audit repositories, audit DB schema, query behavior, persistence contract tests            | `type:domain`, `scope:audit`, `runtime:node`, `layer:persistence`  |
-| `audit-api-runtime`    | `@app-speed/audit/api-runtime`                                          | Audit HTTP API groups, runner lifecycle orchestration, server-side audit application logic | `type:domain`, `scope:audit`, `runtime:node`, `layer:application`  |
-| `audit-runner`         | `@app-speed/audit/runner`                                               | Audit execution, queue claim/complete/heartbeat logic, runner-side orchestration           | `type:domain`, `scope:audit`, `runtime:node`, `layer:application`  |
-| `audit-portal-builder` | `@app-speed/audit/portal/builder`                                       | Portal builder flow, builder state, builder routes, builder-specific UI                    | `type:domain`, `scope:audit`, `runtime:web`, `layer:feature`       |
-| `audit-portal-viewer`  | `@app-speed/audit/portal/viewer`, `@app-speed/audit/portal/viewer/runs` | Portal viewer flow, result rendering, diagnostics, run-history UI                          | `type:domain`, `scope:audit`, `runtime:web`, `layer:feature`       |
+## Tags
 
-### Cross-Cutting Technical Modules
+Every audit project is tagged with:
 
-| Project                  | Suggested Import Alias              | Responsibility                                                              | Target Tags                                          |
-| ------------------------ | ----------------------------------- | --------------------------------------------------------------------------- | ---------------------------------------------------- |
-| `platform-observability` | `@app-speed/platform/observability` | Shared tracing/logging bootstrap and runtime helpers                        | `type:platform`, `scope:shared`, `runtime:node`      |
-| `platform-sqlite`        | `@app-speed/platform/sqlite`        | Optional generic DB client/runtime extraction if audit persistence needs it | `type:platform`, `scope:shared`, `runtime:node`      |
-| `ui-status-badge`        | `@app-speed/ui/status-badge`        | Reusable status pill primitive                                              | `type:ui`, `scope:shared`, `runtime:web`, `layer:ui` |
-| `ui-scroll-container`    | `@app-speed/ui/scroll-container`    | Reusable scroll container primitive                                         | `type:ui`, `scope:shared`, `runtime:web`, `layer:ui` |
-| `ui-radial-chart`        | `@app-speed/ui/radial-chart`        | Reusable chart primitive                                                    | `type:ui`, `scope:shared`, `runtime:web`, `layer:ui` |
-
-## What Stays App-Local
-
-The following concerns should stay inside applications unless a strong reuse case appears:
-
-- `apps/portal`
-  - bootstrap
-  - root router setup
-  - app-wide Angular providers
-- `apps/api`
-  - effect runtime startup
-  - environment-driven layer selection
-  - final HTTP server launch
-- `apps/runner`
-  - CLI bootstrap
-  - runtime startup and shutdown wiring
-
-The current `portal-feature-shell` should be retired rather than preserved as a top-level architectural unit. It is application shell code, not domain code.
-
-## What Counts As Generic UI
-
-Keep a UI module horizontal only if it can be reused outside audit without dragging audit vocabulary, audit routes, audit DTOs, or audit semantics with it.
-
-Conservative target classification:
-
-- keep horizontal
-  - `status-badge`
-  - `scroll-container`
-  - `radial-chart`
-- move under audit domain
-  - `audit-builder`
-  - `audit-summary`
-  - `audit-history`
-  - `viewer-diagnostics`
-  - `fractional-result-chip`
-
-The goal is to stop treating “used by multiple audit screens” as equivalent to “generic”.
-
-## Tag Taxonomy
-
-Use four tag dimensions.
-
-### `type:*`
-
-- `type:app`
 - `type:domain`
-- `type:platform`
-- `type:ui`
-
-### `scope:*`
-
 - `scope:audit`
-- `scope:shared`
+- either `feature:audit-core` or `feature:audit-user-flow`
+- one runtime tag: `runtime:agnostic`, `runtime:web`, or `runtime:node`
+- one layer tag matching its responsibility
 
-### `runtime:*`
-
-- `runtime:web`
-- `runtime:node`
-- `runtime:agnostic`
-
-### `layer:*`
-
-- `layer:model`
-- `layer:contract`
-- `layer:persistence`
-- `layer:application`
-- `layer:feature`
-- `layer:ui`
-
-### `app:*`
-
-- `app:portal`
-- `app:api`
-- `app:runner`
-- `app:design-system`
-
-Not every project needs every dimension. The important point is consistency:
-
-- all applications get `type:app`
-- all audit modules get `scope:audit`
-- all reusable technical modules get `scope:shared`
-- runtime-incompatible dependencies are easy to block
+`audit-core-portal-ui` is tagged `scope:audit`, `feature:audit-core`, `runtime:web`, and `layer:ui` in addition to its
+domain type.
 
 ## Dependency Rules
 
-These rules are the intended architectural guardrails.
+- Applications may compose domain, platform, and shared UI projects; libraries may not import applications.
+- Runtime-specific projects may depend on the same runtime or runtime-agnostic projects only.
+- Core projects must not import a feature implementation. Installed features are selected in `apps/api`, `apps/runner`,
+  and `apps/portal`.
+- Model and contract layers remain free of persistence, application, and feature dependencies.
+- Web feature projects may depend on web/agnostic core contracts, models, history, and portal UI.
+- Node application projects may depend on the matching model, contract, and persistence layers.
 
-### High-Level Rules
+## Application Composition
 
-- `type:app`
-  - may depend on `type:domain`, `type:platform`, and `type:ui`
-  - may not be imported by any non-app project
-
-- `type:domain`
-  - may depend on same-scope domain modules
-  - may depend on `type:platform`
-  - may depend on `type:ui` only for web-facing feature modules
-  - may not depend on `type:app`
-
-- `type:platform`
-  - may depend on `type:platform`
-  - may not depend on `type:domain` or `type:app`
-
-- `type:ui`
-  - may depend on `type:ui`
-  - may not depend on `type:domain`, `type:platform`, or `type:app`
-
-### Runtime Rules
-
-- `runtime:web` may depend only on `runtime:web` or `runtime:agnostic`
-- `runtime:node` may depend on `runtime:node` or `runtime:agnostic`
-- `runtime:agnostic` should not depend on runtime-specific modules
-
-### Layer Rules Inside Audit
-
-- `layer:model`
-  - no dependencies on `layer:contract`, `layer:persistence`, `layer:application`, or `layer:feature`
-
-- `layer:contract`
-  - may depend on `layer:model`
-  - may not depend on `layer:persistence`, `layer:application`, or `layer:feature`
-
-- `layer:persistence`
-  - may depend on `layer:model`, `layer:contract`, and `type:platform`
-  - may not depend on `layer:feature`
-
-- `layer:application`
-  - may depend on `layer:model`, `layer:contract`, `layer:persistence`, and `type:platform`
-  - may not depend on `type:app`
-
-- `layer:feature`
-  - may depend on `layer:model`, `layer:contract`, shared `type:ui`, and same-domain feature support modules
-  - may not depend on node-only modules
-
-## Current To Target Mapping
-
-| Current Module                          | Target Module                                       | Notes                                                                        |
-| --------------------------------------- | --------------------------------------------------- | ---------------------------------------------------------------------------- |
-| `libs/shared/user-flow-replay`          | `audit-domain`                                      | Move domain vocabulary and defaults here                                     |
-| `libs/shared/user-flow-replay/schema`   | `audit-api-contract`                                | Move schemas and contract-facing types here                                  |
-| `libs/server/db`                        | `audit-persistence` plus optional `platform-sqlite` | Split only if generic DB runtime concerns become clear                       |
-| `apps/api/src/Audit/**`                 | `audit-api-runtime`                                 | Keep endpoint shapes unchanged                                               |
-| `apps/api/src/Runner/**`                | `audit-api-runtime`                                 | Runner lifecycle is still audit-specific control-plane logic                 |
-| `libs/runner/user-flow-replay`          | `audit-runner`                                      | Rename around domain ownership rather than runtime bucket                    |
-| `libs/portal/feature-audit`             | `audit-portal-builder` and `audit-portal-viewer`    | Split by portal feature responsibility                                       |
-| `libs/portal/feature-audit-runs`        | `audit-portal-viewer/runs`                          | Keep as part of the same audit bounded context and result-viewing route tree |
-| `libs/portal/data-access`               | absorbed into audit portal modules                  | Do not keep a top-level horizontal data-access bucket                        |
-| `libs/portal/data-access-audit-runs`    | absorbed into audit portal modules                  | Same rule as above                                                           |
-| `libs/portal/ui/audit-builder`          | `audit-portal-builder`                              | Audit-specific UI should live with the feature                               |
-| `libs/portal/ui/audit-summary`          | `audit-portal-viewer`                               | Audit-specific UI should live with the feature                               |
-| `libs/portal/ui/audit-runs`             | `audit-portal-viewer/runs`                          | Audit-specific history UI should live with the result viewer feature         |
-| `libs/portal/ui/viewer-diagnostics`     | `audit-portal-viewer`                               | Audit-specific UI should live with the feature                               |
-| `libs/portal/ui/fractional-result-chip` | `audit-portal-viewer`                               | Treat as audit-specific unless a broader use case appears                    |
-| `libs/portal/ui/status-badge`           | `ui-status-badge`                                   | Keep as shared UI primitive                                                  |
-| `libs/portal/ui/scroll-container`       | `ui-scroll-container`                               | Keep as shared UI primitive                                                  |
-| `libs/portal/ui/radial-chart`           | `ui-radial-chart`                                   | Keep as shared UI primitive                                                  |
-| `libs/shared/observability`             | `platform-observability`                            | Rename to reflect cross-cutting platform ownership                           |
-| `libs/portal/feature-shell`             | move into `apps/portal`                             | App shell, not domain library                                                |
-
-## Naming Guidance
-
-Prefer names that describe domain ownership first and runtime second.
-
-Good examples:
-
-- `audit-domain`
-- `audit-api-contract`
-- `audit-persistence`
-- `audit-api-runtime`
-- `audit-runner`
-- `audit-portal-builder`
-
-Avoid names that make the runtime or technical layer the primary identity when the module is really audit-specific:
-
-- `shared-user-flow-replay`
-- `server-db`
-- `runner-user-flow-replay`
-- `portal-data-access`
-
-## Migration Notes
-
-- Introduce new projects before moving imports.
-- Keep compatibility exports only long enough to migrate consumer groups cleanly.
-- Move tests with the owning module as early as possible so architectural ownership and verification stay aligned.
-- Add hard dependency constraints only after the new target projects exist and most imports have moved.
-- Once migration begins, treat the current horizontal buckets as legacy structures.
+- `apps/api` combines core and user-flow API groups and provides their Effect layers.
+- `apps/runner` combines the core run loop with the user-flow executor.
+- `apps/portal` installs shared history at `/audits/history`, filtered history at `/audits/user-flow/history`, and the
+  user-flow builder/viewer at `/audits/user-flow` and `/audits/user-flow/:id`.

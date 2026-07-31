@@ -1,4 +1,4 @@
-# @app-speed/audit/portal/ui
+# @app-speed/audit/core/portal-ui
 
 UI package for audit portal Angular components and assets.
 
@@ -6,16 +6,16 @@ This library is the audit portal UI layer. It should contain presentational comp
 
 ## Entry Points
 
-- `@app-speed/audit/portal/ui`
+- `@app-speed/audit/core/portal-ui`
   - root package entrypoint
   - currently exports `ToTitleCasePipe`
-- `@app-speed/audit/portal/ui/icons`
+- `@app-speed/audit/core/portal-ui/icons`
   - secondary entrypoint for audit portal icon registration
   - exports `provideAuditBuilderIcons()`
-- `@app-speed/audit/portal/ui/dialogs`
+- `@app-speed/audit/core/portal-ui/dialogs`
   - secondary entrypoint for audit portal dialog surfaces
   - exports `StatusDialog`, `StatusDialogModel`, `ErrorDialog`, and `ErrorDialogModel`
-- `@app-speed/audit/portal/ui/form-fields`
+- `@app-speed/audit/core/portal-ui/form-fields`
   - secondary entrypoint for audit portal form field UI
   - exports extracted leaf field components and field view models
 
@@ -76,7 +76,7 @@ The `icons` secondary entrypoint currently provides two registered SVG icons:
 Use them by registering the provider once at an app, route, or story boundary:
 
 ```ts
-import { provideAuditBuilderIcons } from '@app-speed/audit/portal/ui/icons';
+import { provideAuditBuilderIcons } from '@app-speed/audit/core/portal-ui/icons';
 
 export const appConfig = {
   providers: [provideAuditBuilderIcons()],
@@ -102,22 +102,21 @@ Testing is configured for the library through the root Nx project:
 
 Run:
 
-- `pnpm exec nx test audit-portal-ui`
-- `pnpm exec nx lint audit-portal-ui`
-- `pnpm exec nx build audit-portal-ui`
+- `pnpm exec nx test audit-core-portal-ui`
+- `pnpm exec nx lint audit-core-portal-ui`
+- `pnpm exec nx build audit-core-portal-ui`
 
 ## Notes
 
-- Nx project name: `audit-portal-ui`
+- Nx project name: `audit-core-portal-ui`
 - Angular component selectors in this library use the `ui-*` prefix.
-- Tags: `type:domain`, `scope:audit`, `runtime:web`, `layer:ui`
-- The root entrypoint is still minimal. As more audit portal UI pieces move in, export them from `src/index.ts` and keep shared icon registration in the `icons` secondary entrypoint.
-- Candidate extractions from `libs/audit/user-flow/feature-builder` are tracked in
-  [MIGRATION-CANDIDATES.md](./MIGRATION-CANDIDATES.md).
+- Tags: `type:domain`, `scope:audit`, `feature:audit-core`, `runtime:web`, `layer:ui`
+- Export root-package symbols from `src/index.ts`; keep icons, dialogs, and form fields in their named secondary entry
+  points.
 - Secondary entrypoint naming must stay aligned with the root package name.
-  - Use `@app-speed/audit/portal/ui/icons`
-  - Use `@app-speed/audit/portal/ui/form-fields`
-  - Use `@app-speed/audit/portal/ui/dialogs`
-  - Do not introduce alternate aliases such as `@app-speed/audit-portal-ui-icons` or slash-mismatched variants
+  - Use `@app-speed/audit/core/portal-ui/icons`
+  - Use `@app-speed/audit/core/portal-ui/form-fields`
+  - Use `@app-speed/audit/core/portal-ui/dialogs`
+  - Do not introduce alternate aliases such as `@app-speed/audit-core-portal-ui-icons` or slash-mismatched variants
 - After renaming the package name or secondary entrypoint aliases, run `pnpm exec nx reset` before trusting incremental builds.
 - See [docs/conventions/angular-secondary-entry-points.md](../../../../docs/conventions/angular-secondary-entry-points.md) for the full rule and recovery steps.

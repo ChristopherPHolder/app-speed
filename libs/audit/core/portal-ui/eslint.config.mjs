@@ -44,7 +44,7 @@ export default [
       },
       languageOptions: {
         parserOptions: {
-          project: ['libs/audit/portal/ui/tsconfig.*?.json'],
+          project: ['libs/audit/core/portal-ui/tsconfig.*?.json'],
         },
       },
     })),

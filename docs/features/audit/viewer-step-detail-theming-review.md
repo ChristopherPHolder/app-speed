@@ -21,10 +21,10 @@ It explains:
 
 Primary viewer code reviewed:
 
-- `libs/audit/portal/viewer/src/lib/steps/viewer-step-details.component.ts`
-- `libs/audit/portal/viewer/src/lib/steps/viewer-step-metric-summary.component.ts`
-- `libs/audit/portal/viewer/src/lib/steps/viewer-film-strip.component.ts`
-- `libs/audit/portal/viewer/src/lib/diagnostics/viewer-diagnostic-panel.component.ts`
+- `libs/audit/user-flow/feature-viewer/src/lib/steps/viewer-step-details.component.ts`
+- `libs/audit/user-flow/feature-viewer/src/lib/steps/viewer-step-metric-summary.component.ts`
+- `libs/audit/user-flow/feature-viewer/src/lib/steps/viewer-film-strip.component.ts`
+- `libs/audit/user-flow/feature-viewer/src/lib/diagnostics/viewer-diagnostic-panel.component.ts`
 - `libs/ui/status-badge/src/status-badge.component.ts`
 - `libs/ui/status-badge/src/status-badge.constants.ts`
 

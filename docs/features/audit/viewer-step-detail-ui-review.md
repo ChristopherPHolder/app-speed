@@ -8,14 +8,14 @@ Last Updated: 2026-03-14
 
 This document reviews the UI structure and visual presentation of the viewer step detail experience for:
 
-- `libs/audit/portal/viewer/src/lib/steps/viewer-step-details.component.ts`
+- `libs/audit/user-flow/feature-viewer/src/lib/steps/viewer-step-details.component.ts`
 
 The review also includes the supporting components that determine most of the rendered layout and visual density:
 
-- `libs/audit/portal/viewer/src/lib/steps/viewer-step-metric-summary.component.ts`
-- `libs/audit/portal/viewer/src/lib/steps/viewer-film-strip.component.ts`
-- `libs/audit/portal/viewer/src/lib/diagnostics/viewer-diagnostic.component.ts`
-- `libs/audit/portal/viewer/src/lib/diagnostics/viewer-diagnostic-panel.component.ts`
+- `libs/audit/user-flow/feature-viewer/src/lib/steps/viewer-step-metric-summary.component.ts`
+- `libs/audit/user-flow/feature-viewer/src/lib/steps/viewer-film-strip.component.ts`
+- `libs/audit/user-flow/feature-viewer/src/lib/diagnostics/viewer-diagnostic.component.ts`
+- `libs/audit/user-flow/feature-viewer/src/lib/diagnostics/viewer-diagnostic-panel.component.ts`
 - `libs/ui/status-badge/src/status-badge.component.ts`
 - `libs/ui/theme/_theme.scss`
 
