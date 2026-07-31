@@ -23,23 +23,23 @@ Use `DATABASE_MIGRATION_URL` for direct/admin Supabase connections when pooled r
 Build with:
 
 ```bash
-pnpm exec nx run audit-persistence:build
+pnpm exec nx run audit-core-persistence:build
 ```
 
 Test with:
 
 ```bash
-pnpm exec nx run audit-persistence:test
+pnpm exec nx run audit-core-persistence:test
 ```
 
 Generate a migration after schema changes with:
 
 ```bash
-pnpm exec nx run audit-persistence:migrate-generate
+pnpm exec nx run api:migrate-generate
 ```
 
 Apply migrations with:
 
 ```bash
-DATABASE_MIGRATION_URL=postgres://user:password@host:5432/database pnpm exec nx run audit-persistence:migrate
+DATABASE_MIGRATION_URL=postgres://user:password@host:5432/database pnpm exec nx run api:migrate
 ```
