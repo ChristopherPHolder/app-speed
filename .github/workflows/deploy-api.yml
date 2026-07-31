@@ -124,7 +124,7 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           DATABASE_MIGRATION_URL: ${{ secrets.DATABASE_MIGRATION_URL }}
-        run: pnpm exec nx run audit-persistence:migrate
+        run: pnpm exec nx run api:migrate
 
       - name: Publish and Deploy API
         env:
