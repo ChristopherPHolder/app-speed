@@ -7,3 +7,4 @@ export { RunnerIdleReaper, RunnerIdleReaperLive } from './lib/runner/RunnerIdleR
 export { RunnerLifecycle, RunnerLifecycleLive } from './lib/runner/RunnerLifecycle';
 export { RunnerManager } from './lib/runner/RunnerManager';
 export { RunnerRegistry, RunnerRegistryLive } from './lib/runner/RunnerRegistry';
+export { InstalledAuditFeatures } from './lib/runner/InstalledAuditFeatures';

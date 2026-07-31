@@ -1,3 +1,8 @@
-export { UserFlowAuditRepoLive } from './lib/repo';
+export {
+  UserFlowAuditHistoryRepoLive,
+  UserFlowAuditRepo,
+  UserFlowAuditRepoLive,
+  type UserFlowAuditResult,
+} from './lib/repo';
 export { UserFlowAuditScheduler, UserFlowAuditSchedulerLive } from './lib/scheduler';
-export { userFlowAuditSchema, userFlowAuditTemplateTable } from './lib/schema';
+export { userFlowAuditResultTable, userFlowAuditSchema, userFlowAuditTemplateTable } from './lib/schema';

@@ -1,6 +1,6 @@
 import { Effect } from 'effect';
 
-import { AuditRepo } from '@app-speed/audit/core/persistence';
+import { AuditHistoryRepo } from '@app-speed/audit/core/persistence';
 
 import {
   AuditIdType,
@@ -200,7 +200,7 @@ const toRunDetailsResponse = (run: {
 
 export const listRunsHandler = Effect.fn('api.audit.listRuns')((request) =>
   Effect.gen(function* () {
-    const repo = yield* AuditRepo;
+    const repo = yield* AuditHistoryRepo;
     const limit = yield* parseLimit(request.urlParams.limit);
     const status = yield* parseStatusFilter(request.urlParams.status);
     const cursor = yield* decodeCursor(request.urlParams.cursor);
@@ -217,7 +217,7 @@ export const listRunsHandler = Effect.fn('api.audit.listRuns')((request) =>
 
 export const runByIdHandler = Effect.fn('api.audit.runById')((request) =>
   Effect.gen(function* () {
-    const repo = yield* AuditRepo;
+    const repo = yield* AuditHistoryRepo;
     const run = yield* repo.getRunSummaryById(request.path.id);
     if (!run) {
       return yield* new AuditRunSummaryNotFoundError({
@@ -233,7 +233,7 @@ export const runByIdHandler = Effect.fn('api.audit.runById')((request) =>
 
 export const runDetailsByIdHandler = Effect.fn('api.audit.runDetailsById')((request) =>
   Effect.gen(function* () {
-    const repo = yield* AuditRepo;
+    const repo = yield* AuditHistoryRepo;
     const run = yield* repo.getRunDetailsById(request.path.id);
     if (!run) {
       return yield* new AuditRunSummaryNotFoundError({

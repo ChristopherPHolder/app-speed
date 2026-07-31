@@ -1,3 +1,4 @@
+import { AUDIT_RESULT_ROUTE } from '@app-speed/audit/portal/ui';
 import { provideAuditBuilderIcons } from '@app-speed/audit/portal/ui/icons';
 import { Routes } from '@angular/router';
 import { BuilderComponent } from './feature/builder.component';
@@ -13,18 +14,18 @@ const provideAuditBuilderRoute = () => [
 
 export const auditBuilderRoutes: Routes = [
   {
-    path: 'results',
-    redirectTo: 'results/history',
-    pathMatch: 'full',
+    path: 'history',
+    loadChildren: () => import('@app-speed/audit/core/feature-history').then((m) => m.auditHistoryRoutes),
+    providers: [
+      {
+        provide: AUDIT_RESULT_ROUTE,
+        useValue: (auditId: string) => ({ commands: ['/audits/user-flow', auditId] }),
+      },
+    ],
   },
   {
-    path: 'results/history',
-    loadChildren: () => import('@app-speed/audit/portal/viewer/runs').then((m) => m.auditHistoryRoutes),
-  },
-  {
-    path: 'results/:id',
-    component: BuilderComponent,
-    providers: provideAuditBuilderRoute(),
+    path: ':id',
+    loadChildren: () => import('@app-speed/audit/user-flow/feature-viewer').then((m) => m.userFlowAuditViewerRoutes),
   },
   {
     path: '',

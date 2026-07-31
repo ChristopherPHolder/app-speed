@@ -13,7 +13,10 @@ export {
   auditResultStatusEnum,
 } from '../../../../libs/audit/core/persistence/src/lib/schema';
 // eslint-disable-next-line @nx/enforce-module-boundaries
-export { userFlowAuditTemplateTable } from '../../../../libs/audit/user-flow/persistence/src/lib/schema';
+export {
+  userFlowAuditResultTable,
+  userFlowAuditTemplateTable,
+} from '../../../../libs/audit/user-flow/persistence/src/lib/schema';
 
 export const schema = {
   ...coreAuditSchema,

@@ -41,9 +41,7 @@ export const auditResultTable = pgTable(
       .notNull()
       .references(() => auditRunTable.id, { onDelete: 'restrict', onUpdate: 'cascade' }),
     status: auditResultStatusEnum('status').$type<AuditResultStatus>().notNull(),
-    dataRecordKey: text('data_record_key'),
     error: jsonb('error').$type<unknown>(),
-    reportHtmlRecordKey: text('report_html_record_key'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [uniqueIndex('audit_results_run_id_key').on(table.runId)],

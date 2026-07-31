@@ -18,7 +18,7 @@ const waitForBackend = (attempts = 30): Cypress.Chainable => {
 const waitForAuditResult = (auditId: string, attempts = 180): Cypress.Chainable => {
   return cy
     .request({
-      url: `/api/audit/${auditId}/result`,
+      url: `/api/audits/user-flow/${auditId}/result`,
       failOnStatusCode: false,
     })
     .then((response) => {

@@ -5,6 +5,7 @@ import {
   auditResultTable,
   auditRunTable,
   auditTemplateTable,
+  AuditRepo,
   DbClient,
   type AuditRunId,
   type AuditRunListCursor,
@@ -14,10 +15,10 @@ import {
   resolveAuditTitle,
 } from '@app-speed/audit/core/persistence';
 import { userFlowAuditTemplateTable } from '../schema';
-import { getQueuePosition } from './queue';
 
 export const getRunSummaryById = Effect.fn('db.auditRun.getSummaryById')(function* (id: AuditRunId) {
   const db = yield* DbClient;
+  const auditRepo = yield* AuditRepo;
   yield* Effect.annotateCurrentSpan({ 'audit.id': id });
 
   const row = yield* db.run(
@@ -47,7 +48,7 @@ export const getRunSummaryById = Effect.fn('db.auditRun.getSummaryById')(functio
     return null;
   }
 
-  const queuePosition = row.status === 'SCHEDULED' ? yield* getQueuePosition(row.id as AuditRunId) : null;
+  const queuePosition = row.status === 'SCHEDULED' ? yield* auditRepo.getQueuePosition(row.id as AuditRunId) : null;
 
   return yield* decodeAuditRunSummaryRecord({
     id: row.id,
@@ -64,6 +65,7 @@ export const getRunSummaryById = Effect.fn('db.auditRun.getSummaryById')(functio
 
 export const getRunDetailsById = Effect.fn('db.auditRun.getDetailsById')(function* (id: AuditRunId) {
   const db = yield* DbClient;
+  const auditRepo = yield* AuditRepo;
   yield* Effect.annotateCurrentSpan({ 'audit.id': id });
 
   const row = yield* db.run(
@@ -93,7 +95,7 @@ export const getRunDetailsById = Effect.fn('db.auditRun.getDetailsById')(functio
     return null;
   }
 
-  const queuePosition = row.status === 'SCHEDULED' ? yield* getQueuePosition(row.id as AuditRunId) : null;
+  const queuePosition = row.status === 'SCHEDULED' ? yield* auditRepo.getQueuePosition(row.id as AuditRunId) : null;
 
   return yield* decodeAuditRunDetailsRecord({
     id: row.id,
@@ -114,6 +116,7 @@ export const listRunsPage = Effect.fn('db.auditRun.listPage')(function* (params:
   status: ReadonlyArray<AuditStatus> | null;
 }) {
   const db = yield* DbClient;
+  const auditRepo = yield* AuditRepo;
   const limit = Math.max(1, Math.min(params.limit, 100));
   const statusFilter = params.status && params.status.length > 0 ? inArray(auditRunTable.status, params.status) : null;
   const cursorFilter = params.cursor
@@ -149,7 +152,7 @@ export const listRunsPage = Effect.fn('db.auditRun.listPage')(function* (params:
   const pageRows = rows.slice(0, limit);
   const items = yield* Effect.forEach(pageRows, (row) =>
     Effect.gen(function* () {
-      const queuePosition = row.status === 'SCHEDULED' ? yield* getQueuePosition(row.id as AuditRunId) : null;
+      const queuePosition = row.status === 'SCHEDULED' ? yield* auditRepo.getQueuePosition(row.id as AuditRunId) : null;
 
       return yield* decodeAuditRunSummaryRecord({
         id: row.id,

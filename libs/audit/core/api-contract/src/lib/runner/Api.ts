@@ -26,15 +26,16 @@ const RunnerClaimResponseSchema = Schema.Union(
 const RunnerCompleteSuccessSchema = Schema.Struct({
   runnerId: RunnerId,
   auditId: AuditId,
+  kind: AuditKindSchema,
   status: AuditResultStatusSchema.pipe(Schema.pickLiteral('SUCCESS')),
   result: Schema.Unknown,
-  reportHtml: Schema.String,
   durationMs: Schema.NonNegative,
 });
 
 const RunnerCompleteFailureSchema = Schema.Struct({
   runnerId: RunnerId,
   auditId: AuditId,
+  kind: AuditKindSchema,
   status: AuditResultStatusSchema.pipe(Schema.pickLiteral('FAILURE')),
   error: AuditErrorSchema,
   durationMs: Schema.NonNegative,

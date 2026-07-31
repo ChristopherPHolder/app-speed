@@ -46,14 +46,14 @@ describe('Audit', () => {
   });
 
   it('should return error if no audit found', async () => {
-    const res = await fetch(`${AUDIT_API_ENDPOINT}STUB_ID`);
+    const res = await fetch(`${USER_FLOW_API_ENDPOINT}STUB_ID`);
     expect(res.status).toBe(404);
     expect(await res.json()).toHaveProperty('_tag', 'AuditNotFoundError');
   });
 
   it('should find scheduled audits', async () => {
     const scheduleResponse = await ScheduleRequest(MOCK_AUDIT);
-    const findResponse = await fetch(`${AUDIT_API_ENDPOINT}${scheduleResponse.auditId}`).then((r) => r.json());
+    const findResponse = await fetch(`${USER_FLOW_API_ENDPOINT}${scheduleResponse.auditId}`).then((r) => r.json());
 
     expect(findResponse).toHaveProperty('status', 'SCHEDULED');
   });
@@ -61,7 +61,7 @@ describe('Audit', () => {
   it('should watch audit', async () => {
     const scheduleResponse = await ScheduleRequest(MOCK_AUDIT);
     let receivedChunk = '';
-    await subscribeSSE(`${AUDIT_API_ENDPOINT}${scheduleResponse.auditId}/events`, (chunk) => {
+    await subscribeSSE(`${USER_FLOW_API_ENDPOINT}${scheduleResponse.auditId}/events`, (chunk) => {
       receivedChunk = chunk;
     });
     expect(receivedChunk.length).toBeGreaterThan(0);
@@ -151,15 +151,18 @@ describe('Audit', () => {
     const completeResponse = await CompleteRequest({
       runnerId: 'runner-e2e',
       auditId: scheduleResponse.auditId,
+      kind: 'user-flow',
       status: 'SUCCESS',
-      result: { score: 0.9 },
-      reportHtml: '<!doctype html><html><body>Lighthouse flow report</body></html>',
+      result: {
+        flowResult: { score: 0.9 },
+        reportHtml: '<!doctype html><html><body>Lighthouse flow report</body></html>',
+      },
       durationMs: 321,
     });
 
     expect(completeResponse).toEqual({ ok: true });
 
-    const res = await fetch(`${AUDIT_API_ENDPOINT}${scheduleResponse.auditId}/report`);
+    const res = await fetch(`${USER_FLOW_API_ENDPOINT}${scheduleResponse.auditId}/report`);
     const body = await res.text();
 
     expect(res.status).toBe(200);
@@ -181,6 +184,7 @@ const MOCK_AUDIT = {
 
 const AUDIT_API_ENDPOINT = 'http://localhost:3000/api/audit/';
 const USER_FLOW_SCHEDULE_ENDPOINT = 'http://localhost:3000/api/audits/user-flow/schedule';
+const USER_FLOW_API_ENDPOINT = 'http://localhost:3000/api/audits/user-flow/';
 
 export async function subscribeSSE(url: string, onData: (c: string) => void) {
   const res = await fetch(url, {

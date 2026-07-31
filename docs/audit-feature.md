@@ -2,7 +2,7 @@
 
 Status: Active
 Owner: Christopher Holder
-Last Updated: 2026-03-27
+Last Updated: 2026-07-31
 
 The feature we are designing is the User Flow Audit feature.
 This document is the main design doc for the feature.
@@ -28,11 +28,15 @@ This document defines the architecture for scheduling user flow audits, executin
 ## Current Code Locations
 
 - `apps/api` is the application shell for the Effect-based control plane.
-- `libs/audit/core/api-runtime` owns shared audit HTTP handlers, API groups, SSE progress, and runner lifecycle orchestration.
-- `libs/audit/user-flow/persistence` owns user-flow templates, scheduling, queue operations, and DB-backed query logic.
+- `libs/audit/core/api-runtime` owns runner control, lifecycle orchestration, and reusable HTTP contract fragments.
+- `libs/audit/core/persistence` owns the global FIFO queue, shared run lifecycle, and terminal failures.
+- `libs/audit/user-flow/api-runtime` owns the complete public user-flow API group and SSE progress.
+- `libs/audit/user-flow/persistence` owns user-flow templates, successful Lighthouse results, and report records.
 - `apps/runner` is the application shell for the runner process.
-- `libs/audit/runner` owns queue polling, heartbeat/shutdown requests, and audit execution.
-- `libs/audit/portal/{builder,viewer,runs}` own the portal-facing audit flows.
+- `libs/audit/core/runner` owns queue polling, heartbeat/shutdown, browser sessions, Replay execution, and shared steps.
+- `libs/audit/user-flow/runner` owns Lighthouse configuration, measurement steps, flow execution, and reports.
+- `libs/audit/user-flow/{feature-builder,feature-viewer,portal-data-access}` own the portal-facing user-flow experience.
+- `apps/api`, `apps/runner`, and `apps/portal` compose the installed audit features.
 
 ## Proposed Architecture
 
@@ -64,9 +68,10 @@ Pull-based runner orchestration with a dedicated `RunnerManager`.
 
 These records are implemented across `libs/audit/core/persistence` and `libs/audit/user-flow/persistence`.
 
-- `AuditTemplate` stores the audit definition.
+- `AuditTemplate` stores shared template identity and feature kind; user-flow definitions live in a one-to-one subtype.
 - `AuditRun` tracks status and timestamps.
-- `AuditResult` stores the final output or error.
+- `AuditResult` stores terminal status and generic error data.
+- `UserFlowAuditResult` references its shared result one-to-one and stores Lighthouse result/report record keys.
 - `Runner` tracks active runners and heartbeats.
 
 Supported status values:
@@ -86,13 +91,14 @@ All client communication is HTTP, with SSE for progress. This keeps the browser 
 
 ### Status + Result
 
-- `GET /api/audit/:id` returns `{ status }`.
-- `GET /api/audit/:id/result` returns `{ status, result }` on success.
-- `GET /api/audit/:id/result` returns `{ status, error }` on failure, where `error` includes `name`, `message`, and `stack`.
+- `GET /api/audits/user-flow/:id` returns `{ status }`.
+- `GET /api/audits/user-flow/:id/result` returns `{ status, result }` on success.
+- `GET /api/audits/user-flow/:id/result` returns `{ status, error }` on failure.
+- `GET /api/audits/user-flow/:id/report` returns the Lighthouse HTML report.
 
 ### Progress Stream (SSE)
 
-- `GET /api/audit/:id/events` returns `text/event-stream`.
+- `GET /api/audits/user-flow/:id/events` returns `text/event-stream`.
 - Events include queue position and lifecycle status.
 - Sample event shape:
 
@@ -111,7 +117,7 @@ data: {"runId":"abc","status":"SUCCESS"}
 
 Queue position should be stable and derived from the durable queue, not in-memory data.
 
-- The position is the count of `SCHEDULED` audits ahead of the run, ordered by `createdAt`.
+- The position is the count of `SCHEDULED` audits ahead of the run, ordered by creation time and ID.
 - When a run moves to `IN_PROGRESS`, it is no longer counted in the queue.
 - SSE should emit a new `position` event whenever the count changes.
 - Queue position must remain consistent regardless of the number of active runners.
@@ -147,9 +153,10 @@ The runner needs a controlled interface to claim work and report results.
 
 ### Runner API (HTTP)
 
-- `POST /api/runner/claim` requests the next audit. The API returns the next `AuditRun` payload or an empty response when no work exists.
-- `POST /api/runner/complete` submits the final result or error for an audit.
+- `POST /api/runner/claim` returns the shared audit ID, feature kind, and an opaque definition payload.
+- `POST /api/runner/complete` submits the audit ID, feature kind, duration, and an opaque success or generic error.
 - `POST /api/runner/heartbeat` updates runner liveness (optional but recommended).
+- `POST /api/runner/shutdown` coordinates idle runner termination with the shared queue.
 
 Runners do not access the database directly. All runner interaction goes through the API.
 
@@ -176,8 +183,9 @@ Local process management is implemented using the `Command` API and a `CommandEx
 The Angular app uses HTTP for submission and SSE for status updates.
 
 - Schedule: HTTP `POST /api/audits/user-flow/schedule`.
-- Progress: SSE `GET /api/audit/:id/events`.
-- Result: HTTP `GET /api/audit/:id/result`.
+- Progress: SSE `GET /api/audits/user-flow/:id/events`.
+- Result: HTTP `GET /api/audits/user-flow/:id/result`.
+- Canonical portal lifecycle/result page: `/audits/user-flow/:id`.
 
 ## Failure Handling
 
@@ -204,10 +212,11 @@ Phase 1 focuses on stability and local-first flow. Phase 2 introduces EC2 lifecy
 ### Phase 1
 
 - Keep `apps/api` and `apps/runner` as thin application shells.
-- Implement SSE progress based on DB-backed queue position in `libs/audit/core/api-runtime`.
+- Implement SSE progress in the user-flow runtime from the core DB-backed lifecycle.
 - Keep `RunnerManager` as a `Context.Tag` interface with local and AWS-backed implementations.
-- Use `libs/audit/runner` to pull audits and report results through the API.
-- Keep shared persistence contracts in `libs/audit/core/persistence` and user-flow queue semantics in
+- Use `libs/audit/core/runner` to pull audits and report results through the API.
+- Select the installed executor in `apps/runner` with exhaustive Effect matching.
+- Keep global queue semantics in `libs/audit/core/persistence` and Lighthouse result persistence in
   `libs/audit/user-flow/persistence`.
 
 ### Phase 2
