@@ -3,15 +3,11 @@ import { eq } from 'drizzle-orm';
 import { Clock, Context, Effect, Layer, Schema } from 'effect';
 
 import {
-  AuditHistoryRepo,
-  AuditRepo,
   auditResultTable,
   auditRunTable,
   DbClient,
   QueryError,
   type AuditRunId,
-  type AuditRunListCursor,
-  type AuditStatus,
   type AuditTemplateId,
   type RecordPersistence,
   RecordPersistenceError,
@@ -19,7 +15,6 @@ import {
 } from '@app-speed/audit/core/persistence';
 import type { UserFlowAuditDefinition } from '@app-speed/audit/user-flow/domain';
 
-import { getRunDetailsById, getRunSummaryById, listRunsPage } from './audit-repo/runs';
 import { userFlowAuditResultTable, userFlowAuditTemplateTable } from './schema';
 
 export type UserFlowAuditResult =
@@ -168,25 +163,6 @@ export const UserFlowAuditRepoLive = Layer.effect(
       getResultByRunId: (id: AuditRunId) => provide(getResultByRunId(id)),
       completeSuccess: (id: AuditRunId, result: { flowResult: unknown; reportHtml: string }, durationMs: number) =>
         provide(completeSuccess(id, result, durationMs)),
-    };
-  }),
-);
-
-export const UserFlowAuditHistoryRepoLive = Layer.effect(
-  AuditHistoryRepo,
-  Effect.gen(function* () {
-    const db = yield* DbClient;
-    const auditRepo = yield* AuditRepo;
-    const provide = <A, E, R>(effect: Effect.Effect<A, E, R>) =>
-      effect.pipe(Effect.provideService(DbClient, db), Effect.provideService(AuditRepo, auditRepo));
-    return {
-      getRunSummaryById: (id: AuditRunId) => provide(getRunSummaryById(id)),
-      getRunDetailsById: (id: AuditRunId) => provide(getRunDetailsById(id)),
-      listRunsPage: (params: {
-        limit: number;
-        cursor: AuditRunListCursor | null;
-        status: ReadonlyArray<AuditStatus> | null;
-      }) => provide(listRunsPage(params)),
     };
   }),
 );

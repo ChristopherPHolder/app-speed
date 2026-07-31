@@ -2,10 +2,10 @@ import { HttpApiBuilder, HttpApiError, HttpServerResponse } from '@effect/platfo
 import { Duration, Effect, Schedule, Stream } from 'effect';
 
 import { AuditNotFoundError } from '@app-speed/audit/core/api-contract';
-import { RunnerLifecycle } from '@app-speed/audit/core/api-runtime';
+import { historyHandler, RunnerLifecycle } from '@app-speed/audit/core/api-runtime';
 import { AuditRepo, type AuditRunId } from '@app-speed/audit/core/persistence';
 import { UserFlowApi } from '@app-speed/audit/user-flow/api-contract';
-import { USER_FLOW_AUDIT_KIND_LITERAL } from '@app-speed/audit/user-flow/domain';
+import { USER_FLOW_AUDIT_KIND, USER_FLOW_AUDIT_KIND_LITERAL } from '@app-speed/audit/user-flow/domain';
 import { UserFlowAuditRepo, UserFlowAuditScheduler } from '@app-speed/audit/user-flow/persistence';
 
 type AuditSnapshot = {
@@ -154,6 +154,7 @@ export const UserFlowAuditGroupLive = HttpApiBuilder.group(UserFlowApi, 'userFlo
             Effect.catchTag('ParseError', () => new HttpApiError.BadRequest()),
           ),
         ),
-      );
+      )
+      .handle('history', historyHandler(USER_FLOW_AUDIT_KIND));
   }),
 );

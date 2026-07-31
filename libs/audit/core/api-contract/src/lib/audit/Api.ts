@@ -1,9 +1,5 @@
 import { HttpApiGroup } from '@effect/platform';
 
-import { listRunsEndpoint, runByIdEndpoint, runDetailsByIdEndpoint } from './runs/Api';
+import { historyEndpoint } from './history/Api';
 
-export class AuditApiGroup extends HttpApiGroup.make('audit')
-  .add(listRunsEndpoint)
-  .add(runByIdEndpoint)
-  .add(runDetailsByIdEndpoint)
-  .prefix('/audit') {}
+export class AuditApiGroup extends HttpApiGroup.make('audit').add(historyEndpoint).prefix('/audits') {}

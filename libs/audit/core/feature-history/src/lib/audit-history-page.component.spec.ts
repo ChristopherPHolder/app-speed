@@ -1,9 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { of } from 'rxjs';
 import { AuditHistoryPageComponent } from './audit-history-page.component';
-import { AUDIT_RESULT_ROUTE } from '@app-speed/audit/portal/ui';
 import { AuditHistoryApiService } from './api/audit-history-api.service';
 import { AuditHistoryPage } from './api/audit-history.models';
 
@@ -16,6 +15,7 @@ describe('AuditHistoryPageComponent', () => {
   const stubPage: AuditHistoryPage = {
     items: [
       {
+        kind: 'user-flow',
         auditId: 'audit-1',
         title: 'Example audit',
         status: 'SCHEDULED',
@@ -27,7 +27,7 @@ describe('AuditHistoryPageComponent', () => {
         durationMs: null,
       },
     ],
-    nextCursor: null,
+    nextCursor: 'cursor-2',
     limit: 25,
   };
 
@@ -42,7 +42,19 @@ describe('AuditHistoryPageComponent', () => {
       providers: [
         { provide: AuditHistoryApiService, useValue: { listHistory } },
         { provide: Router, useValue: { navigate } },
-        { provide: AUDIT_RESULT_ROUTE, useValue: (auditId: string) => ({ commands: ['/audits/user-flow', auditId] }) },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              data: {
+                auditHistory: {
+                  endpoint: '/api/audits/user-flow/history',
+                  resultRoute: (run: { auditId: string }) => ['/audits/user-flow', run.auditId],
+                },
+              },
+            },
+          },
+        },
       ],
     }).compileComponents();
 
@@ -56,6 +68,7 @@ describe('AuditHistoryPageComponent', () => {
 
   it('navigates every run to the canonical user-flow result route', () => {
     component.openRun({
+      kind: 'user-flow',
       auditId: 'complete-audit',
       title: 'Complete',
       status: 'COMPLETE',
@@ -67,9 +80,10 @@ describe('AuditHistoryPageComponent', () => {
       durationMs: 1200,
     });
 
-    expect(navigate).toHaveBeenCalledWith(['/audits/user-flow', 'complete-audit'], undefined);
+    expect(navigate).toHaveBeenCalledWith(['/audits/user-flow', 'complete-audit']);
 
     component.openRun({
+      kind: 'user-flow',
       auditId: 'running-audit',
       title: 'Running',
       status: 'IN_PROGRESS',
@@ -81,6 +95,36 @@ describe('AuditHistoryPageComponent', () => {
       durationMs: null,
     });
 
-    expect(navigate).toHaveBeenCalledWith(['/audits/user-flow', 'running-audit'], undefined);
+    expect(navigate).toHaveBeenCalledWith(['/audits/user-flow', 'running-audit']);
+  });
+
+  it('preserves status filtering and cursor pagination for the configured endpoint', () => {
+    expect(listHistory).toHaveBeenNthCalledWith(1, '/api/audits/user-flow/history', {
+      limit: 25,
+      cursor: null,
+      status: undefined,
+    });
+
+    component.toggleStatus('SCHEDULED');
+    expect(listHistory).toHaveBeenNthCalledWith(2, '/api/audits/user-flow/history', {
+      limit: 25,
+      cursor: null,
+      status: ['IN_PROGRESS', 'COMPLETE'],
+    });
+
+    component.goToNextPage();
+    expect(listHistory).toHaveBeenNthCalledWith(3, '/api/audits/user-flow/history', {
+      limit: 25,
+      cursor: 'cursor-2',
+      status: ['IN_PROGRESS', 'COMPLETE'],
+    });
+    expect(component.hasPreviousPage()).toBe(true);
+
+    component.goToPreviousPage();
+    expect(listHistory).toHaveBeenNthCalledWith(4, '/api/audits/user-flow/history', {
+      limit: 25,
+      cursor: null,
+      status: ['IN_PROGRESS', 'COMPLETE'],
+    });
   });
 });

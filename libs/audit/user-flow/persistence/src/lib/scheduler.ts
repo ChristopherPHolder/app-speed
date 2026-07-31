@@ -9,10 +9,7 @@ import {
   type AuditTemplateId,
   QueryError,
 } from '@app-speed/audit/core/persistence';
-import {
-  USER_FLOW_AUDIT_KIND,
-  type UserFlowAuditDefinition,
-} from '@app-speed/audit/user-flow/domain';
+import { USER_FLOW_AUDIT_KIND, type UserFlowAuditDefinition } from '@app-speed/audit/user-flow/domain';
 
 import { userFlowAuditTemplateTable } from './schema';
 
@@ -42,6 +39,7 @@ const schedule = Effect.fn('db.userFlowAudit.schedule')(function* (definition: U
       await tx.insert(auditTemplateTable).values({
         id: templateId,
         kind: USER_FLOW_AUDIT_KIND,
+        title: definition.title,
         createdAt: now,
         updatedAt: now,
       });

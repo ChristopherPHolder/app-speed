@@ -5,8 +5,7 @@ export {
   AuditNotFoundError,
   AuditResultStatusSchema,
   AuditRunStatusSchema,
-  AuditRunSummaryNotFoundError,
-  AuditRunsInternalError,
-  AuditRunsInvalidCursorError,
-  AuditRunsInvalidQueryError,
+  AuditHistoryInternalError,
+  AuditHistoryInvalidCursorError,
+  AuditHistoryInvalidQueryError,
 } from '@app-speed/audit/core/api-contract';

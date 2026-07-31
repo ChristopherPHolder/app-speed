@@ -1,11 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router } from '@angular/router';
-import { AuditRunStatus, AuditRunSummary, DEFAULT_AUDIT_RUN_FILTER } from './api/audit-history.models';
+import { ActivatedRoute, Router } from '@angular/router';
+import {
+  type AuditHistoryRouteConfig,
+  AuditRunStatus,
+  AuditRunSummary,
+  DEFAULT_AUDIT_RUN_FILTER,
+} from './api/audit-history.models';
 import { AuditHistoryApiService } from './api/audit-history-api.service';
 import { AuditHistoryTableComponent } from './components/audit-history-table.component';
-import { AUDIT_RESULT_ROUTE } from '@app-speed/audit/portal/ui';
 
 @Component({
   selector: 'portal-audit-history-page',
@@ -32,7 +36,7 @@ export class AuditHistoryPageComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly api = inject(AuditHistoryApiService);
   private readonly router = inject(Router);
-  private readonly resultRoute = inject(AUDIT_RESULT_ROUTE);
+  private readonly config = inject(ActivatedRoute).snapshot.data['auditHistory'] as AuditHistoryRouteConfig;
 
   readonly runs = signal<ReadonlyArray<AuditRunSummary>>([]);
   readonly loading = signal(true);
@@ -58,7 +62,7 @@ export class AuditHistoryPageComponent {
     const useStatusFilter = selectedStatuses.length === DEFAULT_AUDIT_RUN_FILTER.length ? undefined : selectedStatuses;
 
     this.api
-      .listHistory({
+      .listHistory(this.config.endpoint, {
         limit: this.#limit,
         cursor: this.#currentCursor(),
         status: useStatusFilter,
@@ -119,7 +123,6 @@ export class AuditHistoryPageComponent {
   }
 
   openRun(run: AuditRunSummary) {
-    const route = this.resultRoute(run.auditId);
-    void this.router.navigate(route.commands, route.extras);
+    void this.router.navigate(this.config.resultRoute(run));
   }
 }

@@ -12,6 +12,7 @@ export const auditResultStatusEnum = pgEnum('audit_result_status', auditResultSt
 export const auditTemplateTable = pgTable('audit_templates', {
   id: uuid('id').primaryKey().defaultRandom(),
   kind: text('kind').$type<AuditKind>().notNull(),
+  title: text('title').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });

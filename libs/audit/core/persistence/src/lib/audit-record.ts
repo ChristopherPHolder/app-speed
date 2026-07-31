@@ -14,6 +14,7 @@ export type AuditStatus = typeof AuditStatusSchema.Type;
 const AuditTemplateRecordSchema = Schema.Struct({
   id: AuditTemplateIdSchema,
   kind: AuditKindSchema,
+  title: Schema.NonEmptyString,
   createAt: Schema.DateFromSelf,
   updatedAt: Schema.DateFromSelf,
 });
@@ -46,6 +47,7 @@ export type AuditResultRecord = typeof AuditResultRecordSchema.Type;
 
 const AuditRunSummaryRecordSchema = Schema.Struct({
   id: AuditRunIdSchema,
+  kind: AuditKindSchema,
   title: Schema.NonEmptyString,
   status: AuditStatusSchema,
   resultStatus: Schema.NullOr(AuditResultStatusSchema),
@@ -57,27 +59,19 @@ const AuditRunSummaryRecordSchema = Schema.Struct({
 });
 export type AuditRunSummaryRecord = typeof AuditRunSummaryRecordSchema.Type;
 
-const AuditRunDetailsRecordSchema = Schema.Struct({
-  id: AuditRunIdSchema,
-  definition: Schema.Unknown,
-  status: AuditStatusSchema,
-  resultStatus: Schema.NullOr(AuditResultStatusSchema),
-  queuePosition: Schema.NullOr(Schema.NonNegativeInt),
-  createdAt: Schema.DateFromSelf,
-  startedAt: Schema.NullOr(Schema.DateFromSelf),
-  completedAt: Schema.NullOr(Schema.DateFromSelf),
-  durationMs: Schema.NullOr(Schema.Number),
-});
-export type AuditRunDetailsRecord = typeof AuditRunDetailsRecordSchema.Type;
-
 export const AuditRunListCursorSchema = Schema.Struct({
   createdAtMs: Schema.NonNegativeInt,
   id: Schema.String,
 });
 export type AuditRunListCursor = typeof AuditRunListCursorSchema.Type;
 
-export const decodeAuditTemplateRecord = (template: { id: string; kind: string; createAt: Date; updatedAt: Date }) =>
-  Schema.decodeUnknown(AuditTemplateRecordSchema, { errors: 'all' })(template);
+export const decodeAuditTemplateRecord = (template: {
+  id: string;
+  kind: string;
+  title: string;
+  createAt: Date;
+  updatedAt: Date;
+}) => Schema.decodeUnknown(AuditTemplateRecordSchema, { errors: 'all' })(template);
 
 export const decodeAuditRunRecord = (run: {
   id: string;
@@ -119,6 +113,7 @@ export const decodeAuditResultRecord = (result: {
 
 export const decodeAuditRunSummaryRecord = (run: {
   id: string;
+  kind: string;
   title: string;
   status: AuditStatus;
   resultStatus: AuditResultStatus | null;
@@ -130,6 +125,7 @@ export const decodeAuditRunSummaryRecord = (run: {
 }) =>
   Schema.decodeUnknown(AuditRunSummaryRecordSchema, { errors: 'all' })({
     id: run.id,
+    kind: run.kind,
     title: run.title,
     status: run.status,
     resultStatus: run.resultStatus,
@@ -139,36 +135,3 @@ export const decodeAuditRunSummaryRecord = (run: {
     completedAt: run.completedAt,
     durationMs: run.durationMs,
   });
-
-export const decodeAuditRunDetailsRecord = (run: {
-  id: string;
-  definition: unknown;
-  status: AuditStatus;
-  resultStatus: AuditResultStatus | null;
-  queuePosition: number | null;
-  createdAt: Date;
-  startedAt: Date | null;
-  completedAt: Date | null;
-  durationMs: number | null;
-}) =>
-  Schema.decodeUnknown(AuditRunDetailsRecordSchema, { errors: 'all' })({
-    id: run.id,
-    definition: run.definition,
-    status: run.status,
-    resultStatus: run.resultStatus,
-    queuePosition: run.queuePosition,
-    createdAt: run.createdAt,
-    startedAt: run.startedAt,
-    completedAt: run.completedAt,
-    durationMs: run.durationMs,
-  });
-
-export const resolveAuditTitle = (templateData: unknown): string => {
-  if (templateData && typeof templateData === 'object') {
-    const title = (templateData as { title?: unknown }).title;
-    if (typeof title === 'string' && title.trim().length > 0) {
-      return title;
-    }
-  }
-  return 'Untitled audit';
-};
