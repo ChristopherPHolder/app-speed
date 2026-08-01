@@ -40,7 +40,7 @@ const runExecutor: PromiseExecutor<EffectDiagnosticsExecutorSchema> = async (opt
         ...(options.args ?? []),
       ];
 
-      const result = yield* Effect.async<{ exitCode: number; stdout: string }, Error>((resume) => {
+      const result = yield* Effect.callback<{ exitCode: number; stdout: string }, Error>((resume) => {
         const child = spawn(process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm', args, {
           cwd,
           shell: process.platform === 'win32',
@@ -80,7 +80,7 @@ const runExecutor: PromiseExecutor<EffectDiagnosticsExecutorSchema> = async (opt
 
       return { success: true };
     }).pipe(
-      Effect.catchAll((error) =>
+      Effect.catch((error) =>
         Effect.sync(() => {
           logger.error(`Failed to execute effect-language-service diagnostics: ${String(error)}`);
           return { success: false };

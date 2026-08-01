@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 
-import { FetchHttpClient, HttpApiClient } from '@effect/platform';
+import { FetchHttpClient } from 'effect/unstable/http';
+import { HttpApiClient } from 'effect/unstable/httpapi';
 import { Effect, ManagedRuntime, Schema } from 'effect';
 
 import { from } from 'rxjs';
@@ -16,7 +17,7 @@ export class ApiClient {
       this.runtime.runPromise(
         Effect.gen(function* () {
           const apiClient = yield* HttpApiClient.make(UserFlowApi);
-          const payload = yield* Schema.decodeUnknown(UserFlowAuditDefinitionSchema)(auditDetails);
+          const payload = yield* Schema.decodeUnknownEffect(UserFlowAuditDefinitionSchema)(auditDetails);
           return yield* apiClient.userFlowAudit.scheduleUserFlowAudit({ payload });
         }),
       ),

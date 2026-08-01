@@ -210,7 +210,7 @@ describe('builder step spec', () => {
       deriveBuilderStepSpec({
         id: 'unsupported',
         schema: Schema.Struct({
-          value: Schema.Union(Schema.String, Schema.Number),
+          value: Schema.Union([Schema.String, Schema.Number]),
         }),
         defaultValue: {},
       }),

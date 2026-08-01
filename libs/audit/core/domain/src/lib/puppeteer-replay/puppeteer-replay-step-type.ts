@@ -58,7 +58,7 @@ const PUPPETEER_REPLAY_STEP_TYPE = [
   PUPPETEER_REPLAY_ASSERTION_STEP_TYPE.WAIT_FOR_EXPRESSION,
 ] as const satisfies EnumLiteral<StepType>[];
 
-export const PuppeteerReplayStepTypeSchema = Schema.Literal(...PUPPETEER_REPLAY_STEP_TYPE);
+export const PuppeteerReplayStepTypeSchema = Schema.Literals(PUPPETEER_REPLAY_STEP_TYPE);
 
 /**
  * Assert all puppeteer replay key are being used in the PUPPETEER_REPLAY_KEY literal

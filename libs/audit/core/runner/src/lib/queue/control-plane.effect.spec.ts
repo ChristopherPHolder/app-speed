@@ -1,5 +1,5 @@
 import { EC2Client } from '@aws-sdk/client-ec2';
-import { HttpClient, HttpClientResponse } from '@effect/platform';
+import { HttpClient, HttpClientResponse } from 'effect/unstable/http';
 import { Effect } from 'effect';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 

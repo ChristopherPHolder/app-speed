@@ -12,8 +12,8 @@ export type UserFlowExecutionResult = { flowResult: FlowResult; reportHtml: stri
 
 export const executeUserFlowAudit = (claim: AuditClaim): Effect.Effect<UserFlowExecutionResult, unknown> =>
   Effect.gen(function* () {
-    const audit = yield* Schema.decodeUnknown(UserFlowAuditDefinitionSchema)(claim.definition);
-    const replayRecording = yield* Schema.decodeUnknown(PuppeteerReplayUserflowRunnerSchema)(audit);
+    const audit = yield* Schema.decodeUnknownEffect(UserFlowAuditDefinitionSchema)(claim.definition);
+    const replayRecording = yield* Schema.decodeUnknownEffect(PuppeteerReplayUserflowRunnerSchema)(audit);
     const configuration = yield* AuditConfig(audit.device);
     const { browser, page } = yield* RunnerContext(configuration);
     const flow = yield* Effect.promise(() =>

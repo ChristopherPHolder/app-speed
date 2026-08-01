@@ -260,7 +260,7 @@ const PUPPETEER_REPLAY_KEY = [
   'VolumeUp',
 ] as const satisfies readonly EnumLiteral<Key>[];
 
-export const PuppeteerReplayKeySchema = Schema.Literal(...PUPPETEER_REPLAY_KEY);
+export const PuppeteerReplayKeySchema = Schema.Literals(PUPPETEER_REPLAY_KEY);
 
 /**
  * Assert all puppeteer replay key are being used in the PUPPETEER_REPLAY_KEY literal

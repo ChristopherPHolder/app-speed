@@ -6,17 +6,23 @@ import {
   waitUntilInstanceRunning,
   waitUntilInstanceStopped,
 } from '@aws-sdk/client-ec2';
-import { Data, Effect, Either, Layer, Option, Schema } from 'effect';
+import { Data, Effect, Exit, Layer, Option, Schema } from 'effect';
 import { RunnerIdSchema, RunnerManager, type ActiveRunnerList } from './RunnerManager.js';
 import { RunnerRegistry } from './RunnerRegistry.js';
 
 const DEFAULT_WAIT_TIMEOUT_MS = 10 * 60 * 1000;
 const AWS_RUNNER_REGION = 'eu-central-1';
-const AWS_RUNNER_INSTANCE_IDS = ['i-049287bf43503d01e'] as const;
+const AWS_RUNNER_INSTANCE_IDS: ReadonlyArray<string> = ['i-049287bf43503d01e'];
 
-const Ec2InstanceIdSchema = Schema.NonEmptyString.pipe(Schema.pattern(/^i-[a-z0-9]+$/), Schema.brand('Ec2InstanceId'));
-const Ec2RunnerIdSchema = Schema.NonEmptyString.pipe(Schema.pattern(/^ec2-i-[a-z0-9]+$/), Schema.brand('Ec2RunnerId'));
-const Ec2InstanceLifecycleStateSchema = Schema.Literal(
+const Ec2InstanceIdSchema = Schema.NonEmptyString.pipe(
+  Schema.check(Schema.isPattern(/^i-[a-z0-9]+$/)),
+  Schema.brand('Ec2InstanceId'),
+);
+const Ec2RunnerIdSchema = Schema.NonEmptyString.pipe(
+  Schema.check(Schema.isPattern(/^ec2-i-[a-z0-9]+$/)),
+  Schema.brand('Ec2RunnerId'),
+);
+const Ec2InstanceLifecycleStateSchema = Schema.Literals([
   'pending',
   'running',
   'shutting-down',
@@ -24,8 +30,8 @@ const Ec2InstanceLifecycleStateSchema = Schema.Literal(
   'stopping',
   'stopped',
   'unknown',
-);
-const ActiveEc2InstanceLifecycleStateSchema = Schema.Literal('pending', 'running');
+]);
+const ActiveEc2InstanceLifecycleStateSchema = Schema.Literals(['pending', 'running']);
 
 const Ec2InstanceStateSchema = Schema.Struct({
   instanceId: Ec2InstanceIdSchema,
@@ -35,8 +41,8 @@ const Ec2InstanceStateSchema = Schema.Struct({
 const AwsRunnerManagerConfigSchema = Schema.Struct({
   region: Schema.NonEmptyString,
   instanceIds: Schema.NonEmptyArray(Ec2InstanceIdSchema),
-  startWaitTimeoutMs: Schema.Positive,
-  stopWaitTimeoutMs: Schema.Positive,
+  startWaitTimeoutMs: Schema.Number.check(Schema.isGreaterThan(0)),
+  stopWaitTimeoutMs: Schema.Number.check(Schema.isGreaterThan(0)),
 });
 
 type Ec2InstanceId = typeof Ec2InstanceIdSchema.Type;
@@ -56,28 +62,28 @@ const awsRunnerManagerConfig = Schema.decodeUnknownSync(AwsRunnerManagerConfigSc
 });
 
 const decodeRunnerId = (value: string) => Schema.decodeSync(RunnerIdSchema)(value);
-const decodeEc2InstanceId = Schema.decodeUnknownEither(Ec2InstanceIdSchema);
-const decodeEc2RunnerId = Schema.decodeUnknownEither(Ec2RunnerIdSchema);
-const decodeEc2InstanceState = Schema.decodeUnknownEither(Ec2InstanceStateSchema);
-const decodeActiveLifecycleState = Schema.decodeUnknownEither(ActiveEc2InstanceLifecycleStateSchema);
+const decodeEc2InstanceId = Schema.decodeUnknownExit(Ec2InstanceIdSchema);
+const decodeEc2RunnerId = Schema.decodeUnknownExit(Ec2RunnerIdSchema);
+const decodeEc2InstanceState = Schema.decodeUnknownExit(Ec2InstanceStateSchema);
+const decodeActiveLifecycleState = Schema.decodeUnknownExit(ActiveEc2InstanceLifecycleStateSchema);
 const toManagedRunnerId = (instanceId: Ec2InstanceId) => decodeRunnerId(`ec2-${instanceId}`);
 const isActiveEc2InstanceState = (state: Ec2InstanceState['state']): boolean =>
-  Either.isRight(decodeActiveLifecycleState(state));
+  Exit.isSuccess(decodeActiveLifecycleState(state));
 
 const parseManagedInstanceId = (runnerId: string): Option.Option<Ec2InstanceId> => {
   const maybeInstanceId = decodeEc2InstanceId(runnerId);
-  if (Either.isRight(maybeInstanceId)) {
-    return Option.some(maybeInstanceId.right);
+  if (Exit.isSuccess(maybeInstanceId)) {
+    return Option.some(maybeInstanceId.value);
   }
 
   const maybeRunnerId = decodeEc2RunnerId(runnerId);
-  if (Either.isLeft(maybeRunnerId)) {
+  if (Exit.isFailure(maybeRunnerId)) {
     return Option.none();
   }
 
-  const instanceIdFromRunnerId = String(maybeRunnerId.right).slice('ec2-'.length);
+  const instanceIdFromRunnerId = String(maybeRunnerId.value).slice('ec2-'.length);
   const decodedInstanceId = decodeEc2InstanceId(instanceIdFromRunnerId);
-  return Either.isRight(decodedInstanceId) ? Option.some(decodedInstanceId.right) : Option.none();
+  return Exit.isSuccess(decodedInstanceId) ? Option.some(decodedInstanceId.value) : Option.none();
 };
 
 const describeInstances = (
@@ -103,13 +109,13 @@ const describeInstances = (
             instanceId: instance.InstanceId,
             state: instance.State?.Name ?? 'unknown',
           });
-          if (Either.isLeft(decodedState)) {
+          if (Exit.isFailure(decodedState)) {
             return yield* new AwsRunnerManagerError({
               message: `AWS returned invalid EC2 instance payload for ${instance.InstanceId}`,
             });
           }
 
-          instances.push(decodedState.right);
+          instances.push(decodedState.value);
         }
       }
     }
@@ -193,8 +199,7 @@ const stopInstance = (
     }
   });
 
-export const AwsRunnerManagerLive = Layer.effect(
-  RunnerManager,
+export const AwsRunnerManagerLive = Layer.effect(RunnerManager)(
   Effect.gen(function* () {
     const config: AwsRunnerManagerConfig = awsRunnerManagerConfig;
     const client = new EC2Client({ region: config.region });
@@ -221,9 +226,9 @@ export const AwsRunnerManagerLive = Layer.effect(
       yield* startInstance(client, targetInstanceId, config.startWaitTimeoutMs);
     }).pipe(
       Effect.withSpan('runner.manager.ensureActive'),
-      Effect.catchAll((error) =>
+      Effect.catch((error) =>
         Effect.logError(error).pipe(
-          Effect.zipRight(Effect.annotateCurrentSpan({ 'runner.aws.start_error': String(error) })),
+          Effect.andThen(Effect.annotateCurrentSpan({ 'runner.aws.start_error': String(error) })),
           Effect.asVoid,
         ),
       ),
@@ -244,9 +249,9 @@ export const AwsRunnerManagerLive = Layer.effect(
         }),
       ),
       Effect.withSpan('runner.manager.listActive'),
-      Effect.catchAll((error) =>
+      Effect.catch((error) =>
         Effect.logError(error).pipe(
-          Effect.zipRight(Effect.annotateCurrentSpan({ 'runner.aws.list_error': String(error) })),
+          Effect.andThen(Effect.annotateCurrentSpan({ 'runner.aws.list_error': String(error) })),
           Effect.as([] satisfies ActiveRunnerList),
         ),
       ),
@@ -274,9 +279,9 @@ export const AwsRunnerManagerLive = Layer.effect(
         yield* runnerRegistry.markTerminated(runnerId);
       }).pipe(
         Effect.withSpan('runner.manager.terminate'),
-        Effect.catchAll((error) =>
+        Effect.catch((error) =>
           Effect.logError(error).pipe(
-            Effect.zipRight(Effect.annotateCurrentSpan({ 'runner.aws.terminate_error': String(error) })),
+            Effect.andThen(Effect.annotateCurrentSpan({ 'runner.aws.terminate_error': String(error) })),
             Effect.asVoid,
           ),
         ),

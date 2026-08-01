@@ -2,9 +2,8 @@
   "name": "@app-speed/audit/user-flow/api-contract",
   "version": "0.0.1",
   "peerDependencies": {
-    "@effect/platform": "^0.94.1",
     "@app-speed/audit/user-flow/domain": "0.0.1",
-    "effect": "^3.19.14"
+    "effect": "4.0.0-beta.102"
   },
   "sideEffects": false
 }

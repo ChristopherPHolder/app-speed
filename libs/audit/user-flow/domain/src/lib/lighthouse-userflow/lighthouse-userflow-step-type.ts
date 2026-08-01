@@ -2,8 +2,7 @@ import type { UserFlow } from 'lighthouse';
 import type { MapLiteralStep, StrictExtract } from '@app-speed/audit/core/domain';
 
 type CallableKeys<T> = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [K in keyof T]-?: T[K] extends (...args: any[]) => any ? K : never;
+  [K in keyof T]-?: T[K] extends (...args: never[]) => unknown ? K : never;
 }[keyof T] &
   string;
 

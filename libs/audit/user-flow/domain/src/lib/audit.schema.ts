@@ -12,37 +12,37 @@ import {
 
 import { UserflowRunnerStepSchema, UserflowStepSchema } from './lighthouse-userflow/lighthouse-userflow-step';
 
-export const UserFlowAuditStepSchema = Schema.Union(
+export const UserFlowAuditStepSchema = Schema.Union([
   PuppeteerReplayStepSchema,
   UserflowStepSchema,
   AuditClearCacheStepSchema,
   AuditAddCookieStepSchema,
   AuditWaitForTimeStepSchema,
   AuditWaitForNetworkIdleStepSchema,
-).annotations({
-  title: 'AuditStep',
-});
+]).pipe(
+  Schema.annotate({
+    title: 'AuditStep',
+  }),
+);
 
-const RunnerStepSchema = Schema.Union(
+const RunnerStepSchema = Schema.Union([
   UserflowRunnerStepSchema,
   AuditCustomRunnerStepSchema,
   PuppeteerReplayRunnerStepSchema,
-);
+]);
 
 export type UserFlowAuditStep = typeof UserFlowAuditStepSchema.Type;
 const RunnerStepsSchema = Schema.NonEmptyArray(RunnerStepSchema);
 
 export const UserFlowAuditDefinitionSchema = Schema.Struct({
   ...AuditDefinitionBaseSchema.fields,
-  steps: Schema.NonEmptyArray(UserFlowAuditStepSchema)
-    .pipe(
-      Schema.filter(
-        (steps) =>
-          !!steps.filter((step) => Schema.is(UserflowStepSchema)(step)).length || 'Requires at least one audit step',
-      ),
-    )
-    .annotations({ title: 'AuditSteps' }),
-}).annotations({ title: 'Audit' });
+  steps: Schema.NonEmptyArray(UserFlowAuditStepSchema).pipe(
+    Schema.check(
+      Schema.makeFilter((steps) => steps.some(Schema.is(UserflowStepSchema)) || 'Requires at least one audit step'),
+    ),
+    Schema.annotate({ title: 'AuditSteps' }),
+  ),
+}).pipe(Schema.annotate({ title: 'Audit' }));
 
 export type UserFlowAuditDefinition = typeof UserFlowAuditDefinitionSchema.Type;
 
@@ -51,5 +51,5 @@ export type UserFlowAuditDefinition = typeof UserFlowAuditDefinitionSchema.Type;
  */
 export const PuppeteerReplayUserflowRunnerSchema = Schema.Struct({
   ...UserFlowAuditDefinitionSchema.fields,
-  steps: RunnerStepsSchema.annotations({ title: 'RunnerSteps' }),
+  steps: RunnerStepsSchema.pipe(Schema.annotate({ title: 'RunnerSteps' })),
 });

@@ -2,7 +2,7 @@ import { PromiseExecutor } from '@nx/devkit';
 import { EC2Client } from '@aws-sdk/client-ec2';
 import { SendCommandCommand, SSMClient } from '@aws-sdk/client-ssm';
 import { env, stdout } from 'node:process';
-import { Effect } from 'effect';
+import { Effect, Option } from 'effect';
 
 import { waitForSsmCommandCompletion } from '../../lib/ssm';
 import { Ec2SsmCycleExecutorSchema } from './schema';
@@ -184,13 +184,12 @@ const runSsmCommand = (
         }),
     });
 
-    const commandId = yield* Effect.fromNullable(sendResponse.Command?.CommandId).pipe(
-      Effect.mapError(
-        () =>
-          new Ec2SsmCycleError({
-            message: 'SSM send command did not return commandId',
-          }),
-      ),
+    const commandId = yield* Effect.fromOption(
+      Option.fromNullishOr(sendResponse.Command?.CommandId),
+      () =>
+        new Ec2SsmCycleError({
+          message: 'SSM send command did not return commandId',
+        }),
     );
 
     const result = yield* Effect.tryPromise({

@@ -1,6 +1,6 @@
 import { NodeRuntime } from '@effect/platform-node';
 import { Effect, Layer, Option } from 'effect';
-import { DevTools } from '@effect/experimental';
+import { DevTools } from 'effect/unstable/devtools';
 import {
   AwsRunnerManagerLive,
   LocalRunnerManagerLive,
@@ -21,7 +21,7 @@ import { HttpLive } from './http/Http.js';
 import { InstalledAuditFeaturesLive } from './http/InstalledAuditFeatures.js';
 
 const ObservabilityLive = makeNodeObservabilityLayer({ serviceName: 'api' });
-const MainLayer = Layer.unwrapEffect(
+const MainLayer = Layer.unwrap(
   Effect.gen(function* () {
     const runtimeConfig = yield* ServerConfig;
 

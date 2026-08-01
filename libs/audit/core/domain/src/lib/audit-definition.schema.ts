@@ -2,12 +2,14 @@ import { Schema } from 'effect';
 
 import { DeviceSchema } from './shared/device-type';
 
-const NonNegativeIntFromStringSchema = Schema.NumberFromString.pipe(Schema.int(), Schema.nonNegative()).annotations({
-  identifier: 'NonNegativeIntFromString',
-});
+const NonNegativeIntSchema = Schema.Number.check(Schema.isInt(), Schema.isGreaterThanOrEqualTo(0));
+const NonNegativeIntFromStringSchema = Schema.NumberFromString.check(
+  Schema.isInt(),
+  Schema.isGreaterThanOrEqualTo(0),
+).annotate({ identifier: 'NonNegativeIntFromString' });
 
 export const AuditTimeoutSchema = Schema.optional(
-  Schema.Union(Schema.NonNegativeInt, NonNegativeIntFromStringSchema).annotations({
+  Schema.Union([NonNegativeIntSchema, NonNegativeIntFromStringSchema]).annotate({
     identifier: 'Timeout',
   }),
 );

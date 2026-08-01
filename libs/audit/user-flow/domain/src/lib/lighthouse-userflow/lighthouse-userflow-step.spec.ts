@@ -21,7 +21,7 @@ describe('UserflowRunnerStepSchema', () => {
         name: 'Home Page',
       };
 
-      const decoded = yield* Schema.decodeUnknown(UserflowRunnerStepSchema)(startNavigationStep);
+      const decoded = yield* Schema.decodeUnknownEffect(UserflowRunnerStepSchema)(startNavigationStep);
 
       expect(decoded).toEqual({
         type: StepType.CustomStep,
@@ -39,7 +39,7 @@ describe('UserflowRunnerStepSchema', () => {
         name: 'Home Page',
       };
 
-      const decoded = yield* Schema.decodeUnknown(UserflowRunnerStepSchema)(input);
+      const decoded = yield* Schema.decodeUnknownEffect(UserflowRunnerStepSchema)(input);
 
       expect(decoded).toEqual({
         type: StepType.CustomStep,
@@ -56,7 +56,7 @@ describe('UserflowRunnerStepSchema', () => {
         step: LIGHTHOUSE_AUDIT_STEP_TYPE.END_NAVIGATION,
       };
 
-      const decoded = yield* Schema.decodeUnknown(UserflowRunnerStepSchema)(input);
+      const decoded = yield* Schema.decodeUnknownEffect(UserflowRunnerStepSchema)(input);
 
       expect(decoded).toEqual({
         type: StepType.CustomStep,

@@ -4,16 +4,16 @@ export const RunnerIdSchema = Schema.NonEmptyString.pipe(Schema.brand('RunnerId'
 export const ActiveRunnerListSchema = Schema.Array(
   Schema.Struct({
     id: RunnerIdSchema,
-    lastHeartbeatAt: Schema.DateFromSelf,
+    lastHeartbeatAt: Schema.Date,
   }),
 );
 export type ActiveRunnerList = typeof ActiveRunnerListSchema.Type;
 
-export class RunnerManager extends Context.Tag('RunnerManager')<
+export class RunnerManager extends Context.Service<
   RunnerManager,
   {
     ensureRunnerActive: Effect.Effect<void, never>;
     listActiveRunners: Effect.Effect<ActiveRunnerList, never>;
     terminateRunner: (runnerId: string) => Effect.Effect<void, never>;
   }
->() {}
+>()('RunnerManager') {}

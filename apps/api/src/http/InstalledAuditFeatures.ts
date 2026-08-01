@@ -1,4 +1,4 @@
-import { Effect, Layer, Match, Schema } from 'effect';
+import { Effect, Layer, Match, Option, Schema } from 'effect';
 
 import { InstalledAuditFeatures } from '@app-speed/audit/core/api-runtime';
 import { QueryError } from '@app-speed/audit/core/persistence';
@@ -10,12 +10,11 @@ const UserFlowCompletionSchema = Schema.Struct({
   reportHtml: Schema.String,
 });
 
-export const InstalledAuditFeaturesLive = Layer.effect(
-  InstalledAuditFeatures,
+export const InstalledAuditFeaturesLive = Layer.effect(InstalledAuditFeatures)(
   Effect.gen(function* () {
     const userFlowRepo = yield* UserFlowAuditRepo;
     const decodeInstalledKind = (kind: unknown) =>
-      Schema.decodeUnknown(UserFlowAuditKindSchema)(kind).pipe(
+      Schema.decodeUnknownEffect(UserFlowAuditKindSchema)(kind).pipe(
         Effect.mapError((cause) => new QueryError({ message: 'Unsupported installed audit kind.', cause })),
       );
 
@@ -29,8 +28,9 @@ export const InstalledAuditFeaturesLive = Layer.effect(
             ),
           ),
           Effect.flatMap((definition) =>
-            Effect.fromNullable(definition).pipe(
-              Effect.orElseFail(() => new QueryError({ message: 'User-flow definition was not found.' })),
+            Effect.fromOption(
+              Option.fromNullishOr(definition),
+              () => new QueryError({ message: 'User-flow definition was not found.' }),
             ),
           ),
         ),
@@ -39,7 +39,7 @@ export const InstalledAuditFeaturesLive = Layer.effect(
           Effect.flatMap((installedKind) =>
             Match.value(installedKind).pipe(
               Match.when('user-flow', () =>
-                Schema.decodeUnknown(UserFlowCompletionSchema)(result).pipe(
+                Schema.decodeUnknownEffect(UserFlowCompletionSchema)(result).pipe(
                   Effect.mapError(
                     (cause) => new QueryError({ message: 'Invalid user-flow completion payload.', cause }),
                   ),

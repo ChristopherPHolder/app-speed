@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { eq } from 'drizzle-orm';
-import { Clock, Context, Effect, Layer, Schema } from 'effect';
+import { Clock, Context, Effect, Layer, Option, Schema } from 'effect';
 
 import {
   auditResultTable,
@@ -21,7 +21,7 @@ export type UserFlowAuditResult =
   | { status: 'SUCCESS'; flowResult: unknown; reportHtml: string }
   | { status: 'FAILURE'; error: unknown };
 
-export class UserFlowAuditRepo extends Context.Tag('UserFlowAuditRepo')<
+export class UserFlowAuditRepo extends Context.Service<
   UserFlowAuditRepo,
   {
     getDefinition: (templateId: AuditTemplateId) => Effect.Effect<UserFlowAuditDefinition | null, QueryError>;
@@ -32,24 +32,24 @@ export class UserFlowAuditRepo extends Context.Tag('UserFlowAuditRepo')<
       durationMs: number,
     ) => Effect.Effect<void, QueryError>;
   }
->() {}
+>()('UserFlowAuditRepo') {}
 
 const toQueryError = (error: RecordPersistenceError) =>
   new QueryError({ message: `Record persistence ${error.operation} failed: ${error.message}`, cause: error });
 
-const JsonRecordSchema = Schema.parseJson(Schema.Unknown);
-const encodeJsonRecord = Schema.encodeUnknown(JsonRecordSchema);
-const decodeJsonRecord = Schema.decodeUnknown(JsonRecordSchema);
+const JsonRecordSchema = Schema.fromJsonString(Schema.Unknown);
+const encodeJsonRecord = Schema.encodeUnknownEffect(JsonRecordSchema);
+const decodeJsonRecord = Schema.decodeUnknownEffect(JsonRecordSchema);
 
 const requireRecord = (value: string | null, message: string) =>
-  Effect.fromNullable(value).pipe(Effect.orElseFail(() => new QueryError({ message })));
+  Effect.fromOption(Option.fromNullishOr(value)).pipe(Effect.mapError(() => new QueryError({ message })));
 
 const getRecord = (recordPersistence: RecordPersistence, recordKey: string, missingMessage: string) =>
   Effect.gen(function* () {
     const key = yield* recordPersistence
       .decodeRecordKey(recordKey)
       .pipe(Effect.mapError((cause) => new QueryError({ message: 'Invalid record key.', cause })));
-    const stored = yield* recordPersistence.get(key).pipe(Effect.catchAll(toQueryError));
+    const stored = yield* recordPersistence.get(key).pipe(Effect.catch(toQueryError));
     return yield* requireRecord(stored, missingMessage);
   });
 
@@ -121,8 +121,8 @@ const completeSuccess = Effect.fn('db.userFlow.completeSuccess')(function* (
     Effect.mapError((cause) => new QueryError({ message: 'Failed to serialize Lighthouse result.', cause })),
   );
 
-  yield* records.put(flowResultRecordKey, serializedFlowResult).pipe(Effect.catchAll(toQueryError));
-  yield* records.put(reportHtmlRecordKey, result.reportHtml).pipe(Effect.catchAll(toQueryError));
+  yield* records.put(flowResultRecordKey, serializedFlowResult).pipe(Effect.catch(toQueryError));
+  yield* records.put(reportHtmlRecordKey, result.reportHtml).pipe(Effect.catch(toQueryError));
 
   yield* db.run((client) =>
     client.transaction(async (tx) => {
@@ -151,8 +151,7 @@ const completeSuccess = Effect.fn('db.userFlow.completeSuccess')(function* (
   );
 });
 
-export const UserFlowAuditRepoLive = Layer.effect(
-  UserFlowAuditRepo,
+export const UserFlowAuditRepoLive = Layer.effect(UserFlowAuditRepo)(
   Effect.gen(function* () {
     const db = yield* DbClient;
     const records = yield* RecordPersistenceService;

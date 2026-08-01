@@ -38,7 +38,7 @@ describe('UserFlowAuditScheduler', () => {
         });
       },
     };
-    const DbClientTest = Layer.succeed(DbClient, {
+    const DbClientTest = Layer.succeed(DbClient)({
       run: (operation) =>
         Effect.tryPromise({
           try: () => Promise.resolve(operation(client as never)),
@@ -55,11 +55,7 @@ describe('UserFlowAuditScheduler', () => {
 
     expect(auditId).toBeTypeOf('string');
     expect(transactionCount).toBe(1);
-    expect(inserts.map(({ table }) => table)).toEqual([
-      'audit_templates',
-      'user_flow_audit_templates',
-      'audit_runs',
-    ]);
+    expect(inserts.map(({ table }) => table)).toEqual(['audit_templates', 'user_flow_audit_templates', 'audit_runs']);
     expect(inserts[0].values).toMatchObject({ kind: 'user-flow' });
     expect(inserts[1].values).toMatchObject({ definition });
     expect(inserts[2].values).toMatchObject({ status: 'SCHEDULED' });

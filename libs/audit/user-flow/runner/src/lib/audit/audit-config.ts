@@ -3,14 +3,14 @@ import type Config from 'lighthouse/types/config.js';
 
 import { DEVICE_TYPE, DeviceSchema, type DeviceType } from '@app-speed/audit/core/domain';
 import { softNavigationConfig, softNavigationPerformanceAuditRefs } from '../soft-nav/config';
-import { Effect, Schema, ParseResult } from 'effect';
+import { Effect, Schema } from 'effect';
 
-export class InvalidDeviceConfigurationError extends Schema.TaggedError<InvalidDeviceConfigurationError>()(
+export class InvalidDeviceConfigurationError extends Schema.TaggedErrorClass<InvalidDeviceConfigurationError>()(
   'InvalidDeviceConfigurationError',
   {
     deviceType: DeviceSchema,
     message: Schema.String,
-    cause: Schema.instanceOf(ParseResult.ParseError),
+    cause: Schema.instanceOf(Schema.SchemaError),
   },
 ) {}
 
@@ -48,7 +48,7 @@ export const AuditConfig = Effect.fn('deviceConfig')(function* (deviceType: Devi
         : {}),
     },
   } satisfies Config;
-  const settings = yield* Schema.decodeUnknown(LighthouseRunnerSettingsSchema)(devicePreset.settings).pipe(
+  const settings = yield* Schema.decodeUnknownEffect(LighthouseRunnerSettingsSchema)(devicePreset.settings).pipe(
     Effect.mapError(
       (cause) =>
         new InvalidDeviceConfigurationError({

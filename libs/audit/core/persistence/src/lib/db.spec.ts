@@ -10,7 +10,10 @@ describe('DbClient', () => {
         Effect.gen(function* () {
           yield* DbClient;
         }),
-      ).pipe(Effect.provide(DbClient.live), Effect.withConfigProvider(ConfigProvider.fromMap(new Map()))),
+      ).pipe(
+        Effect.provide(DbClient.live),
+        Effect.provideService(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({})),
+      ),
     );
 
     expect(exit._tag).toBe('Failure');

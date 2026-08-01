@@ -1,5 +1,5 @@
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { Config, Context, Data, Effect, Layer } from 'effect';
+import { Config, Context, Data, Effect, Layer, Schema } from 'effect';
 import { Pool } from 'pg';
 
 import { schema } from './schema';
@@ -11,19 +11,19 @@ export class QueryError extends Data.TaggedError('QueryError')<{
 
 export type DbClientDatabase = NodePgDatabase<typeof schema>;
 
-const databaseUrlConfig = Config.string('DATABASE_URL').pipe(
-  Config.withDescription('Postgres connection string used by the audit persistence runtime.'),
+const databaseUrlConfig = Config.schema(
+  Schema.String.annotate({ description: 'Postgres connection string used by the audit persistence runtime.' }),
+  'DATABASE_URL',
 );
-const connectionTimeoutMillisConfig = Config.integer('DATABASE_CONNECTION_TIMEOUT_MS').pipe(Config.withDefault(5_000));
+const connectionTimeoutMillisConfig = Config.int('DATABASE_CONNECTION_TIMEOUT_MS').pipe(Config.withDefault(5_000));
 
-export class DbClient extends Context.Tag('DbClient')<
+export class DbClient extends Context.Service<
   DbClient,
   {
     readonly run: <A>(f: (db: DbClientDatabase) => A | Promise<A>) => Effect.Effect<A, QueryError>;
   }
->() {
-  static live = Layer.scoped(
-    DbClient,
+>()('DbClient') {
+  static live = Layer.effect(DbClient)(
     Effect.acquireRelease(
       Effect.gen(function* () {
         const databaseUrl = yield* databaseUrlConfig;

@@ -178,8 +178,7 @@ const completeFailure = Effect.fn('db.auditRun.completeFailure')(function* (
   );
 });
 
-export const AuditRepoLive = Layer.effect(
-  AuditRepo,
+export const AuditRepoLive = Layer.effect(AuditRepo)(
   Effect.gen(function* () {
     const db = yield* DbClient;
     const provideDb = <A, E, R>(effect: Effect.Effect<A, E, R>) => effect.pipe(Effect.provideService(DbClient, db));

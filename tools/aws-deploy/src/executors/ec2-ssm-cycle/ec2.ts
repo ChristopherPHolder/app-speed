@@ -71,7 +71,9 @@ const getObservedInstanceDetails = (
   }
 
   const waiterState = typeof normalizedError.state === 'string' ? normalizedError.state : undefined;
-  const observedResponsesRecord = isRecord(normalizedError.observedResponses) ? normalizedError.observedResponses : undefined;
+  const observedResponsesRecord = isRecord(normalizedError.observedResponses)
+    ? normalizedError.observedResponses
+    : undefined;
   const observedResponses = observedResponsesRecord
     ? Object.entries(observedResponsesRecord)
         .filter(([, count]) => typeof count === 'number')
@@ -180,7 +182,7 @@ const describeInstanceDiagnostics = (
     const describeInstancesResponse = yield* Effect.tryPromise({
       try: () => client.send(new DescribeInstancesCommand({ InstanceIds: [instanceId] })),
       catch: (error) => toDiagnosticsLookupError('describe EC2 state', instanceId, error),
-    }).pipe(Effect.catchAll(() => Effect.succeed(undefined)));
+    }).pipe(Effect.catch(() => Effect.succeed(undefined)));
 
     if (describeInstancesResponse) {
       for (const reservation of describeInstancesResponse.Reservations ?? []) {
@@ -204,7 +206,7 @@ const describeInstanceDiagnostics = (
           }),
         ),
       catch: (error) => toDiagnosticsLookupError('describe EC2 status checks', instanceId, error),
-    }).pipe(Effect.catchAll(() => Effect.succeed(undefined)));
+    }).pipe(Effect.catch(() => Effect.succeed(undefined)));
 
     const status = describeInstanceStatusResponse?.InstanceStatuses?.find((item) => item.InstanceId === instanceId);
     if (status) {
@@ -231,17 +233,14 @@ const describeInstanceDiagnostics = (
           }),
         ),
       catch: (error) => toDiagnosticsLookupError('fetch EC2 console output', instanceId, error),
-    }).pipe(Effect.catchAll(() => Effect.succeed(undefined)));
+    }).pipe(Effect.catch(() => Effect.succeed(undefined)));
 
     diagnostics.consoleOutputExcerpt = toConsoleOutputExcerpt(consoleOutputResponse?.Output);
 
     return diagnostics;
   });
 
-const buildWaiterFailureMessage = (
-  waiterDetails: string,
-  diagnostics: InstanceDiagnostics,
-): string => {
+const buildWaiterFailureMessage = (waiterDetails: string, diagnostics: InstanceDiagnostics): string => {
   const diagnosticDetails = formatInstanceDiagnostics(diagnostics);
   return diagnosticDetails ? `${waiterDetails}, latest snapshot: ${diagnosticDetails}` : waiterDetails;
 };
@@ -268,7 +267,7 @@ const waitForInstanceRunning = (
         ),
       catch: toWaiterError,
     }).pipe(
-      Effect.catchAll((error) =>
+      Effect.catch((error) =>
         Effect.gen(function* () {
           const diagnostics = yield* describeInstanceDiagnostics(client, instanceId);
           return yield* new Ec2SsmCycleError({
@@ -317,7 +316,7 @@ const waitForInstanceStopped = (
         ),
       catch: toWaiterError,
     }).pipe(
-      Effect.catchAll((error) =>
+      Effect.catch((error) =>
         Effect.gen(function* () {
           const diagnostics = yield* describeInstanceDiagnostics(client, instanceId);
           return yield* new Ec2SsmCycleError({

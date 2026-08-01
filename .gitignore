@@ -137,5 +137,6 @@ opensrc/
 
 # Effect source checkout for agent research
 .repos/effect
+.repos/effect-v3
 
 .claude/worktrees

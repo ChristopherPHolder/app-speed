@@ -1,12 +1,13 @@
 import { AuditRepo } from '@app-speed/audit/core/persistence';
-import { Deferred, Effect, Layer, Ref } from 'effect';
+import { Deferred, Effect, Layer, Ref, Schema } from 'effect';
 import { describe, expect, it } from 'vitest';
 
 import { RunnerLifecycle, RunnerLifecycleLive } from './RunnerLifecycle.js';
-import { RunnerManager } from './RunnerManager.js';
+import { RunnerIdSchema, RunnerManager } from './RunnerManager.js';
 import { RunnerRegistry } from './RunnerRegistry.js';
 
-const unusedEffect = Effect.dieMessage('unused test stub');
+const unusedEffect = Effect.die(new Error('unused test stub'));
+const testRunnerId = Schema.decodeSync(RunnerIdSchema)('runner-1');
 
 const makeAuditRepoStub = (hasScheduledRuns: () => boolean) => ({
   claimNextRun: () => unusedEffect,
@@ -48,7 +49,7 @@ describe('RunnerLifecycle', () => {
               yield* Deferred.succeed(runnerStarted, void 0).pipe(Effect.ignore);
             }),
             listActiveRunners: Effect.sync(() =>
-              runnerActive ? [{ id: 'runner-1' as const, lastHeartbeatAt: new Date() }] : [],
+              runnerActive ? [{ id: testRunnerId, lastHeartbeatAt: new Date() }] : [],
             ),
             terminateRunner: () =>
               Effect.gen(function* () {
@@ -62,12 +63,9 @@ describe('RunnerLifecycle', () => {
           const testLayer = Layer.provideMerge(
             RunnerLifecycleLive,
             Layer.mergeAll(
-              Layer.succeed(
-                AuditRepo,
-                makeAuditRepoStub(() => hasScheduledRuns),
-              ),
-              Layer.succeed(RunnerManager, runnerManagerStub),
-              Layer.succeed(RunnerRegistry, runnerRegistryStub),
+              Layer.succeed(AuditRepo)(makeAuditRepoStub(() => hasScheduledRuns)),
+              Layer.succeed(RunnerManager)(runnerManagerStub),
+              Layer.succeed(RunnerRegistry)(runnerRegistryStub),
             ),
           );
 
@@ -113,20 +111,17 @@ describe('RunnerLifecycle', () => {
               yield* Deferred.succeed(runnerStarted, void 0).pipe(Effect.ignore);
             }),
             listActiveRunners: Effect.sync(() =>
-              runnerActive ? [{ id: 'runner-1' as const, lastHeartbeatAt: new Date() }] : [],
+              runnerActive ? [{ id: testRunnerId, lastHeartbeatAt: new Date() }] : [],
             ),
-            terminateRunner: () => Effect.dieMessage('terminateRunner should not be called'),
+            terminateRunner: () => Effect.die(new Error('terminateRunner should not be called')),
           };
 
           const testLayer = Layer.provideMerge(
             RunnerLifecycleLive,
             Layer.mergeAll(
-              Layer.succeed(
-                AuditRepo,
-                makeAuditRepoStub(() => hasScheduledRuns),
-              ),
-              Layer.succeed(RunnerManager, runnerManagerStub),
-              Layer.succeed(RunnerRegistry, runnerRegistryStub),
+              Layer.succeed(AuditRepo)(makeAuditRepoStub(() => hasScheduledRuns)),
+              Layer.succeed(RunnerManager)(runnerManagerStub),
+              Layer.succeed(RunnerRegistry)(runnerRegistryStub),
             ),
           );
 
