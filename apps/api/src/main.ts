@@ -4,6 +4,7 @@ import { DevTools } from 'effect/unstable/devtools';
 import {
   AwsRunnerManagerLive,
   LocalRunnerManagerLive,
+  ManualRunnerManagerLive,
   RunnerIdleReaperLive,
   RunnerLifecycleLive,
   RunnerRegistryLive,
@@ -29,7 +30,12 @@ const MainLayer = Layer.unwrap(
       onNone: () => Layer.empty,
       onSome: (url) => DevTools.layer(url),
     });
-    const RunnerManagerLive = runtimeConfig.runnerManagerMode === 'aws' ? AwsRunnerManagerLive : LocalRunnerManagerLive;
+    const RunnerManagerLive =
+      runtimeConfig.runnerManagerMode === 'aws'
+        ? AwsRunnerManagerLive
+        : runtimeConfig.runnerManagerMode === 'manual'
+          ? ManualRunnerManagerLive
+          : LocalRunnerManagerLive;
     const BaseLayer = Layer.mergeAll(
       DevToolsLive,
       DbClient.live,

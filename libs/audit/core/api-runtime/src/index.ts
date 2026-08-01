@@ -4,6 +4,7 @@ export { HealthGroupLive } from './lib/health/Http';
 export { RunnerGroupLive } from './lib/runner/Http';
 export { AwsRunnerManagerLive } from './lib/runner/AwsRunnerManager';
 export { LocalRunnerManagerLive } from './lib/runner/LocalRunnerManager';
+export { ManualRunnerManagerLive } from './lib/runner/ManualRunnerManager';
 export { RunnerIdleReaper, RunnerIdleReaperLive } from './lib/runner/RunnerIdleReaper';
 export { RunnerLifecycle, RunnerLifecycleLive } from './lib/runner/RunnerLifecycle';
 export { RunnerManager } from './lib/runner/RunnerManager';

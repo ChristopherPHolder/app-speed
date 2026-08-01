@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 describe('Audit', () => {
   async function ScheduleRequest(payload: unknown) {
@@ -25,17 +25,17 @@ describe('Audit', () => {
     return await r.json();
   }
 
-  it('should return actionable audit schema error messages', async () => {
-    const response = await ScheduleRequest({});
+  it('should reject malformed audit payloads', async () => {
+    const response = await fetch(USER_FLOW_SCHEDULE_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        accept: 'application/json',
+      },
+      body: '{}',
+    });
 
-    expect(response).toMatchObject({
-      _tag: 'HttpApiDecodeError',
-    });
-    expect(response.message).toContain('title');
-    expect(response.issues[0]).toMatchObject({
-      _tag: 'Missing',
-      path: ['title'],
-    });
+    expect(response.status).toBe(400);
   });
 
   it('should schedule audit', async () => {

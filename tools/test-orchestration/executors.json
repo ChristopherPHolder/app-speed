@@ -1,0 +1,9 @@
+{
+  "executors": {
+    "local-system-test": {
+      "implementation": "./src/executors/local-system-test/executor",
+      "schema": "./src/executors/local-system-test/schema.json",
+      "description": "Run an isolated API integration or full-system browser test suite"
+    }
+  }
+}

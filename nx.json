@@ -22,7 +22,10 @@
       "cache": true
     },
     "e2e": {
-      "cache": true
+      "cache": false
+    },
+    "integration": {
+      "cache": false
     },
     "@nx/eslint:lint": {
       "inputs": ["default", "^default", "{workspaceRoot}/tools/eslint-rules/**/*", "{workspaceRoot}/eslint.config.mjs"],
@@ -158,7 +161,7 @@
     },
     {
       "plugin": "@nx/js/typescript",
-      "include": ["tools/aws-deploy/**/tsconfig*.json"],
+      "include": ["tools/aws-deploy/**/tsconfig*.json", "tools/test-orchestration/**/tsconfig*.json"],
       "options": {
         "typecheck": {
           "targetName": "typecheck"

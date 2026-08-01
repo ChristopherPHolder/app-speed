@@ -13,6 +13,12 @@
 - `libs/platform/**`: cross-cutting platform services such as observability.
 - `libs/ui/**`: reusable web UI primitives.
 
+## Integration and browser tests
+
+The API integration suite and full local browser journey are independently runnable Nx targets. See
+[docs/testing/integration-and-e2e.md](docs/testing/integration-and-e2e.md) for prerequisites, artifacts, and
+troubleshooting.
+
 ## Effect diagnostics (per Nx project)
 
 This workspace provides an Nx target to run `@effect/language-service` diagnostics per project.

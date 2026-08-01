@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "version": 2,
+  "title": "Local system test executor",
+  "type": "object",
+  "properties": {
+    "suite": {
+      "type": "string",
+      "enum": ["integration", "e2e"],
+      "description": "The isolated test stack to run"
+    },
+    "testTarget": {
+      "type": "string",
+      "description": "Internal Nx target executed after the stack is ready"
+    },
+    "timeoutMs": {
+      "type": "number",
+      "minimum": 1000
+    },
+    "apiPort": {
+      "type": "number",
+      "default": 3000
+    },
+    "portalPort": {
+      "type": "number",
+      "default": 4200
+    },
+    "fixturePort": {
+      "type": "number",
+      "default": 4443
+    },
+    "databaseEnvironmentVariable": {
+      "type": "string",
+      "default": "APP_SPEED_TEST_DATABASE_URL"
+    }
+  },
+  "required": ["suite", "testTarget"]
+}

@@ -4,18 +4,36 @@
   "projectType": "application",
   "sourceRoot": "apps/portal-e2e",
   "tags": ["e2e"],
-  "implicitDependencies": ["portal"],
+  "implicitDependencies": ["portal", "api", "runner"],
   "targets": {
     "e2e": {
-      "executor": "@nx/cypress:cypress",
+      "executor": "@app-speed/test-orchestration:local-system-test",
+      "cache": false,
+      "inputs": [
+        "default",
+        "^production",
+        "{workspaceRoot}/apps/portal-e2e/fixture/**/*",
+        "{workspaceRoot}/apps/api/**/*",
+        "{workspaceRoot}/apps/runner/**/*",
+        "{workspaceRoot}/tools/test-orchestration/**/*"
+      ],
       "options": {
-        "cypressConfig": "apps/portal-e2e/cypress.config.ts",
-        "devServerTarget": "portal:serve:development"
-      },
-      "configurations": {
-        "production": {
-          "devServerTarget": "portal:serve:production"
-        }
+        "suite": "e2e",
+        "testTarget": "portal-e2e:cypress",
+        "timeoutMs": 300000
+      }
+    },
+    "cypress": {
+      "executor": "@nx/cypress:cypress",
+      "cache": false,
+      "options": {
+        "cypressConfig": "apps/portal-e2e/cypress.config.ts"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit -p apps/portal-e2e/tsconfig.json"
       }
     },
     "lint": {

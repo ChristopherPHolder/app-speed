@@ -1,64 +1,33 @@
 import { nxE2EPreset } from '@nx/cypress/plugins/cypress-preset';
 import { defineConfig } from 'cypress';
-import { type ChildProcess, spawn } from 'node:child_process';
-import * as path from 'node:path';
-
-const workspaceRoot = path.resolve(__dirname, '../..');
-const backendUrl = 'http://localhost:3000/api/health';
-let backendProcess: ChildProcess | null = null;
-
-const waitForBackend = async (timeoutMs = 60000) => {
-  const start = Date.now();
-  while (true) {
-    try {
-      const response = await fetch(backendUrl);
-      if (response.ok) return;
-    } catch {
-      // ignore and retry
-    }
-    if (Date.now() - start > timeoutMs) {
-      throw new Error(`Backend not ready after ${timeoutMs}ms: ${backendUrl}`);
-    }
-    await new Promise((resolve) => setTimeout(resolve, 500));
-  }
-};
-
-const ensureBackend = async () => {
-  if (!backendProcess) {
-    backendProcess = spawn('pnpm exec nx run api:serve:development', {
-      cwd: workspaceRoot,
-      shell: true,
-      stdio: 'inherit',
-      env: {
-        ...process.env,
-        RUNNER_MANAGER_MODE: 'local',
-        RUNNER_HEADLESS: 'true',
-      },
-    });
-  }
-
-  await waitForBackend();
-};
 
 const nxPreset = nxE2EPreset(__filename, {
   cypressDir: '.',
 });
 
 export default defineConfig({
+  video: true,
+  retries: 0,
   e2e: {
     ...nxPreset,
+    baseUrl: process.env['PORTAL_BASE_URL'] ?? 'http://127.0.0.1:4200',
+    defaultCommandTimeout: 20_000,
+    requestTimeout: 20_000,
+    responseTimeout: 300_000,
+    env: {
+      fixtureBaseUrl: process.env['FIXTURE_BASE_URL'] ?? 'https://localhost:4443',
+    },
     async setupNodeEvents(on, config) {
       if (nxPreset.setupNodeEvents) {
         await nxPreset.setupNodeEvents(on, config);
       }
 
-      await ensureBackend();
-
-      on('after:run', () => {
-        if (backendProcess) {
-          backendProcess.kill('SIGTERM');
-          backendProcess = null;
+      on('before:browser:launch', (browser, launchOptions) => {
+        const certificateSpki = process.env['TEST_HTTPS_CERT_SPKI'];
+        if (certificateSpki && browser.family === 'chromium') {
+          launchOptions.args.push(`--ignore-certificate-errors-spki-list=${certificateSpki}`);
         }
+        return launchOptions;
       });
 
       return config;

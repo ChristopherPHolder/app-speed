@@ -127,4 +127,20 @@ describe('AuditHistoryPageComponent', () => {
       status: ['IN_PROGRESS', 'COMPLETE'],
     });
   });
+
+  it('refreshes the current page without resetting its cursor', () => {
+    component.goToNextPage();
+    component.refresh();
+
+    expect(listHistory).toHaveBeenNthCalledWith(2, '/api/audits/user-flow/history', {
+      limit: 25,
+      cursor: 'cursor-2',
+      status: undefined,
+    });
+    expect(listHistory).toHaveBeenNthCalledWith(3, '/api/audits/user-flow/history', {
+      limit: 25,
+      cursor: 'cursor-2',
+      status: undefined,
+    });
+  });
 });

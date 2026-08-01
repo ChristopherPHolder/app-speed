@@ -86,11 +86,22 @@
         "reportsDirectory": "{projectRoot}/../../coverage/apps/api"
       }
     },
-    "e2e": {
+    "integration": {
+      "executor": "@app-speed/test-orchestration:local-system-test",
+      "cache": false,
+      "inputs": ["default", "^production", "{workspaceRoot}/tools/test-orchestration/**/*"],
+      "options": {
+        "suite": "integration",
+        "testTarget": "api:integration-tests",
+        "timeoutMs": 120000
+      }
+    },
+    "integration-tests": {
       "executor": "@nx/vitest:test",
+      "cache": false,
       "outputs": ["{options.reportsDirectory}"],
       "options": {
-        "configFile": "{projectRoot}/vitest.config.e2e.mts",
+        "configFile": "{projectRoot}/vitest.config.integration.mts",
         "reportsDirectory": "{projectRoot}/../../coverage/apps/api"
       }
     },
