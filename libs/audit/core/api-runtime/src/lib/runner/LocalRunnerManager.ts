@@ -27,6 +27,7 @@ const startRunner = Effect.fn('runner.manager.startProcess')(function* (runnerId
     stdout: 'inherit',
     stderr: 'inherit',
     env: { RUNNER_ID: runnerId },
+    extendEnv: true,
   }).pipe(
     Scope.provide(scope),
     Effect.catch((error) => closeScope(scope).pipe(Effect.andThen(Effect.fail(error)))),
