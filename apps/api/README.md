@@ -18,7 +18,8 @@ The API resolves runtime config through Effect `Config` in:
 Runtime env vars:
 
 - `DATABASE_URL` (required): Postgres connection string for audit persistence.
-- `RUNNER_MANAGER_MODE` (optional): `local` or `aws` (default is hardcoded to `aws`)
+- `RUNNER_MANAGER_MODE` (optional): `local`, `manual`, or `aws` (default is hardcoded to `aws`). `manual` is
+  reserved for boundary-driven integration tests and does not launch a runner.
 - `DEVTOOLS_URL` (optional)
 
 Database migrations are run through the `api:migrate` Nx target. Set `DATABASE_MIGRATION_URL` when

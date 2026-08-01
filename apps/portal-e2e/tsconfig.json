@@ -8,9 +8,5 @@
     "types": ["cypress", "node"],
     "sourceMap": false
   },
-  "include": [
-    "**/*.ts",
-    "**/*.js",
-    "cypress.config.ts"
-  ]
+  "include": ["**/*.ts", "**/*.js", "cypress.config.ts"]
 }

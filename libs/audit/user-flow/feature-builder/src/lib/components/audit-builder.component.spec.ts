@@ -70,6 +70,31 @@ describe('AuditBuilderComponent', () => {
     expect(submitAudit).not.toHaveBeenCalled();
   });
 
+  it('emits the configured audit when the valid Analyze form is submitted', async () => {
+    const submitAudit = vi.fn();
+    const builderFixture = await renderBuilder({ modifying: true, primaryAction: 'analyze' });
+    builderFixture.componentInstance.submitAudit.subscribe(submitAudit);
+
+    const urlInput = builderFixture.nativeElement.querySelectorAll('ui-audit-builder-step')[1]?.querySelector('input');
+    expect(urlInput).toBeInstanceOf(HTMLInputElement);
+    if (!(urlInput instanceof HTMLInputElement)) return;
+    urlInput.value = 'https://example.com';
+    urlInput.dispatchEvent(new Event('input', { bubbles: true }));
+    await builderFixture.whenStable();
+
+    submitForm(builderFixture);
+
+    expect(submitAudit).toHaveBeenCalledWith({
+      ...DEFAULT_AUDIT_DETAILS,
+      title: 'Checkout audit',
+      steps: [
+        DEFAULT_AUDIT_DETAILS.steps[0],
+        { type: 'navigate', url: 'https://example.com' },
+        DEFAULT_AUDIT_DETAILS.steps[2],
+      ],
+    });
+  });
+
   it('does not submit after a required field becomes invalid', async () => {
     const submitAudit = vi.fn();
     const builderFixture = await renderBuilder({ modifying: true, primaryAction: 'analyze' });

@@ -1,0 +1,13 @@
+{
+  "name": "@app-speed/test-orchestration",
+  "version": "0.0.1",
+  "dependencies": {
+    "@nx/devkit": "22.7.2",
+    "pg": "^8.19.0",
+    "puppeteer": "^25.1.0"
+  },
+  "type": "module",
+  "main": "./src/index.js",
+  "typings": "./src/index.d.ts",
+  "executors": "./executors.json"
+}

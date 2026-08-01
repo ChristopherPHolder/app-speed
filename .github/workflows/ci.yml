@@ -123,3 +123,109 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Build Affected
         run: pnpm exec nx affected -t build --parallel=3
+
+  integration:
+    name: Integration Affected
+    needs: setup
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      APP_SPEED_TEST_DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/postgres
+      RUNNER_MANAGER_MODE: manual
+      RUNNER_HEADLESS: true
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: nrwl/nx-set-shas@v3
+      - uses: pnpm/action-setup@v6
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Run Integration Affected
+        run: pnpm exec nx affected --target=integration --parallel=1
+      - name: Upload Integration Diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: integration-diagnostics
+          path: artifacts/test-orchestration/integration/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  e2e:
+    name: E2E Affected
+    needs: setup
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      APP_SPEED_TEST_DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/postgres
+      RUNNER_MANAGER_MODE: local
+      RUNNER_HEADLESS: true
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: nrwl/nx-set-shas@v3
+      - uses: pnpm/action-setup@v6
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Install Browser Artifacts
+        run: |
+          pnpm exec cypress install
+          pnpm exec puppeteer browsers install chrome
+      - name: Run E2E Affected
+        run: pnpm exec nx affected --target=e2e --parallel=1
+      - name: Upload E2E Diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: e2e-diagnostics
+          path: |
+            artifacts/test-orchestration/e2e/
+            dist/cypress/apps/portal-e2e/screenshots/
+            dist/cypress/apps/portal-e2e/videos/
+          if-no-files-found: ignore
+          retention-days: 7

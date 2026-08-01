@@ -21,4 +21,8 @@ describe('resolveRunnerManagerMode', () => {
   it('accepts explicit aws mode', async () => {
     await expect(runMode([['RUNNER_MANAGER_MODE', 'aws']])).resolves.toBe('aws');
   });
+
+  it('accepts manual mode for boundary-driven integration tests', async () => {
+    await expect(runMode([['RUNNER_MANAGER_MODE', 'manual']])).resolves.toBe('manual');
+  });
 });

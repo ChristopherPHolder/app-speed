@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { Effect, Exit, Layer, Option, Scope, SynchronizedRef } from 'effect';
+import { appendFile } from 'node:fs/promises';
+import { Config, Effect, Exit, Layer, Option, Scope, Stream, SynchronizedRef } from 'effect';
 import { ChildProcess, ChildProcessSpawner } from 'effect/unstable/process';
 import { NodeServices } from '@effect/platform-node';
 
@@ -22,16 +23,27 @@ const closeScope = (scope: Scope.Closeable) => Scope.close(scope, Exit.void);
 
 const startRunner = Effect.fn('runner.manager.startProcess')(function* (runnerId: string) {
   const scope = yield* Scope.make();
+  const runnerLogFile = yield* Config.string('RUNNER_LOG_FILE').pipe(Config.option);
   const runnerProcess = yield* ChildProcess.make('pnpm', ['exec', 'nx', 'execute', 'runner'], {
     cwd: process.cwd(),
-    stdout: 'inherit',
-    stderr: 'inherit',
+    stdout: Option.isSome(runnerLogFile) ? 'pipe' : 'inherit',
+    stderr: Option.isSome(runnerLogFile) ? 'pipe' : 'inherit',
     env: { RUNNER_ID: runnerId },
     extendEnv: true,
+    detached: false,
   }).pipe(
     Scope.provide(scope),
     Effect.catch((error) => closeScope(scope).pipe(Effect.andThen(Effect.fail(error)))),
   );
+  yield* Option.match(runnerLogFile, {
+    onNone: () => Effect.void,
+    onSome: (logFile) =>
+      runnerProcess.all.pipe(
+        Stream.runForEach((chunk) => Effect.promise(() => appendFile(logFile, chunk))),
+        Effect.forkIn(scope),
+        Effect.asVoid,
+      ),
+  });
   yield* Effect.annotateCurrentSpan({ 'runner.id': runnerId, 'runner.process_pid': runnerProcess.pid });
   return { runnerId, process: runnerProcess, scope } satisfies RunnerHandle;
 });
