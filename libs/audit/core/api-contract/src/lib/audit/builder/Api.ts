@@ -1,20 +1,16 @@
-import { HttpApiEndpoint, HttpApiError, HttpApiSchema } from '@effect/platform';
+import { HttpApiEndpoint, HttpApiError, HttpApiSchema } from 'effect/unstable/httpapi';
 import { Schema } from 'effect';
 
 import { AuditId, AuditNotFoundError, AuditRunStatusSchema } from '../Audit';
 
-export const findByIdEndpoint = HttpApiEndpoint.get('findById', '/:id')
-  .setPath(Schema.Struct({ id: AuditId }))
-  .addSuccess(Schema.Struct({ status: AuditRunStatusSchema }))
-  .addError(HttpApiError.BadRequest)
-  .addError(AuditNotFoundError);
+export const findByIdEndpoint = HttpApiEndpoint.get('findById', '/:id', {
+  params: { id: AuditId },
+  success: Schema.Struct({ status: AuditRunStatusSchema }),
+  error: [HttpApiError.BadRequestNoContent, AuditNotFoundError],
+});
 
-export const watchByIdEndpoint = HttpApiEndpoint.get('watchById', '/:id/events')
-  .setPath(Schema.Struct({ id: AuditId }))
-  .addSuccess(
-    Schema.Uint8ArrayFromSelf.pipe(
-      HttpApiSchema.withEncoding({ kind: 'Uint8Array', contentType: 'text/event-stream' }),
-    ),
-  )
-  .addError(HttpApiError.BadRequest)
-  .addError(AuditNotFoundError);
+export const watchByIdEndpoint = HttpApiEndpoint.get('watchById', '/:id/events', {
+  params: { id: AuditId },
+  success: Schema.Uint8Array.pipe(HttpApiSchema.asUint8Array({ contentType: 'text/event-stream' })),
+  error: [HttpApiError.BadRequestNoContent, AuditNotFoundError],
+});

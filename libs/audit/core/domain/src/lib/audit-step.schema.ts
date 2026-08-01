@@ -5,7 +5,7 @@ import {
   PUPPETEER_REPLAY_USER_STEP_TYPE,
 } from './puppeteer-replay/puppeteer-replay-step-type';
 
-const PuppeteerReplayStepTypeSchema = Schema.Literal(
+const PuppeteerReplayStepTypeSchema = Schema.Literals([
   PUPPETEER_REPLAY_USER_STEP_TYPE.CHANGE,
   PUPPETEER_REPLAY_USER_STEP_TYPE.CLICK,
   PUPPETEER_REPLAY_USER_STEP_TYPE.CLOSE,
@@ -19,25 +19,24 @@ const PuppeteerReplayStepTypeSchema = Schema.Literal(
   PUPPETEER_REPLAY_USER_STEP_TYPE.SET_VIEWPORT,
   PUPPETEER_REPLAY_ASSERTION_STEP_TYPE.WAIT_FOR_ELEMENT,
   PUPPETEER_REPLAY_ASSERTION_STEP_TYPE.WAIT_FOR_EXPRESSION,
-);
+]);
 
-export const AuditStepTypeSchema = Schema.Union(
-  PuppeteerReplayStepTypeSchema,
-  Schema.Literal(PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP),
-).annotations({
+export const AuditStepTypeSchema = Schema.Literals([
+  ...PuppeteerReplayStepTypeSchema.literals,
+  PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP,
+]).annotate({
   identifier: 'AuditStepType',
-  parseIssueTitle: ({ actual }) => `Invalid audit step type: ${actual || null} is not supported`,
-  message: ({ actual }) => `Invalid audit step type: ${actual ?? null} is not supported`,
+  message: 'Invalid audit step type',
 });
 
 export const isStepType = Schema.is(AuditStepTypeSchema);
 
 const ReplayAuditStepSchema = Schema.Struct({ type: PuppeteerReplayStepTypeSchema });
 export const AuditCustomStepBaseSchema = Schema.Struct({
-  type: AuditStepTypeSchema.pipe(Schema.pickLiteral(PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP)),
+  type: Schema.Literal(PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP),
   step: Schema.NonEmptyString,
 });
 
-export const AuditStepSchema = Schema.Union(ReplayAuditStepSchema, AuditCustomStepBaseSchema);
+export const AuditStepSchema = Schema.Union([ReplayAuditStepSchema, AuditCustomStepBaseSchema]);
 
 export const isAuditStep = Schema.is(AuditStepSchema);

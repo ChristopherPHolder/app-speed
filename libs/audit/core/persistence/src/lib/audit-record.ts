@@ -8,15 +8,15 @@ export type AuditTemplateId = typeof AuditTemplateIdSchema.Type;
 export const AuditRunIdSchema = Schema.NonEmptyString.pipe(Schema.brand('AuditRunId'));
 export type AuditRunId = typeof AuditRunIdSchema.Type;
 
-export const AuditStatusSchema = Schema.Literal('SCHEDULED', 'IN_PROGRESS', 'COMPLETE');
+export const AuditStatusSchema = Schema.Literals(['SCHEDULED', 'IN_PROGRESS', 'COMPLETE']);
 export type AuditStatus = typeof AuditStatusSchema.Type;
 
 const AuditTemplateRecordSchema = Schema.Struct({
   id: AuditTemplateIdSchema,
   kind: AuditKindSchema,
   title: Schema.NonEmptyString,
-  createAt: Schema.DateFromSelf,
-  updatedAt: Schema.DateFromSelf,
+  createAt: Schema.Date,
+  updatedAt: Schema.Date,
 });
 export type AuditTemplateRecord = typeof AuditTemplateRecordSchema.Type;
 
@@ -25,23 +25,25 @@ const AuditRunRecordSchema = Schema.Struct({
   templateId: AuditTemplateIdSchema,
   kind: AuditKindSchema,
   status: AuditStatusSchema,
-  createdAt: Schema.DateFromSelf,
-  updatedAt: Schema.DateFromSelf,
-  startedAt: Schema.NullOr(Schema.DateFromSelf),
-  completedAt: Schema.NullOr(Schema.DateFromSelf),
+  createdAt: Schema.Date,
+  updatedAt: Schema.Date,
+  startedAt: Schema.NullOr(Schema.Date),
+  completedAt: Schema.NullOr(Schema.Date),
   durationMs: Schema.NullOr(Schema.Number),
 });
 export type AuditRunRecord = typeof AuditRunRecordSchema.Type;
 
-export const AuditResultStatusSchema = Schema.Literal('SUCCESS', 'FAILURE');
+export const AuditResultStatusSchema = Schema.Literals(['SUCCESS', 'FAILURE']);
 export type AuditResultStatus = typeof AuditResultStatusSchema.Type;
+
+const NonNegativeIntSchema = Schema.Number.check(Schema.isInt(), Schema.isGreaterThanOrEqualTo(0));
 
 const AuditResultRecordSchema = Schema.Struct({
   id: Schema.NonEmptyString,
   runId: AuditRunIdSchema,
   status: AuditResultStatusSchema,
   error: Schema.NullOr(Schema.Unknown),
-  createdAt: Schema.DateFromSelf,
+  createdAt: Schema.Date,
 });
 export type AuditResultRecord = typeof AuditResultRecordSchema.Type;
 
@@ -51,16 +53,16 @@ const AuditRunSummaryRecordSchema = Schema.Struct({
   title: Schema.NonEmptyString,
   status: AuditStatusSchema,
   resultStatus: Schema.NullOr(AuditResultStatusSchema),
-  queuePosition: Schema.NullOr(Schema.NonNegativeInt),
-  createdAt: Schema.DateFromSelf,
-  startedAt: Schema.NullOr(Schema.DateFromSelf),
-  completedAt: Schema.NullOr(Schema.DateFromSelf),
+  queuePosition: Schema.NullOr(NonNegativeIntSchema),
+  createdAt: Schema.Date,
+  startedAt: Schema.NullOr(Schema.Date),
+  completedAt: Schema.NullOr(Schema.Date),
   durationMs: Schema.NullOr(Schema.Number),
 });
 export type AuditRunSummaryRecord = typeof AuditRunSummaryRecordSchema.Type;
 
 export const AuditRunListCursorSchema = Schema.Struct({
-  createdAtMs: Schema.NonNegativeInt,
+  createdAtMs: NonNegativeIntSchema,
   id: Schema.String,
 });
 export type AuditRunListCursor = typeof AuditRunListCursorSchema.Type;
@@ -71,7 +73,7 @@ export const decodeAuditTemplateRecord = (template: {
   title: string;
   createAt: Date;
   updatedAt: Date;
-}) => Schema.decodeUnknown(AuditTemplateRecordSchema, { errors: 'all' })(template);
+}) => Schema.decodeUnknownEffect(AuditTemplateRecordSchema, { errors: 'all' })(template);
 
 export const decodeAuditRunRecord = (run: {
   id: string;
@@ -84,7 +86,7 @@ export const decodeAuditRunRecord = (run: {
   durationMs: number | null;
   kind: string;
 }) =>
-  Schema.decodeUnknown(AuditRunRecordSchema, { errors: 'all' })({
+  Schema.decodeUnknownEffect(AuditRunRecordSchema, { errors: 'all' })({
     id: run.id,
     templateId: run.templateId,
     kind: run.kind,
@@ -103,7 +105,7 @@ export const decodeAuditResultRecord = (result: {
   error: unknown;
   createdAt: Date;
 }) =>
-  Schema.decodeUnknown(AuditResultRecordSchema, { errors: 'all' })({
+  Schema.decodeUnknownEffect(AuditResultRecordSchema, { errors: 'all' })({
     id: result.id,
     runId: result.runId,
     status: result.status,
@@ -123,7 +125,7 @@ export const decodeAuditRunSummaryRecord = (run: {
   completedAt: Date | null;
   durationMs: number | null;
 }) =>
-  Schema.decodeUnknown(AuditRunSummaryRecordSchema, { errors: 'all' })({
+  Schema.decodeUnknownEffect(AuditRunSummaryRecordSchema, { errors: 'all' })({
     id: run.id,
     kind: run.kind,
     title: run.title,

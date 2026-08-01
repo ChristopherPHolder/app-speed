@@ -1,4 +1,5 @@
-import { HttpApiBuilder, HttpApiError, HttpServerResponse } from '@effect/platform';
+import { HttpServerResponse } from 'effect/unstable/http';
+import { HttpApiBuilder, HttpApiError } from 'effect/unstable/httpapi';
 import { Duration, Effect, Schedule, Stream } from 'effect';
 
 import { AuditNotFoundError } from '@app-speed/audit/core/api-contract';
@@ -65,17 +66,16 @@ export const UserFlowAuditGroupLive = HttpApiBuilder.group(UserFlowApi, 'userFlo
           }).pipe(
             Effect.withSpan('api.userFlowAudit.schedule'),
             Effect.catchTag('QueryError', () => new HttpApiError.BadRequest()),
-            Effect.catchTag('ParseError', () => new HttpApiError.BadRequest()),
           ),
         ),
       )
       .handle(
         'findById',
         Effect.fn('api.userFlowAudit.findById')((request) =>
-          requireUserFlowRun(request.path.id).pipe(
+          requireUserFlowRun(request.params.id).pipe(
             Effect.map((run) => ({ status: run.status })),
             Effect.catchTag('QueryError', () => new HttpApiError.BadRequest()),
-            Effect.catchTag('ParseError', () => new HttpApiError.BadRequest()),
+            Effect.catchTag('SchemaError', () => new HttpApiError.BadRequest()),
           ),
         ),
       )
@@ -83,7 +83,7 @@ export const UserFlowAuditGroupLive = HttpApiBuilder.group(UserFlowApi, 'userFlo
         'watchById',
         Effect.fn('api.userFlowAudit.watchById')((request) =>
           Effect.gen(function* () {
-            const auditId = request.path.id;
+            const auditId = request.params.id;
             yield* requireUserFlowRun(auditId);
             const snapshot = Effect.gen(function* () {
               const run = yield* requireUserFlowRun(auditId);
@@ -95,22 +95,24 @@ export const UserFlowAuditGroupLive = HttpApiBuilder.group(UserFlowApi, 'userFlo
                 resultStatus: result?.status ?? null,
               } satisfies AuditSnapshot;
             });
-            const stream = Stream.repeatEffectWithSchedule(snapshot, Schedule.fixed(Duration.seconds(1))).pipe(
-              Stream.mapAccum(null as AuditSnapshot | null, (previous, next) => {
-                const events: AuditSseEvent[] = [];
-                if (!previous || next.position !== previous.position) {
-                  events.push({ event: 'position', data: { auditId, position: next.position } });
-                }
-                if (!previous || next.status !== previous.status) {
-                  events.push({ event: 'status', data: { auditId, status: next.status } });
-                }
-                if (next.resultStatus && (!previous || next.resultStatus !== previous.resultStatus)) {
-                  events.push({ event: 'result', data: { auditId, status: next.resultStatus } });
-                }
-                if (events.length === 0) events.push({ event: 'heartbeat', data: { auditId } });
-                return [next, events];
-              }),
-              Stream.mapConcat((events) => events),
+            const stream = Stream.fromEffectSchedule(snapshot, Schedule.fixed(Duration.seconds(1))).pipe(
+              Stream.mapAccum(
+                (): AuditSnapshot | null => null,
+                (previous, next) => {
+                  const events: AuditSseEvent[] = [];
+                  if (!previous || next.position !== previous.position) {
+                    events.push({ event: 'position', data: { auditId, position: next.position } });
+                  }
+                  if (!previous || next.status !== previous.status) {
+                    events.push({ event: 'status', data: { auditId, status: next.status } });
+                  }
+                  if (next.resultStatus && (!previous || next.resultStatus !== previous.resultStatus)) {
+                    events.push({ event: 'result', data: { auditId, status: next.resultStatus } });
+                  }
+                  if (events.length === 0) events.push({ event: 'heartbeat', data: { auditId } });
+                  return [next, events];
+                },
+              ),
               Stream.takeUntil((event) => event.event === 'result'),
               Stream.map(encodeSse),
               Stream.provideService(AuditRepo, repo),
@@ -121,7 +123,7 @@ export const UserFlowAuditGroupLive = HttpApiBuilder.group(UserFlowApi, 'userFlo
             });
           }).pipe(
             Effect.catchTag('QueryError', () => new HttpApiError.BadRequest()),
-            Effect.catchTag('ParseError', () => new HttpApiError.BadRequest()),
+            Effect.catchTag('SchemaError', () => new HttpApiError.BadRequest()),
           ),
         ),
       )
@@ -129,15 +131,15 @@ export const UserFlowAuditGroupLive = HttpApiBuilder.group(UserFlowApi, 'userFlo
         'resultById',
         Effect.fn('api.userFlowAudit.resultById')((request) =>
           Effect.gen(function* () {
-            yield* requireUserFlowRun(request.path.id);
-            const result = yield* userFlowRepo.getResultByRunId(request.path.id);
+            yield* requireUserFlowRun(request.params.id);
+            const result = yield* userFlowRepo.getResultByRunId(request.params.id);
             if (result === null) return yield* new HttpApiError.NotFound();
             return result.status === 'SUCCESS'
               ? ({ status: 'SUCCESS', result: result.flowResult } as const)
               : ({ status: 'FAILURE', error: normalizeError(result.error) } as const);
           }).pipe(
             Effect.catchTag('QueryError', () => new HttpApiError.BadRequest()),
-            Effect.catchTag('ParseError', () => new HttpApiError.BadRequest()),
+            Effect.catchTag('SchemaError', () => new HttpApiError.BadRequest()),
           ),
         ),
       )
@@ -145,13 +147,13 @@ export const UserFlowAuditGroupLive = HttpApiBuilder.group(UserFlowApi, 'userFlo
         'reportById',
         Effect.fn('api.userFlowAudit.reportById')((request) =>
           Effect.gen(function* () {
-            yield* requireUserFlowRun(request.path.id);
-            const result = yield* userFlowRepo.getResultByRunId(request.path.id);
+            yield* requireUserFlowRun(request.params.id);
+            const result = yield* userFlowRepo.getResultByRunId(request.params.id);
             if (result === null || result.status !== 'SUCCESS') return yield* new HttpApiError.NotFound();
             return result.reportHtml;
           }).pipe(
             Effect.catchTag('QueryError', () => new HttpApiError.BadRequest()),
-            Effect.catchTag('ParseError', () => new HttpApiError.BadRequest()),
+            Effect.catchTag('SchemaError', () => new HttpApiError.BadRequest()),
           ),
         ),
       )

@@ -1,5 +1,5 @@
 import { EC2Client, StopInstancesCommand } from '@aws-sdk/client-ec2';
-import { HttpClient, HttpClientRequest, HttpClientResponse } from '@effect/platform';
+import { HttpClient, HttpClientRequest, HttpClientResponse } from 'effect/unstable/http';
 import { Clock, Config, Data, Effect, Match, Option, Schema } from 'effect';
 import { AuditKindSchema } from '@app-speed/audit/core/domain';
 
@@ -10,7 +10,7 @@ export const AuditClaimSchema = Schema.Struct({
 });
 export type AuditClaim = typeof AuditClaimSchema.Type;
 
-const RunnerClaimResponseSchema = Schema.Union(
+const RunnerClaimResponseSchema = Schema.Union([
   Schema.Struct({ available: Schema.Literal(false) }),
   Schema.Struct({
     available: Schema.Literal(true),
@@ -18,7 +18,7 @@ const RunnerClaimResponseSchema = Schema.Union(
     kind: AuditKindSchema,
     definition: Schema.Unknown,
   }),
-);
+]);
 
 const RunnerCompleteResponseSchema = Schema.Struct({ ok: Schema.Literal(true) });
 const RunnerHeartbeatResponseSchema = Schema.Struct({ ok: Schema.Literal(true) });
@@ -109,7 +109,7 @@ export const claimNextAudit = Effect.gen(function* () {
     'runner.claim_available': true,
     'audit.id': response.auditId,
   });
-  return { auditId: response.auditId, kind: response.kind, definition: response.definition } as AuditClaim;
+  return { auditId: response.auditId, kind: response.kind, definition: response.definition };
 }).pipe(Effect.withSpan('runner.queue.claimNext'));
 
 export const completeAuditRun = Effect.fn('runner.queue.completeRun')(function* (
@@ -235,14 +235,14 @@ const stopSelfEc2Instance = Effect.gen(function* () {
 }).pipe(Effect.withSpan('runner.queue.selfTerminateEc2'));
 
 const attemptSelfTermination = stopSelfEc2Instance.pipe(
-  Effect.catchAll((error) => Effect.logWarning(`Runner EC2 self-termination failed: ${String(error)}`)),
+  Effect.catch((error) => Effect.logWarning(`Runner EC2 self-termination failed: ${String(error)}`)),
   Effect.asVoid,
 );
 
 export const requestRunnerTermination = Effect.fn('runner.queue.terminate')(function* (reason: RunnerShutdownReason) {
   const shutdownDecision = yield* requestRunnerShutdown(reason).pipe(
     Effect.map((response) => Option.some(response.shouldTerminate)),
-    Effect.catchAll((error) =>
+    Effect.catch((error) =>
       Effect.logWarning(`Runner shutdown request failed: ${String(error)}`).pipe(Effect.as(Option.none<boolean>())),
     ),
   );

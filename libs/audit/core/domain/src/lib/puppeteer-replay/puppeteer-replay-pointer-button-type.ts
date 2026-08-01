@@ -10,7 +10,7 @@ const PUPPETEER_REPLAY_POINTER_BUTTON_TYPE = [
   'forward',
 ] as const satisfies EnumLiteral<PointerButtonType>[];
 
-export const PointerButtonTypeSchema = Schema.Literal(...PUPPETEER_REPLAY_POINTER_BUTTON_TYPE);
+export const PointerButtonTypeSchema = Schema.Literals(PUPPETEER_REPLAY_POINTER_BUTTON_TYPE);
 
 /**
  * Assert all puppeteer replay pointer button types are being used in the PointerButtonTypeSchema schema

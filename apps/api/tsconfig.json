@@ -12,6 +12,6 @@
   ],
   "compilerOptions": {
     "esModuleInterop": true,
-    "moduleResolution": "node"
+    "moduleResolution": "bundler"
   }
 }

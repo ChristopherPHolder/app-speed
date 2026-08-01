@@ -1,4 +1,4 @@
-import { Effect } from 'effect';
+import { Effect, Schema } from 'effect';
 
 import type { AuditKind } from '@app-speed/audit/core/domain';
 import { AuditHistoryRepo } from '@app-speed/audit/core/persistence';
@@ -6,11 +6,17 @@ import { AuditHistoryRepo } from '@app-speed/audit/core/persistence';
 import { AuditHistoryInternalError, AuditHistoryInvalidCursorError, AuditHistoryInvalidQueryError } from '../Audit.js';
 
 type AuditRunStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETE';
-type AuditHistoryCursor = { createdAtMs: number; id: string };
+const AuditHistoryCursorSchema = Schema.Struct({
+  createdAtMs: Schema.Number.check(Schema.isInt(), Schema.isGreaterThanOrEqualTo(0)),
+  id: Schema.NonEmptyString,
+});
+type AuditHistoryCursor = typeof AuditHistoryCursorSchema.Type;
 
 const allowedRunStatuses: ReadonlyArray<AuditRunStatus> = ['SCHEDULED', 'IN_PROGRESS', 'COMPLETE'];
 const defaultHistoryPageLimit = 25;
 const maxHistoryPageLimit = 100;
+const isAuditRunStatus = (status: string): status is AuditRunStatus =>
+  allowedRunStatuses.some((allowedStatus) => allowedStatus === status);
 
 const parseLimit = (value: string | undefined) => {
   if (value === undefined) return Effect.succeed(defaultHistoryPageLimit);
@@ -38,7 +44,7 @@ const parseStatusFilter = (value: string | ReadonlyArray<string> | undefined) =>
     .filter(Boolean);
   if (parsed.length === 0) return Effect.succeed<ReadonlyArray<AuditRunStatus> | null>(null);
 
-  const invalidValues = parsed.filter((status) => !allowedRunStatuses.includes(status as AuditRunStatus));
+  const invalidValues = parsed.filter((status) => !isAuditRunStatus(status));
   if (invalidValues.length > 0) {
     return Effect.fail(
       new AuditHistoryInvalidQueryError({
@@ -48,7 +54,7 @@ const parseStatusFilter = (value: string | ReadonlyArray<string> | undefined) =>
       }),
     );
   }
-  return Effect.succeed(Array.from(new Set(parsed)) as ReadonlyArray<AuditRunStatus>);
+  return Effect.succeed(Array.from(new Set(parsed.filter(isAuditRunStatus))));
 };
 
 const decodeCursor = (cursor: string | undefined) => {
@@ -56,17 +62,8 @@ const decodeCursor = (cursor: string | undefined) => {
 
   return Effect.try({
     try: () => {
-      const value = JSON.parse(Buffer.from(cursor, 'base64url').toString('utf8')) as Record<string, unknown>;
-      if (
-        typeof value['createdAtMs'] !== 'number' ||
-        !Number.isSafeInteger(value['createdAtMs']) ||
-        value['createdAtMs'] < 0 ||
-        typeof value['id'] !== 'string' ||
-        value['id'].length === 0
-      ) {
-        throw new Error('Invalid cursor payload');
-      }
-      return { createdAtMs: value['createdAtMs'], id: value['id'] } as AuditHistoryCursor;
+      const value: unknown = JSON.parse(Buffer.from(cursor, 'base64url').toString('utf8'));
+      return Schema.decodeUnknownSync(AuditHistoryCursorSchema)(value);
     },
     catch: () =>
       new AuditHistoryInvalidCursorError({

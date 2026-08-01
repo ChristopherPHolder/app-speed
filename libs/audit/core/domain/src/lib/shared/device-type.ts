@@ -7,7 +7,7 @@ export const DEVICE_TYPE = {
   DESKTOP: 'desktop',
 } as const;
 
-export const DeviceSchema = Schema.Literal(DEVICE_TYPE.MOBILE, DEVICE_TYPE.DESKTOP);
+export const DeviceSchema = Schema.Literals([DEVICE_TYPE.MOBILE, DEVICE_TYPE.DESKTOP]);
 
 export type DeviceType = typeof DeviceSchema.Type;
 export const DEVICE_OPTIONS = DeviceSchema.literals;

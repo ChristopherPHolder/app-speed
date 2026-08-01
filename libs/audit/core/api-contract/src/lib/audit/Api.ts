@@ -1,4 +1,4 @@
-import { HttpApiGroup } from '@effect/platform';
+import { HttpApiGroup } from 'effect/unstable/httpapi';
 
 import { historyEndpoint } from './history/Api';
 

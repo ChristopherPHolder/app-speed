@@ -1,5 +1,5 @@
 import { AuditRepo } from '@app-speed/audit/core/persistence';
-import { Clock, Config, Context, Duration, Effect, Layer, Ref } from 'effect';
+import { Clock, Config, Context, Duration, Effect, Layer, Ref, Semaphore } from 'effect';
 
 import { RunnerManager } from './RunnerManager.js';
 import { RunnerRegistry } from './RunnerRegistry.js';
@@ -7,9 +7,9 @@ import { RunnerRegistry } from './RunnerRegistry.js';
 export type RunnerDesiredState = 'ACTIVE' | 'INACTIVE';
 export type RunnerInactivationSource = 'idle-reaper' | 'runner-shutdown';
 
-const runnerReconcileIntervalMsConfig = Config.integer('RUNNER_RECONCILE_INTERVAL_MS').pipe(Config.withDefault(5_000));
+const runnerReconcileIntervalMsConfig = Config.int('RUNNER_RECONCILE_INTERVAL_MS').pipe(Config.withDefault(5_000));
 
-export class RunnerLifecycle extends Context.Tag('RunnerLifecycle')<
+export class RunnerLifecycle extends Context.Service<
   RunnerLifecycle,
   {
     requestActivation: Effect.Effect<void, never>;
@@ -17,18 +17,17 @@ export class RunnerLifecycle extends Context.Tag('RunnerLifecycle')<
       source: RunnerInactivationSource,
     ) => Effect.Effect<{ shouldTerminate: boolean }, never>;
   }
->() {}
+>()('RunnerLifecycle') {}
 
 const describeDesiredState = (state: RunnerDesiredState) => ({ 'runner.desired_state': state });
 
-export const RunnerLifecycleLive = Layer.scoped(
-  RunnerLifecycle,
+export const RunnerLifecycleLive = Layer.effect(RunnerLifecycle)(
   Effect.gen(function* () {
     const auditRepo = yield* AuditRepo;
     const runnerManager = yield* RunnerManager;
     const runnerRegistry = yield* RunnerRegistry;
     const reconcileIntervalMs = yield* runnerReconcileIntervalMsConfig;
-    const reconcileSemaphore = yield* Effect.makeSemaphore(1);
+    const reconcileSemaphore = yield* Semaphore.make(1);
     const hasQueuedWorkAtStartup = yield* auditRepo
       .hasScheduledRuns()
       .pipe(
@@ -70,16 +69,16 @@ export const RunnerLifecycleLive = Layer.scoped(
         }
       }).pipe(
         Effect.withSpan('runner.lifecycle.reconcile'),
-        Effect.catchAllCause((cause) => Effect.logError(`Runner lifecycle reconcile failed: ${cause}`)),
+        Effect.catchCause((cause) => Effect.logError(`Runner lifecycle reconcile failed: ${cause}`)),
       ),
     );
 
-    const triggerReconcile = Effect.forkDaemon(reconcileOnce).pipe(Effect.asVoid);
+    const triggerReconcile = Effect.forkDetach(reconcileOnce).pipe(Effect.asVoid);
 
     const setDesiredState = (state: RunnerDesiredState) =>
       Ref.set(desiredStateRef, state).pipe(
         Effect.tap(() => Effect.annotateCurrentSpan(describeDesiredState(state))),
-        Effect.zipRight(triggerReconcile),
+        Effect.andThen(triggerReconcile),
       );
 
     const requestActivation = setDesiredState('ACTIVE').pipe(Effect.withSpan('runner.lifecycle.requestActivation'));
@@ -98,14 +97,14 @@ export const RunnerLifecycleLive = Layer.scoped(
         Effect.withSpan('runner.lifecycle.requestInactivation'),
         Effect.catchTag('QueryError', (error) =>
           Effect.logError(`Failed to evaluate runner inactivation (${source}): ${String(error)}`).pipe(
-            Effect.zipRight(setDesiredState('ACTIVE')),
+            Effect.andThen(setDesiredState('ACTIVE')),
             Effect.as({ shouldTerminate: false }),
           ),
         ),
       );
 
     yield* Effect.forkScoped(
-      Effect.forever(reconcileOnce.pipe(Effect.zipRight(Effect.sleep(Duration.millis(reconcileIntervalMs))))),
+      Effect.forever(reconcileOnce.pipe(Effect.andThen(Effect.sleep(Duration.millis(reconcileIntervalMs))))),
     );
 
     return {

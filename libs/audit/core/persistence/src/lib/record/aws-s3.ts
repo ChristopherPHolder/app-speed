@@ -12,16 +12,16 @@ const makeRecordKey = (value: string): RecordKey => Schema.decodeUnknownSync(Rec
 const resolveAwsRegion = Effect.gen(function* () {
   const region = yield* awsRegionConfig;
   if (Option.isSome(region)) {
-    return yield* Schema.decodeUnknown(AwsRegionSchema)(region.value);
+    return yield* Schema.decodeUnknownEffect(AwsRegionSchema)(region.value);
   }
 
   const defaultRegion = yield* awsDefaultRegionConfig;
   if (Option.isSome(defaultRegion)) {
-    return yield* Schema.decodeUnknown(AwsRegionSchema)(defaultRegion.value);
+    return yield* Schema.decodeUnknownEffect(AwsRegionSchema)(defaultRegion.value);
   }
 
   return yield* Effect.fail(
-    new RecordPersistenceError({
+    RecordPersistenceError.make({
       operation: 'get',
       key: makeRecordKey('record-persistence-config:aws-region'),
       message: 'AWS_REGION or AWS_DEFAULT_REGION is required for S3 record persistence.',
@@ -29,8 +29,7 @@ const resolveAwsRegion = Effect.gen(function* () {
   );
 });
 
-export const AwsS3RecordPersistenceService = Layer.effect(
-  RecordPersistenceService,
+export const AwsS3RecordPersistenceService = Layer.effect(RecordPersistenceService)(
   Effect.gen(function* () {
     const bucket = yield* recordPersistenceBucketConfig.pipe(
       Config.map(Schema.decodeUnknownSync(RecordPersistenceBucketSchema)),
@@ -40,7 +39,7 @@ export const AwsS3RecordPersistenceService = Layer.effect(
 
     return {
       makeRecordKey,
-      decodeRecordKey: (value: string) => Schema.decodeUnknown(RecordKeySchema)(value),
+      decodeRecordKey: (value: string) => Schema.decodeUnknownEffect(RecordKeySchema)(value),
       put: (key: RecordKey, value: string) =>
         Effect.tryPromise({
           try: () =>
@@ -53,7 +52,7 @@ export const AwsS3RecordPersistenceService = Layer.effect(
               }),
             ),
           catch: (cause) =>
-            new RecordPersistenceError({
+            RecordPersistenceError.make({
               operation: 'put',
               key,
               message: 'Failed to put record.',
@@ -67,14 +66,17 @@ export const AwsS3RecordPersistenceService = Layer.effect(
               const response = await client.send(new GetObjectCommand({ Bucket: bucket, Key: key }));
               return (await response.Body?.transformToString()) ?? null;
             } catch (error) {
-              if (error instanceof NoSuchKey || (error as { name?: string }).name === 'NoSuchKey') {
+              if (
+                error instanceof NoSuchKey ||
+                (typeof error === 'object' && error !== null && 'name' in error && error.name === 'NoSuchKey')
+              ) {
                 return null;
               }
               throw error;
             }
           },
           catch: (cause) =>
-            new RecordPersistenceError({
+            RecordPersistenceError.make({
               operation: 'get',
               key,
               message: 'Failed to get record.',

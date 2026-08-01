@@ -1,10 +1,11 @@
+import { type JsonSchema, Schema } from 'effect';
 import { AuditCustomBuilderStepVariants } from './custom-audit-step';
 import { PuppeteerReplayBuilderStepVariants } from './puppeteer-replay/puppeteer-replay-step';
 
 type BuilderScalarValue = string | number | boolean | null;
 export type BuilderStepVariantDefinition = {
   id: string;
-  schema: import('effect').Schema.Schema.AnyNoContext;
+  schema: Schema.Top;
   defaultValue: Record<string, unknown>;
 };
 export type BuilderFieldValidationSpec = {
@@ -44,29 +45,35 @@ export const CORE_AUDIT_BUILDER_STEP_VARIANTS: readonly BuilderStepVariantDefini
 ];
 
 export const deriveBuilderStepSpec = (variant: BuilderStepVariantDefinition): BuilderStepSpec => {
-  const ast = variant.schema.ast as unknown as TypeLiteralAst;
+  const document = Schema.toJsonSchemaDocument(Schema.toType(variant.schema));
+  const root = resolveReference(document.schema, document.definitions);
 
-  if (ast._tag !== 'TypeLiteral') {
-    throw new Error(`Builder variants must be structs. Received ${ast._tag} for ${variant.id}`);
+  if (root['type'] !== 'object' || !isJsonSchemaRecord(root['properties'])) {
+    throw new Error(`Builder variants must be structs. Received ${describeJsonSchema(root)} for ${variant.id}`);
   }
 
+  const requiredProperties = new Set(
+    Array.isArray(root['required']) ? root['required'].filter((key): key is string => typeof key === 'string') : [],
+  );
   const discriminators: Record<string, BuilderScalarValue> = {};
   const fields: BuilderFieldSpec[] = [];
 
-  for (const property of ast.propertySignatures) {
-    const propertyType = unwrapOptionalType(property.type);
+  for (const [name, property] of Object.entries(root['properties'])) {
+    const schema = normalizeOptionalSchema(resolveReference(property, document.definitions), document.definitions);
+    const literal = getSingleLiteral(schema);
 
-    if (isRootDiscriminator(property.name, propertyType)) {
-      discriminators[property.name] = propertyType.literal;
+    if ((name === 'type' || name === 'step') && literal !== undefined) {
+      discriminators[name] = literal;
       continue;
     }
 
     fields.push(
       deriveFieldSpec({
-        ast: propertyType,
-        defaultValue: variant.defaultValue[property.name],
-        path: property.name,
-        required: !property.isOptional,
+        schema,
+        definitions: document.definitions,
+        defaultValue: variant.defaultValue[name],
+        path: name,
+        required: requiredProperties.has(name),
       }),
     );
   }
@@ -79,182 +86,106 @@ export const deriveBuilderStepSpec = (variant: BuilderStepVariantDefinition): Bu
   };
 };
 
-type AstNode = {
-  _tag: string;
-  annotations?: Record<PropertyKey, unknown>;
-  literal?: unknown;
-  types?: AstNode[];
-  from?: AstNode;
-  to?: AstNode;
-  type?: AstNode;
-  elements?: Array<AstNode | { _tag?: string; type: AstNode }>;
-  rest?: Array<{ type: AstNode }>;
-};
-
-type TypeLiteralAst = AstNode & {
-  propertySignatures: PropertySignatureAst[];
-  indexSignatures: IndexSignatureAst[];
-};
-
-type PropertySignatureAst = {
-  name: string;
-  isOptional: boolean;
-  type: AstNode;
-};
-
-type IndexSignatureAst = {
-  type: AstNode;
-};
-
 const deriveFieldSpec = ({
-  ast,
+  schema,
+  definitions,
   defaultValue,
   path,
   required,
 }: {
-  ast: AstNode;
+  schema: JsonSchema.JsonSchema;
+  definitions: JsonSchema.Definitions;
   defaultValue: unknown;
   path: string;
   required: boolean;
 }): BuilderFieldSpec => {
-  const validation = deriveValidationSpec(ast);
-  const normalizedAst = normalizeTerminalAst(ast);
+  const resolved = normalizeOptionalSchema(resolveReference(schema, definitions), definitions);
+  const validation = deriveValidationSpec(resolved, definitions);
+  const enumValues = getLiteralValues(resolved);
 
-  switch (normalizedAst._tag) {
-    case 'StringKeyword':
+  if (enumValues?.length === 1) {
+    return { kind: 'literal', path, required, defaultValue, validation, value: enumValues[0] };
+  }
+
+  if (enumValues && enumValues.length > 1) {
+    return { kind: 'enum', path, required, defaultValue, validation, options: enumValues };
+  }
+
+  switch (resolved['type']) {
+    case 'string':
       return { kind: 'string', path, required, defaultValue, validation };
-    case 'NumberKeyword':
+    case 'number':
+    case 'integer':
       return { kind: 'number', path, required, defaultValue, validation };
-    case 'BooleanKeyword':
+    case 'boolean':
       return { kind: 'boolean', path, required, defaultValue, validation };
-    case 'Literal':
+    case 'array': {
+      if (!isJsonSchema(resolved['items'])) {
+        throw new Error(`Unsupported builder array at ${path}`);
+      }
+
       return {
-        kind: 'literal',
+        kind: 'array',
         path,
         required,
         defaultValue,
         validation,
-        value: normalizedAst.literal as BuilderScalarValue,
+        element: deriveFieldSpec({
+          schema: resolved['items'],
+          definitions,
+          defaultValue: undefined,
+          path: `${path}[]`,
+          required: true,
+        }),
       };
-    case 'Union':
-      return deriveUnionFieldSpec({
-        ast: normalizedAst as AstNode & { types: AstNode[] },
-        defaultValue,
-        path,
-        required,
-      });
-    case 'TupleType':
-      return deriveArrayFieldSpec({ ast: normalizedAst, defaultValue, path, required });
-    case 'TypeLiteral':
-      return deriveTypeLiteralFieldSpec({
-        ast: normalizedAst as TypeLiteralAst,
-        defaultValue,
-        path,
-        required,
-      });
-    default:
-      throw new Error(`Unsupported builder field at ${path}: ${normalizedAst._tag}`);
-  }
-};
-
-const deriveUnionFieldSpec = ({
-  ast,
-  defaultValue,
-  path,
-  required,
-}: {
-  ast: AstNode & { types: AstNode[] };
-  defaultValue: unknown;
-  path: string;
-  required: boolean;
-}): BuilderFieldSpec => {
-  const literalOptions = ast.types.map((type) => normalizeTerminalAst(type));
-  const validation = deriveValidationSpec(ast);
-
-  if (literalOptions.every((type) => type._tag === 'Literal')) {
-    return {
-      kind: 'enum',
-      path,
-      required,
-      defaultValue,
-      validation,
-      options: literalOptions.map((type) => type.literal as BuilderScalarValue),
-    };
+    }
+    case 'object':
+      return deriveObjectFieldSpec({ resolved, definitions, defaultValue, path, required, validation });
   }
 
-  if (literalOptions.every((type) => type._tag === 'StringKeyword')) {
+  const alternatives = getAlternatives(resolved, definitions);
+  if (alternatives.length > 0 && alternatives.every((alternative) => alternative['type'] === 'string')) {
     return { kind: 'string', path, required, defaultValue, validation };
   }
-
-  if (literalOptions.every((type) => type._tag === 'NumberKeyword')) {
+  if (
+    alternatives.length > 0 &&
+    alternatives.every(
+      (alternative) =>
+        alternative['type'] === 'number' ||
+        alternative['type'] === 'integer' ||
+        isJsonEncodedSpecialNumberAlternative(alternative),
+    ) &&
+    alternatives.some((alternative) => alternative['type'] === 'number' || alternative['type'] === 'integer')
+  ) {
     return { kind: 'number', path, required, defaultValue, validation };
   }
-
-  if (literalOptions.every((type) => type._tag === 'BooleanKeyword')) {
+  if (alternatives.length > 0 && alternatives.every((alternative) => alternative['type'] === 'boolean')) {
     return { kind: 'boolean', path, required, defaultValue, validation };
   }
 
-  throw new Error(`Unsupported builder union at ${path}`);
-};
-
-const deriveArrayFieldSpec = ({
-  ast,
-  defaultValue,
-  path,
-  required,
-}: {
-  ast: AstNode & {
-    rest?: Array<{ type: AstNode }>;
-    elements?: Array<AstNode | { _tag?: string; type: AstNode }>;
-  };
-  defaultValue: unknown;
-  path: string;
-  required: boolean;
-}): BuilderFieldSpec => {
-  const tupleElementCount = ast.elements?.length ?? 0;
-  const validation = deriveValidationSpec(ast);
-
-  if (!ast.rest || ast.rest.length !== 1 || tupleElementCount > 1) {
-    throw new Error(`Unsupported builder tuple at ${path}`);
+  if (alternatives.length > 0) {
+    throw new Error(`Unsupported builder union at ${path}`);
   }
 
-  const tupleElements = ast.elements ?? [];
-  const elementTypeCandidate = tupleElementCount === 1 ? tupleElements[0] : ast.rest[0];
-  const elementType = unwrapTupleElementType(elementTypeCandidate);
-
-  return {
-    kind: 'array',
-    path,
-    required,
-    defaultValue,
-    validation,
-    element: deriveFieldSpec({
-      ast: elementType,
-      defaultValue: undefined,
-      path: `${path}[]`,
-      required: true,
-    }),
-  };
+  throw new Error(`Unsupported builder field at ${path}: ${describeJsonSchema(resolved)}`);
 };
 
-const deriveTypeLiteralFieldSpec = ({
-  ast,
+const deriveObjectFieldSpec = ({
+  resolved,
+  definitions,
   defaultValue,
   path,
   required,
+  validation,
 }: {
-  ast: TypeLiteralAst;
+  resolved: JsonSchema.JsonSchema;
+  definitions: JsonSchema.Definitions;
   defaultValue: unknown;
   path: string;
   required: boolean;
+  validation: BuilderFieldValidationSpec | undefined;
 }): BuilderFieldSpec => {
-  const validation = deriveValidationSpec(ast);
-
-  if (ast.indexSignatures.length > 0) {
-    if (ast.propertySignatures.length > 0 || ast.indexSignatures.length !== 1) {
-      throw new Error(`Unsupported builder record at ${path}`);
-    }
-
+  if (isJsonSchema(resolved['additionalProperties'])) {
     return {
       kind: 'record',
       path,
@@ -262,7 +193,8 @@ const deriveTypeLiteralFieldSpec = ({
       defaultValue,
       validation,
       value: deriveFieldSpec({
-        ast: ast.indexSignatures[0].type,
+        schema: resolved['additionalProperties'],
+        definitions,
         defaultValue: undefined,
         path: `${path}.*`,
         required: true,
@@ -270,201 +202,128 @@ const deriveTypeLiteralFieldSpec = ({
     };
   }
 
+  if (!isJsonSchemaRecord(resolved['properties'])) {
+    throw new Error(`Unsupported builder object at ${path}`);
+  }
+
+  const requiredProperties = new Set(
+    Array.isArray(resolved['required'])
+      ? resolved['required'].filter((key): key is string => typeof key === 'string')
+      : [],
+  );
+
   return {
     kind: 'group',
     path,
     required,
     defaultValue,
     validation,
-    fields: ast.propertySignatures.map((property) =>
+    fields: Object.entries(resolved['properties']).map(([name, property]) =>
       deriveFieldSpec({
-        ast: unwrapOptionalType(property.type),
-        defaultValue: isRecord(defaultValue) ? defaultValue[property.name] : undefined,
-        path: `${path}.${property.name}`,
-        required: !property.isOptional,
+        schema: property,
+        definitions,
+        defaultValue: isRecord(defaultValue) ? defaultValue[name] : undefined,
+        path: `${path}.${name}`,
+        required: requiredProperties.has(name),
       }),
     ),
   };
 };
 
-const unwrapOptionalType = (ast: AstNode): AstNode => {
-  if (ast._tag !== 'Union') {
-    return ast;
-  }
-
-  const remainingTypes = (ast.types ?? []).filter((type) => type._tag !== 'UndefinedKeyword');
-
-  if (remainingTypes.length !== 1) {
-    return ast;
-  }
-
-  return remainingTypes[0];
+const normalizeOptionalSchema = (
+  schema: JsonSchema.JsonSchema,
+  definitions: JsonSchema.Definitions,
+): JsonSchema.JsonSchema => {
+  const alternatives = getAlternatives(schema, definitions).filter((alternative) => alternative['type'] !== 'null');
+  return alternatives.length === 1 ? alternatives[0] : schema;
 };
 
-const unwrapTupleElementType = (element: AstNode | { _tag?: string; type: AstNode }): AstNode => {
-  if ('type' in element && element.type) {
-    return element.type;
+const getAlternatives = (
+  schema: JsonSchema.JsonSchema,
+  definitions: JsonSchema.Definitions,
+): JsonSchema.JsonSchema[] => {
+  const alternatives = schema['anyOf'] ?? schema['oneOf'];
+  if (!Array.isArray(alternatives)) {
+    return [];
   }
-
-  return element as AstNode;
+  return alternatives.filter(isJsonSchema).map((alternative) => resolveReference(alternative, definitions));
 };
 
-const normalizeTerminalAst = (ast: AstNode): AstNode => {
-  switch (ast._tag) {
-    case 'Refinement':
-      return normalizeTerminalAst(ast.from as AstNode);
-    case 'Transformation':
-      return normalizeTerminalAst(ast.to as AstNode);
-    default:
-      return ast;
-  }
+const getSingleLiteral = (schema: JsonSchema.JsonSchema): BuilderScalarValue | undefined => {
+  const literals = getLiteralValues(schema);
+  return literals?.length === 1 ? literals[0] : undefined;
 };
 
-const isRootDiscriminator = (name: string, ast: AstNode): ast is AstNode & { literal: BuilderScalarValue } =>
-  (name === 'type' || name === 'step') && ast._tag === 'Literal';
-
-const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null;
-
-const deriveValidationSpec = (ast: AstNode): BuilderFieldValidationSpec | undefined => {
-  const annotationValidation = deriveAnnotationValidationSpec(ast.annotations);
-
-  switch (ast._tag) {
-    case 'Refinement':
-      return mergeValidationSpecs(deriveValidationSpec(ast.from as AstNode), annotationValidation);
-    case 'Transformation':
-      return mergeValidationSpecs(
-        deriveValidationSpec(ast.from as AstNode),
-        deriveValidationSpec(ast.to as AstNode),
-        annotationValidation,
-      );
-    case 'Type':
-    case 'OptionalType':
-      return mergeValidationSpecs(deriveValidationSpec(ast.type as AstNode), annotationValidation);
-    case 'Union': {
-      const definedTypes = (ast.types ?? []).filter((type) => type._tag !== 'UndefinedKeyword');
-
-      if (definedTypes.length === 0) {
-        return annotationValidation;
-      }
-
-      return mergeValidationSpecs(
-        intersectValidationSpecs(definedTypes.map(deriveValidationSpec)),
-        annotationValidation,
-      );
-    }
-    case 'TupleType':
-      return mergeValidationSpecs(
-        (ast.elements?.length ?? 0) > 0 ? { minItems: ast.elements?.length } : undefined,
-        annotationValidation,
-      );
-    default:
-      return annotationValidation;
+const getLiteralValues = (schema: JsonSchema.JsonSchema): BuilderScalarValue[] | undefined => {
+  if (!Array.isArray(schema['enum'])) {
+    return undefined;
   }
+
+  const literals = schema['enum'].filter(isBuilderScalarValue);
+  return literals.length === schema['enum'].length ? literals : undefined;
 };
 
-const deriveAnnotationValidationSpec = (
-  annotations: Record<PropertyKey, unknown> | undefined,
+const deriveValidationSpec = (
+  schema: JsonSchema.JsonSchema,
+  definitions: JsonSchema.Definitions,
 ): BuilderFieldValidationSpec | undefined => {
-  if (!annotations) {
-    return undefined;
-  }
-
-  const jsonSchemaAnnotation = Object.getOwnPropertySymbols(annotations).find((symbol) =>
-    String(symbol).includes('annotation/JSONSchema'),
-  );
-
-  if (!jsonSchemaAnnotation) {
-    return undefined;
-  }
-
-  const jsonSchema = annotations[jsonSchemaAnnotation];
-
-  if (!isRecord(jsonSchema)) {
-    return undefined;
-  }
-
   const validation: BuilderFieldValidationSpec = {};
 
-  if (typeof jsonSchema['minLength'] === 'number') {
-    validation.minLength = jsonSchema['minLength'];
-  }
-
-  if (typeof jsonSchema['minimum'] === 'number') {
-    validation.minimum = jsonSchema['minimum'];
-  }
-
-  if (typeof jsonSchema['maximum'] === 'number') {
-    validation.maximum = jsonSchema['maximum'];
-  }
-
-  if (typeof jsonSchema['pattern'] === 'string') {
-    validation.pattern = jsonSchema['pattern'];
-  }
-
-  if (jsonSchema['type'] === 'integer') {
-    validation.integer = true;
-  }
-
+  collectValidation(schema, definitions, validation);
   return Object.keys(validation).length > 0 ? validation : undefined;
 };
 
-const mergeValidationSpecs = (
-  ...specs: Array<BuilderFieldValidationSpec | undefined>
-): BuilderFieldValidationSpec | undefined => {
-  const merged = specs.reduce<BuilderFieldValidationSpec>((result, spec) => ({ ...result, ...spec }), {});
-
-  return Object.keys(merged).length > 0 ? merged : undefined;
-};
-
-const intersectValidationSpecs = (
-  specs: Array<BuilderFieldValidationSpec | undefined>,
-): BuilderFieldValidationSpec | undefined => {
-  const definedSpecs = specs.filter((spec): spec is BuilderFieldValidationSpec => spec !== undefined);
-
-  if (definedSpecs.length === 0) {
-    return undefined;
-  }
-
-  const keys = new Set(definedSpecs.flatMap((spec) => Object.keys(spec) as Array<keyof BuilderFieldValidationSpec>));
-  const intersection: BuilderFieldValidationSpec = {};
-
-  for (const key of keys) {
-    const values = definedSpecs.map((spec) => spec[key]);
-    const [firstValue] = values;
-
-    if (firstValue === undefined || values.some((value) => value !== firstValue)) {
-      continue;
-    }
-
-    assignValidationValue(intersection, key, firstValue);
-  }
-
-  return Object.keys(intersection).length > 0 ? intersection : undefined;
-};
-
-const assignValidationValue = (
-  target: BuilderFieldValidationSpec,
-  key: keyof BuilderFieldValidationSpec,
-  value: BuilderFieldValidationSpec[keyof BuilderFieldValidationSpec],
+const collectValidation = (
+  schema: JsonSchema.JsonSchema,
+  definitions: JsonSchema.Definitions,
+  validation: BuilderFieldValidationSpec,
 ): void => {
-  switch (key) {
-    case 'integer':
-      target.integer = value as boolean;
-      break;
-    case 'maximum':
-      target.maximum = value as number;
-      break;
-    case 'minItems':
-      target.minItems = value as number;
-      break;
-    case 'minLength':
-      target.minLength = value as number;
-      break;
-    case 'minimum':
-      target.minimum = value as number;
-      break;
-    case 'pattern':
-      target.pattern = value as string;
-      break;
+  const resolved = resolveReference(schema, definitions);
+
+  if (resolved['type'] === 'integer') validation.integer = true;
+  if (typeof resolved['maximum'] === 'number') validation.maximum = resolved['maximum'];
+  if (typeof resolved['minItems'] === 'number') validation.minItems = resolved['minItems'];
+  if (typeof resolved['minLength'] === 'number') validation.minLength = resolved['minLength'];
+  if (typeof resolved['minimum'] === 'number') validation.minimum = resolved['minimum'];
+  if (typeof resolved['pattern'] === 'string') validation.pattern = resolved['pattern'];
+
+  if (Array.isArray(resolved['allOf'])) {
+    for (const member of resolved['allOf'].filter(isJsonSchema)) {
+      collectValidation(member, definitions, validation);
+    }
   }
 };
+
+const resolveReference = (
+  schema: JsonSchema.JsonSchema,
+  definitions: JsonSchema.Definitions,
+): JsonSchema.JsonSchema => {
+  const reference = schema['$ref'];
+  if (typeof reference !== 'string' || !reference.startsWith('#/$defs/')) {
+    return schema;
+  }
+
+  const definition = definitions[reference.slice('#/$defs/'.length)];
+  if (!definition) {
+    throw new Error(`Missing JSON Schema definition for ${reference}`);
+  }
+  return definition;
+};
+
+const describeJsonSchema = (schema: JsonSchema.JsonSchema): string =>
+  typeof schema['type'] === 'string' ? schema['type'] : 'unknown schema';
+
+const isBuilderScalarValue = (value: unknown): value is BuilderScalarValue =>
+  value === null || typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean';
+
+const isJsonEncodedSpecialNumberAlternative = (schema: JsonSchema.JsonSchema): boolean =>
+  schema['type'] === 'string' &&
+  Array.isArray(schema['enum']) &&
+  schema['enum'].every((value) => value === 'Infinity' || value === '-Infinity' || value === 'NaN');
+
+const isJsonSchema = (value: unknown): value is JsonSchema.JsonSchema => isRecord(value);
+
+const isJsonSchemaRecord = (value: unknown): value is Record<string, JsonSchema.JsonSchema> =>
+  isRecord(value) && Object.values(value).every(isJsonSchema);
+
+const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null;

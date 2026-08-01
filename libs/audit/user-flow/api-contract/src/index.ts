@@ -1,4 +1,4 @@
-import { HttpApi, HttpApiEndpoint, HttpApiError, HttpApiGroup } from '@effect/platform';
+import { HttpApi, HttpApiEndpoint, HttpApiError, HttpApiGroup } from 'effect/unstable/httpapi';
 import { Schema } from 'effect';
 
 import { UserFlowAuditDefinitionSchema } from '@app-speed/audit/user-flow/domain';
@@ -10,16 +10,14 @@ import {
   watchByIdEndpoint,
 } from '@app-speed/audit/core/api-contract';
 
-export const scheduleUserFlowAuditEndpoint = HttpApiEndpoint.post('scheduleUserFlowAudit', '/schedule')
-  .setPayload(UserFlowAuditDefinitionSchema)
-  .addSuccess(
-    Schema.Struct({
-      auditId: Schema.String,
-      auditQueuePosition: Schema.NonNegativeInt,
-    }),
-  )
-  .addError(HttpApiError.HttpApiDecodeError)
-  .addError(HttpApiError.BadRequest);
+export const scheduleUserFlowAuditEndpoint = HttpApiEndpoint.post('scheduleUserFlowAudit', '/schedule', {
+  payload: UserFlowAuditDefinitionSchema,
+  success: Schema.Struct({
+    auditId: Schema.String,
+    auditQueuePosition: Schema.Number.check(Schema.isInt(), Schema.isGreaterThanOrEqualTo(0)),
+  }),
+  error: HttpApiError.BadRequestNoContent,
+});
 
 export class UserFlowAuditApiGroup extends HttpApiGroup.make('userFlowAudit')
   .add(scheduleUserFlowAuditEndpoint)

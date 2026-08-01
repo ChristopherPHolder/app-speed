@@ -8,7 +8,7 @@ export const InMemoryRecordPersistenceService = Layer.sync(RecordPersistenceServ
 
   return {
     makeRecordKey: (value: string) => Schema.decodeUnknownSync(RecordKeySchema)(value),
-    decodeRecordKey: (value: string) => Schema.decodeUnknown(RecordKeySchema)(value),
+    decodeRecordKey: (value: string) => Schema.decodeUnknownEffect(RecordKeySchema)(value),
     put: (key: RecordKey, value: string) => Effect.sync(() => void records.set(key, value)),
     get: (key: RecordKey) => Effect.sync(() => records.get(key) ?? null),
   };

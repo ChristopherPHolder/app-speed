@@ -1,4 +1,4 @@
-import { Command } from '@effect/cli';
+import { Command } from 'effect/unstable/cli';
 import { Duration, Effect } from 'effect';
 import { processQueue } from '@app-speed/audit/core/runner';
 
@@ -11,7 +11,6 @@ const command = Command.make('audit', {}, () => {
   }).pipe(Effect.withSpan('runner.cli.execute'));
 });
 
-export const cli = Command.run(command, {
-  name: 'Audit Runner',
+export const cli = Command.runWith(command, {
   version: 'v0.0.1',
 });

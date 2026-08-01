@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { Schema, Either, ParseResult } from 'effect';
+import { Schema } from 'effect';
 import { AuditStepSchema, AuditStepTypeSchema, isAuditStep, isStepType } from './audit-step.schema';
 import { AUDIT_CUSTOM_STEP_TYPE } from './custom-audit-step-type';
 import { PUPPETEER_REPLAY_CUSTOM_STEP_TYPE } from './puppeteer-replay/puppeteer-replay-step-type';
@@ -19,7 +19,7 @@ describe('AuditStep', () => {
   it.for(['startNavigation', 'endNavigation', 'startTimespan', 'endTimespan', 'snapshot'])(
     'should reject feature custom step identities as top-level step types: %s',
     (type) => {
-    expect(isStepType(type)).toEqual(false);
+      expect(isStepType(type)).toEqual(false);
     },
   );
 
@@ -53,9 +53,12 @@ describe('AuditStep', () => {
   });
 
   function decodingErrorMessage(schema: Schema.Schema<unknown>, input: unknown) {
-    const result = Schema.decodeUnknownEither(schema)(input);
-    if (Either.isLeft(result)) {
-      return ParseResult.TreeFormatter.formatErrorSync(result.left);
+    try {
+      Schema.decodeUnknownSync(schema)(input);
+    } catch (error) {
+      if (Schema.isSchemaError(error)) {
+        return error.message;
+      }
     }
     return undefined;
   }

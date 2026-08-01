@@ -13,12 +13,12 @@ import { USER_FLOW_AUDIT_KIND, type UserFlowAuditDefinition } from '@app-speed/a
 
 import { userFlowAuditTemplateTable } from './schema';
 
-export class UserFlowAuditScheduler extends Context.Tag('UserFlowAuditScheduler')<
+export class UserFlowAuditScheduler extends Context.Service<
   UserFlowAuditScheduler,
   {
     schedule: (definition: UserFlowAuditDefinition) => Effect.Effect<AuditRunId, QueryError>;
   }
->() {}
+>()('UserFlowAuditScheduler') {}
 
 const schedule = Effect.fn('db.userFlowAudit.schedule')(function* (definition: UserFlowAuditDefinition) {
   const db = yield* DbClient;
@@ -60,8 +60,7 @@ const schedule = Effect.fn('db.userFlowAudit.schedule')(function* (definition: U
   return runId;
 });
 
-export const UserFlowAuditSchedulerLive = Layer.effect(
-  UserFlowAuditScheduler,
+export const UserFlowAuditSchedulerLive = Layer.effect(UserFlowAuditScheduler)(
   Effect.gen(function* () {
     const db = yield* DbClient;
     return {

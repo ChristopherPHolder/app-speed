@@ -4,9 +4,9 @@ import { AuditExecutor } from '@app-speed/audit/core/runner';
 import { UserFlowAuditKindSchema } from '@app-speed/audit/user-flow/domain';
 import { executeUserFlowAudit } from '@app-speed/audit/user-flow/runner';
 
-export const InstalledAuditExecutorLive = Layer.succeed(AuditExecutor, {
+export const InstalledAuditExecutorLive = Layer.succeed(AuditExecutor)({
   execute: (claim) =>
-    Schema.decodeUnknown(UserFlowAuditKindSchema)(claim.kind).pipe(
+    Schema.decodeUnknownEffect(UserFlowAuditKindSchema)(claim.kind).pipe(
       Effect.flatMap((kind) =>
         Match.value(kind).pipe(
           Match.when('user-flow', () => executeUserFlowAudit(claim)),

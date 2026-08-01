@@ -26,7 +26,7 @@ const updateRecord = (
   ...update,
 });
 
-export class RunnerRegistry extends Context.Tag('RunnerRegistry')<
+export class RunnerRegistry extends Context.Service<
   RunnerRegistry,
   {
     recordClaimResult: (runnerId: string, available: boolean, timestamp?: number) => Effect.Effect<void, never>;
@@ -47,10 +47,9 @@ export class RunnerRegistry extends Context.Tag('RunnerRegistry')<
     markTerminated: (runnerId: string) => Effect.Effect<void, never>;
     pruneInactiveRunners: (runnerIds: ReadonlyArray<string>) => Effect.Effect<void, never>;
   }
->() {}
+>()('RunnerRegistry') {}
 
-export const RunnerRegistryLive = Layer.scoped(
-  RunnerRegistry,
+export const RunnerRegistryLive = Layer.effect(RunnerRegistry)(
   Effect.gen(function* () {
     const stateRef = yield* SynchronizedRef.make(new Map<string, RunnerRecord>());
 

@@ -15,7 +15,7 @@ export const RunnerContext = Effect.fn('runner.audit.acquireContext')(function* 
   );
 
   const page = yield* Effect.promise(() => browser.pages()).pipe(
-    Effect.map((pages) => Option.fromNullable(pages.at(0))),
+    Effect.map((pages) => Option.fromNullishOr(pages.at(0))),
     Effect.flatMap(
       Option.match({
         onSome: (page) => Effect.succeed(page),

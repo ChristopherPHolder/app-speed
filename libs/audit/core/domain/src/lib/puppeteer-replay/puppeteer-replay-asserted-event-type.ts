@@ -15,5 +15,5 @@ export const PuppeteerReplayAssociatedEventTypeSchema = Schema.Literal(PUPPETEER
  * which would mean it cannot be used in browser bundles.
  */
 type _AssertNoMissingPuppeteerReplayKeys = AssertNever<
-  Exclude<EnumLiteral<AssertedEventType>, (typeof PuppeteerReplayAssociatedEventTypeSchema.literals)[number]>
+  Exclude<EnumLiteral<AssertedEventType>, typeof PuppeteerReplayAssociatedEventTypeSchema.Type>
 >;

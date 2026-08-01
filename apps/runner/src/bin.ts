@@ -1,17 +1,17 @@
 #!/usr/bin/env node
 import { argv } from 'node:process';
 import { Effect, Layer } from 'effect';
-import { NodeContext, NodeHttpClient, NodeRuntime } from '@effect/platform-node';
+import { NodeHttpClient, NodeRuntime, NodeServices } from '@effect/platform-node';
 import { makeNodeObservabilityLayer } from '@app-speed/platform/observability';
 import { cli } from './cli';
 import { InstalledAuditExecutorLive } from './InstalledAuditExecutor';
 
 const ObservabilityLive = makeNodeObservabilityLayer({ serviceName: 'runner' });
 const RunnerRuntimeLayer = Layer.mergeAll(
-  NodeContext.layer,
-  NodeHttpClient.layer,
+  NodeServices.layer,
+  NodeHttpClient.layerNodeHttp,
   ObservabilityLive,
   InstalledAuditExecutorLive,
 );
 
-cli(argv).pipe(Effect.provide(RunnerRuntimeLayer), NodeRuntime.runMain);
+cli(argv.slice(2)).pipe(Effect.provide(RunnerRuntimeLayer), NodeRuntime.runMain);

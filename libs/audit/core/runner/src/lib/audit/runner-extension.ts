@@ -1,11 +1,11 @@
 import { setTimeout as waitForTime } from 'node:timers/promises';
 import { PuppeteerRunnerExtension, type Step, type UserFlow as ReplayRecording } from '@puppeteer/replay';
 import type { Browser, Page } from 'puppeteer';
-import { Either, Schema } from 'effect';
+import { Exit, Schema } from 'effect';
 
 import { AUDIT_CUSTOM_STEP_TYPE, ReplayAuditCustomStepSchema } from '@app-speed/audit/core/domain';
 
-const decodeSharedStep = Schema.decodeUnknownEither(ReplayAuditCustomStepSchema);
+const decodeSharedStep = Schema.decodeUnknownExit(ReplayAuditCustomStepSchema);
 
 export abstract class CoreRunnerExtension extends PuppeteerRunnerExtension {
   private readonly auditTimeout: number;
@@ -18,7 +18,7 @@ export abstract class CoreRunnerExtension extends PuppeteerRunnerExtension {
   override async runStep(step: Step | unknown, flowRecording: ReplayRecording): Promise<void> {
     if (typeof step === 'object' && step !== null && 'type' in step && step.type === 'customStep') {
       const decoded = decodeSharedStep(step);
-      if (Either.isRight(decoded)) return await this.runSharedCustomStep(decoded.right);
+      if (Exit.isSuccess(decoded)) return await this.runSharedCustomStep(decoded.value);
       return await this.runFeatureCustomStep(step);
     }
     return await super.runStep(step as Step, flowRecording);

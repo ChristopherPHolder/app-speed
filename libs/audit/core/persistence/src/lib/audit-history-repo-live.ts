@@ -1,5 +1,5 @@
 import { and, desc, eq, inArray, lt, or } from 'drizzle-orm';
-import { Effect, Layer } from 'effect';
+import { Effect, Layer, Schema } from 'effect';
 
 import type { AuditKind } from '@app-speed/audit/core/domain';
 
@@ -7,7 +7,7 @@ import { AuditHistoryRepo } from './audit-history-repo';
 import { AuditRepo } from './audit-repo';
 import {
   decodeAuditRunSummaryRecord,
-  type AuditRunId,
+  AuditRunIdSchema,
   type AuditRunListCursor,
   type AuditStatus,
 } from './audit-record';
@@ -60,7 +60,10 @@ const listRunsPage = Effect.fn('db.auditHistory.listPage')(function* (params: {
   const pageRows = rows.slice(0, limit);
   const items = yield* Effect.forEach(pageRows, (row) =>
     Effect.gen(function* () {
-      const queuePosition = row.status === 'SCHEDULED' ? yield* auditRepo.getQueuePosition(row.id as AuditRunId) : null;
+      const queuePosition =
+        row.status === 'SCHEDULED'
+          ? yield* auditRepo.getQueuePosition(yield* Schema.decodeUnknownEffect(AuditRunIdSchema)(row.id))
+          : null;
       return yield* decodeAuditRunSummaryRecord({
         ...row,
         resultStatus: row.resultStatus ?? null,
@@ -77,8 +80,7 @@ const listRunsPage = Effect.fn('db.auditHistory.listPage')(function* (params: {
   };
 });
 
-export const AuditHistoryRepoLive = Layer.effect(
-  AuditHistoryRepo,
+export const AuditHistoryRepoLive = Layer.effect(AuditHistoryRepo)(
   Effect.gen(function* () {
     const db = yield* DbClient;
     const auditRepo = yield* AuditRepo;

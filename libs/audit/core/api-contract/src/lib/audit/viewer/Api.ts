@@ -1,30 +1,28 @@
-import { HttpApiEndpoint, HttpApiError, HttpApiSchema } from '@effect/platform';
+import { HttpApiEndpoint, HttpApiError, HttpApiSchema } from 'effect/unstable/httpapi';
 import { Schema } from 'effect';
 
 import { AuditErrorSchema, AuditId, AuditNotFoundError, AuditResultStatusSchema } from '../Audit';
 
 const AuditResultSuccessSchema = Schema.Struct({
-  status: AuditResultStatusSchema.pipe(Schema.pickLiteral('SUCCESS')),
+  status: AuditResultStatusSchema.pick(['SUCCESS']),
   result: Schema.Unknown,
 });
 
 const AuditResultFailureSchema = Schema.Struct({
-  status: AuditResultStatusSchema.pipe(Schema.pickLiteral('FAILURE')),
+  status: AuditResultStatusSchema.pick(['FAILURE']),
   error: AuditErrorSchema,
 });
 
-const AuditResultSchema = Schema.Union(AuditResultSuccessSchema, AuditResultFailureSchema);
+const AuditResultSchema = Schema.Union([AuditResultSuccessSchema, AuditResultFailureSchema]);
 
-export const resultByIdEndpoint = HttpApiEndpoint.get('resultById', '/:id/result')
-  .setPath(Schema.Struct({ id: AuditId }))
-  .addSuccess(AuditResultSchema)
-  .addError(HttpApiError.BadRequest)
-  .addError(HttpApiError.NotFound)
-  .addError(AuditNotFoundError);
+export const resultByIdEndpoint = HttpApiEndpoint.get('resultById', '/:id/result', {
+  params: { id: AuditId },
+  success: AuditResultSchema,
+  error: [HttpApiError.BadRequestNoContent, HttpApiError.NotFoundNoContent, AuditNotFoundError],
+});
 
-export const reportByIdEndpoint = HttpApiEndpoint.get('reportById', '/:id/report')
-  .setPath(Schema.Struct({ id: AuditId }))
-  .addSuccess(HttpApiSchema.Text({ contentType: 'text/html' }))
-  .addError(HttpApiError.BadRequest)
-  .addError(HttpApiError.NotFound)
-  .addError(AuditNotFoundError);
+export const reportByIdEndpoint = HttpApiEndpoint.get('reportById', '/:id/report', {
+  params: { id: AuditId },
+  success: Schema.String.pipe(HttpApiSchema.asText({ contentType: 'text/html' })),
+  error: [HttpApiError.BadRequestNoContent, HttpApiError.NotFoundNoContent, AuditNotFoundError],
+});
