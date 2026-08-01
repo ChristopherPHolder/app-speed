@@ -248,6 +248,10 @@ describe('PuppeteerReplayUserflowRunnerSchema', () => {
 });
 
 describe('UserFlowAuditDefinitionSchema', () => {
+  it('should generate a JSON Schema document without duplicate identifiers', () => {
+    expect(() => Schema.toJsonSchemaDocument(UserFlowAuditDefinitionSchema)).not.toThrow();
+  });
+
   it('should accept valid audit', async () => {
     expect(
       Schema.is(UserFlowAuditDefinitionSchema)({

@@ -10,7 +10,7 @@ const NonNegativeIntFromStringSchema = Schema.NumberFromString.check(
 
 export const AuditTimeoutSchema = Schema.optional(
   Schema.Union([NonNegativeIntSchema, NonNegativeIntFromStringSchema]).annotate({
-    identifier: 'Timeout',
+    identifier: 'AuditTimeout',
   }),
 );
 
