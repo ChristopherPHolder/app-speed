@@ -33,7 +33,7 @@ const TimeoutSchema = Schema.optional(
   Schema.Union([
     NonNegativeIntSchema,
     Schema.NumberFromString.check(Schema.isInt(), Schema.isGreaterThanOrEqualTo(0)),
-  ]).annotate({ identifier: 'Timeout' }),
+  ]).annotate({ identifier: 'StepTimeout' }),
 );
 
 const isValidHttpsOrAboutBlankUrl = (value: string): boolean => {
