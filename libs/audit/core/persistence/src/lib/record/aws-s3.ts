@@ -20,13 +20,11 @@ const resolveAwsRegion = Effect.gen(function* () {
     return yield* Schema.decodeUnknownEffect(AwsRegionSchema)(defaultRegion.value);
   }
 
-  return yield* Effect.fail(
-    RecordPersistenceError.make({
-      operation: 'get',
-      key: makeRecordKey('record-persistence-config:aws-region'),
-      message: 'AWS_REGION or AWS_DEFAULT_REGION is required for S3 record persistence.',
-    }),
-  );
+  return yield* RecordPersistenceError.make({
+    operation: 'get',
+    key: makeRecordKey('record-persistence-config:aws-region'),
+    message: 'AWS_REGION or AWS_DEFAULT_REGION is required for S3 record persistence.',
+  });
 });
 
 export const AwsS3RecordPersistenceService = Layer.effect(RecordPersistenceService)(

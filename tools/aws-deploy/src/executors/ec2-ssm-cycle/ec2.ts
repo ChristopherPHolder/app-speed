@@ -182,7 +182,7 @@ const describeInstanceDiagnostics = (
     const describeInstancesResponse = yield* Effect.tryPromise({
       try: () => client.send(new DescribeInstancesCommand({ InstanceIds: [instanceId] })),
       catch: (error) => toDiagnosticsLookupError('describe EC2 state', instanceId, error),
-    }).pipe(Effect.catch(() => Effect.succeed(undefined)));
+    }).pipe(Effect.catch(() => Effect.void));
 
     if (describeInstancesResponse) {
       for (const reservation of describeInstancesResponse.Reservations ?? []) {
@@ -206,7 +206,7 @@ const describeInstanceDiagnostics = (
           }),
         ),
       catch: (error) => toDiagnosticsLookupError('describe EC2 status checks', instanceId, error),
-    }).pipe(Effect.catch(() => Effect.succeed(undefined)));
+    }).pipe(Effect.catch(() => Effect.void));
 
     const status = describeInstanceStatusResponse?.InstanceStatuses?.find((item) => item.InstanceId === instanceId);
     if (status) {
@@ -233,7 +233,7 @@ const describeInstanceDiagnostics = (
           }),
         ),
       catch: (error) => toDiagnosticsLookupError('fetch EC2 console output', instanceId, error),
-    }).pipe(Effect.catch(() => Effect.succeed(undefined)));
+    }).pipe(Effect.catch(() => Effect.void));
 
     diagnostics.consoleOutputExcerpt = toConsoleOutputExcerpt(consoleOutputResponse?.Output);
 
