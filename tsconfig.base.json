@@ -38,6 +38,11 @@
       "@app-speed/audit/user-flow/portal-data-access": ["libs/audit/user-flow/portal-data-access/src/index.ts"],
       "@app-speed/audit/core/domain": ["libs/audit/core/domain/src/index.ts"],
       "@app-speed/audit/user-flow/domain": ["libs/audit/user-flow/domain/src/index.ts"]
-    }
+    },
+    "plugins": [
+      {
+        "name": "@effect/language-service"
+      }
+    ]
   }
 }

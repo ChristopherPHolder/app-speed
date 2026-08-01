@@ -1,11 +1,15 @@
 import { Effect, Schema } from 'effect';
 
+import type { AuditHistoryQuerySchema } from '@app-speed/audit/core/api-contract';
 import type { AuditKind } from '@app-speed/audit/core/domain';
 import { AuditHistoryRepo } from '@app-speed/audit/core/persistence';
 
 import { AuditHistoryInternalError, AuditHistoryInvalidCursorError, AuditHistoryInvalidQueryError } from '../Audit.js';
 
 type AuditRunStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETE';
+type AuditHistoryRequest = {
+  readonly query: typeof AuditHistoryQuerySchema.Type;
+};
 const AuditHistoryCursorSchema = Schema.Struct({
   createdAtMs: Schema.Number.check(Schema.isInt(), Schema.isGreaterThanOrEqualTo(0)),
   id: Schema.NonEmptyString,
@@ -86,12 +90,12 @@ const normalizeError = (
 };
 
 export const historyHandler = (kind: AuditKind | null) =>
-  Effect.fn('api.audit.history')((request) =>
+  Effect.fn('api.audit.history')((request: AuditHistoryRequest) =>
     Effect.gen(function* () {
       const repo = yield* AuditHistoryRepo;
-      const limit = yield* parseLimit(request.urlParams.limit);
-      const status = yield* parseStatusFilter(request.urlParams.status);
-      const cursor = yield* decodeCursor(request.urlParams.cursor);
+      const limit = yield* parseLimit(request.query.limit);
+      const status = yield* parseStatusFilter(request.query.status);
+      const cursor = yield* decodeCursor(request.query.cursor);
       const page = yield* repo.listRunsPage({ limit, cursor, status, kind });
 
       return {
