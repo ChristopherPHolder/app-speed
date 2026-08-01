@@ -4,8 +4,38 @@ import { it } from '@effect/vitest';
 import { AUDIT_CUSTOM_STEP_TYPE } from '@app-speed/audit/core/domain';
 import { LIGHTHOUSE_AUDIT_STEP_TYPE } from './lighthouse-userflow/lighthouse-userflow-step-type';
 import { UserFlowAuditDefinitionSchema, PuppeteerReplayUserflowRunnerSchema } from './audit.schema';
+import { ReplayUserflowStepSchema } from './lighthouse-userflow/lighthouse-userflow-step';
 
 describe('PuppeteerReplayUserflowRunnerSchema', () => {
+  it('decodes a persisted navigation sequence into replay steps', () => {
+    const recording = JSON.parse(
+      JSON.stringify({
+        title: 'e2e',
+        device: 'mobile',
+        steps: [
+          { type: 'customStep', step: LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION, name: 'Initial Navigation' },
+          { type: 'navigate', url: 'https://deep-blue.io' },
+          { type: 'customStep', step: LIGHTHOUSE_AUDIT_STEP_TYPE.END_NAVIGATION },
+        ],
+      }),
+    );
+
+    const apiDecoded = Schema.decodeUnknownSync(UserFlowAuditDefinitionSchema)(recording);
+    expect(apiDecoded.steps).toEqual(recording.steps);
+    const persisted = JSON.parse(JSON.stringify(apiDecoded));
+    const audit = Schema.decodeUnknownSync(UserFlowAuditDefinitionSchema)(persisted);
+
+    const replay = Schema.decodeUnknownSync(PuppeteerReplayUserflowRunnerSchema)(audit);
+
+    const parsedReplay = JSON.parse(JSON.stringify(replay));
+
+    expect(parsedReplay.steps[2]).toEqual({
+      type: 'customStep',
+      name: LIGHTHOUSE_AUDIT_STEP_TYPE.END_NAVIGATION,
+    });
+    expect(() => Schema.decodeUnknownSync(ReplayUserflowStepSchema)(parsedReplay.steps[2])).not.toThrow();
+  });
+
   it('should decode to replay schema', () => {
     const recording = {
       title: 'Stub audit title',
