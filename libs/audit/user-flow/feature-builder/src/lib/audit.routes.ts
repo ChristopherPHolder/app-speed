@@ -4,6 +4,7 @@ import { BuilderComponent } from './feature/builder.component';
 import { provideState } from '@ngrx/store';
 import { auditBuilderFeature } from './feature/builder.state';
 import { provideBuilderEffects } from './feature/builder.effects';
+import { AuditResultPageComponent } from './feature/audit-result-page.component';
 
 const provideAuditBuilderRoute = () => [
   provideState(auditBuilderFeature),
@@ -14,7 +15,8 @@ const provideAuditBuilderRoute = () => [
 export const auditBuilderRoutes: Routes = [
   {
     path: ':id',
-    loadChildren: () => import('@app-speed/audit/user-flow/feature-viewer').then((m) => m.userFlowAuditViewerRoutes),
+    component: AuditResultPageComponent,
+    providers: [provideAuditBuilderIcons()],
   },
   {
     path: '',

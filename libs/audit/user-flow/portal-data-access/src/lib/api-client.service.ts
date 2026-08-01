@@ -5,12 +5,24 @@ import { HttpApiClient } from 'effect/unstable/httpapi';
 import { Effect, ManagedRuntime, Schema } from 'effect';
 
 import { from } from 'rxjs';
-import { UserFlowApi } from '@app-speed/audit/user-flow/api-contract';
+import { AuditId, UserFlowApi } from '@app-speed/audit/user-flow/api-contract';
 import { UserFlowAuditDefinitionSchema } from '@app-speed/audit/user-flow/domain';
 
 @Injectable({ providedIn: 'root' })
 export class ApiClient {
   private readonly runtime = ManagedRuntime.make(FetchHttpClient.layer);
+
+  findAudit(auditId: string) {
+    return from(
+      this.runtime.runPromise(
+        Effect.gen(function* () {
+          const apiClient = yield* HttpApiClient.make(UserFlowApi);
+          const id = yield* Schema.decodeUnknownEffect(AuditId)(auditId);
+          return yield* apiClient.userFlowAudit.findUserFlowAuditById({ params: { id } });
+        }),
+      ),
+    );
+  }
 
   scheduleAudit(auditDetails: unknown) {
     return from(

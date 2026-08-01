@@ -56,6 +56,8 @@ describe('Audit', () => {
     const findResponse = await fetch(`${USER_FLOW_API_ENDPOINT}${scheduleResponse.auditId}`).then((r) => r.json());
 
     expect(findResponse).toHaveProperty('status', 'SCHEDULED');
+    expect(findResponse).toHaveProperty('audit');
+    expect(findResponse.audit).toEqual(MOCK_AUDIT);
   });
 
   it('should watch audit', async () => {

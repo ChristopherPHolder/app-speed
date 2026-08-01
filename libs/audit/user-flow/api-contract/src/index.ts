@@ -3,12 +3,25 @@ import { Schema } from 'effect';
 
 import { UserFlowAuditDefinitionSchema } from '@app-speed/audit/user-flow/domain';
 import {
-  findByIdEndpoint,
+  AuditId,
+  AuditNotFoundError,
+  AuditRunStatusSchema,
   historyEndpoint,
   reportByIdEndpoint,
   resultByIdEndpoint,
   watchByIdEndpoint,
 } from '@app-speed/audit/core/api-contract';
+
+export { AuditId };
+
+export const findUserFlowAuditByIdEndpoint = HttpApiEndpoint.get('findUserFlowAuditById', '/:id', {
+  params: { id: AuditId },
+  success: Schema.Struct({
+    status: AuditRunStatusSchema,
+    audit: UserFlowAuditDefinitionSchema,
+  }),
+  error: [HttpApiError.BadRequestNoContent, AuditNotFoundError],
+});
 
 export const scheduleUserFlowAuditEndpoint = HttpApiEndpoint.post('scheduleUserFlowAudit', '/schedule', {
   payload: UserFlowAuditDefinitionSchema,
@@ -21,7 +34,7 @@ export const scheduleUserFlowAuditEndpoint = HttpApiEndpoint.post('scheduleUserF
 
 export class UserFlowAuditApiGroup extends HttpApiGroup.make('userFlowAudit')
   .add(scheduleUserFlowAuditEndpoint)
-  .add(findByIdEndpoint)
+  .add(findUserFlowAuditByIdEndpoint)
   .add(watchByIdEndpoint)
   .add(resultByIdEndpoint)
   .add(reportByIdEndpoint)

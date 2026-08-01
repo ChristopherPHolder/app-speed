@@ -70,10 +70,16 @@ export const UserFlowAuditGroupLive = HttpApiBuilder.group(UserFlowApi, 'userFlo
         ),
       )
       .handle(
-        'findById',
+        'findUserFlowAuditById',
         Effect.fn('api.userFlowAudit.findById')((request) =>
-          requireUserFlowRun(request.params.id).pipe(
-            Effect.map((run) => ({ status: run.status })),
+          Effect.gen(function* () {
+            const run = yield* requireUserFlowRun(request.params.id);
+            const audit = yield* userFlowRepo.getDefinition(run.templateId);
+            if (audit === null) {
+              return yield* new AuditNotFoundError({ id: request.params.id });
+            }
+            return { status: run.status, audit };
+          }).pipe(
             Effect.catchTag('QueryError', () => new HttpApiError.BadRequest()),
             Effect.catchTag('SchemaError', () => new HttpApiError.BadRequest()),
           ),
