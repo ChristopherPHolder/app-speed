@@ -56,6 +56,20 @@ describe('AuditBuilderComponent', () => {
     expect(submitAudit).not.toHaveBeenCalled();
   });
 
+  it('emits a fork request from the read-only Fork action', async () => {
+    const forked = vi.fn();
+    const builderFixture = await renderBuilder({ modifying: false, primaryAction: 'fork' });
+    builderFixture.componentInstance.forked.subscribe(forked);
+
+    const forkButton = builderFixture.nativeElement.querySelector('button.submit-btn');
+    expect(forkButton).toBeInstanceOf(HTMLButtonElement);
+    if (!(forkButton instanceof HTMLButtonElement)) return;
+    forkButton.click();
+    await builderFixture.whenStable();
+
+    expect(forked).toHaveBeenCalledOnce();
+  });
+
   it('does not emit a submit while an audit request is already in flight', async () => {
     const submitAudit = vi.fn();
     const builderFixture = await renderBuilder({
