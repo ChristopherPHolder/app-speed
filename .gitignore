@@ -135,4 +135,7 @@ vitest.config.*.timestamp*
 # opensrc - source code for packages
 opensrc/
 
+# Effect source checkout for agent research
+.repos/effect
+
 .claude/worktrees

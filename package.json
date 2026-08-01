@@ -5,7 +5,7 @@
     "build:affected": "nx run-many --all -t build",
     "lint:affected": "nx run-many --all --t lint",
     "test:affected": "nx run-many --all -t test",
-    "prepare": "husky"
+    "prepare": "husky && ./scripts/prepare-effect.sh"
   },
   "dependencies": {
     "@angular/animations": "21.2.13",
