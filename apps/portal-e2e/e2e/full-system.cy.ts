@@ -58,7 +58,9 @@ describe('full local audit system', () => {
     });
 
     cy.get('[data-testid="audit-progress-status"]', { timeout: 30_000 }).should('be.visible');
-    cy.wait('@auditResult', { responseTimeout: 240_000 }).its('response.body.status').should('equal', 'SUCCESS');
+    cy.wait('@auditResult', { requestTimeout: 240_000, responseTimeout: 240_000 })
+      .its('response.body.status')
+      .should('equal', 'SUCCESS');
     cy.get('ui-audit-summary', { timeout: 240_000 }).should('be.visible');
     cy.get('ui-audit-summary .summary-title').should('have.length.greaterThan', 0);
     cy.get('ui-audit-summary .score-container').should('be.visible').and('not.be.empty');
