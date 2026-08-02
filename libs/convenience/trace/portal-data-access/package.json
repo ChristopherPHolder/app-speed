@@ -1,0 +1,12 @@
+{
+  "name": "@app-speed/convenience/trace/portal-data-access",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@app-speed/convenience/trace/domain": "0.0.1",
+    "@nx/vite": "22.7.2",
+    "effect": "4.0.0-beta.102",
+    "fflate": "0.8.3",
+    "vitest": "^4.1.6"
+  },
+  "sideEffects": false
+}

@@ -1,0 +1,10 @@
+{
+  "name": "@app-speed/convenience/trace/domain",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@nx/vite": "22.7.2",
+    "effect": "4.0.0-beta.102",
+    "vitest": "^4.1.6"
+  },
+  "sideEffects": false
+}

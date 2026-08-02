@@ -1,26 +1,31 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import {
   MatCard,
+  MatCardActions,
   MatCardAvatar,
   MatCardContent,
   MatCardHeader,
   MatCardSubtitle,
   MatCardTitle,
 } from '@angular/material/card';
+import { MatButton } from '@angular/material/button';
 import { MatChip, MatChipSet } from '@angular/material/chips';
 import { MatDivider } from '@angular/material/divider';
 import { MatIcon } from '@angular/material/icon';
 import { MatList, MatListItem, MatListItemIcon, MatListItemLine, MatListItemTitle } from '@angular/material/list';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'lib-convenience-catalog-page',
   imports: [
     MatCard,
+    MatCardActions,
     MatCardAvatar,
     MatCardContent,
     MatCardHeader,
     MatCardSubtitle,
     MatCardTitle,
+    MatButton,
     MatChip,
     MatChipSet,
     MatDivider,
@@ -30,6 +35,7 @@ import { MatList, MatListItem, MatListItemIcon, MatListItemLine, MatListItemTitl
     MatListItemIcon,
     MatListItemLine,
     MatListItemTitle,
+    RouterLink,
   ],
   template: `
     <main class="catalog" aria-labelledby="catalog-title">
@@ -67,7 +73,7 @@ import { MatList, MatListItem, MatListItemIcon, MatListItemLine, MatListItemTitl
             </div>
             <mat-card-title>Trace tools</mat-card-title>
             <mat-card-subtitle>Chrome performance traces</mat-card-subtitle>
-            <span class="category-card__status">Coming next</span>
+            <span class="category-card__status">Available</span>
           </mat-card-header>
 
           <mat-card-content>
@@ -100,6 +106,12 @@ import { MatList, MatListItem, MatListItemIcon, MatListItemLine, MatListItemTitl
               <mat-chip>No upload required</mat-chip>
             </mat-chip-set>
           </mat-card-content>
+          <mat-card-actions align="end">
+            <a mat-flat-button routerLink="/convenience/trace/screenshots">
+              Extract screenshots
+              <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+            </a>
+          </mat-card-actions>
         </mat-card>
       </section>
     </main>
@@ -269,6 +281,10 @@ import { MatList, MatListItem, MatListItemIcon, MatListItemLine, MatListItemTitl
     }
 
     .category-card mat-card-content {
+      padding: 0 24px 24px 30px;
+    }
+
+    .category-card mat-card-actions {
       padding: 0 24px 24px 30px;
     }
 

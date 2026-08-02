@@ -1,0 +1,16 @@
+{
+  "name": "@app-speed/convenience/trace/feature-tools",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@analogjs/vite-plugin-angular": "2.5.1",
+    "@angular/core": "21.2.13",
+    "@angular/material": "21.2.11",
+    "@angular/router": "21.2.13",
+    "@app-speed/convenience/trace/portal-data-access": "0.0.1",
+    "@app-speed/convenience/trace/portal-ui": "0.0.1",
+    "@nx/vite": "22.7.2",
+    "effect": "4.0.0-beta.102",
+    "vitest": "^4.1.6"
+  },
+  "sideEffects": false
+}

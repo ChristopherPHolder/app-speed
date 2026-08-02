@@ -1,0 +1,35 @@
+{
+  "name": "convenience-trace-feature-tools",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/convenience/trace/feature-tools/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": ["type:domain", "scope:convenience", "feature:convenience-trace", "runtime:web", "layer:feature"],
+  "targets": {
+    "build": {
+      "executor": "@nx/angular:ng-packagr-lite",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "options": {
+        "project": "libs/convenience/trace/feature-tools/ng-package.json",
+        "tsConfig": "libs/convenience/trace/feature-tools/tsconfig.lib.json"
+      },
+      "configurations": {
+        "production": {
+          "tsConfig": "libs/convenience/trace/feature-tools/tsconfig.lib.prod.json"
+        },
+        "development": {}
+      },
+      "defaultConfiguration": "production"
+    },
+    "test": {
+      "executor": "@nx/vitest:test",
+      "options": {
+        "configFile": "{projectRoot}/vitest.config.mts",
+        "reportsDirectory": "{workspaceRoot}/coverage/libs/convenience/trace/feature-tools"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

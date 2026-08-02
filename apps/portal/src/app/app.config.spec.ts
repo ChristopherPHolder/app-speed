@@ -22,9 +22,10 @@ describe('shell audit routes', () => {
 });
 
 describe('shell convenience routes', () => {
-  it('lazy loads the convenience catalogue', () => {
+  it('mounts trace tools before the convenience catalogue', () => {
     const convenienceRoute = shellRoutes[0]?.children?.find((route) => route.path === 'convenience');
 
-    expect(convenienceRoute?.loadChildren).toBeTypeOf('function');
+    expect(convenienceRoute?.children?.map((route) => route.path)).toEqual(['trace', '']);
+    expect(convenienceRoute?.children?.every((route) => typeof route.loadChildren === 'function')).toBe(true);
   });
 });
