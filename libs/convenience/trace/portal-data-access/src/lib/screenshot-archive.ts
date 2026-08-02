@@ -11,6 +11,15 @@ export interface ScreenshotArchive {
   readonly downloadName: string;
   readonly frameCount: number;
   readonly manifest: TraceScreenshotManifest;
+  readonly previewFrames: ReadonlyArray<ScreenshotPreviewFrame>;
+}
+
+export interface ScreenshotPreviewFrame {
+  readonly source: string;
+  readonly file: string;
+  readonly timestampMicroseconds: number;
+  readonly offsetMilliseconds: number;
+  readonly deltaMilliseconds: number;
 }
 
 export class TraceFileReadError extends Schema.TaggedErrorClass<TraceFileReadError>()('TraceFileReadError', {
@@ -62,6 +71,11 @@ export const buildScreenshotArchive = Effect.fn('buildScreenshotArchive')(functi
     downloadName: `${root}.zip`,
     frameCount: frames.length,
     manifest,
+    previewFrames: frames.flatMap((frame, index): ReadonlyArray<ScreenshotPreviewFrame> => {
+      const timing = manifest.frames[index];
+      if (!timing) return [];
+      return [{ source: `data:image/${frame.format};base64,${frame.base64Data}`, ...timing }];
+    }),
   } satisfies ScreenshotArchive;
 });
 

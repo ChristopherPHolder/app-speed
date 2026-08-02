@@ -31,6 +31,13 @@ describe('buildScreenshotArchive', () => {
     const files = unzipSync(new Uint8Array(await readBlob(archive.blob)));
 
     expect(archive.downloadName).toBe('Checkout-trace-screenshots.zip');
+    expect(archive.previewFrames).toEqual([
+      expect.objectContaining({
+        source: 'data:image/png;base64,iVBORw0KGgo=',
+        file: 'screenshots/frame-0001.png',
+        offsetMilliseconds: 0,
+      }),
+    ]);
     expect(Object.keys(files)).toEqual([
       'Checkout-trace-screenshots/timings.json',
       'Checkout-trace-screenshots/screenshots/frame-0001.png',
