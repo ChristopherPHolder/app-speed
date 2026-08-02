@@ -1,0 +1,37 @@
+{
+  "name": "convenience-feature-catalog",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/convenience/feature-catalog/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": ["type:domain", "scope:convenience", "feature:convenience-catalog", "runtime:web", "layer:feature"],
+  "targets": {
+    "build": {
+      "executor": "@nx/angular:ng-packagr-lite",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "options": {
+        "project": "libs/convenience/feature-catalog/ng-package.json",
+        "tsConfig": "libs/convenience/feature-catalog/tsconfig.lib.json"
+      },
+      "configurations": {
+        "production": {
+          "tsConfig": "libs/convenience/feature-catalog/tsconfig.lib.prod.json"
+        },
+        "development": {}
+      },
+      "defaultConfiguration": "production"
+    },
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "configFile": "{projectRoot}/vitest.config.mts",
+        "reportsDirectory": "{projectRoot}/../../../coverage/libs/convenience/feature-catalog",
+        "passWithNoTests": true
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

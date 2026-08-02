@@ -48,6 +48,10 @@ export default [
               onlyDependOnLibsWithTags: ['scope:audit', 'scope:shared'],
             },
             {
+              sourceTag: 'scope:convenience',
+              onlyDependOnLibsWithTags: ['scope:convenience', 'scope:shared'],
+            },
+            {
               sourceTag: 'feature:audit-core',
               onlyDependOnLibsWithTags: ['feature:audit-core', 'scope:shared'],
             },
@@ -57,7 +61,7 @@ export default [
             },
             {
               sourceTag: 'scope:portal',
-              onlyDependOnLibsWithTags: ['scope:portal', 'scope:audit', 'scope:shared'],
+              onlyDependOnLibsWithTags: ['scope:portal', 'scope:audit', 'scope:convenience', 'scope:shared'],
             },
             {
               sourceTag: 'scope:api',

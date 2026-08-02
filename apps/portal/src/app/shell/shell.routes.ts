@@ -41,6 +41,11 @@ export const shellRoutes: Route[] = [
           { path: '', redirectTo: 'history', pathMatch: 'full' },
         ],
       },
+      {
+        path: 'convenience',
+        loadChildren: () =>
+          import('@app-speed/convenience/feature-catalog').then((module) => module.convenienceCatalogRoutes),
+      },
       { path: '', redirectTo: 'audits/history', pathMatch: 'full' },
     ],
   },
