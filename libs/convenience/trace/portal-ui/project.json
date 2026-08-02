@@ -1,0 +1,35 @@
+{
+  "name": "convenience-trace-portal-ui",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/convenience/trace/portal-ui/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": ["type:domain", "scope:convenience", "feature:convenience-trace", "runtime:web", "layer:ui"],
+  "targets": {
+    "build": {
+      "executor": "@nx/angular:ng-packagr-lite",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "options": {
+        "project": "libs/convenience/trace/portal-ui/ng-package.json",
+        "tsConfig": "libs/convenience/trace/portal-ui/tsconfig.lib.json"
+      },
+      "configurations": {
+        "production": {
+          "tsConfig": "libs/convenience/trace/portal-ui/tsconfig.lib.prod.json"
+        },
+        "development": {}
+      },
+      "defaultConfiguration": "production"
+    },
+    "test": {
+      "executor": "@nx/vitest:test",
+      "options": {
+        "configFile": "{projectRoot}/vitest.config.mts",
+        "reportsDirectory": "{workspaceRoot}/coverage/libs/convenience/trace/portal-ui"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

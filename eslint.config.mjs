@@ -60,6 +60,14 @@ export default [
               onlyDependOnLibsWithTags: ['feature:audit-user-flow', 'feature:audit-core', 'scope:shared'],
             },
             {
+              sourceTag: 'feature:convenience-catalog',
+              onlyDependOnLibsWithTags: ['feature:convenience-catalog', 'scope:shared'],
+            },
+            {
+              sourceTag: 'feature:convenience-trace',
+              onlyDependOnLibsWithTags: ['feature:convenience-trace', 'scope:shared'],
+            },
+            {
               sourceTag: 'scope:portal',
               onlyDependOnLibsWithTags: ['scope:portal', 'scope:audit', 'scope:convenience', 'scope:shared'],
             },
