@@ -54,8 +54,6 @@ import { MatIcon } from '@angular/material/icon';
       border-color: var(--mat-sys-primary);
       background: var(--mat-sys-primary-container);
       outline: none;
-    }
-    .drop-zone--active {
       transform: scale(1.01);
     }
     .drop-zone__icon {
@@ -103,16 +101,19 @@ export class TraceDropZoneComponent {
 
   protected startDragging(event: DragEvent): void {
     event.preventDefault();
+    event.stopPropagation();
     this.isDragging.set(true);
   }
 
   protected stopDragging(event: DragEvent): void {
     event.preventDefault();
+    event.stopPropagation();
     this.isDragging.set(false);
   }
 
   protected dropFile(event: DragEvent): void {
     event.preventDefault();
+    event.stopPropagation();
     this.isDragging.set(false);
     const file = event.dataTransfer?.files.item(0);
     if (file) this.fileSelected.emit(file);
