@@ -4,7 +4,7 @@ import { MatCard, MatCardContent } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
-import { TraceDropZoneComponent } from '@app-speed/convenience/trace/portal-ui';
+import { TraceDropZoneComponent, TraceScreenshotPreviewComponent } from '@app-speed/convenience/trace/portal-ui';
 import {
   buildScreenshotArchive,
   downloadScreenshotArchive,
@@ -29,19 +29,11 @@ type ExtractionState =
     MatProgressSpinner,
     RouterLink,
     TraceDropZoneComponent,
+    TraceScreenshotPreviewComponent,
   ],
   template: `
     <main class="extractor" aria-labelledby="page-title">
       <a mat-button routerLink="/convenience"><mat-icon aria-hidden="true">arrow_back</mat-icon>All tools</a>
-      <header>
-        <div class="header__icon"><mat-icon aria-hidden="true">photo_library</mat-icon></div>
-        <div>
-          <p class="eyebrow">Trace tools</p>
-          <h1 id="page-title">Extract screenshots</h1>
-          <p>Turn captured trace frames into images and a timing manifest—entirely in your browser.</p>
-        </div>
-      </header>
-
       @if (state(); as current) {
         @switch (current.status) {
           @case ('processing') {
@@ -68,7 +60,7 @@ type ExtractionState =
                 </button>
               </mat-card-content></mat-card
             >
-            <button class="another" mat-button type="button" (click)="reset()">Process another trace</button>
+            <lib-trace-screenshot-preview [frames]="current.archive.previewFrames" />
           }
           @case ('error') {
             <mat-card appearance="outlined" class="error-card"
@@ -87,14 +79,6 @@ type ExtractionState =
           }
         }
       }
-
-      <aside>
-        <mat-icon aria-hidden="true">lock</mat-icon
-        ><span
-          ><strong>Private by design.</strong> Processing and download happen locally; your trace never leaves this
-          device.</span
-        >
-      </aside>
     </main>
   `,
   styles: `
@@ -145,10 +129,14 @@ type ExtractionState =
     }
     .result {
       display: flex;
-      min-height: 130px;
-      padding: 28px;
+      min-height: 110px;
+      padding: 24px 28px;
       align-items: center;
       gap: 20px;
+    }
+    lib-trace-screenshot-preview + mat-card {
+      display: block;
+      margin-top: 18px;
     }
     .result--processing {
       justify-content: center;
