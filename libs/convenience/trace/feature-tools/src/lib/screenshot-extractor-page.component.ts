@@ -32,9 +32,25 @@ type ExtractionState =
     TraceScreenshotPreviewComponent,
   ],
   template: `
-    <main class="extractor" aria-labelledby="page-title">
+    <main
+      class="extractor"
+      aria-labelledby="page-title"
+      (dragenter)="startPageDrag($event)"
+      (dragover)="continuePageDrag($event)"
+      (dragleave)="leavePageDrag($event)"
+      (drop)="dropOnPage($event)"
+    >
       <a mat-button routerLink="/convenience"><mat-icon aria-hidden="true">arrow_back</mat-icon>All tools</a>
       @if (state(); as current) {
+        @if (isPageDropActive()) {
+          <div class="drop-overlay" role="status">
+            <div>
+              <mat-icon aria-hidden="true">file_download</mat-icon>
+              <h2>Drop to replace this trace</h2>
+              <p>The new preview will appear automatically.</p>
+            </div>
+          </div>
+        }
         @switch (current.status) {
           @case ('processing') {
             <mat-card appearance="outlined"
@@ -52,7 +68,10 @@ type ExtractionState =
               ><mat-card-content class="result">
                 <div class="result__icon result__icon--success"><mat-icon aria-hidden="true">check</mat-icon></div>
                 <div class="result__copy">
-                  <h2>{{ current.archive.frameCount }} screenshots are ready</h2>
+                  <h2>
+                    {{ current.archive.frameCount }} screenshot{{ current.archive.frameCount === 1 ? '' : 's' }}
+                    {{ current.archive.frameCount === 1 ? 'is' : 'are' }} ready
+                  </h2>
                   <p>{{ current.fileName }} · ZIP includes the images and timings.json</p>
                 </div>
                 <button mat-flat-button type="button" (click)="download(current.archive)">
@@ -68,9 +87,8 @@ type ExtractionState =
                 <div class="result__icon result__icon--error"><mat-icon aria-hidden="true">error</mat-icon></div>
                 <div class="result__copy">
                   <h2>Couldn’t extract screenshots</h2>
-                  <p>{{ current.message }}</p>
+                  <p>{{ current.message }} Drop another trace anywhere on this page to try again.</p>
                 </div>
-                <button mat-stroked-button type="button" (click)="reset()">Try another trace</button>
               </mat-card-content></mat-card
             >
           }
@@ -86,46 +104,9 @@ type ExtractionState =
       display: block;
     }
     .extractor {
+      position: relative;
       width: min(100% - 48px, 920px);
       margin: 32px auto 64px;
-    }
-    header {
-      display: flex;
-      margin: 28px 0 36px;
-      align-items: center;
-      gap: 22px;
-    }
-    .header__icon {
-      display: grid;
-      width: 68px;
-      height: 68px;
-      flex: 0 0 auto;
-      border-radius: 20px;
-      background: var(--mat-sys-primary-container);
-      color: var(--mat-sys-on-primary-container);
-      place-items: center;
-    }
-    .header__icon mat-icon {
-      width: 34px;
-      height: 34px;
-      font-size: 34px;
-    }
-    .eyebrow {
-      margin: 0 0 3px;
-      color: var(--mat-sys-primary);
-      font: var(--mat-sys-label-large);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-    h1 {
-      margin: 0;
-      font: var(--mat-sys-display-small);
-      letter-spacing: -0.02em;
-    }
-    header p:last-child {
-      margin: 7px 0 0;
-      color: var(--mat-sys-on-surface-variant);
-      font: var(--mat-sys-body-large);
     }
     .result {
       display: flex;
@@ -134,9 +115,40 @@ type ExtractionState =
       align-items: center;
       gap: 20px;
     }
-    lib-trace-screenshot-preview + mat-card {
+    mat-card + lib-trace-screenshot-preview {
       display: block;
       margin-top: 18px;
+    }
+    .drop-overlay {
+      position: fixed;
+      z-index: 1000;
+      display: grid;
+      border: 4px solid var(--mat-sys-primary);
+      background: color-mix(in srgb, var(--mat-sys-primary-container) 92%, transparent);
+      backdrop-filter: blur(8px);
+      inset: 16px;
+      border-radius: 28px;
+      text-align: center;
+      pointer-events: none;
+      place-items: center;
+    }
+    .drop-overlay > div {
+      padding: 40px;
+    }
+    .drop-overlay mat-icon {
+      width: 64px;
+      height: 64px;
+      color: var(--mat-sys-primary);
+      font-size: 64px;
+    }
+    .drop-overlay h2 {
+      margin: 18px 0 6px;
+      font: var(--mat-sys-headline-medium);
+    }
+    .drop-overlay p {
+      margin: 0;
+      color: var(--mat-sys-on-surface-variant);
+      font: var(--mat-sys-body-large);
     }
     .result--processing {
       justify-content: center;
@@ -168,29 +180,9 @@ type ExtractionState =
       margin: 0;
       color: var(--mat-sys-on-surface-variant);
     }
-    .another {
-      margin-top: 12px;
-    }
-    aside {
-      display: flex;
-      margin-top: 28px;
-      padding: 18px 22px;
-      align-items: center;
-      gap: 14px;
-      border-radius: 16px;
-      background: var(--mat-sys-surface-container);
-      color: var(--mat-sys-on-surface-variant);
-      font: var(--mat-sys-body-medium);
-    }
-    aside mat-icon {
-      color: var(--mat-sys-primary);
-    }
     @media (max-width: 680px) {
       .extractor {
         width: min(100% - 28px, 920px);
-      }
-      header {
-        align-items: flex-start;
       }
       .result {
         align-items: flex-start;
@@ -208,21 +200,52 @@ type ExtractionState =
 })
 export class ScreenshotExtractorPageComponent {
   protected readonly state = signal<ExtractionState>({ status: 'idle' });
+  protected readonly isPageDropActive = signal(false);
+  private extractionId = 0;
+  private pageDragDepth = 0;
+
+  protected startPageDrag(event: DragEvent): void {
+    if (this.state().status === 'idle' || !event.dataTransfer?.types.includes('Files')) return;
+    event.preventDefault();
+    this.pageDragDepth += 1;
+    this.isPageDropActive.set(true);
+  }
+
+  protected continuePageDrag(event: DragEvent): void {
+    if (this.state().status === 'idle' || !event.dataTransfer?.types.includes('Files')) return;
+    event.preventDefault();
+  }
+
+  protected leavePageDrag(event: DragEvent): void {
+    if (this.state().status === 'idle') return;
+    event.preventDefault();
+    this.pageDragDepth = Math.max(0, this.pageDragDepth - 1);
+    if (this.pageDragDepth === 0) this.isPageDropActive.set(false);
+  }
+
+  protected dropOnPage(event: DragEvent): void {
+    if (this.state().status === 'idle') return;
+    event.preventDefault();
+    this.pageDragDepth = 0;
+    this.isPageDropActive.set(false);
+    const file = event.dataTransfer?.files.item(0);
+    if (file) this.extract(file);
+  }
 
   protected extract(file: File): void {
+    const extractionId = ++this.extractionId;
     this.state.set({ status: 'processing', fileName: file.name });
     void Effect.runPromise(
       Effect.match(buildScreenshotArchive(file), {
         onFailure: (error): ExtractionState => ({ status: 'error', fileName: file.name, message: error.message }),
         onSuccess: (archive): ExtractionState => ({ status: 'ready', fileName: file.name, archive }),
       }),
-    ).then((state) => this.state.set(state));
+    ).then((state) => {
+      if (this.extractionId === extractionId) this.state.set(state);
+    });
   }
 
   protected download(archive: ScreenshotArchive): void {
     downloadScreenshotArchive(archive);
-  }
-  protected reset(): void {
-    this.state.set({ status: 'idle' });
   }
 }
