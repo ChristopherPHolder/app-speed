@@ -20,3 +20,11 @@ describe('shell audit routes', () => {
     expect(auditRoutes.at(-1)).toMatchObject({ path: '', redirectTo: 'history', pathMatch: 'full' });
   });
 });
+
+describe('shell convenience routes', () => {
+  it('lazy loads the convenience catalogue', () => {
+    const convenienceRoute = shellRoutes[0]?.children?.find((route) => route.path === 'convenience');
+
+    expect(convenienceRoute?.loadChildren).toBeTypeOf('function');
+  });
+});

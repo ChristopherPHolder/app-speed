@@ -38,7 +38,8 @@
       "@app-speed/audit/core/portal-ui/form-fields": ["libs/audit/core/portal-ui/form-fields/src/index.ts"],
       "@app-speed/audit/user-flow/portal-data-access": ["libs/audit/user-flow/portal-data-access/src/index.ts"],
       "@app-speed/audit/core/domain": ["libs/audit/core/domain/src/index.ts"],
-      "@app-speed/audit/user-flow/domain": ["libs/audit/user-flow/domain/src/index.ts"]
+      "@app-speed/audit/user-flow/domain": ["libs/audit/user-flow/domain/src/index.ts"],
+      "@app-speed/convenience/feature-catalog": ["libs/convenience/feature-catalog/src/index.ts"]
     },
     "plugins": [
       {
