@@ -4,10 +4,10 @@ import { defaultTraceFilmstripSettings } from '@app-speed/convenience/trace/doma
 import {
   displayFilmstripFrames,
   downloadFilmstripPng,
-  loadTraceFilmstrip,
   renderFilmstripPng,
   type BrowserFilmstripFrame,
 } from './trace-filmstrip';
+import { loadTraceCapture } from './loaded-trace-capture';
 
 const traceSource = JSON.stringify({
   traceEvents: [
@@ -26,7 +26,7 @@ describe('trace filmstrip data access', () => {
     Effect.gen(function* () {
       const file = new File([traceSource], 'Checkout trace.json');
       Object.defineProperty(file, 'text', { value: () => Promise.resolve(traceSource) });
-      const trace = yield* loadTraceFilmstrip(file);
+      const trace = yield* loadTraceCapture(file);
       const displayed = displayFilmstripFrames(trace, defaultTraceFilmstripSettings);
 
       assert.strictEqual(trace.durationMilliseconds, 250);
@@ -40,7 +40,7 @@ describe('trace filmstrip data access', () => {
     Effect.gen(function* () {
       const file = new File(['{'], 'broken.trace');
       Object.defineProperty(file, 'text', { value: () => Promise.resolve('{') });
-      const error = yield* Effect.flip(loadTraceFilmstrip(file));
+      const error = yield* Effect.flip(loadTraceCapture(file));
       assert.strictEqual(error._tag, 'InvalidTraceError');
     }),
   );
@@ -129,7 +129,7 @@ describe('trace filmstrip data access', () => {
       source: 'data:image/png;base64,iVBORframe',
     };
     await expect(
-      Effect.runPromise(Effect.flip(renderFilmstripPng([frame], defaultTraceFilmstripSettings))),
+      Effect.runPromise(Effect.flip(renderFilmstripPng('trace.json', [frame], defaultTraceFilmstripSettings))),
     ).resolves.toMatchObject({
       _tag: 'FilmstripImageDecodeError',
     });

@@ -1,6 +1,6 @@
 import { unzipSync, strFromU8 } from 'fflate';
 import { Effect } from 'effect';
-import { buildScreenshotArchive } from './screenshot-archive';
+import { prepareScreenshotExtraction } from './screenshot-archive';
 
 const readBlob = (blob: Blob): Promise<ArrayBuffer> =>
   new Promise((resolve, reject) => {
@@ -13,7 +13,7 @@ const readBlob = (blob: Blob): Promise<ArrayBuffer> =>
     reader.readAsArrayBuffer(blob);
   });
 
-describe('buildScreenshotArchive', () => {
+describe('prepareScreenshotExtraction', () => {
   it('packages screenshots and timings in a named folder', async () => {
     const source = JSON.stringify({
       traceEvents: [
@@ -27,14 +27,13 @@ describe('buildScreenshotArchive', () => {
     });
     const file = new File([source], 'Checkout trace.json');
     Object.defineProperty(file, 'text', { value: () => Promise.resolve(source) });
-    const archive = await Effect.runPromise(buildScreenshotArchive(file));
+    const { archive, capture } = await Effect.runPromise(prepareScreenshotExtraction(file));
     const files = unzipSync(new Uint8Array(await readBlob(archive.blob)));
 
     expect(archive.downloadName).toBe('Checkout-trace-screenshots.zip');
-    expect(archive.previewFrames).toEqual([
+    expect(capture.frames).toEqual([
       expect.objectContaining({
         source: 'data:image/png;base64,iVBORw0KGgo=',
-        file: 'screenshots/frame-0001.png',
         offsetMilliseconds: 0,
       }),
     ]);

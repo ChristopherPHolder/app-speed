@@ -1,22 +1,12 @@
 import {
   calculateFilmstripExportLayout,
   createTraceFilmstrip,
-  parseTraceScreenshots,
   type TraceFilmstripFrame,
   type TraceFilmstripSettings,
-  type TraceScreenshotFrame,
 } from '@app-speed/convenience/trace/domain';
 import { Effect, Schema } from 'effect';
-
-export interface BrowserTraceFrame extends TraceScreenshotFrame {
-  readonly source: string;
-}
-
-export interface LoadedTraceFilmstrip {
-  readonly sourceFileName: string;
-  readonly frames: ReadonlyArray<BrowserTraceFrame>;
-  readonly durationMilliseconds: number;
-}
+import { downloadBrowserArtifact, traceArtifactName, type BrowserDownloadArtifact } from './browser-download';
+import type { LoadedTraceCapture } from './loaded-trace-capture';
 
 export interface BrowserFilmstripFrame extends TraceFilmstripFrame {
   readonly source: string;
@@ -31,30 +21,8 @@ export class FilmstripExportError extends Schema.TaggedErrorClass<FilmstripExpor
   message: Schema.String,
 }) {}
 
-const safeFilmstripName = (fileName: string): string => {
-  const base = fileName
-    .replace(/\.(json|trace)$/i, '')
-    .replace(/[^a-z0-9._-]+/gi, '-')
-    .replace(/^-+|-+$/g, '');
-  return `${base || 'trace'}-filmstrip.png`;
-};
-
-export const loadTraceFilmstrip = Effect.fn('loadTraceFilmstrip')(function* (file: File) {
-  const source = yield* Effect.tryPromise({
-    try: () => file.text(),
-    catch: () => new FilmstripExportError({ message: `Could not read ${file.name}.` }),
-  });
-  const frames = yield* parseTraceScreenshots(source);
-  const origin = frames[0]?.timestampMicroseconds ?? 0;
-  return {
-    sourceFileName: file.name,
-    frames: frames.map((frame) => ({ ...frame, source: `data:image/${frame.format};base64,${frame.base64Data}` })),
-    durationMilliseconds: ((frames.at(-1)?.timestampMicroseconds ?? origin) - origin) / 1_000,
-  } satisfies LoadedTraceFilmstrip;
-});
-
 export const displayFilmstripFrames = (
-  trace: LoadedTraceFilmstrip,
+  trace: LoadedTraceCapture,
   settings: TraceFilmstripSettings,
 ): ReadonlyArray<BrowserFilmstripFrame> => {
   const displayed = createTraceFilmstrip(trace.frames, settings);
@@ -93,7 +61,7 @@ const canvasBlob = (canvas: HTMLCanvasElement): Effect.Effect<Blob, FilmstripExp
     );
   });
 
-export const renderFilmstripPng = Effect.fn('renderFilmstripPng')(function* (
+const renderFilmstripBlob = Effect.fn('renderFilmstripBlob')(function* (
   frames: ReadonlyArray<BrowserFilmstripFrame>,
   settings: TraceFilmstripSettings,
 ) {
@@ -145,21 +113,23 @@ export const renderFilmstripPng = Effect.fn('renderFilmstripPng')(function* (
   return blob;
 });
 
+export const renderFilmstripPng = Effect.fn('renderFilmstripPng')(function* (
+  sourceFileName: string,
+  frames: ReadonlyArray<BrowserFilmstripFrame>,
+  settings: TraceFilmstripSettings,
+) {
+  const blob = yield* renderFilmstripBlob(frames, settings);
+  return {
+    blob,
+    downloadName: traceArtifactName(sourceFileName, 'filmstrip', 'png'),
+  } satisfies BrowserDownloadArtifact;
+});
+
 export const downloadFilmstripPng = Effect.fn('downloadFilmstripPng')(function* (
   sourceFileName: string,
   frames: ReadonlyArray<BrowserFilmstripFrame>,
   settings: TraceFilmstripSettings,
 ) {
-  const blob = yield* renderFilmstripPng(frames, settings);
-  yield* Effect.acquireUseRelease(
-    Effect.sync(() => URL.createObjectURL(blob)),
-    (url) =>
-      Effect.sync(() => {
-        const anchor = document.createElement('a');
-        anchor.href = url;
-        anchor.download = safeFilmstripName(sourceFileName);
-        anchor.click();
-      }),
-    (url) => Effect.sync(() => URL.revokeObjectURL(url)),
-  );
+  const artifact = yield* renderFilmstripPng(sourceFileName, frames, settings);
+  yield* downloadBrowserArtifact(artifact);
 });

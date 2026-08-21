@@ -1,18 +1,18 @@
-import { ChangeDetectionStrategy, Component, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, output } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
+import { TraceFileDropDirective } from './trace-file-drop.directive';
 
 @Component({
   selector: 'lib-trace-drop-zone',
-  imports: [MatButton, MatIcon],
+  imports: [MatButton, MatIcon, TraceFileDropDirective],
   template: `
     <div
       class="drop-zone"
-      [class.drop-zone--active]="isDragging()"
-      (dragenter)="startDragging($event)"
-      (dragover)="startDragging($event)"
-      (dragleave)="stopDragging($event)"
-      (drop)="dropFile($event)"
+      libTraceFileDrop
+      #drop="traceFileDrop"
+      [class.drop-zone--active]="drop.active()"
+      (fileDropped)="fileSelected.emit($event)"
     >
       <div class="drop-zone__icon"><mat-icon aria-hidden="true">upload_file</mat-icon></div>
       <h2>Drop your Chrome trace here</h2>
@@ -100,27 +100,6 @@ import { MatIcon } from '@angular/material/icon';
 })
 export class TraceDropZoneComponent {
   readonly fileSelected = output<File>();
-  protected readonly isDragging = signal(false);
-
-  protected startDragging(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.isDragging.set(true);
-  }
-
-  protected stopDragging(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.isDragging.set(false);
-  }
-
-  protected dropFile(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.isDragging.set(false);
-    const file = event.dataTransfer?.files.item(0);
-    if (file) this.fileSelected.emit(file);
-  }
 
   protected chooseFile(event: Event): void {
     const input = event.currentTarget;
