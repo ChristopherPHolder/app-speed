@@ -2,12 +2,11 @@ import { ChangeDetectionStrategy, Component, HostListener, inject, signal } from
 import { MAT_DIALOG_DATA, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
+import type { FrameNavigator } from './frame-navigator';
 import type { TraceFilmstripUiFrame } from './trace-filmstrip.component';
 
 export interface TraceFilmstripPreviewData {
-  readonly frames: ReadonlyArray<TraceFilmstripUiFrame>;
-  readonly selectedIndex: number;
-  readonly selectedIndexChange?: (index: number) => void;
+  readonly navigator: FrameNavigator<TraceFilmstripUiFrame>;
 }
 
 @Component({
@@ -17,7 +16,7 @@ export interface TraceFilmstripPreviewData {
     @if (frame(); as current) {
       <header>
         <h2 mat-dialog-title>Frame at {{ formatMilliseconds(current.offsetMilliseconds) }}</h2>
-        <span>{{ selectedIndex() + 1 }} of {{ data.frames.length }}</span>
+        <span>{{ selectedIndex() + 1 }} of {{ data.navigator.frames().length }}</span>
         <button
           mat-icon-button
           type="button"
@@ -45,7 +44,7 @@ export interface TraceFilmstripPreviewData {
           mat-icon-button
           type="button"
           (click)="next()"
-          [disabled]="selectedIndex() === data.frames.length - 1"
+          [disabled]="!data.navigator.canNext()"
           aria-label="Next frame"
         >
           <mat-icon>chevron_right</mat-icon>
@@ -105,23 +104,22 @@ export interface TraceFilmstripPreviewData {
 export class TraceFilmstripPreviewDialogComponent {
   protected readonly data = inject<TraceFilmstripPreviewData>(MAT_DIALOG_DATA);
   private readonly dialogRef = inject(MatDialogRef<TraceFilmstripPreviewDialogComponent>);
-  protected readonly selectedIndex = signal(this.data.selectedIndex);
+  protected readonly selectedIndex = this.data.navigator.selectedIndex;
   protected readonly expanded = signal(false);
-  protected readonly frame = () => this.data.frames[this.selectedIndex()];
+  protected readonly frame = this.data.navigator.current;
 
   @HostListener('document:keydown', ['$event'])
   protected handleKey(event: KeyboardEvent): void {
     if (event.key === 'Escape') this.close();
-    else if (event.key === 'ArrowLeft') this.previous();
-    else if (event.key === 'ArrowRight') this.next();
+    else if (this.data.navigator.handleArrowKey(event)) return;
     else if (event.key.toLowerCase() === 'f') this.toggleExpanded();
   }
 
   protected previous(): void {
-    this.selectIndex(Math.max(0, this.selectedIndex() - 1));
+    this.data.navigator.previous();
   }
   protected next(): void {
-    this.selectIndex(Math.min(this.data.frames.length - 1, this.selectedIndex() + 1));
+    this.data.navigator.next();
   }
   protected close(): void {
     this.dialogRef.close();
@@ -132,9 +130,5 @@ export class TraceFilmstripPreviewDialogComponent {
   }
   protected formatMilliseconds(value: number): string {
     return `${value.toFixed(1)} ms`;
-  }
-  private selectIndex(index: number): void {
-    this.selectedIndex.set(index);
-    this.data.selectedIndexChange?.(index);
   }
 }

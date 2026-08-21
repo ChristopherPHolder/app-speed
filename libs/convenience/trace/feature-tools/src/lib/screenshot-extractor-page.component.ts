@@ -1,22 +1,21 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { MatAnchor, MatButton } from '@angular/material/button';
 import { MatCard, MatCardContent } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
-import { TraceDropZoneComponent, TraceScreenshotPreviewComponent } from '@app-speed/convenience/trace/portal-ui';
 import {
-  buildScreenshotArchive,
+  TraceDropZoneComponent,
+  TraceFileDropDirective,
+  TraceFileDropOverlayComponent,
+  TraceScreenshotPreviewComponent,
+} from '@app-speed/convenience/trace/portal-ui';
+import {
   downloadScreenshotArchive,
+  prepareScreenshotExtraction,
   type ScreenshotArchive,
 } from '@app-speed/convenience/trace/portal-data-access';
-import { Effect } from 'effect';
-
-type ExtractionState =
-  | { readonly status: 'idle' }
-  | { readonly status: 'processing'; readonly fileName: string }
-  | { readonly status: 'ready'; readonly fileName: string; readonly archive: ScreenshotArchive }
-  | { readonly status: 'error'; readonly fileName: string; readonly message: string };
+import { createEffectOperation } from './effect-operation';
 
 @Component({
   selector: 'lib-screenshot-extractor-page',
@@ -29,65 +28,72 @@ type ExtractionState =
     MatProgressSpinner,
     RouterLink,
     TraceDropZoneComponent,
+    TraceFileDropDirective,
+    TraceFileDropOverlayComponent,
     TraceScreenshotPreviewComponent,
   ],
   template: `
     <main
       class="extractor"
       aria-labelledby="page-title"
-      (dragenter)="startPageDrag($event)"
-      (dragover)="continuePageDrag($event)"
-      (dragleave)="leavePageDrag($event)"
-      (drop)="dropOnPage($event)"
+      libTraceFileDrop
+      #replacement="traceFileDrop"
+      [libTraceFileDropEnabled]="extraction.state().status !== 'idle'"
+      (fileDropped)="extract($event)"
     >
       <a mat-button routerLink="/convenience"><mat-icon aria-hidden="true">arrow_back</mat-icon>All tools</a>
-      @if (state(); as current) {
-        @if (isPageDropActive()) {
-          <div class="drop-overlay" role="status">
-            <div>
-              <mat-icon aria-hidden="true">file_download</mat-icon>
-              <h2>Drop to replace this trace</h2>
-              <p>The new preview will appear automatically.</p>
-            </div>
-          </div>
+      @if (extraction.state(); as current) {
+        @if (replacement.active()) {
+          <lib-trace-file-drop-overlay description="The new preview will appear automatically." />
         }
         @switch (current.status) {
-          @case ('processing') {
+          @case ('running') {
             <mat-card appearance="outlined"
               ><mat-card-content class="result result--processing">
                 <mat-spinner diameter="44" />
                 <div>
                   <h2>Reading trace</h2>
-                  <p>{{ current.fileName }}</p>
+                  <p>{{ current.label }}</p>
                 </div>
               </mat-card-content></mat-card
             >
           }
-          @case ('ready') {
+          @case ('success') {
             <mat-card appearance="outlined"
               ><mat-card-content class="result">
                 <div class="result__icon result__icon--success"><mat-icon aria-hidden="true">check</mat-icon></div>
                 <div class="result__copy">
                   <h2>
-                    {{ current.archive.frameCount }} screenshot{{ current.archive.frameCount === 1 ? '' : 's' }}
-                    {{ current.archive.frameCount === 1 ? 'is' : 'are' }} ready
+                    {{ current.value.capture.frames.length }} screenshot{{
+                      current.value.capture.frames.length === 1 ? '' : 's'
+                    }}
+                    {{ current.value.capture.frames.length === 1 ? 'is' : 'are' }} ready
                   </h2>
-                  <p>{{ current.fileName }} · ZIP includes the images and timings.json</p>
+                  <p>{{ current.value.capture.sourceFileName }} · ZIP includes the images and timings.json</p>
                 </div>
-                <button mat-flat-button type="button" (click)="download(current.archive)">
-                  <mat-icon aria-hidden="true">download</mat-icon>Download ZIP
+                <button
+                  mat-flat-button
+                  type="button"
+                  [disabled]="downloadOperation.isRunning()"
+                  (click)="download(current.value.archive)"
+                >
+                  <mat-icon aria-hidden="true">download</mat-icon
+                  >{{ downloadOperation.isRunning() ? 'Preparing ZIP…' : 'Download ZIP' }}
                 </button>
               </mat-card-content></mat-card
             >
-            <lib-trace-screenshot-preview [frames]="current.archive.previewFrames" />
+            @if (downloadOperation.failure(); as downloadError) {
+              <p class="download-error" role="alert">{{ downloadError }}</p>
+            }
+            <lib-trace-screenshot-preview [frames]="current.value.capture.frames" />
           }
-          @case ('error') {
+          @case ('failure') {
             <mat-card appearance="outlined" class="error-card"
               ><mat-card-content class="result">
                 <div class="result__icon result__icon--error"><mat-icon aria-hidden="true">error</mat-icon></div>
                 <div class="result__copy">
                   <h2>Couldn’t extract screenshots</h2>
-                  <p>{{ current.message }} Drop another trace anywhere on this page to try again.</p>
+                  <p>{{ current.failure }} Drop another trace anywhere on this page to try again.</p>
                 </div>
               </mat-card-content></mat-card
             >
@@ -119,36 +125,9 @@ type ExtractionState =
       display: block;
       margin-top: 18px;
     }
-    .drop-overlay {
-      position: fixed;
-      z-index: 1000;
-      display: grid;
-      border: 4px solid var(--mat-sys-primary);
-      background: color-mix(in srgb, var(--mat-sys-primary-container) 92%, transparent);
-      backdrop-filter: blur(8px);
-      inset: 16px;
-      border-radius: 28px;
-      text-align: center;
-      pointer-events: none;
-      place-items: center;
-    }
-    .drop-overlay > div {
-      padding: 40px;
-    }
-    .drop-overlay mat-icon {
-      width: 64px;
-      height: 64px;
-      color: var(--mat-sys-primary);
-      font-size: 64px;
-    }
-    .drop-overlay h2 {
-      margin: 18px 0 6px;
-      font: var(--mat-sys-headline-medium);
-    }
-    .drop-overlay p {
-      margin: 0;
-      color: var(--mat-sys-on-surface-variant);
-      font: var(--mat-sys-body-large);
+    .download-error {
+      margin: 10px 0 0;
+      color: var(--mat-sys-error);
     }
     .result--processing {
       justify-content: center;
@@ -199,53 +178,25 @@ type ExtractionState =
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScreenshotExtractorPageComponent {
-  protected readonly state = signal<ExtractionState>({ status: 'idle' });
-  protected readonly isPageDropActive = signal(false);
-  private extractionId = 0;
-  private pageDragDepth = 0;
-
-  protected startPageDrag(event: DragEvent): void {
-    if (this.state().status === 'idle' || !event.dataTransfer?.types.includes('Files')) return;
-    event.preventDefault();
-    this.pageDragDepth += 1;
-    this.isPageDropActive.set(true);
-  }
-
-  protected continuePageDrag(event: DragEvent): void {
-    if (this.state().status === 'idle' || !event.dataTransfer?.types.includes('Files')) return;
-    event.preventDefault();
-  }
-
-  protected leavePageDrag(event: DragEvent): void {
-    if (this.state().status === 'idle') return;
-    event.preventDefault();
-    this.pageDragDepth = Math.max(0, this.pageDragDepth - 1);
-    if (this.pageDragDepth === 0) this.isPageDropActive.set(false);
-  }
-
-  protected dropOnPage(event: DragEvent): void {
-    if (this.state().status === 'idle') return;
-    event.preventDefault();
-    this.pageDragDepth = 0;
-    this.isPageDropActive.set(false);
-    const file = event.dataTransfer?.files.item(0);
-    if (file) this.extract(file);
-  }
+  protected readonly downloadOperation = createEffectOperation({
+    execute: downloadScreenshotArchive,
+    label: (archive) => archive.downloadName,
+    presentFailure: (error) => error.message,
+    unexpectedFailure: () => 'An unexpected browser error interrupted the ZIP download. Try again.',
+  });
+  protected readonly extraction = createEffectOperation({
+    execute: prepareScreenshotExtraction,
+    label: (file) => file.name,
+    presentFailure: (error) => error.message,
+    unexpectedFailure: () => 'An unexpected browser error interrupted trace processing.',
+  });
 
   protected extract(file: File): void {
-    const extractionId = ++this.extractionId;
-    this.state.set({ status: 'processing', fileName: file.name });
-    void Effect.runPromise(
-      Effect.match(buildScreenshotArchive(file), {
-        onFailure: (error): ExtractionState => ({ status: 'error', fileName: file.name, message: error.message }),
-        onSuccess: (archive): ExtractionState => ({ status: 'ready', fileName: file.name, archive }),
-      }),
-    ).then((state) => {
-      if (this.extractionId === extractionId) this.state.set(state);
-    });
+    this.downloadOperation.cancel();
+    this.extraction.run(file);
   }
 
   protected download(archive: ScreenshotArchive): void {
-    downloadScreenshotArchive(archive);
+    this.downloadOperation.run(archive);
   }
 }

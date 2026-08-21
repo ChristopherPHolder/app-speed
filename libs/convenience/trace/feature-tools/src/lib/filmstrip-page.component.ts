@@ -9,24 +9,22 @@ import { defaultTraceFilmstripSettings, type TraceFilmstripSettings } from '@app
 import {
   displayFilmstripFrames,
   downloadFilmstripPng,
-  loadTraceFilmstrip,
-  type LoadedTraceFilmstrip,
+  loadTraceCapture,
 } from '@app-speed/convenience/trace/portal-data-access';
 import {
   TraceDropZoneComponent,
+  TraceFileDropDirective,
+  TraceFileDropOverlayComponent,
   TraceFilmstripComponent,
   TraceFilmstripSettingsDialogComponent,
   type TraceFilmstripSettingsDialogData,
 } from '@app-speed/convenience/trace/portal-ui';
-import { Effect } from 'effect';
+import { createEffectOperation } from './effect-operation';
 
-type FilmstripPageState =
-  | { readonly status: 'idle' }
-  | { readonly status: 'processing'; readonly fileName: string }
-  | { readonly status: 'ready'; readonly trace: LoadedTraceFilmstrip }
-  | { readonly status: 'invalid-trace'; readonly fileName: string; readonly message: string }
-  | { readonly status: 'no-screenshots'; readonly fileName: string; readonly message: string }
-  | { readonly status: 'error'; readonly fileName: string; readonly message: string };
+interface TraceFailurePresentation {
+  readonly kind: 'invalid-trace' | 'no-screenshots' | 'error';
+  readonly message: string;
+}
 
 @Component({
   selector: 'lib-filmstrip-page',
@@ -38,17 +36,19 @@ type FilmstripPageState =
     MatProgressSpinner,
     RouterLink,
     TraceDropZoneComponent,
+    TraceFileDropDirective,
+    TraceFileDropOverlayComponent,
     TraceFilmstripComponent,
   ],
   template: `
     <main
       class="page"
-      [class.page--ready]="state().status === 'ready'"
+      [class.page--ready]="loadOperation.state().status === 'success'"
       aria-labelledby="filmstrip-page-title"
-      (dragenter)="startPageDrag($event)"
-      (dragover)="continuePageDrag($event)"
-      (dragleave)="leavePageDrag($event)"
-      (drop)="dropOnPage($event)"
+      libTraceFileDrop
+      #replacement="traceFileDrop"
+      [libTraceFileDropEnabled]="loadOperation.state().status !== 'idle'"
+      (fileDropped)="load($event)"
     >
       <a mat-button routerLink="/convenience/trace"><mat-icon aria-hidden="true">arrow_back</mat-icon>Trace tools</a>
       <header class="page-header">
@@ -56,77 +56,59 @@ type FilmstripPageState =
         <h1 id="filmstrip-page-title">Trace filmstrip</h1>
         <p>Inspect captured frames and export the filtered timeline as a PNG. Your trace never leaves this browser.</p>
       </header>
-      @if (isPageDropActive()) {
-        <div class="drop-overlay" role="status">
-          <div>
-            <mat-icon aria-hidden="true">file_download</mat-icon>
-            <h2>Drop to replace this trace</h2>
-          </div>
-        </div>
+      @if (replacement.active()) {
+        <lib-trace-file-drop-overlay />
       }
-      @switch (state().status) {
+      @switch (loadOperation.state().status) {
         @case ('idle') {
           <lib-trace-drop-zone (fileSelected)="load($event)" />
         }
-        @case ('processing') {
+        @case ('running') {
           <mat-card appearance="outlined"
             ><mat-card-content class="status"
               ><mat-spinner diameter="44" />
               <div>
                 <h2>Reading trace</h2>
-                <p>{{ fileName() }}</p>
+                <p>{{ loadLabel() }}</p>
               </div></mat-card-content
             ></mat-card
           >
         }
-        @case ('error') {
-          <mat-card appearance="outlined" class="error" role="alert"
-            ><mat-card-content class="status"
-              ><mat-icon aria-hidden="true">error</mat-icon>
-              <div>
-                <h2>Couldn’t create filmstrip</h2>
-                <p>{{ errorMessage() }} Drop another trace anywhere on this page to try again.</p>
-              </div></mat-card-content
-            ></mat-card
-          >
-        }
-        @case ('invalid-trace') {
-          <mat-card appearance="outlined" class="error" role="alert">
-            <mat-card-content class="status"
-              ><mat-icon aria-hidden="true">error</mat-icon>
-              <div>
-                <h2>Invalid trace</h2>
-                <p>{{ errorMessage() }} Drop another trace anywhere on this page to try again.</p>
-              </div></mat-card-content
+        @case ('failure') {
+          @if (loadOperation.failure(); as failure) {
+            <mat-card
+              appearance="outlined"
+              class="error"
+              [attr.role]="failure.kind === 'no-screenshots' ? 'status' : 'alert'"
             >
-          </mat-card>
+              <mat-card-content class="status"
+                ><mat-icon aria-hidden="true">{{
+                  failure.kind === 'no-screenshots' ? 'image_not_supported' : 'error'
+                }}</mat-icon>
+                <div>
+                  <h2>{{ failureHeading(failure) }}</h2>
+                  <p>{{ failure.message }} Drop another trace anywhere on this page to try again.</p>
+                </div></mat-card-content
+              >
+            </mat-card>
+          }
         }
-        @case ('no-screenshots') {
-          <mat-card appearance="outlined" class="error" role="status">
-            <mat-card-content class="status"
-              ><mat-icon aria-hidden="true">image_not_supported</mat-icon>
-              <div>
-                <h2>No screenshots found</h2>
-                <p>{{ errorMessage() }} Drop another trace anywhere on this page to try again.</p>
-              </div></mat-card-content
-            >
-          </mat-card>
-        }
-        @case ('ready') {
-          @if (trace(); as loaded) {
+        @case ('success') {
+          @if (loadOperation.result(); as loaded) {
             <div class="ready" aria-live="polite">
               <span><mat-icon aria-hidden="true">check_circle</mat-icon>{{ loaded.sourceFileName }}</span>
               <div class="actions">
                 <button mat-button type="button" (click)="openSettings()">
                   <mat-icon aria-hidden="true">tune</mat-icon>Advanced settings
                 </button>
-                <button mat-flat-button type="button" [disabled]="isExporting()" (click)="exportPng()">
-                  <mat-icon aria-hidden="true">download</mat-icon>{{ isExporting() ? 'Creating PNG…' : 'Download PNG' }}
+                <button mat-flat-button type="button" [disabled]="exportOperation.isRunning()" (click)="exportPng()">
+                  <mat-icon aria-hidden="true">download</mat-icon
+                  >{{ exportOperation.isRunning() ? 'Creating PNG…' : 'Download PNG' }}
                 </button>
               </div>
             </div>
-            @if (exportError()) {
-              <p class="export-error" role="alert">{{ exportError() }}</p>
+            @if (exportOperation.failure(); as exportError) {
+              <p class="export-error" role="alert">{{ exportError }}</p>
             }
             <lib-trace-filmstrip
               [frames]="displayedFrames()"
@@ -213,24 +195,6 @@ type FilmstripPageState =
       display: flex;
       gap: 8px;
     }
-    .drop-overlay {
-      position: fixed;
-      z-index: 1000;
-      display: grid;
-      inset: 16px;
-      border: 4px solid var(--mat-sys-primary);
-      border-radius: 28px;
-      background: color-mix(in srgb, var(--mat-sys-primary-container) 92%, transparent);
-      pointer-events: none;
-      place-items: center;
-      text-align: center;
-    }
-    .drop-overlay mat-icon {
-      width: 64px;
-      height: 64px;
-      color: var(--mat-sys-primary);
-      font-size: 64px;
-    }
     @media (max-width: 680px) {
       .page {
         width: calc(100% - 28px);
@@ -250,93 +214,66 @@ type FilmstripPageState =
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FilmstripPageComponent {
-  protected readonly state = signal<FilmstripPageState>({ status: 'idle' });
   protected readonly settings = signal<TraceFilmstripSettings>(defaultTraceFilmstripSettings);
-  protected readonly isPageDropActive = signal(false);
-  protected readonly isExporting = signal(false);
-  protected readonly exportError = signal<string | null>(null);
-  protected readonly trace = computed(() => {
-    const state = this.state();
-    return state.status === 'ready' ? state.trace : undefined;
+  protected readonly exportOperation = createEffectOperation({
+    execute: (request: {
+      readonly sourceFileName: string;
+      readonly frames: ReturnType<typeof displayFilmstripFrames>;
+      readonly settings: TraceFilmstripSettings;
+    }) => downloadFilmstripPng(request.sourceFileName, request.frames, request.settings),
+    label: (request) => request.sourceFileName,
+    presentFailure: (error) => error.message,
+    unexpectedFailure: () => 'An unexpected browser error interrupted PNG export. Try again.',
   });
-  protected readonly fileName = computed(() => {
-    const state = this.state();
-    return state.status === 'idle' || state.status === 'ready' ? '' : state.fileName;
-  });
-  protected readonly errorMessage = computed(() => {
-    const state = this.state();
-    return state.status === 'error' || state.status === 'invalid-trace' || state.status === 'no-screenshots'
-      ? state.message
-      : '';
+  protected readonly loadOperation = createEffectOperation({
+    execute: loadTraceCapture,
+    label: (file) => file.name,
+    presentFailure: (error): TraceFailurePresentation => {
+      if (error._tag === 'InvalidTraceError') return { kind: 'invalid-trace', message: error.message };
+      if (error._tag === 'NoScreenshotFramesError') return { kind: 'no-screenshots', message: error.message };
+      return { kind: 'error', message: error.message };
+    },
+    unexpectedFailure: (): TraceFailurePresentation => ({
+      kind: 'error',
+      message: 'An unexpected browser error interrupted trace processing.',
+    }),
+    onSuccess: (trace) =>
+      this.settings.update((settings) => ({
+        ...settings,
+        startMilliseconds: 0,
+        endMilliseconds: trace.durationMilliseconds,
+      })),
   });
   protected readonly displayedFrames = computed(() => {
-    const trace = this.trace();
+    const trace = this.loadOperation.result();
     return trace ? displayFilmstripFrames(trace, this.settings()) : [];
   });
-  private operationId = 0;
-  private pageDragDepth = 0;
-  private activeController: AbortController | undefined;
+  protected readonly loadLabel = computed(() => {
+    const state = this.loadOperation.state();
+    return state.status === 'running' ? state.label : '';
+  });
   private readonly dialog = inject(MatDialog);
   private settingsDialogRef: MatDialogRef<TraceFilmstripSettingsDialogComponent, TraceFilmstripSettings> | undefined;
 
   constructor() {
     inject(DestroyRef).onDestroy(() => {
-      this.operationId += 1;
-      this.activeController?.abort();
       this.settingsDialogRef?.close();
     });
   }
 
   protected load(file: File): void {
-    const operationId = ++this.operationId;
-    this.activeController?.abort();
     this.settingsDialogRef?.close();
-    const controller = new AbortController();
-    this.activeController = controller;
-    this.isExporting.set(false);
-    this.exportError.set(null);
-    this.state.set({ status: 'processing', fileName: file.name });
-    void Effect.runPromise(
-      Effect.match(loadTraceFilmstrip(file), {
-        onFailure: (error): FilmstripPageState => {
-          if (error._tag === 'InvalidTraceError')
-            return { status: 'invalid-trace', fileName: file.name, message: error.message };
-          if (error._tag === 'NoScreenshotFramesError')
-            return { status: 'no-screenshots', fileName: file.name, message: error.message };
-          return { status: 'error', fileName: file.name, message: error.message };
-        },
-        onSuccess: (trace): FilmstripPageState => ({ status: 'ready', trace }),
-      }),
-      { signal: controller.signal },
-    )
-      .then((state) => {
-        if (operationId !== this.operationId) return;
-        if (state.status === 'ready')
-          this.settings.update((settings) => ({
-            ...settings,
-            startMilliseconds: 0,
-            endMilliseconds: state.trace.durationMilliseconds,
-          }));
-        this.state.set(state);
-      })
-      .catch(() => {
-        if (operationId === this.operationId && !controller.signal.aborted) {
-          this.state.set({
-            status: 'error',
-            fileName: file.name,
-            message: 'An unexpected browser error interrupted trace processing.',
-          });
-        }
-      });
+    this.exportOperation.cancel();
+    this.loadOperation.run(file);
   }
 
   protected updateSettings(settings: TraceFilmstripSettings): void {
     this.settings.set(settings);
-    this.exportError.set(null);
+    this.exportOperation.reset();
   }
 
   protected openSettings(): void {
-    const trace = this.trace();
+    const trace = this.loadOperation.result();
     if (!trace) return;
     this.settingsDialogRef?.close();
     const dialogRef = this.dialog.open<
@@ -359,56 +296,18 @@ export class FilmstripPageComponent {
   }
 
   protected exportPng(): void {
-    const trace = this.trace();
-    if (!trace || this.isExporting()) return;
-    const operationId = this.operationId;
-    this.activeController?.abort();
-    const controller = new AbortController();
-    this.activeController = controller;
-    this.isExporting.set(true);
-    this.exportError.set(null);
-    void Effect.runPromise(
-      Effect.match(downloadFilmstripPng(trace.sourceFileName, this.displayedFrames(), this.settings()), {
-        onFailure: (error) => error.message,
-        onSuccess: () => null,
-      }),
-      { signal: controller.signal },
-    )
-      .then((message) => {
-        if (operationId !== this.operationId) return;
-        this.exportError.set(message);
-        this.isExporting.set(false);
-      })
-      .catch(() => {
-        if (operationId === this.operationId && !controller.signal.aborted) {
-          this.exportError.set('An unexpected browser error interrupted PNG export. Try again.');
-          this.isExporting.set(false);
-        }
-      });
+    const trace = this.loadOperation.result();
+    if (!trace || this.exportOperation.isRunning()) return;
+    this.exportOperation.run({
+      sourceFileName: trace.sourceFileName,
+      frames: this.displayedFrames(),
+      settings: this.settings(),
+    });
   }
 
-  protected startPageDrag(event: DragEvent): void {
-    if (this.state().status === 'idle' || !event.dataTransfer?.types.includes('Files')) return;
-    event.preventDefault();
-    this.pageDragDepth += 1;
-    this.isPageDropActive.set(true);
-  }
-  protected continuePageDrag(event: DragEvent): void {
-    if (this.state().status === 'idle' || !event.dataTransfer?.types.includes('Files')) return;
-    event.preventDefault();
-  }
-  protected leavePageDrag(event: DragEvent): void {
-    if (this.state().status === 'idle') return;
-    event.preventDefault();
-    this.pageDragDepth = Math.max(0, this.pageDragDepth - 1);
-    if (this.pageDragDepth === 0) this.isPageDropActive.set(false);
-  }
-  protected dropOnPage(event: DragEvent): void {
-    if (this.state().status === 'idle') return;
-    event.preventDefault();
-    this.pageDragDepth = 0;
-    this.isPageDropActive.set(false);
-    const file = event.dataTransfer?.files.item(0);
-    if (file) this.load(file);
+  protected failureHeading(failure: TraceFailurePresentation): string {
+    if (failure.kind === 'invalid-trace') return 'Invalid trace';
+    if (failure.kind === 'no-screenshots') return 'No screenshots found';
+    return 'Couldn’t create filmstrip';
   }
 }

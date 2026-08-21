@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
+import { createFrameNavigator } from './frame-navigator';
 
 export interface TraceScreenshotPreviewFrame {
   readonly source: string;
@@ -208,17 +209,18 @@ export interface TraceScreenshotPreviewFrame {
 })
 export class TraceScreenshotPreviewComponent {
   readonly frames = input.required<ReadonlyArray<TraceScreenshotPreviewFrame>>();
-  protected readonly selectedIndex = signal(0);
-  protected readonly currentFrame = computed(() => this.frames()[this.selectedIndex()]);
+  protected readonly navigator = createFrameNavigator({ frames: this.frames, key: (frame) => frame.file });
+  protected readonly selectedIndex = this.navigator.selectedIndex;
+  protected readonly currentFrame = this.navigator.current;
 
   protected select(index: number): void {
-    this.selectedIndex.set(index);
+    this.navigator.select(index);
   }
   protected previous(): void {
-    this.selectedIndex.update((index) => Math.max(0, index - 1));
+    this.navigator.previous();
   }
   protected next(): void {
-    this.selectedIndex.update((index) => Math.min(this.frames().length - 1, index + 1));
+    this.navigator.next();
   }
   protected formatMilliseconds(value: number): string {
     return `${value.toFixed(1)} ms`;

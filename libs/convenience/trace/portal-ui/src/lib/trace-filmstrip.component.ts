@@ -15,6 +15,7 @@ import {
   TraceFilmstripPreviewDialogComponent,
   type TraceFilmstripPreviewData,
 } from './trace-filmstrip-preview-dialog.component';
+import { createFrameNavigator } from './frame-navigator';
 
 export interface TraceFilmstripUiFrame {
   readonly source: string;
@@ -56,8 +57,8 @@ export interface TraceFilmstripUiFrame {
               type="button"
               (click)="openPreview(index)"
               [class.has-timestamp]="settings().showTimestamps"
-              [class.is-selected]="selectedFrameKey() === frameKey(frame)"
-              [attr.aria-pressed]="selectedFrameKey() === frameKey(frame)"
+              [class.is-selected]="navigator.selectedIndex() === index"
+              [attr.aria-pressed]="navigator.selectedIndex() === index"
               [attr.aria-label]="'Preview frame at ' + formatMilliseconds(frame.offsetMilliseconds)"
             >
               <img [src]="frame.source" alt="" loading="lazy" (load)="updateOverflow()" />
@@ -262,7 +263,7 @@ export class TraceFilmstripComponent {
   readonly sourceFrameCount = input.required<number>();
   readonly durationMilliseconds = input.required<number>();
   readonly settings = input.required<TraceFilmstripSettings>();
-  protected readonly selectedFrameKey = signal<string | undefined>(undefined);
+  protected readonly navigator = createFrameNavigator({ frames: this.frames, key: (frame) => frame.sourceIndex });
   protected readonly hasOverflowLeft = signal(false);
   protected readonly hasOverflowRight = signal(false);
   private readonly track = viewChild<ElementRef<HTMLElement>>('track');
@@ -282,12 +283,12 @@ export class TraceFilmstripComponent {
   }
 
   protected openPreview(selectedIndex: number): void {
-    this.selectFrame(selectedIndex);
+    this.navigator.select(selectedIndex);
     this.previewRef?.close();
     const previewRef = this.dialog.open<TraceFilmstripPreviewDialogComponent, TraceFilmstripPreviewData>(
       TraceFilmstripPreviewDialogComponent,
       {
-        data: { frames: this.frames(), selectedIndex, selectedIndexChange: (index) => this.selectFrame(index) },
+        data: { navigator: this.navigator },
         ariaLabel: 'Trace frame preview',
         ariaModal: true,
         autoFocus: 'button[aria-label="Close frame preview"]',
@@ -300,14 +301,7 @@ export class TraceFilmstripComponent {
       if (this.previewRef === previewRef) this.previewRef = undefined;
     });
   }
-  protected frameKey(frame: TraceFilmstripUiFrame): string {
-    return `${frame.displayTimestampMicroseconds}:${frame.sourceIndex}`;
-  }
   protected formatMilliseconds(value: number): string {
     return `${value.toFixed(1)} ms`;
-  }
-  private selectFrame(index: number): void {
-    const frame = this.frames()[index];
-    this.selectedFrameKey.set(frame ? this.frameKey(frame) : undefined);
   }
 }
