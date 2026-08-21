@@ -1,7 +1,10 @@
 import { Routes } from '@angular/router';
+import { FilmstripPageComponent } from './filmstrip-page.component';
 import { ScreenshotExtractorPageComponent } from './screenshot-extractor-page.component';
+import { TraceToolsCatalogPageComponent } from './trace-tools-catalog-page.component';
 
 export const traceConvenienceRoutes: Routes = [
   { path: 'screenshots', component: ScreenshotExtractorPageComponent, title: 'Extract trace screenshots' },
-  { path: '', redirectTo: 'screenshots', pathMatch: 'full' },
+  { path: 'filmstrip', component: FilmstripPageComponent, title: 'Generate a trace filmstrip' },
+  { path: '', component: TraceToolsCatalogPageComponent, title: 'Trace tools' },
 ];

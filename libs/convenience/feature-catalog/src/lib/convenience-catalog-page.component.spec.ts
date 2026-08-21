@@ -3,7 +3,7 @@ import { provideRouter } from '@angular/router';
 import { ConvenienceCatalogPageComponent } from './convenience-catalog-page.component';
 
 describe('ConvenienceCatalogPageComponent', () => {
-  it('presents the trace tool category', async () => {
+  it('presents direct links to the available local trace workflows', async () => {
     await TestBed.configureTestingModule({
       imports: [ConvenienceCatalogPageComponent],
       providers: [provideRouter([])],
@@ -13,11 +13,14 @@ describe('ConvenienceCatalogPageComponent', () => {
     await fixture.whenStable();
 
     const element = fixture.nativeElement as HTMLElement;
-    expect(element.querySelector('h1')?.textContent).toContain('Convenience tools');
-    expect(element.textContent).toContain('Trace tools');
-    expect(element.textContent).toContain('Screenshots');
-    expect(element.textContent).toContain('Filmstrips');
-    expect(element.textContent).toContain('GIFs');
-    expect(element.querySelector('a')?.getAttribute('href')).toBe('/convenience/trace/screenshots');
+    expect(element.querySelector('h1')?.textContent).toContain('Turn a Chrome trace into useful visuals');
+    expect(element.textContent).toContain('Nothing is uploaded');
+    expect(element.textContent).toContain('Extract screenshots');
+    expect(element.textContent).toContain('Build a filmstrip');
+    expect(element.textContent).not.toContain('GIF');
+    expect(Array.from(element.querySelectorAll('a'), (link) => link.getAttribute('href'))).toEqual([
+      '/convenience/trace/screenshots',
+      '/convenience/trace/filmstrip',
+    ]);
   });
 });
