@@ -5,6 +5,7 @@
     "@analogjs/vite-plugin-angular": "2.5.1",
     "@angular/core": "21.2.13",
     "@angular/material": "21.2.11",
+    "@app-speed/convenience/trace/domain": "0.0.1",
     "@nx/vite": "22.7.2",
     "vitest": "^4.1.6"
   },

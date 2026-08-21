@@ -1,118 +1,76 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import {
-  MatCard,
-  MatCardActions,
-  MatCardAvatar,
-  MatCardContent,
-  MatCardHeader,
-  MatCardSubtitle,
-  MatCardTitle,
-} from '@angular/material/card';
-import { MatButton } from '@angular/material/button';
-import { MatChip, MatChipSet } from '@angular/material/chips';
-import { MatDivider } from '@angular/material/divider';
 import { MatIcon } from '@angular/material/icon';
-import { MatList, MatListItem, MatListItemIcon, MatListItemLine, MatListItemTitle } from '@angular/material/list';
 import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'lib-convenience-catalog-page',
-  imports: [
-    MatCard,
-    MatCardActions,
-    MatCardAvatar,
-    MatCardContent,
-    MatCardHeader,
-    MatCardSubtitle,
-    MatCardTitle,
-    MatButton,
-    MatChip,
-    MatChipSet,
-    MatDivider,
-    MatIcon,
-    MatList,
-    MatListItem,
-    MatListItemIcon,
-    MatListItemLine,
-    MatListItemTitle,
-    RouterLink,
-  ],
+  imports: [MatIcon, RouterLink],
   template: `
     <main class="catalog" aria-labelledby="catalog-title">
       <section class="hero">
         <div class="hero__content">
-          <div class="hero__label">
-            <mat-icon aria-hidden="true">handyman</mat-icon>
-            <span>Developer utilities</span>
-          </div>
-          <h1 id="catalog-title">Convenience tools</h1>
-          <p>Turn performance artifacts into useful visuals without leaving App Speed.</p>
+          <p class="eyebrow">Local trace utilities</p>
+          <h1 id="catalog-title">Turn a Chrome trace into useful visuals</h1>
+          <p class="hero__description">
+            Extract every captured screenshot or build a presentation-ready filmstrip directly in your browser.
+          </p>
+          <p class="privacy-note">
+            <mat-icon aria-hidden="true">verified_user</mat-icon>
+            Your trace stays on this device. Nothing is uploaded.
+          </p>
         </div>
 
-        <div class="hero__visual" aria-hidden="true">
-          <mat-icon>speed</mat-icon>
-          <mat-icon>arrow_forward</mat-icon>
-          <mat-icon>auto_awesome</mat-icon>
-        </div>
+        <ol class="workflow" aria-label="How trace tools work">
+          <li>
+            <mat-icon aria-hidden="true">upload_file</mat-icon>
+            <span><strong>Drop a trace</strong><small>.json or .trace</small></span>
+          </li>
+          <li aria-hidden="true" class="workflow__arrow"><mat-icon>arrow_forward</mat-icon></li>
+          <li>
+            <mat-icon aria-hidden="true">touch_app</mat-icon>
+            <span><strong>Choose a workflow</strong><small>Screenshots or filmstrip</small></span>
+          </li>
+          <li aria-hidden="true" class="workflow__arrow"><mat-icon>arrow_forward</mat-icon></li>
+          <li>
+            <mat-icon aria-hidden="true">download</mat-icon>
+            <span><strong>Export locally</strong><small>ZIP or PNG</small></span>
+          </li>
+        </ol>
       </section>
 
-      <section class="tools" aria-labelledby="categories-title">
-        <header class="tools__header">
-          <div>
-            <p class="tools__eyebrow">Browse by category</p>
-            <h2 id="categories-title">Choose what you want to work with</h2>
-          </div>
-          <span class="tools__count">1 category</span>
+      <section class="tools" aria-labelledby="tools-title">
+        <header>
+          <p class="eyebrow">Trace tools</p>
+          <h2 id="tools-title">What do you want to create?</h2>
         </header>
 
-        <mat-card class="category-card" appearance="outlined">
-          <div class="category-card__accent" aria-hidden="true"></div>
-          <mat-card-header>
-            <div mat-card-avatar class="category-card__avatar">
-              <mat-icon aria-hidden="true">monitoring</mat-icon>
-            </div>
-            <mat-card-title>Trace tools</mat-card-title>
-            <mat-card-subtitle>Chrome performance traces</mat-card-subtitle>
-            <span class="category-card__status">Available</span>
-          </mat-card-header>
-
-          <mat-card-content>
-            <p class="category-card__description">
-              Upload a trace once, then extract frames or turn its visual timeline into shareable assets.
-            </p>
-
-            <mat-divider />
-
-            <mat-list aria-label="Trace tools">
-              <mat-list-item>
-                <mat-icon matListItemIcon aria-hidden="true">photo_library</mat-icon>
-                <span matListItemTitle>Screenshots</span>
-                <span matListItemLine>Extract and download captured frames</span>
-              </mat-list-item>
-              <mat-list-item>
-                <mat-icon matListItemIcon aria-hidden="true">view_carousel</mat-icon>
-                <span matListItemTitle>Filmstrips</span>
-                <span matListItemLine>Generate or compare visual timelines</span>
-              </mat-list-item>
-              <mat-list-item>
-                <mat-icon matListItemIcon aria-hidden="true">gif_box</mat-icon>
-                <span matListItemTitle>GIFs</span>
-                <span matListItemLine>Create animated exports and comparisons</span>
-              </mat-list-item>
-            </mat-list>
-
-            <mat-chip-set aria-label="Trace tool characteristics">
-              <mat-chip>Runs locally</mat-chip>
-              <mat-chip>No upload required</mat-chip>
-            </mat-chip-set>
-          </mat-card-content>
-          <mat-card-actions align="end">
-            <a mat-flat-button routerLink="/convenience/trace/screenshots">
-              Extract screenshots
+        <div class="tool-grid">
+          <a class="tool-card" routerLink="/convenience/trace/screenshots">
+            <span class="tool-card__icon"><mat-icon aria-hidden="true">photo_library</mat-icon></span>
+            <span class="tool-card__content">
+              <span class="tool-card__label">Captured frames</span>
+              <strong>Extract screenshots</strong>
+              <span>Preview every captured frame, then download the images and timing metadata in one ZIP.</span>
+            </span>
+            <span class="tool-card__action">
+              Open screenshot extractor
               <mat-icon aria-hidden="true">arrow_forward</mat-icon>
-            </a>
-          </mat-card-actions>
-        </mat-card>
+            </span>
+          </a>
+
+          <a class="tool-card" routerLink="/convenience/trace/filmstrip">
+            <span class="tool-card__icon"><mat-icon aria-hidden="true">view_carousel</mat-icon></span>
+            <span class="tool-card__content">
+              <span class="tool-card__label">Visual timeline</span>
+              <strong>Build a filmstrip</strong>
+              <span>Choose an interval or time range, inspect the frames, and export one horizontal PNG.</span>
+            </span>
+            <span class="tool-card__action">
+              Open filmstrip builder
+              <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+            </span>
+          </a>
+        </div>
       </section>
     </main>
   `,
@@ -120,231 +78,241 @@ import { RouterLink } from '@angular/router';
     :host {
       display: block;
     }
-
     .catalog {
       width: min(100% - 48px, 1120px);
-      margin: 40px auto 64px;
+      margin: 28px auto 64px;
     }
-
     .hero {
-      position: relative;
-      display: flex;
-      min-height: 260px;
-      padding: 48px;
-      overflow: hidden;
-      align-items: center;
-      justify-content: space-between;
+      display: grid;
+      padding: 36px 40px;
+      border: 1px solid var(--mat-sys-outline-variant, #c4c7c5);
       border-radius: 28px;
-      background:
-        radial-gradient(
-          circle at 85% 15%,
-          color-mix(in srgb, var(--mat-sys-primary, #005cbb) 24%, transparent),
-          transparent 38%
-        ),
-        var(--mat-sys-surface-container, #eef3ff);
-    }
-
-    .hero__content {
-      position: relative;
-      z-index: 1;
-      max-width: 650px;
-    }
-
-    .hero__label {
-      display: inline-flex;
-      margin-bottom: 20px;
-      padding: 8px 14px;
+      background: var(--mat-sys-surface-container-low, #f8f9ff);
+      grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
       align-items: center;
-      gap: 8px;
-      border-radius: 999px;
-      background: var(--mat-sys-primary-container, #d7e3ff);
-      color: var(--mat-sys-on-primary-container, #001b3f);
-      font: var(--mat-sys-label-large, 500 0.875rem/1.25rem Roboto, sans-serif);
+      gap: 56px;
     }
-
-    .hero__label mat-icon {
-      width: 20px;
-      height: 20px;
-      font-size: 20px;
-    }
-
-    .hero h1 {
-      margin: 0 0 16px;
-      color: var(--mat-sys-on-surface, #1a1b1f);
-      font: var(--mat-sys-display-medium, 700 3rem/1.08 Roboto, sans-serif);
-      letter-spacing: -0.03em;
-    }
-
-    .hero p {
-      max-width: 560px;
-      margin: 0;
-      color: var(--mat-sys-on-surface-variant, #44474e);
-      font: var(--mat-sys-body-large, 400 1.125rem/1.65rem Roboto, sans-serif);
-    }
-
-    .hero__visual {
-      display: grid;
-      grid-template-columns: auto auto auto;
-      align-items: center;
-      gap: 16px;
-      color: var(--mat-sys-primary, #005cbb);
-    }
-
-    .hero__visual mat-icon:first-child,
-    .hero__visual mat-icon:last-child {
-      display: grid;
-      width: 72px;
-      height: 72px;
-      border-radius: 24px;
-      background: var(--mat-sys-primary-container, #d7e3ff);
-      font-size: 38px;
-      place-items: center;
-    }
-
-    .hero__visual mat-icon:nth-child(2) {
-      color: var(--mat-sys-outline, #74777f);
-    }
-
-    .tools {
-      margin-top: 48px;
-    }
-
-    .tools__header {
-      display: flex;
-      margin-bottom: 24px;
-      align-items: end;
-      justify-content: space-between;
-      gap: 24px;
-    }
-
-    .tools__eyebrow {
-      margin: 0 0 6px;
-      color: var(--mat-sys-primary, #005cbb);
-      font: var(--mat-sys-label-large, 500 0.875rem/1.25rem Roboto, sans-serif);
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--mat-sys-primary, #0b57d0);
+      font: var(--mat-sys-label-large, 600 0.75rem/1rem Roboto, sans-serif);
       letter-spacing: 0.08em;
       text-transform: uppercase;
     }
-
+    h1 {
+      max-width: 680px;
+      margin: 0;
+      color: var(--mat-sys-on-surface, #1f1f1f);
+      font: var(--mat-sys-display-medium, 700 2.75rem/1.08 Roboto, sans-serif);
+      letter-spacing: -0.035em;
+    }
+    .hero__description {
+      max-width: 620px;
+      margin: 20px 0 0;
+      color: var(--mat-sys-on-surface-variant, #444746);
+      font: var(--mat-sys-body-large, 400 1.125rem/1.65rem Roboto, sans-serif);
+    }
+    .privacy-note {
+      display: flex;
+      margin: 24px 0 0;
+      align-items: center;
+      gap: 8px;
+      color: var(--mat-sys-on-surface-variant, #444746);
+      font: var(--mat-sys-label-large, 500 0.875rem/1.25rem Roboto, sans-serif);
+    }
+    .privacy-note mat-icon,
+    .workflow li > mat-icon {
+      color: var(--mat-sys-primary, #0b57d0);
+    }
+    .workflow {
+      display: grid;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      gap: 8px;
+    }
+    .workflow li:not(.workflow__arrow) {
+      display: grid;
+      min-height: 54px;
+      padding: 10px 14px;
+      border-radius: 16px;
+      background: var(--mat-sys-surface, #ffffff);
+      grid-template-columns: 36px 1fr;
+      align-items: center;
+      gap: 12px;
+    }
+    .workflow span {
+      display: grid;
+    }
+    .workflow strong {
+      font: var(--mat-sys-title-small, 600 0.875rem/1.25rem Roboto, sans-serif);
+    }
+    .workflow small {
+      color: var(--mat-sys-on-surface-variant, #444746);
+      font: var(--mat-sys-body-small, 400 0.75rem/1rem Roboto, sans-serif);
+    }
+    .workflow__arrow {
+      display: grid;
+      height: 12px;
+      padding-left: 21px;
+      place-items: center start;
+    }
+    .workflow__arrow mat-icon {
+      width: 18px;
+      height: 18px;
+      color: var(--mat-sys-outline, #747775);
+      font-size: 18px;
+      transform: rotate(90deg);
+    }
+    .tools {
+      margin-top: 36px;
+    }
+    .tools header {
+      margin-bottom: 22px;
+    }
     h2 {
       margin: 0;
-      color: var(--mat-sys-on-surface, #1a1b1f);
-      font: var(--mat-sys-headline-medium, 500 1.75rem/2.25rem Roboto, sans-serif);
+      color: var(--mat-sys-on-surface, #1f1f1f);
+      font: var(--mat-sys-headline-medium, 600 1.75rem/2.25rem Roboto, sans-serif);
     }
-
-    .tools__count {
-      flex: 0 0 auto;
-      padding: 7px 12px;
-      border-radius: 999px;
-      background: var(--mat-sys-secondary-container, #dce2f9);
-      color: var(--mat-sys-on-secondary-container, #131c2b);
-      font: var(--mat-sys-label-medium, 500 0.75rem/1rem Roboto, sans-serif);
-    }
-
-    .category-card {
-      position: relative;
-      max-width: 760px;
-      overflow: hidden;
-      border-color: var(--mat-sys-outline-variant, #c4c6d0);
-    }
-
-    .category-card__accent {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      width: 6px;
-      background: var(--mat-sys-primary, #005cbb);
-    }
-
-    .category-card mat-card-header {
-      position: relative;
-      padding: 24px 24px 20px 30px;
-    }
-
-    .category-card__avatar {
+    .tool-grid {
       display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+    }
+    .tool-card {
+      display: grid;
+      min-height: 230px;
+      padding: 28px;
+      border: 1px solid var(--mat-sys-outline-variant, #c4c7c5);
+      border-radius: 22px;
+      background: var(--mat-sys-surface, #ffffff);
+      color: var(--mat-sys-on-surface, #1f1f1f);
+      text-decoration: none;
+      grid-template-columns: auto 1fr;
+      grid-template-rows: 1fr auto;
+      gap: 0 18px;
+      transition:
+        border-color 140ms ease,
+        box-shadow 140ms ease,
+        transform 140ms ease;
+    }
+    .tool-card:hover {
+      border-color: var(--mat-sys-primary, #0b57d0);
+      box-shadow: 0 8px 24px rgb(31 31 31 / 10%);
+      transform: translateY(-2px);
+    }
+    .tool-card:focus-visible {
+      border-color: var(--mat-sys-primary, #0b57d0);
+      outline: 3px solid var(--mat-sys-primary, #0b57d0);
+      outline-offset: 3px;
+    }
+    .tool-card__icon {
+      display: grid;
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
       background: var(--mat-sys-primary-container, #d7e3ff);
       color: var(--mat-sys-on-primary-container, #001b3f);
       place-items: center;
     }
-
-    .category-card__status {
-      position: absolute;
-      top: 24px;
-      right: 24px;
-      padding: 7px 12px;
-      border-radius: 999px;
-      background: var(--mat-sys-tertiary-container, #eaddff);
-      color: var(--mat-sys-on-tertiary-container, #21005d);
-      font: var(--mat-sys-label-medium, 500 0.75rem/1rem Roboto, sans-serif);
-      white-space: nowrap;
+    .tool-card__content {
+      display: grid;
+      align-content: start;
     }
-
-    .category-card mat-card-content {
-      padding: 0 24px 24px 30px;
+    .tool-card__label {
+      margin-bottom: 5px;
+      color: var(--mat-sys-primary, #0b57d0);
+      font: var(--mat-sys-label-medium, 600 0.75rem/1rem Roboto, sans-serif);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
     }
-
-    .category-card mat-card-actions {
-      padding: 0 24px 24px 30px;
+    .tool-card__content strong {
+      margin-bottom: 10px;
+      font: var(--mat-sys-headline-small, 600 1.5rem/2rem Roboto, sans-serif);
     }
-
-    .category-card__description {
-      max-width: 600px;
-      margin: 0 0 24px;
-      color: var(--mat-sys-on-surface-variant, #44474e);
-      font: var(--mat-sys-body-medium, 400 1rem/1.5rem Roboto, sans-serif);
+    .tool-card__content > span:last-child {
+      color: var(--mat-sys-on-surface-variant, #444746);
+      font: var(--mat-sys-body-medium, 400 0.875rem/1.35rem Roboto, sans-serif);
     }
-
-    mat-list {
-      padding: 12px 0;
+    .tool-card__action {
+      display: flex;
+      padding-top: 24px;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--mat-sys-primary, #0b57d0);
+      font: var(--mat-sys-label-large, 600 0.875rem/1.25rem Roboto, sans-serif);
+      grid-column: 1 / -1;
     }
-
-    mat-list-item mat-icon {
-      color: var(--mat-sys-primary, #005cbb);
+    .tool-card__action mat-icon {
+      transition: transform 140ms ease;
     }
-
-    mat-chip-set {
-      display: block;
-      margin-top: 8px;
+    .tool-card:hover .tool-card__action mat-icon {
+      transform: translateX(4px);
     }
-
-    @media (max-width: 720px) {
+    @media (max-width: 840px) {
+      .hero {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+      .workflow {
+        grid-template-columns: repeat(5, auto);
+        align-items: center;
+      }
+      .workflow__arrow {
+        width: 18px;
+        height: auto;
+        padding: 0;
+      }
+      .workflow__arrow mat-icon {
+        transform: none;
+      }
+    }
+    @media (max-width: 680px) {
       .catalog {
-        width: min(100% - 24px, 1120px);
+        width: min(100% - 28px, 1120px);
         margin: 24px auto 48px;
       }
-
       .hero {
-        min-height: auto;
-        padding: 32px 24px;
+        padding: 28px 22px;
+        border-radius: 22px;
       }
-
-      .hero h1 {
+      h1 {
         font: var(--mat-sys-display-small, 700 2.25rem/2.5rem Roboto, sans-serif);
       }
-
-      .hero__visual {
-        display: none;
+      .hero__description {
+        margin-top: 16px;
+        font: var(--mat-sys-body-large, 400 1rem/1.5rem Roboto, sans-serif);
       }
-
+      .privacy-note {
+        align-items: flex-start;
+      }
+      .workflow {
+        grid-template-columns: 1fr;
+      }
+      .workflow__arrow {
+        width: auto;
+        height: 16px;
+        padding-left: 21px;
+      }
+      .workflow__arrow mat-icon {
+        transform: rotate(90deg);
+      }
       .tools {
         margin-top: 36px;
       }
-
-      .tools__header {
-        align-items: start;
+      .tool-grid {
+        grid-template-columns: 1fr;
       }
-
-      .tools__count {
-        display: none;
+      .tool-card {
+        min-height: 0;
+        padding: 22px;
       }
-
-      .category-card mat-card-header {
-        padding: 20px 116px 16px 26px;
-      }
-
-      .category-card mat-card-content {
-        padding: 0 20px 20px 26px;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .tool-card,
+      .tool-card__action mat-icon {
+        transition: none;
       }
     }
   `,

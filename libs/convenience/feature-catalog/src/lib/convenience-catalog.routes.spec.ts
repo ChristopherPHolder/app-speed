@@ -8,7 +8,7 @@ describe('convenienceCatalogRoutes', () => {
         path: '',
         pathMatch: 'full',
         component: ConvenienceCatalogPageComponent,
-        title: 'Convenience tools',
+        title: 'Chrome trace tools',
       }),
     ]);
   });
