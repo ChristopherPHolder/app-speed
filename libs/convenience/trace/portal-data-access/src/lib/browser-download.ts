@@ -20,6 +20,9 @@ export const traceArtifactName = (
   extension: 'zip' | 'png',
 ): string => `${safeTraceBaseName(sourceFileName)}-${suffix}.${extension}`;
 
+export const filmstripComparisonArtifactName = (firstSourceFileName: string, secondSourceFileName: string): string =>
+  `${safeTraceBaseName(firstSourceFileName)}-vs-${safeTraceBaseName(secondSourceFileName)}-filmstrip-comparison.png`;
+
 const downloadError = (): BrowserDownloadError =>
   new BrowserDownloadError({ message: 'The browser could not download the generated file.' });
 

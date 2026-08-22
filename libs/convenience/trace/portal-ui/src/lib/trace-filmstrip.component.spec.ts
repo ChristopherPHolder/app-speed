@@ -33,13 +33,37 @@ describe('TraceFilmstripComponent', () => {
     fixture.componentRef.setInput('settings', { ...defaultTraceFilmstripSettings, useFixedInterval: false });
     await fixture.whenStable();
 
-    const element = fixture.nativeElement as HTMLElement;
+    const element: HTMLElement = fixture.nativeElement;
     expect(element.textContent).toContain('4 source frames');
     expect(element.textContent).toContain('2 displayed frames');
     expect(element.textContent).toContain('500.0 ms trace duration');
     expect(element.textContent).toContain('+125.0 ms');
     expect(element.querySelectorAll('button')).toHaveLength(2);
     expect(element.querySelector('img')?.getAttribute('loading')).toBe('lazy');
+    expect(element.querySelector('img')?.getAttribute('style')).toContain('height: 200px');
+  });
+
+  it('supports a row-specific accessible name and hides its visual identity', async () => {
+    await TestBed.configureTestingModule({
+      imports: [TraceFilmstripComponent],
+      providers: [provideNoopAnimations()],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(TraceFilmstripComponent);
+    fixture.componentRef.setInput('frames', frames);
+    fixture.componentRef.setInput('sourceFrameCount', 2);
+    fixture.componentRef.setInput('durationMilliseconds', 125);
+    fixture.componentRef.setInput('settings', { ...defaultTraceFilmstripSettings, imageHeight: 96 });
+    fixture.componentRef.setInput('heading', 'Renamed trace');
+    fixture.componentRef.setInput('sourceFileName', 'a-very-long-trace-name.json');
+    fixture.componentRef.setInput('showLabel', false);
+    fixture.componentRef.setInput('accessibleName', 'Trace A filmstrip');
+    await fixture.whenStable();
+
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelector('section')?.getAttribute('aria-label')).toBe('Trace A filmstrip');
+    expect(element.textContent).not.toContain('Renamed trace');
+    expect(element.textContent).not.toContain('a-very-long-trace-name.json');
+    expect(element.querySelector('img')?.getAttribute('style')).toContain('height: 96px');
   });
 
   it('shows overflow fades only where more frames are hidden', async () => {

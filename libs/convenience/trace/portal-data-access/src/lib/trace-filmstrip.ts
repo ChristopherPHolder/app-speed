@@ -32,7 +32,9 @@ export const displayFilmstripFrames = (
   });
 };
 
-const decodeImage = (frame: BrowserFilmstripFrame): Effect.Effect<HTMLImageElement, FilmstripImageDecodeError> =>
+export const decodeFilmstripImage = (
+  frame: BrowserFilmstripFrame,
+): Effect.Effect<HTMLImageElement, FilmstripImageDecodeError> =>
   Effect.callback<HTMLImageElement, FilmstripImageDecodeError>((resume) => {
     const image = new Image();
     image.onload = () => resume(Effect.succeed(image));
@@ -48,7 +50,7 @@ const decodeImage = (frame: BrowserFilmstripFrame): Effect.Effect<HTMLImageEleme
     });
   });
 
-const canvasBlob = (canvas: HTMLCanvasElement): Effect.Effect<Blob, FilmstripExportError> =>
+export const filmstripCanvasBlob = (canvas: HTMLCanvasElement): Effect.Effect<Blob, FilmstripExportError> =>
   Effect.callback<Blob, FilmstripExportError>((resume) => {
     canvas.toBlob(
       (blob) =>
@@ -68,7 +70,7 @@ const renderFilmstripBlob = Effect.fn('renderFilmstripBlob')(function* (
   if (frames.length === 0) {
     return yield* new FilmstripExportError({ message: 'There are no displayed frames to export.' });
   }
-  const images = yield* Effect.forEach(frames, decodeImage, { concurrency: 4 });
+  const images = yield* Effect.forEach(frames, decodeFilmstripImage, { concurrency: 4 });
   const layout = yield* calculateFilmstripExportLayout(
     images.map((image) => ({ width: image.naturalWidth, height: image.naturalHeight })),
     settings,
@@ -102,7 +104,7 @@ const renderFilmstripBlob = Effect.fn('renderFilmstripBlob')(function* (
     }
   }
 
-  const blob = yield* canvasBlob(canvas).pipe(
+  const blob = yield* filmstripCanvasBlob(canvas).pipe(
     Effect.ensuring(
       Effect.sync(() => {
         canvas.width = 0;

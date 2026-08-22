@@ -1,12 +1,21 @@
 import { assert, it } from '@effect/vitest';
 import { Effect } from 'effect';
-import { downloadBrowserArtifact, safeTraceBaseName, traceArtifactName } from './browser-download';
+import {
+  downloadBrowserArtifact,
+  filmstripComparisonArtifactName,
+  safeTraceBaseName,
+  traceArtifactName,
+} from './browser-download';
 
 it('creates safe shared artifact names', () => {
   expect(safeTraceBaseName(' Checkout / trace.json ')).toBe('Checkout-trace');
   expect(safeTraceBaseName('!!!.trace')).toBe('trace');
   expect(traceArtifactName('Checkout trace.json', 'screenshots', 'zip')).toBe('Checkout-trace-screenshots.zip');
   expect(traceArtifactName('Checkout trace.json', 'filmstrip', 'png')).toBe('Checkout-trace-filmstrip.png');
+  expect(filmstripComparisonArtifactName('Before trace.json', 'After / trace.trace')).toBe(
+    'Before-trace-vs-After-trace-filmstrip-comparison.png',
+  );
+  expect(filmstripComparisonArtifactName('!!!', '')).toBe('trace-vs-trace-filmstrip-comparison.png');
 });
 
 it.effect('downloads an artifact and always releases its object URL', () =>

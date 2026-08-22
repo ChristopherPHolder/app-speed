@@ -28,12 +28,17 @@ export interface TraceFilmstripUiFrame {
 @Component({
   selector: 'lib-trace-filmstrip',
   template: `
-    <section class="filmstrip" aria-labelledby="filmstrip-title">
+    <section class="filmstrip" [attr.aria-label]="accessibleName()">
       <header>
-        <div>
-          <p>Visual timeline</p>
-          <h2 id="filmstrip-title">Filmstrip</h2>
-        </div>
+        @if (showLabel()) {
+          <div class="identity">
+            <p>Visual timeline</p>
+            <h2>{{ heading() }}</h2>
+            @if (sourceFileName()) {
+              <span class="source-name" [title]="sourceFileName()">{{ sourceFileName() }}</span>
+            }
+          </div>
+        }
         <div class="summary" aria-live="polite">
           <strong>{{ sourceFrameCount() }} source frame{{ sourceFrameCount() === 1 ? '' : 's' }}</strong>
           @if (frames().length !== sourceFrameCount()) {
@@ -61,7 +66,13 @@ export interface TraceFilmstripUiFrame {
               [attr.aria-pressed]="navigator.selectedIndex() === index"
               [attr.aria-label]="'Preview frame at ' + formatMilliseconds(frame.offsetMilliseconds)"
             >
-              <img [src]="frame.source" alt="" loading="lazy" (load)="updateOverflow()" />
+              <img
+                [src]="frame.source"
+                [style.height.px]="settings().imageHeight"
+                alt=""
+                loading="lazy"
+                (load)="updateOverflow()"
+              />
               @if (settings().showTimestamps) {
                 <span class="timestamp">
                   {{ formatMilliseconds(frame.offsetMilliseconds) }}
@@ -97,6 +108,18 @@ export interface TraceFilmstripUiFrame {
     h2 {
       margin: 2px 0 0;
       font: var(--mat-sys-headline-small, 600 1.25rem/1.6rem Roboto, sans-serif);
+    }
+    .identity {
+      min-width: 0;
+    }
+    .source-name {
+      display: block;
+      max-width: min(48vw, 620px);
+      overflow: hidden;
+      color: var(--mat-sys-on-surface-variant, #444746);
+      font: var(--mat-sys-body-small, 400 0.75rem/1rem Roboto, sans-serif);
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
     .summary {
       display: flex;
@@ -194,7 +217,7 @@ export interface TraceFilmstripUiFrame {
       display: block;
       flex: none;
       width: auto;
-      height: clamp(132px, 14vw, 180px);
+      height: 180px;
       max-width: none;
       aspect-ratio: auto;
       background: var(--mat-sys-surface-container-lowest, #ffffff);
@@ -251,9 +274,6 @@ export interface TraceFilmstripUiFrame {
       .summary span:last-child {
         grid-column: 1 / -1;
       }
-      .track img {
-        height: 120px;
-      }
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -263,6 +283,10 @@ export class TraceFilmstripComponent {
   readonly sourceFrameCount = input.required<number>();
   readonly durationMilliseconds = input.required<number>();
   readonly settings = input.required<TraceFilmstripSettings>();
+  readonly heading = input('Filmstrip');
+  readonly sourceFileName = input('');
+  readonly showLabel = input(true);
+  readonly accessibleName = input('Filmstrip');
   protected readonly navigator = createFrameNavigator({ frames: this.frames, key: (frame) => frame.sourceIndex });
   protected readonly hasOverflowLeft = signal(false);
   protected readonly hasOverflowRight = signal(false);
