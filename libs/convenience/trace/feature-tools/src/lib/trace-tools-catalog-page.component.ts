@@ -37,7 +37,8 @@ import { RouterLink } from '@angular/router';
             ><p>Filter, inspect, and export the visual timeline as one horizontal PNG.</p></mat-card-content
           >
           <mat-card-actions
-            ><a mat-flat-button routerLink="/convenience/trace/filmstrip">Open Filmstrip</a></mat-card-actions
+            ><a mat-button routerLink="/convenience/trace/filmstrip/compare">Compare filmstrips</a>
+            <a mat-flat-button routerLink="/convenience/trace/filmstrip">Open Filmstrip</a></mat-card-actions
           >
         </mat-card>
       </section>
@@ -83,6 +84,8 @@ import { RouterLink } from '@angular/router';
     }
     mat-card-actions {
       justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
     }
     @media (max-width: 680px) {
       .catalog {

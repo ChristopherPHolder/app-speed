@@ -14,9 +14,11 @@ describe('TraceToolsCatalogPageComponent', () => {
     expect(element.querySelector('h1')?.textContent).toContain('Trace tools');
     expect(element.textContent).toContain('Screenshots');
     expect(element.textContent).toContain('Filmstrip');
+    expect(element.textContent).toContain('Compare filmstrips');
     expect([...element.querySelectorAll('a')].map((anchor) => anchor.getAttribute('href'))).toEqual([
       '/convenience',
       '/convenience/trace/screenshots',
+      '/convenience/trace/filmstrip/compare',
       '/convenience/trace/filmstrip',
     ]);
   });

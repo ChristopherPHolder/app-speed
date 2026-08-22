@@ -1,13 +1,18 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { MatCheckbox } from '@angular/material/checkbox';
-import { MatFormField, MatHint, MatLabel } from '@angular/material/form-field';
+import { MatError, MatFormField, MatHint, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
-import type { TraceFilmstripSettings } from '@app-speed/convenience/trace/domain';
+import {
+  comparisonLabelMaximumLength,
+  filmstripComparisonLabelError,
+  type FilmstripComparisonLabelSettings,
+  type TraceFilmstripSettings,
+} from '@app-speed/convenience/trace/domain';
 
 @Component({
   selector: 'lib-trace-filmstrip-settings',
-  imports: [MatCheckbox, MatFormField, MatHint, MatInput, MatLabel, MatSlideToggle],
+  imports: [MatCheckbox, MatError, MatFormField, MatHint, MatInput, MatLabel, MatSlideToggle],
   template: `
     <section class="settings" aria-label="Filmstrip settings">
       <div class="settings__grid">
@@ -85,6 +90,31 @@ import type { TraceFilmstripSettings } from '@app-speed/convenience/trace/domain
           <span matTextSuffix>px</span>
         </mat-form-field>
       </div>
+      @if (comparisonLabel(); as label) {
+        <div class="comparison-label">
+          <h3>Comparison label</h3>
+          <mat-checkbox [checked]="label.includeLabel" (change)="patchLabel({ includeLabel: $event.checked })">
+            Include label in comparison
+          </mat-checkbox>
+          <mat-form-field appearance="outline">
+            <mat-label>Comparison label</mat-label>
+            <input
+              matInput
+              type="text"
+              [disabled]="!label.includeLabel"
+              [required]="label.includeLabel"
+              [attr.maxlength]="labelMaximumLength"
+              [value]="label.label"
+              [attr.aria-invalid]="labelError() ? 'true' : null"
+              (input)="setLabel($event)"
+            />
+            <mat-hint align="end">{{ label.label.length }}/{{ labelMaximumLength }}</mat-hint>
+            @if (labelError(); as error) {
+              <mat-error>{{ error }}</mat-error>
+            }
+          </mat-form-field>
+        </div>
+      }
     </section>
   `,
   styles: `
@@ -113,6 +143,17 @@ import type { TraceFilmstripSettings } from '@app-speed/convenience/trace/domain
     mat-form-field {
       width: 100%;
     }
+    .comparison-label {
+      display: grid;
+      margin-top: 22px;
+      padding-top: 20px;
+      border-top: 1px solid var(--mat-sys-outline-variant);
+      gap: 14px;
+    }
+    .comparison-label h3 {
+      margin: 0;
+      font: var(--mat-sys-title-medium);
+    }
     @media (max-width: 680px) {
       .settings__grid,
       .range {
@@ -126,6 +167,9 @@ export class TraceFilmstripSettingsComponent {
   readonly settings = input.required<TraceFilmstripSettings>();
   readonly durationMilliseconds = input.required<number>();
   readonly settingsChange = output<TraceFilmstripSettings>();
+  readonly comparisonLabel = input<FilmstripComparisonLabelSettings>();
+  readonly comparisonLabelChange = output<FilmstripComparisonLabelSettings>();
+  protected readonly labelMaximumLength = comparisonLabelMaximumLength;
 
   protected patch(changes: Partial<TraceFilmstripSettings>): void {
     this.settingsChange.emit({ ...this.settings(), ...changes });
@@ -137,6 +181,21 @@ export class TraceFilmstripSettingsComponent {
 
   protected setEnd(event: Event): void {
     this.setNumber('endMilliseconds', event, this.settings().startMilliseconds, this.durationMilliseconds(), 1);
+  }
+
+  protected labelError(): string | undefined {
+    const label = this.comparisonLabel();
+    return label ? filmstripComparisonLabelError(label) : undefined;
+  }
+
+  protected patchLabel(changes: Partial<FilmstripComparisonLabelSettings>): void {
+    const label = this.comparisonLabel();
+    if (label) this.comparisonLabelChange.emit({ ...label, ...changes });
+  }
+
+  protected setLabel(event: Event): void {
+    const target = event.currentTarget;
+    if (target instanceof HTMLInputElement) this.patchLabel({ label: target.value });
   }
 
   protected setNumber(

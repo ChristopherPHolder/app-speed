@@ -1,4 +1,5 @@
 import { FilmstripPageComponent } from './filmstrip-page.component';
+import { FilmstripComparisonPageComponent } from './filmstrip-comparison-page.component';
 import { ScreenshotExtractorPageComponent } from './screenshot-extractor-page.component';
 import { TraceToolsCatalogPageComponent } from './trace-tools-catalog-page.component';
 import { traceConvenienceRoutes } from './trace-convenience.routes';
@@ -14,6 +15,11 @@ describe('traceConvenienceRoutes', () => {
   it('mounts the filmstrip and trace catalogue with accessible titles', () => {
     expect(traceConvenienceRoutes).toEqual(
       expect.arrayContaining([
+        expect.objectContaining({
+          path: 'filmstrip/compare',
+          component: FilmstripComparisonPageComponent,
+          title: 'Compare trace filmstrips',
+        }),
         expect.objectContaining({
           path: 'filmstrip',
           component: FilmstripPageComponent,
