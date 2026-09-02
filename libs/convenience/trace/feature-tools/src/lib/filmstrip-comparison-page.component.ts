@@ -67,7 +67,7 @@ interface ComparisonRow {
   ],
   template: `
     <main class="page" aria-labelledby="filmstrip-comparison-page-title">
-      <a mat-button routerLink="/convenience/trace"><mat-icon aria-hidden="true">arrow_back</mat-icon>Trace tools</a>
+      <a mat-button routerLink="/convenience"><mat-icon aria-hidden="true">arrow_back</mat-icon>All tools</a>
       <header class="page-header">
         <p class="eyebrow">Trace tool</p>
         <h1 id="filmstrip-comparison-page-title">Compare trace filmstrips</h1>

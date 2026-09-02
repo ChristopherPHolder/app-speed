@@ -50,7 +50,7 @@ interface TraceFailurePresentation {
       [libTraceFileDropEnabled]="loadOperation.state().status !== 'idle'"
       (fileDropped)="load($event)"
     >
-      <a mat-button routerLink="/convenience/trace"><mat-icon aria-hidden="true">arrow_back</mat-icon>Trace tools</a>
+      <a mat-button routerLink="/convenience"><mat-icon aria-hidden="true">arrow_back</mat-icon>All tools</a>
       <header class="page-header">
         <p class="eyebrow">Trace tool</p>
         <h1 id="filmstrip-page-title">Trace filmstrip</h1>

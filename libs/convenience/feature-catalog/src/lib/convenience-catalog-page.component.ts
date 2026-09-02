@@ -12,7 +12,8 @@ import { RouterLink } from '@angular/router';
           <p class="eyebrow">Local trace utilities</p>
           <h1 id="catalog-title">Turn a Chrome trace into useful visuals</h1>
           <p class="hero__description">
-            Extract every captured screenshot or build a presentation-ready filmstrip directly in your browser.
+            Extract screenshots, build a presentation-ready filmstrip, or compare two visual timelines directly in your
+            browser.
           </p>
           <p class="privacy-note">
             <mat-icon aria-hidden="true">verified_user</mat-icon>
@@ -28,7 +29,7 @@ import { RouterLink } from '@angular/router';
           <li aria-hidden="true" class="workflow__arrow"><mat-icon>arrow_forward</mat-icon></li>
           <li>
             <mat-icon aria-hidden="true">touch_app</mat-icon>
-            <span><strong>Choose a workflow</strong><small>Screenshots or filmstrip</small></span>
+            <span><strong>Choose a workflow</strong><small>Extract, build, or compare</small></span>
           </li>
           <li aria-hidden="true" class="workflow__arrow"><mat-icon>arrow_forward</mat-icon></li>
           <li>
@@ -67,6 +68,19 @@ import { RouterLink } from '@angular/router';
             </span>
             <span class="tool-card__action">
               Open filmstrip builder
+              <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+            </span>
+          </a>
+
+          <a class="tool-card" routerLink="/convenience/trace/filmstrip/compare">
+            <span class="tool-card__icon"><mat-icon aria-hidden="true">compare</mat-icon></span>
+            <span class="tool-card__content">
+              <span class="tool-card__label">Side-by-side review</span>
+              <strong>Compare filmstrips</strong>
+              <span>Load two traces, align their visual timelines, and export a clear comparison image.</span>
+            </span>
+            <span class="tool-card__action">
+              Open filmstrip comparison
               <mat-icon aria-hidden="true">arrow_forward</mat-icon>
             </span>
           </a>
@@ -177,7 +191,7 @@ import { RouterLink } from '@angular/router';
     }
     .tool-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
       gap: 20px;
     }
     .tool-card {

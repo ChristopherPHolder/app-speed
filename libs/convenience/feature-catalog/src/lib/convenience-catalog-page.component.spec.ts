@@ -17,10 +17,12 @@ describe('ConvenienceCatalogPageComponent', () => {
     expect(element.textContent).toContain('Nothing is uploaded');
     expect(element.textContent).toContain('Extract screenshots');
     expect(element.textContent).toContain('Build a filmstrip');
+    expect(element.textContent).toContain('Compare filmstrips');
     expect(element.textContent).not.toContain('GIF');
     expect(Array.from(element.querySelectorAll('a'), (link) => link.getAttribute('href'))).toEqual([
       '/convenience/trace/screenshots',
       '/convenience/trace/filmstrip',
+      '/convenience/trace/filmstrip/compare',
     ]);
   });
 });
