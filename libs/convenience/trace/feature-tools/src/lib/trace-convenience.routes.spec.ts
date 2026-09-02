@@ -1,7 +1,6 @@
 import { FilmstripPageComponent } from './filmstrip-page.component';
 import { FilmstripComparisonPageComponent } from './filmstrip-comparison-page.component';
 import { ScreenshotExtractorPageComponent } from './screenshot-extractor-page.component';
-import { TraceToolsCatalogPageComponent } from './trace-tools-catalog-page.component';
 import { traceConvenienceRoutes } from './trace-convenience.routes';
 
 describe('traceConvenienceRoutes', () => {
@@ -12,7 +11,7 @@ describe('traceConvenienceRoutes', () => {
       title: 'Extract trace screenshots',
     });
   });
-  it('mounts the filmstrip and trace catalogue with accessible titles', () => {
+  it('mounts both filmstrip tools and redirects the old catalogue URL', () => {
     expect(traceConvenienceRoutes).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -25,7 +24,7 @@ describe('traceConvenienceRoutes', () => {
           component: FilmstripPageComponent,
           title: 'Generate a trace filmstrip',
         }),
-        expect.objectContaining({ path: '', component: TraceToolsCatalogPageComponent, title: 'Trace tools' }),
+        expect.objectContaining({ path: '', redirectTo: '/convenience', pathMatch: 'full' }),
       ]),
     );
   });
