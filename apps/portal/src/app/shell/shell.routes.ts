@@ -1,4 +1,5 @@
 import { Route } from '@angular/router';
+import { LandingPageComponent } from '../landing/landing-page.component';
 import { ShellComponent } from './shell.component';
 
 type InstalledAuditKind = 'user-flow';
@@ -56,7 +57,7 @@ export const shellRoutes: Route[] = [
           },
         ],
       },
-      { path: '', redirectTo: 'audits/history', pathMatch: 'full' },
+      { path: '', component: LandingPageComponent, pathMatch: 'full', title: 'App Speed' },
     ],
   },
 ];

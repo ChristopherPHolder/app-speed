@@ -29,3 +29,13 @@ describe('shell convenience routes', () => {
     expect(convenienceRoute?.children?.every((route) => typeof route.loadChildren === 'function')).toBe(true);
   });
 });
+
+describe('shell landing route', () => {
+  it('renders the landing page at the app root without redirecting', () => {
+    const landingRoute = shellRoutes[0]?.children?.find((route) => route.path === '');
+
+    expect(landingRoute).toMatchObject({ path: '', pathMatch: 'full', title: 'App Speed' });
+    expect(landingRoute?.component).toBeDefined();
+    expect(landingRoute?.redirectTo).toBeUndefined();
+  });
+});
