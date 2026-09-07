@@ -47,9 +47,11 @@ describe('AuditStep', () => {
     expect(isStepType(type)).toEqual(true);
   });
 
-  it('should reject with readable message steps with invalid', () => {
+  it('should reject invalid steps with the accepted types and field path', () => {
     expect(isAuditStep({ type: 'INVALID_TYPE_STUB' })).toEqual(false);
-    expect(decodingErrorMessage(AuditStepSchema, { type: 'INVALID_TYPE_STUB' })).toContain('INVALID_TYPE_STUB');
+    const message = decodingErrorMessage(AuditStepSchema, { type: 'INVALID_TYPE_STUB' });
+    expect(message).toContain('Expected "change"');
+    expect(message).toContain('at ["type"]');
   });
 
   function decodingErrorMessage(schema: Schema.Schema<unknown>, input: unknown) {

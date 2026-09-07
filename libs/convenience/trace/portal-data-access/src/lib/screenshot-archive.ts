@@ -15,7 +15,7 @@ export interface ScreenshotExtraction {
   readonly archive: ScreenshotArchive;
 }
 
-export class ScreenshotArchiveError extends Schema.TaggedErrorClass<ScreenshotArchiveError>()(
+export class ScreenshotArchiveError extends Schema.TaggedError<ScreenshotArchiveError>()(
   'ScreenshotArchiveError',
   {
     message: Schema.String,

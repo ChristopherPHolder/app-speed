@@ -13,7 +13,7 @@ type TypedValueType = TypedValue['type'];
   template: `
     @switch (resolvedType()) {
       @case ('bytes') {
-        <span class="numeric" [attr.title]="bytesTitle()">{{ formatBytes(primitiveNumber() ?? 0, heading()?.granularity) }}</span>
+        <span class="numeric" [attr.title]="bytesTitle()">{{ formatBytes(primitiveNumber() ?? 0, $safeNavigationMigration(heading()?.granularity)) }}</span>
       }
       @case ('code') {
         <pre class="code">{{ codeText() }}</pre>
@@ -26,10 +26,10 @@ type TypedValueType = TypedValue['type'];
         }
       }
       @case ('ms') {
-        <span class="numeric">{{ formatMilliseconds(primitiveNumber() ?? 0, heading()?.granularity, heading()?.displayUnit) }}</span>
+        <span class="numeric">{{ formatMilliseconds(primitiveNumber() ?? 0, $safeNavigationMigration(heading()?.granularity), $safeNavigationMigration(heading()?.displayUnit)) }}</span>
       }
       @case ('timespanMs') {
-        <span class="numeric">{{ formatMilliseconds(primitiveNumber() ?? 0, heading()?.granularity) }}</span>
+        <span class="numeric">{{ formatMilliseconds(primitiveNumber() ?? 0, $safeNavigationMigration(heading()?.granularity)) }}</span>
       }
       @case ('node') {
         @if (nodeValue(); as node) {

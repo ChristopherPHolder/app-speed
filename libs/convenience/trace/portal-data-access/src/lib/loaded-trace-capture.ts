@@ -22,7 +22,7 @@ export interface LoadedTraceCapture {
   readonly manifest: TraceScreenshotManifest;
 }
 
-export class TraceFileReadError extends Schema.TaggedErrorClass<TraceFileReadError>()('TraceFileReadError', {
+export class TraceFileReadError extends Schema.TaggedError<TraceFileReadError>()('TraceFileReadError', {
   message: Schema.String,
 }) {}
 

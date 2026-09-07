@@ -12,12 +12,12 @@ export interface BrowserFilmstripFrame extends TraceFilmstripFrame {
   readonly source: string;
 }
 
-export class FilmstripImageDecodeError extends Schema.TaggedErrorClass<FilmstripImageDecodeError>()(
+export class FilmstripImageDecodeError extends Schema.TaggedError<FilmstripImageDecodeError>()(
   'FilmstripImageDecodeError',
   { message: Schema.String },
 ) {}
 
-export class FilmstripExportError extends Schema.TaggedErrorClass<FilmstripExportError>()('FilmstripExportError', {
+export class FilmstripExportError extends Schema.TaggedError<FilmstripExportError>()('FilmstripExportError', {
   message: Schema.String,
 }) {}
 

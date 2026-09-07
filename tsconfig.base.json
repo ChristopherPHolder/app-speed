@@ -49,6 +49,10 @@
       {
         "name": "@effect/language-service"
       }
-    ]
+    ],
+    "noUncheckedSideEffectImports": false,
+    "types": ["*"],
+    "esModuleInterop": false,
+    "ignoreDeprecations": "6.0"
   }
 }

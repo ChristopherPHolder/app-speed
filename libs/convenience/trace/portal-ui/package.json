@@ -2,11 +2,11 @@
   "name": "@app-speed/convenience/trace/portal-ui",
   "version": "0.0.1",
   "peerDependencies": {
-    "@analogjs/vite-plugin-angular": "2.5.1",
-    "@angular/core": "21.2.13",
-    "@angular/material": "21.2.11",
+    "@analogjs/vite-plugin-angular": "2.7.1",
+    "@angular/core": "22.1.5",
+    "@angular/material": "22.1.5",
     "@app-speed/convenience/trace/domain": "0.0.1",
-    "@nx/vite": "22.7.2",
+    "@nx/vite": "23.2.0",
     "vitest": "^4.1.6"
   },
   "sideEffects": false

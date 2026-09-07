@@ -5,7 +5,7 @@ export interface BrowserDownloadArtifact {
   readonly downloadName: string;
 }
 
-export class BrowserDownloadError extends Schema.TaggedErrorClass<BrowserDownloadError>()('BrowserDownloadError', {
+export class BrowserDownloadError extends Schema.TaggedError<BrowserDownloadError>()('BrowserDownloadError', {
   message: Schema.String,
 }) {}
 

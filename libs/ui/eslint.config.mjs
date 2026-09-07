@@ -17,32 +17,26 @@ export default [
   ...baseConfig,
   ...compat.extends('plugin:storybook/recommended'),
   ...nx.configs['flat/angular'],
-  ...compat
-    .config({
-      extends: ['plugin:@angular-eslint/template/process-inline-templates'],
-    })
-    .map((config) => ({
-      ...config,
-      files: ['**/*.ts'],
-      rules: {
-        ...config.rules,
-        '@angular-eslint/directive-selector': [
-          'error',
-          {
-            type: 'attribute',
-            prefix: 'app',
-            style: 'camelCase',
-          },
-        ],
-        '@angular-eslint/component-selector': [
-          'error',
-          {
-            type: 'element',
-            prefix: 'ui',
-            style: 'kebab-case',
-          },
-        ],
-      },
-    })),
+  {
+    files: ['**/*.ts'],
+    rules: {
+      '@angular-eslint/directive-selector': [
+        'error',
+        {
+          type: 'attribute',
+          prefix: 'app',
+          style: 'camelCase',
+        },
+      ],
+      '@angular-eslint/component-selector': [
+        'error',
+        {
+          type: 'element',
+          prefix: 'ui',
+          style: 'kebab-case',
+        },
+      ],
+    },
+  },
   ...nx.configs['flat/angular-template'],
 ];
