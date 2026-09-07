@@ -153,7 +153,8 @@ export default async function localSystemTestExecutor(
     }
 
     logger.info(`Running ${options.testTarget} with isolated database ${database.databaseName}`);
-    const browserPath = options.suite === 'e2e' ? (await import('puppeteer')).executablePath() : undefined;
+    const browserPath: string | undefined =
+      options.suite === 'e2e' ? await (await import('puppeteer')).executablePath() : undefined;
     const targetOverrides = browserPath ? { browser: browserPath } : {};
     await withTimeout(runTarget(options.testTarget, context, targetOverrides), timeoutMs, options.testTarget);
     return { success: true };
