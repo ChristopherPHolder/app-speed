@@ -21,7 +21,6 @@ import { tmpdir } from 'node:os';
 import { extname, join, normalize, relative, resolve } from 'node:path';
 import { inspect } from 'node:util';
 import { Client } from 'pg';
-import { executablePath } from 'puppeteer';
 import { LocalSystemTestExecutorSchema } from './schema';
 
 type ExecutorResult = { success: boolean };
@@ -154,7 +153,7 @@ export default async function localSystemTestExecutor(
     }
 
     logger.info(`Running ${options.testTarget} with isolated database ${database.databaseName}`);
-    const browserPath = options.suite === 'e2e' ? await executablePath() : undefined;
+    const browserPath = options.suite === 'e2e' ? (await import('puppeteer')).executablePath() : undefined;
     const targetOverrides = browserPath ? { browser: browserPath } : {};
     await withTimeout(runTarget(options.testTarget, context, targetOverrides), timeoutMs, options.testTarget);
     return { success: true };
