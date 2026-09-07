@@ -18,6 +18,7 @@ overrides:
   svgo: 3.3.3
   tar: 7.5.11
   typescript: 6.0.3
+  '@effect/platform-node-shared': 4.0.0-beta.107
 
 importers:
 
@@ -173,10 +174,10 @@ importers:
     devDependencies:
       '@analogjs/vite-plugin-angular':
         specifier: 2.7.1
-        version: 2.7.1(df5ba3baf137f3005418af42c0f2ed4c)
+        version: 2.7.1(d5bc8e8615131fbc22d7618217c9a101)
       '@analogjs/vitest-angular':
         specifier: 2.7.1
-        version: 2.7.1(@analogjs/vite-plugin-angular@2.7.1(df5ba3baf137f3005418af42c0f2ed4c))(@angular-devkit/architect@0.2201.7(chokidar@4.0.0))(@angular-devkit/schematics@22.1.7(chokidar@4.0.0))(vitest@4.1.6)(zone.js@0.16.3)
+        version: 2.7.1(@analogjs/vite-plugin-angular@2.7.1(d5bc8e8615131fbc22d7618217c9a101))(@angular-devkit/architect@0.2201.7(chokidar@4.0.0))(@angular-devkit/schematics@22.1.7(chokidar@4.0.0))(vitest@4.1.6)(zone.js@0.16.3)
       '@angular-devkit/build-angular':
         specifier: 22.1.7
         version: 22.1.7(@angular/compiler-cli@22.1.5(@angular/compiler@22.1.5)(typescript@6.0.3))(@angular/compiler@22.1.5)(@angular/core@22.1.5(@angular/compiler@22.1.5)(rxjs@7.8.2)(zone.js@0.16.3))(@angular/platform-browser@22.1.5(@angular/animations@22.1.5(@angular/core@22.1.5(@angular/compiler@22.1.5)(rxjs@7.8.2)(zone.js@0.16.3)))(@angular/common@22.1.5(@angular/core@22.1.5(@angular/compiler@22.1.5)(rxjs@7.8.2)(zone.js@0.16.3))(rxjs@7.8.2))(@angular/core@22.1.5(@angular/compiler@22.1.5)(rxjs@7.8.2)(zone.js@0.16.3)))(@rspack/core@1.6.8(@swc/helpers@0.5.23))(@swc/core@1.16.2(@swc/helpers@0.5.23))(@types/node@20.19.9)(chokidar@4.0.0)(html-webpack-plugin@5.6.8(@rspack/core@1.6.8(@swc/helpers@0.5.23))(webpack@5.110.3))(jiti@2.7.0)(ng-packagr@22.1.1(@angular/compiler-cli@22.1.5(@angular/compiler@22.1.5)(typescript@6.0.3))(tslib@2.8.1)(typescript@6.0.3))(rollup@4.60.4)(sass-embedded@1.97.3)(tsx@4.22.1)(typescript@6.0.3)(vitest@4.1.6)(webpack-cli@7.2.3)(yaml@2.9.0)
@@ -2616,11 +2617,11 @@ packages:
       '@opentelemetry/sdk-trace-web':
         optional: true
 
-  '@effect/platform-node-shared@4.0.0-rc.112':
-    resolution: {integrity: sha512-ttjz0xKamFN7vL8pNDYVwddJLjZvqKePc05djlz2VcdaKbLsnYbtMnL1rbOfHgEnIUSHGh7FkjaN4DM1Ov81sQ==}
+  '@effect/platform-node-shared@4.0.0-beta.107':
+    resolution: {integrity: sha512-y6BqcRi86BfTJv+tvDrob4ozYVHxxlHYcn/zIQqZjXI9CvKnkgD6ng+38G1o45c4f2ucU+6HRI9POCmFdMoVGA==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
-      effect: ^4.0.0-rc.112
+      effect: ^4.0.0-beta.107
 
   '@effect/platform-node@4.0.0-beta.107':
     resolution: {integrity: sha512-k+6YNbV4Ck0L6YXtlgkvEnuP5tlxWD8EeWOrpn46PDqbGEwt4ONpRltTwm3tn2cyBXD0i+2P11cUH/6sdFagTA==}
@@ -14565,11 +14566,11 @@ snapshots:
       '@jridgewell/gen-mapping': 0.3.13
       '@jridgewell/trace-mapping': 0.3.31
 
-  '@analogjs/vite-plugin-angular@2.7.1(df5ba3baf137f3005418af42c0f2ed4c)':
+  '@analogjs/vite-plugin-angular@2.7.1(d5bc8e8615131fbc22d7618217c9a101)':
     dependencies:
       magic-string: 0.30.21
       obug: 2.1.4
-      oxc-parser: 0.121.0(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)
+      oxc-parser: 0.121.0(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)
       tinyglobby: 0.2.17
     optionalDependencies:
       '@angular-devkit/build-angular': 22.1.7(@angular/compiler-cli@22.1.5(@angular/compiler@22.1.5)(typescript@6.0.3))(@angular/compiler@22.1.5)(@angular/core@22.1.5(@angular/compiler@22.1.5)(rxjs@7.8.2)(zone.js@0.16.3))(@angular/platform-browser@22.1.5(@angular/animations@22.1.5(@angular/core@22.1.5(@angular/compiler@22.1.5)(rxjs@7.8.2)(zone.js@0.16.3)))(@angular/common@22.1.5(@angular/core@22.1.5(@angular/compiler@22.1.5)(rxjs@7.8.2)(zone.js@0.16.3))(rxjs@7.8.2))(@angular/core@22.1.5(@angular/compiler@22.1.5)(rxjs@7.8.2)(zone.js@0.16.3)))(@rspack/core@1.6.8(@swc/helpers@0.5.23))(@swc/core@1.16.2(@swc/helpers@0.5.23))(@types/node@20.19.9)(chokidar@4.0.0)(html-webpack-plugin@5.6.8(@rspack/core@1.6.8(@swc/helpers@0.5.23))(webpack@5.110.3))(jiti@2.7.0)(ng-packagr@22.1.1(@angular/compiler-cli@22.1.5(@angular/compiler@22.1.5)(typescript@6.0.3))(tslib@2.8.1)(typescript@6.0.3))(rollup@4.60.4)(sass-embedded@1.97.3)(tsx@4.22.1)(typescript@6.0.3)(vitest@4.1.6)(webpack-cli@7.2.3)(yaml@2.9.0)
@@ -14579,9 +14580,9 @@ snapshots:
       - '@emnapi/core'
       - '@emnapi/runtime'
 
-  '@analogjs/vitest-angular@2.7.1(@analogjs/vite-plugin-angular@2.7.1(df5ba3baf137f3005418af42c0f2ed4c))(@angular-devkit/architect@0.2201.7(chokidar@4.0.0))(@angular-devkit/schematics@22.1.7(chokidar@4.0.0))(vitest@4.1.6)(zone.js@0.16.3)':
+  '@analogjs/vitest-angular@2.7.1(@analogjs/vite-plugin-angular@2.7.1(d5bc8e8615131fbc22d7618217c9a101))(@angular-devkit/architect@0.2201.7(chokidar@4.0.0))(@angular-devkit/schematics@22.1.7(chokidar@4.0.0))(vitest@4.1.6)(zone.js@0.16.3)':
     dependencies:
-      '@analogjs/vite-plugin-angular': 2.7.1(df5ba3baf137f3005418af42c0f2ed4c)
+      '@analogjs/vite-plugin-angular': 2.7.1(d5bc8e8615131fbc22d7618217c9a101)
       '@angular-devkit/architect': 0.2201.7(chokidar@4.0.0)
       '@angular-devkit/schematics': 22.1.7(chokidar@4.0.0)
       vitest: 4.1.6(@opentelemetry/api@1.9.1)(@types/node@20.19.9)(@vitest/coverage-v8@4.1.6)(@vitest/ui@4.1.6)(jsdom@26.0.0)(vite@8.2.2(@types/node@20.19.9)(esbuild@0.27.3)(jiti@2.7.0)(less@4.6.4)(sass-embedded@1.97.3)(sass@1.99.0)(terser@5.49.0)(tsx@4.22.1)(yaml@2.9.0))
@@ -17378,7 +17379,7 @@ snapshots:
       '@opentelemetry/sdk-trace-node': 2.11.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/sdk-trace-web': 2.5.1(@opentelemetry/api@1.9.1)
 
-  '@effect/platform-node-shared@4.0.0-rc.112(effect@4.0.0-beta.107)':
+  '@effect/platform-node-shared@4.0.0-beta.107(effect@4.0.0-beta.107)':
     dependencies:
       '@types/ws': 8.18.1
       effect: 4.0.0-beta.107
@@ -17389,7 +17390,7 @@ snapshots:
 
   '@effect/platform-node@4.0.0-beta.107(effect@4.0.0-beta.107)(ioredis@5.11.1)':
     dependencies:
-      '@effect/platform-node-shared': 4.0.0-rc.112(effect@4.0.0-beta.107)
+      '@effect/platform-node-shared': 4.0.0-beta.107(effect@4.0.0-beta.107)
       effect: 4.0.0-beta.107
       ioredis: 5.11.1
       mime: 4.1.0
@@ -18937,13 +18938,6 @@ snapshots:
       '@tybys/wasm-util': 0.10.3
     optional: true
 
-  '@napi-rs/wasm-runtime@1.2.3(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)':
-    dependencies:
-      '@emnapi/core': 1.9.2
-      '@emnapi/runtime': 1.9.2
-      '@tybys/wasm-util': 0.10.3
-    optional: true
-
   '@neon-rs/load@0.0.4': {}
 
   '@ngrx/effects@22.0.0(@angular/core@22.1.5(@angular/compiler@22.1.5)(rxjs@7.8.2)(zone.js@0.16.3))(@ngrx/store@22.0.0(@angular/core@22.1.5(@angular/compiler@22.1.5)(rxjs@7.8.2)(zone.js@0.16.3))(rxjs@7.8.2))(rxjs@7.8.2)':
@@ -19858,9 +19852,9 @@ snapshots:
   '@oxc-parser/binding-openharmony-arm64@0.142.0':
     optional: true
 
-  '@oxc-parser/binding-wasm32-wasi@0.121.0(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)':
+  '@oxc-parser/binding-wasm32-wasi@0.121.0(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)':
     dependencies:
-      '@napi-rs/wasm-runtime': 1.2.3(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)
+      '@napi-rs/wasm-runtime': 1.2.3(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)
     transitivePeerDependencies:
       - '@emnapi/core'
       - '@emnapi/runtime'
@@ -27053,7 +27047,7 @@ snapshots:
 
   ospath@1.2.2: {}
 
-  oxc-parser@0.121.0(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2):
+  oxc-parser@0.121.0(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0):
     dependencies:
       '@oxc-project/types': 0.121.0
     optionalDependencies:
@@ -27073,7 +27067,7 @@ snapshots:
       '@oxc-parser/binding-linux-x64-gnu': 0.121.0
       '@oxc-parser/binding-linux-x64-musl': 0.121.0
       '@oxc-parser/binding-openharmony-arm64': 0.121.0
-      '@oxc-parser/binding-wasm32-wasi': 0.121.0(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)
+      '@oxc-parser/binding-wasm32-wasi': 0.121.0(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)
       '@oxc-parser/binding-win32-arm64-msvc': 0.121.0
       '@oxc-parser/binding-win32-ia32-msvc': 0.121.0
       '@oxc-parser/binding-win32-x64-msvc': 0.121.0
