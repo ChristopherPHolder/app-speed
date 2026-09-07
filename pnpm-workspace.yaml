@@ -15,5 +15,13 @@ overrides:
   '@effect/platform-node-shared': 4.0.0-beta.107
 
 onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - '@swc/core'
+  - better-sqlite3
   - cypress
+  - esbuild
+  - lmdb
+  - msgpackr-extract
+  - nx
   - puppeteer
+  - unrs-resolver
