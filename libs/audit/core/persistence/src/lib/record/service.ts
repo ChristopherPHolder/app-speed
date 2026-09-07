@@ -2,7 +2,7 @@ import { Context, Effect, Schema } from 'effect';
 
 import { RecordKeySchema, type RecordKey } from './schema';
 
-export class RecordPersistenceError extends Schema.TaggedErrorClass<RecordPersistenceError>()(
+export class RecordPersistenceError extends Schema.TaggedError<RecordPersistenceError>()(
   'RecordPersistenceError',
   {
     operation: Schema.Literals(['put', 'get']),

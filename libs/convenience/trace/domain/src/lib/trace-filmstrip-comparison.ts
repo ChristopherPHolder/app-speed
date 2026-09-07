@@ -39,7 +39,7 @@ export interface FilmstripComparisonLayoutInput {
   readonly label: FilmstripComparisonLabelSettings;
 }
 
-export class InvalidFilmstripComparisonLabelError extends Schema.TaggedErrorClass<InvalidFilmstripComparisonLabelError>()(
+export class InvalidFilmstripComparisonLabelError extends Schema.TaggedError<InvalidFilmstripComparisonLabelError>()(
   'InvalidFilmstripComparisonLabelError',
   { message: Schema.String },
 ) {}

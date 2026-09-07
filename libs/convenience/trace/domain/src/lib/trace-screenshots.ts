@@ -24,11 +24,11 @@ export interface TraceScreenshotManifest {
   readonly frames: ReadonlyArray<TraceScreenshotTiming>;
 }
 
-export class InvalidTraceError extends Schema.TaggedErrorClass<InvalidTraceError>()('InvalidTraceError', {
+export class InvalidTraceError extends Schema.TaggedError<InvalidTraceError>()('InvalidTraceError', {
   message: Schema.String,
 }) {}
 
-export class NoScreenshotFramesError extends Schema.TaggedErrorClass<NoScreenshotFramesError>()(
+export class NoScreenshotFramesError extends Schema.TaggedError<NoScreenshotFramesError>()(
   'NoScreenshotFramesError',
   { message: Schema.String },
 ) {}
@@ -76,7 +76,7 @@ const traceEvents = (decoded: unknown): ReadonlyArray<unknown> | undefined => {
 };
 
 export const parseTraceScreenshots = Effect.fn('parseTraceScreenshots')(function* (source: string) {
-  const decoded = yield* Schema.decodeUnknownEffect(Schema.UnknownFromJsonString)(source).pipe(
+  const decoded = yield* Schema.decodeUnknownEffect(Schema.fromJsonString(Schema.Unknown))(source).pipe(
     Effect.mapError(() => new InvalidTraceError({ message: 'The selected file is not valid JSON.' })),
   );
   const events = traceEvents(decoded);

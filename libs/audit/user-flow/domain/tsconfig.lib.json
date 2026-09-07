@@ -4,9 +4,11 @@
     "outDir": "../../../../dist/out-tsc",
     "declaration": true,
     "declarationMap": true,
-    "inlineSources": true,
     "types": []
   },
   "exclude": ["**/*.spec.ts", "vite.config.mts"],
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts"],
+  "angularCompilerOptions": {
+    "strictTemplates": true
+  }
 }

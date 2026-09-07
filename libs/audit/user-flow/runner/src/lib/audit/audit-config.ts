@@ -5,7 +5,7 @@ import { DEVICE_TYPE, DeviceSchema, type DeviceType } from '@app-speed/audit/cor
 import { softNavigationConfig, softNavigationPerformanceAuditRefs } from '../soft-nav/config';
 import { Effect, Schema } from 'effect';
 
-export class InvalidDeviceConfigurationError extends Schema.TaggedErrorClass<InvalidDeviceConfigurationError>()(
+export class InvalidDeviceConfigurationError extends Schema.TaggedError<InvalidDeviceConfigurationError>()(
   'InvalidDeviceConfigurationError',
   {
     deviceType: DeviceSchema,

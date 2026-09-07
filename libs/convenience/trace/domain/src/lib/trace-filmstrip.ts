@@ -44,12 +44,12 @@ export interface FilmstripExportLayout {
   readonly frames: ReadonlyArray<{ readonly x: number; readonly width: number }>;
 }
 
-export class InvalidFilmstripSettingsError extends Schema.TaggedErrorClass<InvalidFilmstripSettingsError>()(
+export class InvalidFilmstripSettingsError extends Schema.TaggedError<InvalidFilmstripSettingsError>()(
   'InvalidFilmstripSettingsError',
   { message: Schema.String },
 ) {}
 
-export class FilmstripExportTooLargeError extends Schema.TaggedErrorClass<FilmstripExportTooLargeError>()(
+export class FilmstripExportTooLargeError extends Schema.TaggedError<FilmstripExportTooLargeError>()(
   'FilmstripExportTooLargeError',
   { message: Schema.String, width: Schema.Number, height: Schema.Number },
 ) {}

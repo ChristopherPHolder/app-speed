@@ -5,5 +5,8 @@
     "declaration": true,
     "types": []
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts"],
+  "angularCompilerOptions": {
+    "strictTemplates": true
+  }
 }

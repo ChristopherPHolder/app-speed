@@ -4,10 +4,11 @@
     "outDir": "../../dist/out-tsc",
     "declaration": true,
     "declarationMap": true,
-    "inlineSources": true,
     "types": [],
     "moduleResolution": "bundler"
   },
   "exclude": ["**/*.spec.ts", "**/*.test.ts", "**/*.stories.ts", "**/*.stories.js"],
-  "include": ["**/*.ts"]
+  "include": [
+    "**/*.ts"
+  ]
 }

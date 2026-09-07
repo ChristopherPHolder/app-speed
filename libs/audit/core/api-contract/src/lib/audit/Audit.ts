@@ -13,7 +13,7 @@ export const AuditErrorSchema = Schema.Struct({
   stack: Schema.String,
 });
 
-export class AuditNotFoundError extends Schema.TaggedErrorClass<AuditNotFoundError>()(
+export class AuditNotFoundError extends Schema.TaggedError<AuditNotFoundError>()(
   'AuditNotFoundError',
   { id: AuditId },
   { httpApiStatus: 404 },
@@ -21,7 +21,7 @@ export class AuditNotFoundError extends Schema.TaggedErrorClass<AuditNotFoundErr
 
 const ApiErrorDetailsSchema = Schema.optional(Schema.Record(Schema.String, Schema.Unknown));
 
-export class AuditHistoryInvalidQueryError extends Schema.TaggedErrorClass<AuditHistoryInvalidQueryError>()(
+export class AuditHistoryInvalidQueryError extends Schema.TaggedError<AuditHistoryInvalidQueryError>()(
   'AuditHistoryInvalidQueryError',
   {
     code: Schema.Literal('INVALID_QUERY'),
@@ -31,7 +31,7 @@ export class AuditHistoryInvalidQueryError extends Schema.TaggedErrorClass<Audit
   { httpApiStatus: 400 },
 ) {}
 
-export class AuditHistoryInvalidCursorError extends Schema.TaggedErrorClass<AuditHistoryInvalidCursorError>()(
+export class AuditHistoryInvalidCursorError extends Schema.TaggedError<AuditHistoryInvalidCursorError>()(
   'AuditHistoryInvalidCursorError',
   {
     code: Schema.Literal('INVALID_CURSOR'),
@@ -41,7 +41,7 @@ export class AuditHistoryInvalidCursorError extends Schema.TaggedErrorClass<Audi
   { httpApiStatus: 400 },
 ) {}
 
-export class AuditHistoryInternalError extends Schema.TaggedErrorClass<AuditHistoryInternalError>()(
+export class AuditHistoryInternalError extends Schema.TaggedError<AuditHistoryInternalError>()(
   'AuditHistoryInternalError',
   {
     code: Schema.Literal('INTERNAL_ERROR'),
