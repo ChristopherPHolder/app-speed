@@ -53,7 +53,7 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
       - name: Lint Affected
-        run: pnpm exec nx affected --target=lint --parallel=3 --verbose
+        run: pnpm exec nx affected --target=lint --parallel=3
 
   effect-diagnostics:
     name: Effect Diagnostics Affected
