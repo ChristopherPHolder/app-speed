@@ -21,6 +21,8 @@ export interface AuditHistoryPage {
 }
 
 export interface ListAuditHistoryParams {
+  search?: string;
+  outcome?: AuditResultStatus;
   limit?: number;
   cursor?: string | null;
   status?: ReadonlyArray<AuditRunStatus>;

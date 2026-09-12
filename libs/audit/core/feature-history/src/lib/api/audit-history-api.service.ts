@@ -18,6 +18,9 @@ export class AuditHistoryApiService {
       queryParams = queryParams.set('status', params.status.join(','));
     }
 
+    if (params.search?.trim()) queryParams = queryParams.set('search', params.search.trim());
+    if (params.outcome) queryParams = queryParams.set('outcome', params.outcome);
+
     return this.http.get<AuditHistoryPage>(endpoint, { params: queryParams });
   }
 }

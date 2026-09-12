@@ -1,3 +1,4 @@
+import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -5,6 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   type AuditHistoryRouteConfig,
   AuditRunStatus,
+  AuditResultStatus,
   AuditRunSummary,
   DEFAULT_AUDIT_RUN_FILTER,
 } from './api/audit-history.models';
@@ -18,6 +20,10 @@ import { AuditHistoryTableComponent } from './components/audit-history-table.com
   template: `
     <ui-audit-history-table
       [runs]="runs()"
+      [search]="search()"
+      [outcome]="outcome()"
+      (searchChanged)="changeSearch($event)"
+      (outcomeChanged)="changeOutcome($event)"
       [loading]="loading()"
       [errorMessage]="errorMessage()"
       [activeStatuses]="activeStatuses()"
@@ -38,6 +44,9 @@ export class AuditHistoryPageComponent {
   private readonly router = inject(Router);
   private readonly config = inject(ActivatedRoute).snapshot.data['auditHistory'] as AuditHistoryRouteConfig;
 
+  private request?: Subscription;
+  readonly search = signal('');
+  readonly outcome = signal<AuditResultStatus | null>(null);
   readonly runs = signal<ReadonlyArray<AuditRunSummary>>([]);
   readonly loading = signal(true);
   readonly errorMessage = signal<string | null>(null);
@@ -56,16 +65,20 @@ export class AuditHistoryPageComponent {
   }
 
   refresh() {
+    this.request?.unsubscribe();
+    this.loading.set(true);
     this.errorMessage.set(null);
 
     const selectedStatuses = this.activeStatuses();
     const useStatusFilter = selectedStatuses.length === DEFAULT_AUDIT_RUN_FILTER.length ? undefined : selectedStatuses;
 
-    this.api
+    this.request = this.api
       .listHistory(this.config.endpoint, {
         limit: this.#limit,
         cursor: this.#currentCursor(),
         status: useStatusFilter,
+        ...(this.search() ? { search: this.search() } : {}),
+        ...(this.outcome() ? { outcome: this.outcome() ?? undefined } : {}),
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -79,6 +92,27 @@ export class AuditHistoryPageComponent {
           this.errorMessage.set('Unable to load audit history. Please try again.');
         },
       });
+  }
+
+  private resetPagination() {
+    this.#currentCursor.set(null);
+    this.#nextCursor.set(null);
+    this.#previousCursors.set([]);
+  }
+
+  changeSearch(value: string) {
+    const search = value.trim();
+    if (search === this.search()) return;
+    this.search.set(search);
+    this.resetPagination();
+    this.refresh();
+  }
+
+  changeOutcome(outcome: AuditResultStatus | null) {
+    if (outcome === this.outcome()) return;
+    this.outcome.set(outcome);
+    this.resetPagination();
+    this.refresh();
   }
 
   toggleStatus(status: AuditRunStatus) {

@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { AuditHistoryPageComponent } from './audit-history-page.component';
 import { AuditHistoryApiService } from './api/audit-history-api.service';
 import { AuditHistoryPage } from './api/audit-history.models';
@@ -142,5 +142,53 @@ describe('AuditHistoryPageComponent', () => {
       cursor: 'cursor-2',
       status: undefined,
     });
+  });
+  it('searches all history and preserves search and outcome across cursor pages', () => {
+    component.goToNextPage();
+    component.changeSearch('  Sanity  ');
+    expect(component.hasPreviousPage()).toBe(false);
+    expect(listHistory).toHaveBeenLastCalledWith('/api/audits/user-flow/history', {
+      limit: 25,
+      cursor: null,
+      status: undefined,
+      search: 'Sanity',
+    });
+    component.changeOutcome('FAILURE');
+    component.goToNextPage();
+    expect(listHistory).toHaveBeenLastCalledWith('/api/audits/user-flow/history', {
+      limit: 25,
+      cursor: 'cursor-2',
+      status: undefined,
+      search: 'Sanity',
+      outcome: 'FAILURE',
+    });
+    component.goToPreviousPage();
+    expect(listHistory).toHaveBeenLastCalledWith('/api/audits/user-flow/history', {
+      limit: 25,
+      cursor: null,
+      status: undefined,
+      search: 'Sanity',
+      outcome: 'FAILURE',
+    });
+    component.changeSearch('');
+    component.changeOutcome(null);
+    expect(listHistory).toHaveBeenLastCalledWith('/api/audits/user-flow/history', {
+      limit: 25,
+      cursor: null,
+      status: undefined,
+    });
+  });
+
+  it('ignores older responses when a newer filter request is pending', () => {
+    const older = new Subject<AuditHistoryPage>();
+    const newer = new Subject<AuditHistoryPage>();
+    listHistory.mockReturnValueOnce(older).mockReturnValueOnce(newer);
+    component.changeSearch('old');
+    component.changeSearch('new');
+    newer.next({ items: [], nextCursor: null, limit: 25 });
+    older.next(stubPage);
+    expect(component.runs()).toEqual([]);
+    expect(component.hasNextPage()).toBe(false);
+    expect(component.loading()).toBe(false);
   });
 });
