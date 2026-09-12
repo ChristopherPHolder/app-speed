@@ -86,6 +86,45 @@ describe('Audit', () => {
     expect(body).toHaveProperty('nextCursor');
   });
 
+  it('searches before pagination and combines literal case-insensitive search with outcomes', async () => {
+    const title = `History Search %_ ${crypto.randomUUID()}`;
+    const first = await ScheduleRequest({ ...MOCK_AUDIT, title });
+    const second = await ScheduleRequest({ ...MOCK_AUDIT, title });
+    await ScheduleRequest({ ...MOCK_AUDIT, title: 'Unrelated newer audit' });
+    const search = new URLSearchParams({ search: title.toUpperCase(), limit: '1' });
+    const page1 = await fetch(`${AUDIT_HISTORY_ENDPOINT}?${search}`).then((r) => r.json());
+    expect(page1.items).toHaveLength(1);
+    expect(page1.items[0].auditId).toBe(second.auditId);
+    expect(page1.nextCursor).toBeTypeOf('string');
+    search.set('cursor', page1.nextCursor);
+    const page2 = await fetch(`${AUDIT_HISTORY_ENDPOINT}?${search}`).then((r) => r.json());
+    expect(page2.items).toHaveLength(1);
+    expect(page2.items[0].auditId).toBe(first.auditId);
+    expect(page2.nextCursor).toBeNull();
+
+    expect(
+      await CompleteRequest({
+        runnerId: 'runner-e2e',
+        auditId: first.auditId,
+        kind: 'user-flow',
+        status: 'SUCCESS',
+        result: { flowResult: {}, reportHtml: '<html></html>' },
+        durationMs: 123,
+      }),
+    ).toEqual({ ok: true });
+    search.delete('cursor');
+    search.set('outcome', 'SUCCESS');
+    const success = await fetch(`${USER_FLOW_API_ENDPOINT}history?${search}`).then((r) => r.json());
+    expect(success.items).toHaveLength(1);
+    expect(success.items[0]).toMatchObject({ auditId: first.auditId, resultStatus: 'SUCCESS' });
+    search.set('outcome', 'FAILURE');
+    expect((await fetch(`${AUDIT_HISTORY_ENDPOINT}?${search}`).then((r) => r.json())).items).toEqual([]);
+    const partialId = new URLSearchParams({ search: first.auditId.slice(0, 18).toUpperCase() });
+    const byId = await fetch(`${AUDIT_HISTORY_ENDPOINT}?${partialId}`).then((r) => r.json());
+    expect(byId.items).toHaveLength(1);
+    expect(byId.items[0].auditId).toBe(first.auditId);
+  });
+
   it('should return structured invalid query errors for bad list limits', async () => {
     const res = await fetch(`${AUDIT_HISTORY_ENDPOINT}?limit=0`);
     const body = await res.json();
