@@ -61,6 +61,30 @@ const parseStatusFilter = (value: string | ReadonlyArray<string> | undefined) =>
   return Effect.succeed(Array.from(new Set(parsed.filter(isAuditRunStatus))));
 };
 
+const parseOutcome = (value: string | undefined) => {
+  if (value === undefined || value === '') return Effect.succeed(null);
+  if (value === 'SUCCESS' || value === 'FAILURE') return Effect.succeed<'SUCCESS' | 'FAILURE'>(value);
+  return Effect.fail(
+    new AuditHistoryInvalidQueryError({
+      code: 'INVALID_QUERY',
+      message: 'Query parameter "outcome" must be SUCCESS or FAILURE.',
+    }),
+  );
+};
+
+const parseSearch = (value: string | undefined) => {
+  const search = value?.trim() || null;
+  if (search && search.length > 200) {
+    return Effect.fail(
+      new AuditHistoryInvalidQueryError({
+        code: 'INVALID_QUERY',
+        message: 'Search must be 200 characters or fewer.',
+      }),
+    );
+  }
+  return Effect.succeed(search);
+};
+
 const decodeCursor = (cursor: string | undefined) => {
   if (!cursor) return Effect.succeed<AuditHistoryCursor | null>(null);
 
@@ -96,7 +120,9 @@ export const historyHandler = (kind: AuditKind | null) =>
       const limit = yield* parseLimit(request.query.limit);
       const status = yield* parseStatusFilter(request.query.status);
       const cursor = yield* decodeCursor(request.query.cursor);
-      const page = yield* repo.listRunsPage({ limit, cursor, status, kind });
+      const search = yield* parseSearch(request.query.search);
+      const outcome = yield* parseOutcome(request.query.outcome);
+      const page = yield* repo.listRunsPage({ limit, cursor, status, kind, search, outcome });
 
       return {
         items: page.items.map((run) => ({

@@ -1,0 +1,251 @@
+<section class="audit-history" aria-labelledby="history-heading">
+  <header class="page-header">
+    <div>
+      <span class="eyebrow">PERFORMANCE / AUDITS</span>
+      <h1 id="history-heading">Audit history</h1>
+      <p>Your audit runs, progress, and results — all in one place.</p>
+    </div>
+    <button type="button" class="refresh-button" (click)="refreshClicked.emit()" [disabled]="loading">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20 7v5h-5M4 17v-5h5M6.1 7a7 7 0 0 1 11.6-1L20 9M4 15l2.3 3A7 7 0 0 0 17.9 17" />
+      </svg>
+      Refresh
+    </button>
+  </header>
+
+  <div class="history-panel">
+    <div class="search-toolbar">
+      <form
+        class="history-search"
+        role="search"
+        (submit)="$event.preventDefault(); searchChanged.emit(searchInput.value)"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="10" cy="10" r="6" />
+          <path d="m15 15 5 5" />
+        </svg>
+        <input
+          #searchInput
+          type="search"
+          aria-label="Search audit history"
+          placeholder="Search by title or audit ID…"
+          (input)="searchDraft.set(searchInput.value)"
+          [value]="search"
+          maxlength="200"
+        />
+        @if (searchDraft() || search) {
+          <button
+            type="button"
+            class="clear-search"
+            aria-label="Clear search"
+            (click)="searchInput.value = ''; searchDraft.set(''); searchChanged.emit('')"
+          >
+            ×
+          </button>
+        }
+        <button type="submit" class="search-submit">Search</button>
+      </form>
+      <div class="outcome-filters" role="group" aria-label="Filter by outcome">
+        <span class="filter-label">Outcome</span>
+        <button
+          type="button"
+          class="filter"
+          [class.selected]="outcome === null"
+          [attr.aria-pressed]="outcome === null"
+          (click)="outcomeChanged.emit(null)"
+        >
+          All
+        </button>
+        <button
+          type="button"
+          class="filter"
+          [class.selected]="outcome === 'SUCCESS'"
+          [attr.aria-pressed]="outcome === 'SUCCESS'"
+          (click)="outcomeChanged.emit('SUCCESS')"
+        >
+          Succeeded
+        </button>
+        <button
+          type="button"
+          class="filter"
+          [class.selected]="outcome === 'FAILURE'"
+          [attr.aria-pressed]="outcome === 'FAILURE'"
+          (click)="outcomeChanged.emit('FAILURE')"
+        >
+          Failed
+        </button>
+      </div>
+    </div>
+    <div class="toolbar">
+      <div class="filters" role="group" aria-label="Filter by run status">
+        <span class="filter-label">Show</span>
+        @for (status of statuses; track status) {
+          <button
+            type="button"
+            class="filter"
+            [class.selected]="activeStatuses.includes(status)"
+            [attr.aria-pressed]="activeStatuses.includes(status)"
+            (click)="statusToggled.emit(status)"
+          >
+            <span class="filter-check" aria-hidden="true">{{ activeStatuses.includes(status) ? '✓' : '+' }}</span>
+            {{ statusLabels[status] }}
+          </button>
+        }
+      </div>
+      <span class="toolbar-note"
+        ><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4v16m-4-4 4 4 4-4M15 5h5m-5 5h4m-4 5h2" /></svg>Newest
+        first</span
+      >
+    </div>
+
+    @if (loading) {
+      <div class="state-message" role="status"><mat-spinner diameter="20" />Loading audit history…</div>
+    }
+    @if (errorMessage; as message) {
+      <p class="state-message error" role="alert">{{ message }}</p>
+    }
+
+    <div class="table-container" [attr.aria-busy]="loading">
+      <table aria-label="Audit history">
+        <thead>
+          <tr>
+            <th scope="col">Audit</th>
+            <th scope="col">Status</th>
+            <th scope="col" class="created">Created</th>
+            <th scope="col" class="duration">Duration</th>
+            <th scope="col" class="actions"><span class="sr-only">Run details</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (run of runs; track run.auditId) {
+            <tr class="audit-row" [class.expanded]="expandedId() === run.auditId">
+              <td class="audit-cell">
+                <div class="audit-identity">
+                  <span class="run-icon" aria-hidden="true"
+                    ><svg viewBox="0 0 24 24">
+                      <path d="M5 5h5v5H5zM14 14h5v5h-5zM14 7h3a2 2 0 0 1 2 2v2M10 17H7a2 2 0 0 1-2-2v-2" /></svg
+                  ></span>
+                  <div class="audit-text">
+                    <button type="button" class="audit-title" (click)="runSelected.emit(run)">
+                      {{ run.title || 'Untitled audit' }}
+                    </button>
+                    <div class="metadata">
+                      <span class="kind-label">{{ run.kind === 'user-flow' ? 'User flow' : run.kind }}</span>
+                      <span aria-hidden="true">·</span>
+                      <button
+                        type="button"
+                        class="copy-id"
+                        [cdkCopyToClipboard]="run.auditId"
+                        (cdkCopyToClipboardCopied)="
+                          copyMessage.set($event ? 'Audit ID copied' : 'Unable to copy audit ID')
+                        "
+                        [attr.aria-label]="'Copy audit ID ' + run.auditId"
+                        [title]="run.auditId"
+                      >
+                        {{ run.auditId | slice: 0 : 8 }}
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <rect x="8" y="8" width="12" height="12" rx="2" />
+                          <path d="M16 5V4H4v12h1" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span
+                  class="status"
+                  [class.success]="run.status === 'COMPLETE' && run.resultStatus === 'SUCCESS'"
+                  [class.failure]="run.status === 'COMPLETE' && run.resultStatus === 'FAILURE'"
+                  [class.running]="run.status === 'IN_PROGRESS'"
+                >
+                  <span class="status-symbol" aria-hidden="true">
+                    @if (run.status === 'COMPLETE' && run.resultStatus === 'SUCCESS') {
+                      <svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6" /></svg>
+                    } @else if (run.status === 'COMPLETE' && run.resultStatus === 'FAILURE') {
+                      <svg viewBox="0 0 24 24"><path d="m7 7 10 10M7 17 17 7" /></svg>
+                    } @else {
+                      <span class="status-dot"></span>
+                    }</span
+                  >{{ statusLabel(run) }}
+                </span>
+                @if (run.status === 'SCHEDULED' && run.queuePosition !== null) {
+                  <span class="queue">Queue position: {{ run.queuePosition }}</span>
+                }
+              </td>
+              <td class="created">
+                <span>{{ run.createdAt | date: 'MMM d, y' }}</span>
+                <span class="time">{{ run.createdAt | date: 'HH:mm' }}</span>
+              </td>
+              <td class="duration">{{ duration(run.durationMs) }}</td>
+              <td class="actions">
+                <div class="row-actions">
+                  <button
+                    type="button"
+                    class="open-run"
+                    (click)="runSelected.emit(run)"
+                    [attr.aria-label]="'Open audit ' + (run.title || 'Untitled audit')"
+                    title="Open audit"
+                  >
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg>
+                  </button>
+                  <button
+                    type="button"
+                    class="details-toggle"
+                    [attr.aria-label]="'Details for ' + (run.title || 'Untitled audit')"
+                    [attr.aria-expanded]="expandedId() === run.auditId"
+                    [attr.aria-controls]="'details-' + run.auditId"
+                    (click)="toggleDetails(run.auditId)"
+                  >
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5" /></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr class="detail-row" [hidden]="expandedId() !== run.auditId" [id]="'details-' + run.auditId">
+              <td [attr.colspan]="compactLayout()?.matches ? 4 : 5">
+                <div class="detail-content">
+                  <dl>
+                    <div class="full-id">
+                      <dt>Audit ID</dt>
+                      <dd>{{ run.auditId }}</dd>
+                    </div>
+                    <div>
+                      <dt><span class="timeline-dot"></span>Created</dt>
+                      <dd>{{ run.createdAt | date: 'medium' }}</dd>
+                    </div>
+                    <div>
+                      <dt><span class="timeline-dot"></span>Started</dt>
+                      <dd>{{ (run.startedAt | date: 'medium') ?? 'Not started' }}</dd>
+                    </div>
+                    <div>
+                      <dt><span class="timeline-dot"></span>Completed</dt>
+                      <dd>{{ (run.completedAt | date: 'medium') ?? 'Not completed' }}</dd>
+                    </div>
+                  </dl>
+                  <button type="button" mat-stroked-button (click)="runSelected.emit(run)">Open audit →</button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    @if (!loading && !errorMessage && runs.length === 0) {
+      <div class="empty-state">
+        <strong>No audits found</strong>
+        <p>Try another title or audit ID, or adjust your status and outcome filters.</p>
+      </div>
+    }
+    <footer class="pagination">
+      <span>{{ runs.length }} {{ runs.length === 1 ? 'run' : 'runs' }} on this page</span>
+      <div>
+        <button type="button" mat-button (click)="previousPage.emit()" [disabled]="!hasPreviousPage || loading">
+          ← Previous
+        </button>
+        <button type="button" mat-button (click)="nextPage.emit()" [disabled]="!hasNextPage || loading">Next →</button>
+      </div>
+    </footer>
+  </div>
+  <span class="sr-only" role="status">{{ copyMessage() }}</span>
+</section>

@@ -1,192 +1,31 @@
+import { BreakpointObserver } from '@angular/cdk/layout';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { ClipboardModule } from '@angular/cdk/clipboard';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTableModule } from '@angular/material/table';
-import { AuditRunStatus, AuditRunSummary, DEFAULT_AUDIT_RUN_FILTER } from '../api/audit-history.models';
+import {
+  AuditResultStatus,
+  AuditRunStatus,
+  AuditRunSummary,
+  DEFAULT_AUDIT_RUN_FILTER,
+} from '../api/audit-history.models';
 
 @Component({
   selector: 'ui-audit-history-table',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatCardModule, MatCheckboxModule, MatProgressSpinnerModule, MatTableModule],
-  template: `
-    <section class="audit-history">
-      <mat-card appearance="outlined">
-        <mat-card-content class="content">
-          <header class="toolbar">
-            <div class="toolbar-group">
-              @for (status of statuses; track status) {
-                <mat-checkbox [checked]="activeStatuses.includes(status)" (change)="statusToggled.emit(status)">
-                  {{ status }}
-                </mat-checkbox>
-              }
-            </div>
-
-            <div class="toolbar-group">
-              <button type="button" mat-stroked-button (click)="refreshClicked.emit()">Refresh</button>
-              <button type="button" mat-stroked-button (click)="previousPage.emit()" [disabled]="!hasPreviousPage">
-                Previous
-              </button>
-              <button type="button" mat-flat-button (click)="nextPage.emit()" [disabled]="!hasNextPage">Next</button>
-            </div>
-          </header>
-
-          @if (loading) {
-            <div class="loading-state">
-              <mat-spinner diameter="24" />
-              <span>Loading audit history...</span>
-            </div>
-          }
-
-          @if (errorMessage; as errorMessage) {
-            <p class="state-message">{{ errorMessage }}</p>
-          }
-
-          <div class="table-container">
-            <table mat-table [dataSource]="runs">
-              <ng-container matColumnDef="status">
-                <th mat-header-cell *matHeaderCellDef>Status</th>
-                <td mat-cell *matCellDef="let run">{{ run.status }}</td>
-              </ng-container>
-
-              <ng-container matColumnDef="kind">
-                <th mat-header-cell *matHeaderCellDef>Feature</th>
-                <td mat-cell *matCellDef="let run">{{ run.kind }}</td>
-              </ng-container>
-
-              <ng-container matColumnDef="auditId">
-                <th mat-header-cell *matHeaderCellDef>Audit ID</th>
-                <td mat-cell *matCellDef="let run">{{ run.auditId }}</td>
-              </ng-container>
-
-              <ng-container matColumnDef="title">
-                <th mat-header-cell *matHeaderCellDef>Title</th>
-                <td mat-cell *matCellDef="let run">{{ run.title }}</td>
-              </ng-container>
-
-              <ng-container matColumnDef="createdAt">
-                <th mat-header-cell *matHeaderCellDef>Created</th>
-                <td mat-cell *matCellDef="let run">{{ run.createdAt | date: 'medium' }}</td>
-              </ng-container>
-
-              <ng-container matColumnDef="startedAt">
-                <th mat-header-cell *matHeaderCellDef>Started</th>
-                <td mat-cell *matCellDef="let run">{{ (run.startedAt | date: 'medium') ?? 'N/A' }}</td>
-              </ng-container>
-
-              <ng-container matColumnDef="completedAt">
-                <th mat-header-cell *matHeaderCellDef>Completed</th>
-                <td mat-cell *matCellDef="let run">{{ (run.completedAt | date: 'medium') ?? 'N/A' }}</td>
-              </ng-container>
-
-              <ng-container matColumnDef="durationMs">
-                <th mat-header-cell *matHeaderCellDef>Duration (ms)</th>
-                <td mat-cell *matCellDef="let run">{{ run.durationMs ?? 'N/A' }}</td>
-              </ng-container>
-
-              <ng-container matColumnDef="queuePosition">
-                <th mat-header-cell *matHeaderCellDef>Queue</th>
-                <td mat-cell *matCellDef="let run">{{ run.queuePosition ?? 'N/A' }}</td>
-              </ng-container>
-
-              <ng-container matColumnDef="resultStatus">
-                <th mat-header-cell *matHeaderCellDef>Result</th>
-                <td mat-cell *matCellDef="let run">{{ run.resultStatus ?? 'PENDING' }}</td>
-              </ng-container>
-
-              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-              <tr
-                mat-row
-                *matRowDef="let row; columns: displayedColumns"
-                (click)="runSelected.emit(row)"
-                class="clickable-row"
-              ></tr>
-            </table>
-          </div>
-
-          @if (!loading && runs.length === 0) {
-            <p class="state-message">No audit history entries found for the selected filters.</p>
-          }
-        </mat-card-content>
-      </mat-card>
-    </section>
-  `,
-  styles: `
-    :host {
-      display: block;
-    }
-
-    .audit-history {
-      max-width: 1200px;
-      margin: 24px auto;
-      padding: 0 16px;
-    }
-
-    .content {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .toolbar-group {
-      display: inline-flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .table-container {
-      overflow: auto;
-    }
-
-    table {
-      width: 100%;
-      min-width: 1200px;
-    }
-
-    .clickable-row {
-      cursor: pointer;
-    }
-
-    .loading-state {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .state-message {
-      margin: 0;
-    }
-
-    @media (max-width: 768px) {
-      .audit-history {
-        margin: 16px auto;
-        padding: 0 12px;
-      }
-
-      .toolbar {
-        align-items: stretch;
-      }
-
-      .toolbar-group {
-        width: 100%;
-      }
-    }
-  `,
+  imports: [CommonModule, ClipboardModule, MatButtonModule, MatProgressSpinnerModule],
+  templateUrl: './audit-history-table.component.html',
+  styleUrl: './audit-history-table.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuditHistoryTableComponent {
   @Input({ required: true }) runs: ReadonlyArray<AuditRunSummary> = [];
+  @Input() search = '';
+  @Input() outcome: AuditResultStatus | null = null;
+  @Output() searchChanged = new EventEmitter<string>();
+  @Output() outcomeChanged = new EventEmitter<AuditResultStatus | null>();
   @Input() loading = false;
   @Input() errorMessage: string | null = null;
   @Input() activeStatuses: ReadonlyArray<AuditRunStatus> = [...DEFAULT_AUDIT_RUN_FILTER];
@@ -200,16 +39,33 @@ export class AuditHistoryTableComponent {
   @Output() runSelected = new EventEmitter<AuditRunSummary>();
 
   readonly statuses = DEFAULT_AUDIT_RUN_FILTER;
-  readonly displayedColumns: ReadonlyArray<string> = [
-    'status',
-    'kind',
-    'auditId',
-    'title',
-    'createdAt',
-    'startedAt',
-    'completedAt',
-    'durationMs',
-    'queuePosition',
-    'resultStatus',
-  ];
+  readonly statusLabels: Record<AuditRunStatus, string> = {
+    SCHEDULED: 'Queued',
+    IN_PROGRESS: 'Running',
+    COMPLETE: 'Completed',
+  };
+  // Keep the detail cell aligned with the visible columns at the CSS breakpoint.
+  readonly compactLayout = toSignal(inject(BreakpointObserver).observe('(max-width: 700px)'));
+  readonly expandedId = signal<string | null>(null);
+  readonly copyMessage = signal('');
+  readonly searchDraft = signal('');
+
+  toggleDetails(id: string) {
+    this.expandedId.update((current) => (current === id ? null : id));
+  }
+
+  statusLabel(run: AuditRunSummary): string {
+    if (run.status !== 'COMPLETE') return this.statusLabels[run.status];
+    if (run.resultStatus === 'SUCCESS') return 'Succeeded';
+    if (run.resultStatus === 'FAILURE') return 'Failed';
+    return 'Completed';
+  }
+
+  duration(ms: number | null): string {
+    if (ms === null) return '—';
+    if (ms < 1000) return ms + ' ms';
+    if (ms < 60000) return (ms / 1000).toFixed(1) + 's';
+    const seconds = Math.round(ms / 1000);
+    return Math.floor(seconds / 60) + 'm ' + (seconds % 60) + 's';
+  }
 }

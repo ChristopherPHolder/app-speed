@@ -13,6 +13,8 @@ import {
 } from '../Audit';
 
 export const AuditHistoryQuerySchema = Schema.Struct({
+  search: Schema.optional(Schema.String),
+  outcome: Schema.optional(Schema.String),
   limit: Schema.optional(Schema.String),
   cursor: Schema.optional(Schema.String),
   status: Schema.optional(Schema.Union([Schema.String, Schema.Array(Schema.String)])),

@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, lt, or } from 'drizzle-orm';
+import { and, desc, eq, inArray, lt, or, sql } from 'drizzle-orm';
 import { Effect, Layer, Schema } from 'effect';
 
 import type { AuditKind } from '@app-speed/audit/core/domain';
@@ -15,6 +15,8 @@ import { DbClient } from './db';
 import { auditResultTable, auditRunTable, auditTemplateTable } from './schema';
 
 const listRunsPage = Effect.fn('db.auditHistory.listPage')(function* (params: {
+  search?: string | null;
+  outcome?: 'SUCCESS' | 'FAILURE' | null;
   limit: number;
   cursor: AuditRunListCursor | null;
   status: ReadonlyArray<AuditStatus> | null;
@@ -23,7 +25,15 @@ const listRunsPage = Effect.fn('db.auditHistory.listPage')(function* (params: {
   const db = yield* DbClient;
   const auditRepo = yield* AuditRepo;
   const limit = Math.max(1, Math.min(params.limit, 100));
+  const search = params.search?.trim();
   const filters = [
+    search
+      ? or(
+          sql`strpos(lower(${auditTemplateTable.title}), lower(${search})) > 0`,
+          sql`strpos(lower(cast(${auditRunTable.id} as text)), lower(${search})) > 0`,
+        )
+      : undefined,
+    params.outcome ? and(eq(auditRunTable.status, 'COMPLETE'), eq(auditResultTable.status, params.outcome)) : undefined,
     params.status && params.status.length > 0 ? inArray(auditRunTable.status, params.status) : undefined,
     params.kind ? eq(auditTemplateTable.kind, params.kind) : undefined,
     params.cursor
@@ -86,6 +96,8 @@ export const AuditHistoryRepoLive = Layer.effect(AuditHistoryRepo)(
     const auditRepo = yield* AuditRepo;
     return {
       listRunsPage: (params: {
+        search?: string | null;
+        outcome?: 'SUCCESS' | 'FAILURE' | null;
         limit: number;
         cursor: AuditRunListCursor | null;
         status: ReadonlyArray<AuditStatus> | null;
