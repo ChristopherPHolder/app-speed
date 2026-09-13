@@ -1,4 +1,5 @@
-import { GetCommandInvocationCommand, SSMClient } from '@aws-sdk/client-ssm';
+import { GetCommandInvocationCommand } from '@aws-sdk/client-ssm';
+import type { SSMClient } from '@aws-sdk/client-ssm';
 
 export type SsmCommandCompletionResult = {
   success: boolean;

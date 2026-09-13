@@ -1,13 +1,14 @@
-import { PromiseExecutor } from '@nx/devkit';
+import type { PromiseExecutor } from '@nx/devkit';
 import { EC2Client } from '@aws-sdk/client-ec2';
 import { SendCommandCommand, SSMClient } from '@aws-sdk/client-ssm';
 import { env, stdout } from 'node:process';
 import { Effect, Option } from 'effect';
 
-import { waitForSsmCommandCompletion } from '../../lib/ssm';
-import { Ec2SsmCycleExecutorSchema } from './schema';
-import { StartedInstance, startInstanceIfNeeded, stopInstance } from './ec2';
-import { Ec2SsmCycleError } from './errors';
+import { waitForSsmCommandCompletion } from '../../lib/ssm.ts';
+import { startInstanceIfNeeded, stopInstance } from './ec2.ts';
+import type { StartedInstance } from './ec2.ts';
+import { Ec2SsmCycleError } from './errors.ts';
+import type { Ec2SsmCycleExecutorSchema } from './schema.d.ts';
 
 const DEFAULT_DOCUMENT_NAME = 'AWS-RunShellScript';
 const DEFAULT_CONTAINER_NAME = 'app-speed-runner';

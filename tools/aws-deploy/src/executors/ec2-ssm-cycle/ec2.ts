@@ -1,16 +1,16 @@
 import {
   DescribeInstancesCommand,
   DescribeInstanceStatusCommand,
-  EC2Client,
   GetConsoleOutputCommand,
   StartInstancesCommand,
   StopInstancesCommand,
   waitUntilInstanceRunning,
   waitUntilInstanceStopped,
 } from '@aws-sdk/client-ec2';
+import type { EC2Client } from '@aws-sdk/client-ec2';
 import { Duration, Effect } from 'effect';
 
-import { Ec2SsmCycleError } from './errors';
+import { Ec2SsmCycleError } from './errors.ts';
 
 export type StartedInstance = {
   startedByExecutor: boolean;
