@@ -3,6 +3,9 @@
   "compilerOptions": {
     "module": "esnext",
     "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
     "ignoreDeprecations": "6.0"
   },
   "files": [],

@@ -1,7 +1,14 @@
-import { S3UploadExecutorSchema } from './schema';
-import { EXECUTOR_FAIL_BASE, EXECUTOR_SUCCESS_BASE, INVALID_BUCKET, MISSING_BUCKET, MISSING_UPLOAD } from './constants';
-import { ExecutorContext } from '@nx/devkit';
-import { execSync } from 'child_process';
+import type { ExecutorContext } from '@nx/devkit';
+import { execSync } from 'node:child_process';
+
+import {
+  EXECUTOR_FAIL_BASE,
+  EXECUTOR_SUCCESS_BASE,
+  INVALID_BUCKET,
+  MISSING_BUCKET,
+  MISSING_UPLOAD,
+} from './constants.ts';
+import type { S3UploadExecutorSchema } from './schema.d.ts';
 
 type ExecutorExit = {
   success: boolean;

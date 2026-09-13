@@ -1,9 +1,9 @@
-import { PromiseExecutor } from '@nx/devkit';
+import type { PromiseExecutor } from '@nx/devkit';
 import { SendCommandCommand, SSMClient } from '@aws-sdk/client-ssm';
 import { env } from 'node:process';
 
-import { waitForSsmCommandCompletion } from '../../lib/ssm';
-import { SsmDeployExecutorSchema } from './schema';
+import { waitForSsmCommandCompletion } from '../../lib/ssm.ts';
+import type { SsmDeployExecutorSchema } from './schema.d.ts';
 
 const DEFAULT_DOCUMENT_NAME = 'AWS-RunShellScript';
 const DEFAULT_POLL_INTERVAL_MS = 5000;
