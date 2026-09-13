@@ -76,7 +76,7 @@ describe('full local audit system', () => {
       cy.intercept('GET', /\/api\/audits\/user-flow\/history(\?.*)?$/).as('history');
       cy.visit('/audits/user-flow/history');
       cy.wait('@history').its('response.statusCode').should('equal', 200);
-      cy.contains('td', auditTitle).should('be.visible').click();
+      cy.contains('button', auditTitle).should('be.visible').click();
       cy.location('pathname').should('eq', `/audits/user-flow/${auditId}`);
       cy.get('ui-audit-summary', { timeout: 30_000 }).should('be.visible');
     });
