@@ -12,16 +12,5 @@
   </head>
   <body class="mat-typography">
     <app-root></app-root>
-    <!-- Cloudflare Web Analytics: production traffic only. -->
-    <script type="module">
-      if (window.location.hostname === 'appspeed.dev') {
-        const script = document.createElement('script');
-        script.type = 'module';
-        script.src = 'https://static.cloudflareinsights.com/beacon.min.js';
-        script.dataset.cfBeacon = JSON.stringify({ token: 'd563032dd21941aca829e11a78de26d1' });
-        document.body.appendChild(script);
-      }
-    </script>
-    <!-- End Cloudflare Web Analytics -->
   </body>
 </html>
