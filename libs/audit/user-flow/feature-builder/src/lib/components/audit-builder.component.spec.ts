@@ -46,6 +46,58 @@ describe('AuditBuilderComponent', () => {
     TestBed.resetTestingModule();
   });
 
+  it('adds and removes steps through the restored menu and updates numbering', async () => {
+    const builderFixture = await renderBuilder({ modifying: true, primaryAction: 'analyze' });
+    const host: HTMLElement = builderFixture.nativeElement;
+    const steps = builderFixture.componentInstance.formGroup.controls.steps;
+    const firstStep = steps.at(0);
+    const navigateStep = steps.at(1);
+
+    const menuAction = async (index: number, label: string) => {
+      host.querySelectorAll<HTMLButtonElement>('[aria-label="Toggle menu"]')[index].click();
+      builderFixture.detectChanges();
+      await builderFixture.whenStable();
+      const panels = document.querySelectorAll('.mat-mdc-menu-panel');
+      const panel = panels.item(panels.length - 1);
+      const item = Array.from(panel.querySelectorAll<HTMLButtonElement>('[mat-menu-item]')).find(
+        (button) => button.textContent?.trim() === label,
+      );
+      if (!item) throw new Error(`Missing menu action: ${label}`);
+      item.click();
+      builderFixture.componentRef.changeDetectorRef.markForCheck();
+      builderFixture.detectChanges();
+      await builderFixture.whenStable();
+    };
+
+    await menuAction(0, 'Add Step After');
+    expect(steps.length).toBe(4);
+    expect(steps.at(1).selectionControl.value).toBe('');
+    expect(steps.at(2)).toBe(navigateStep);
+
+    await menuAction(0, 'Add Step Before');
+    expect(steps.length).toBe(5);
+    expect(steps.at(0).selectionControl.value).toBe('');
+    expect(steps.at(1)).toBe(firstStep);
+
+    await menuAction(0, 'Remove Step');
+    expect(steps.length).toBe(4);
+    expect(steps.at(0)).toBe(firstStep);
+    expect(Array.from(host.querySelectorAll('.step-number'), (element) => element.textContent?.trim())).toEqual([
+      'Step 1',
+      'Step 2',
+      'Step 3',
+      'Step 4',
+    ]);
+    expect(host.querySelector('.insert-step, .add-step, .remove-step')).toBeNull();
+  });
+
+  it('hides step menus in read-only mode', async () => {
+    const builderFixture = await renderBuilder({ modifying: false, primaryAction: 'fork' });
+    const host: HTMLElement = builderFixture.nativeElement;
+    expect(host.querySelector('[aria-label="Toggle menu"]')).toBeNull();
+    expect(host.querySelectorAll('.step-number')).toHaveLength(3);
+  });
+
   it('does not emit a submit when the primary action is Fork', async () => {
     const submitAudit = vi.fn();
     const builderFixture = await renderBuilder({ modifying: false, primaryAction: 'fork' });
@@ -84,7 +136,7 @@ describe('AuditBuilderComponent', () => {
     expect(submitAudit).not.toHaveBeenCalled();
   });
 
-  it('emits the configured audit when the valid Analyze form is submitted', async () => {
+  it('emits the configured audit when the valid Run audit form is submitted', async () => {
     const submitAudit = vi.fn();
     const builderFixture = await renderBuilder({ modifying: true, primaryAction: 'analyze' });
     builderFixture.componentInstance.submitAudit.subscribe(submitAudit);
@@ -107,6 +159,41 @@ describe('AuditBuilderComponent', () => {
         DEFAULT_AUDIT_DETAILS.steps[2],
       ],
     });
+  });
+
+  it('shows readiness guidance and disables running when an incomplete step is inserted', async () => {
+    const builderFixture = await renderBuilder({ modifying: true, primaryAction: 'analyze' });
+    const host: HTMLElement = builderFixture.nativeElement;
+    const form = builderFixture.componentInstance.formGroup;
+    const actionText = () => host.querySelector('.action-bar')?.textContent;
+    expect(actionText()).toContain('3 steps');
+    expect(actionText()).toContain('Complete the required fields in step 2');
+
+    form.controls.steps.at(1).get('url')?.setValue('https://example.com');
+    builderFixture.detectChanges();
+    expect(actionText()).toContain('Ready to run your audit.');
+    expect(host.querySelector<HTMLButtonElement>('.submit-btn')?.disabled).toBe(false);
+
+    host.querySelector<HTMLButtonElement>('[aria-label="Toggle menu"]')?.click();
+    builderFixture.detectChanges();
+    await builderFixture.whenStable();
+    const addAfter = Array.from(document.querySelectorAll<HTMLButtonElement>('[mat-menu-item]')).find(
+      (button) => button.textContent?.trim() === 'Add Step After',
+    );
+    if (!addAfter) throw new Error('Missing Add Step After menu action');
+    addAfter.click();
+    builderFixture.detectChanges();
+    await builderFixture.whenStable();
+    expect(actionText()).toContain('4 steps');
+    expect(actionText()).toContain('Complete the required fields in step 2');
+    expect(host.querySelector<HTMLButtonElement>('.submit-btn')?.disabled).toBe(true);
+
+    const titleInput = host.querySelector<HTMLInputElement>('input[name="audit title"]');
+    if (!titleInput) throw new Error('Missing audit title input');
+    titleInput.value = '';
+    titleInput.dispatchEvent(new Event('input', { bubbles: true }));
+    builderFixture.detectChanges();
+    expect(actionText()).toContain('Add an audit title to continue.');
   });
 
   it('does not submit after a required field becomes invalid', async () => {

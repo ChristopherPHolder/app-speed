@@ -3,10 +3,7 @@ import {
   PUPPETEER_REPLAY_ASSERTION_STEP_TYPE,
   PUPPETEER_REPLAY_USER_STEP_TYPE,
 } from '@app-speed/audit/core/domain';
-import {
-  USER_FLOW_AUDIT_BUILDER_STEP_VARIANTS,
-  LIGHTHOUSE_AUDIT_STEP_TYPE,
-} from '@app-speed/audit/user-flow/domain';
+import { USER_FLOW_AUDIT_BUILDER_STEP_VARIANTS, LIGHTHOUSE_AUDIT_STEP_TYPE } from '@app-speed/audit/user-flow/domain';
 
 export type StepPresentationGroup = 'Audit Steps' | 'Custom Steps' | 'Assertion Steps' | 'Action Steps';
 export type StepPresentationIcon = 'lighthouse-badge' | 'puppeteer-badge';
@@ -54,7 +51,7 @@ export const AUDIT_BUILDER_STEP_PRESENTATION_REGISTRY = {
         label: 'Navigation Title',
       },
       'assertedEvents[].url': {
-        label: 'Navigation Url',
+        label: 'Navigation URL',
       },
       attributes: {
         description: 'Whether matching elements should also expose these attributes.',
@@ -83,7 +80,7 @@ export const AUDIT_BUILDER_STEP_PRESENTATION_REGISTRY = {
   addCookie: {
     fields: {
       url: {
-        label: 'Cookie Url',
+        label: 'Cookie URL',
       },
       sameSite: {
         label: 'Same Site',
@@ -169,7 +166,8 @@ export function humanizeStepToken(value: string): string {
     .replace(/[_-]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
-    .replace(/^\w/, (character) => character.toUpperCase());
+    .replace(/^\w/, (character) => character.toUpperCase())
+    .replace(/\bUrl\b/gi, 'URL');
 }
 
 function getStepGroup(variantId: string): StepPresentationGroup {
