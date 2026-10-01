@@ -1,7 +1,7 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { AbstractControl, FormArray, FormControl, FormGroup, FormRecord, ReactiveFormsModule } from '@angular/forms';
-import { MatButton, MatFabButton, MatIconButton } from '@angular/material/button';
+import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatError, MatFormField, MatHint, MatLabel } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
@@ -23,7 +23,6 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
     ReactiveFormsModule,
     MatButton,
     MatError,
-    MatFabButton,
     MatFormField,
     MatHint,
     MatIcon,
@@ -47,25 +46,19 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
           [ngTemplateOutletContext]="{ field, fieldControl: childControl(field) }"
         />
       }
-
       @let optional = optionalFields();
       @if (control().enabled && optional.length > 0) {
-        <div class="optional-fields">
+        <section class="optional-fields">
           <h4>Optional Properties</h4>
           <div class="optional-fields__actions">
             @for (field of optional; track field.path) {
-              <button
-                mat-fab
-                [extended]="true"
-                color="primary"
-                type="button"
-                (click)="stepForm().addOptionalField(control(), field)"
-              >
+              <button mat-button type="button" (click)="stepForm().addOptionalField(control(), field)">
+                <mat-icon>add</mat-icon>
                 {{ labelFor(field) }}
               </button>
             }
           </div>
-        </div>
+        </section>
       }
     </div>
 
@@ -73,9 +66,14 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
       @switch (field.kind) {
         @case ('string') {
           <div class="field-row">
-            <mat-form-field class="field-row__control">
+            <mat-form-field appearance="outline" class="field-row__control">
               <mat-label>{{ labelFor(field) }}</mat-label>
-              <input matInput [formControl]="asFormControl(fieldControl)" type="text" />
+              <input
+                matInput
+                [formControl]="asFormControl(fieldControl)"
+                [placeholder]="placeholderFor(field)"
+                type="text"
+              />
               @if (descriptionFor(field); as description) {
                 <mat-hint>{{ description }}</mat-hint>
               }
@@ -100,7 +98,7 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
         }
         @case ('number') {
           <div class="field-row">
-            <mat-form-field class="field-row__control">
+            <mat-form-field appearance="outline" class="field-row__control">
               <mat-label>{{ labelFor(field) }}</mat-label>
               <input matInput [formControl]="asFormControl(fieldControl)" type="number" />
               @if (descriptionFor(field); as description) {
@@ -133,7 +131,7 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
         }
         @case ('boolean') {
           <div class="field-row">
-            <mat-form-field class="field-row__control">
+            <mat-form-field appearance="outline" class="field-row__control">
               <mat-label>{{ labelFor(field) }}</mat-label>
               <mat-select [formControl]="asFormControl(fieldControl)">
                 <mat-option [value]="true">True</mat-option>
@@ -157,7 +155,7 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
         }
         @case ('enum') {
           <div class="field-row">
-            <mat-form-field class="field-row__control">
+            <mat-form-field appearance="outline" class="field-row__control">
               <mat-label>{{ labelFor(field) }}</mat-label>
               <mat-select [formControl]="asFormControl(fieldControl)">
                 @for (option of field.options; track option) {
@@ -185,7 +183,7 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
         }
         @case ('literal') {
           <div class="field-row">
-            <mat-form-field class="field-row__control">
+            <mat-form-field appearance="outline" class="field-row__control">
               <mat-label>{{ labelFor(field) }}</mat-label>
               <input matInput [formControl]="asFormControl(fieldControl)" readonly type="text" />
               @if (descriptionFor(field); as description) {
@@ -286,7 +284,7 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
             } @else {
               @for (itemControl of asFormArray(fieldControl).controls; track itemControl) {
                 <div class="field-row">
-                  <mat-form-field class="field-row__control">
+                  <mat-form-field appearance="outline" class="field-row__control">
                     <mat-label>{{ labelFor(field.element) }}</mat-label>
                     <input
                       matInput
@@ -333,7 +331,7 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
             @for (entry of recordEntries(asFormRecord(fieldControl)); track entry.key) {
               <div class="field-row field-row--record">
                 <span class="record-key">{{ entry.key }}</span>
-                <mat-form-field class="field-row__control">
+                <mat-form-field appearance="outline" class="field-row__control">
                   <mat-label>{{ labelFor(field.value) }}</mat-label>
                   <input
                     matInput
@@ -356,7 +354,7 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
 
             @if (asFormRecord(fieldControl).enabled) {
               <div class="field-row field-row--record-add">
-                <mat-form-field class="field-row__control">
+                <mat-form-field appearance="outline" class="field-row__control">
                   <mat-label>New Key</mat-label>
                   <input #recordKey matInput type="text" />
                 </mat-form-field>
@@ -383,6 +381,7 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
     }
 
     .field-row__control {
+      min-width: 0;
       flex: 1 1 auto;
     }
 
@@ -422,8 +421,7 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
     }
 
     .group-field__header h4,
-    .array-item__header h5,
-    .optional-fields h4 {
+    .array-item__header h5 {
       margin: 0;
     }
 
@@ -455,13 +453,21 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
 
     .optional-fields {
       display: grid;
-      gap: 12px;
+      gap: 8px;
+    }
+
+    .optional-fields h4 {
+      margin: 0;
+      color: var(--mat-sys-on-surface-variant, #45464f);
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 24px;
     }
 
     .optional-fields__actions {
       display: flex;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 4px 8px;
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -509,8 +515,17 @@ export class StepFieldsComponent {
   protected labelFor(field: BuilderFieldSpec): string {
     return (
       getStepFieldPresentation(this.variantId(), field.path)?.label ??
-      humanizeStepToken(stepFieldControlName(field) || field.path)
+      (stepFieldControlName(field) === 'timeout'
+        ? 'Timeout (ms)'
+        : humanizeStepToken(stepFieldControlName(field) || field.path))
     );
+  }
+
+  protected placeholderFor(field: BuilderFieldSpec): string {
+    const key = stepFieldControlName(field);
+    if (key === 'url') return 'https://example.com/checkout';
+    if (key === 'name') return 'e.g. Checkout page';
+    return '';
   }
 
   protected descriptionFor(field: BuilderFieldSpec): string | undefined {
