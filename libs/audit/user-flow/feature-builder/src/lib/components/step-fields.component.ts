@@ -221,47 +221,167 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
           </section>
         }
         @case ('array') {
-          <section class="group-field">
-            <div class="group-field__header">
-              <div>
-                <h4>{{ labelFor(field) }}</h4>
-                @if (descriptionFor(field); as description) {
-                  <p>{{ description }}</p>
-                }
-              </div>
-              <div class="group-field__actions">
-                @if (asFormArray(fieldControl).enabled) {
-                  <button
-                    mat-icon-button
-                    aria-label="Add property to step"
-                    type="button"
-                    (click)="stepForm().addArrayItem(asFormArray(fieldControl), field)"
-                  >
-                    <mat-icon>library_add</mat-icon>
-                  </button>
-                }
-                @if (control().enabled && !field.required) {
-                  <button
-                    mat-icon-button
-                    aria-label="Delete property from step"
-                    type="button"
-                    (click)="stepForm().removeOptionalField(control(), field)"
-                  >
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                }
-              </div>
+          @if (field.path === 'selectors') {
+            <div class="selector-fields">
+              @let paths = asFormArray(fieldControl);
+              @for (path of paths.controls; track path; let pathIndex = $index) {
+                @let segments = selectorSegments(path);
+                <div
+                  class="selector-path"
+                  role="group"
+                  [attr.aria-label]="
+                    pathIndex === 0 ? 'Primary selector path' : 'Alternative selector path ' + pathIndex
+                  "
+                  [class.selector-path--alternative]="paths.length > 1"
+                >
+                  @if (paths.length > 1) {
+                    <h4 class="selector-path__title">
+                      {{ pathIndex === 0 ? 'Primary selector' : 'Alternative selector ' + pathIndex }}
+                    </h4>
+                  }
+                  @if (segments.length > 1) {
+                    <p class="selector-path__hint">Follow the path from the outermost parent to the target element.</p>
+                  }
+                  @for (segment of segments.controls; track segment; let segmentIndex = $index) {
+                    <div
+                      class="field-row selector-segment"
+                      [class.selector-segment--child]="segmentIndex > 0"
+                      [style.margin-left.px]="selectorIndent(segmentIndex)"
+                    >
+                      <mat-form-field appearance="outline" class="field-row__control">
+                        <mat-label>{{ selectorLabel(pathIndex, segmentIndex, segments.length) }}</mat-label>
+                        <input
+                          matInput
+                          [formControl]="asFormControl(segment)"
+                          required
+                          placeholder="e.g. #checkout-button"
+                        />
+                        @if (segmentIndex === 0 && segments.length === 1) {
+                          <mat-hint>{{
+                            pathIndex === 0
+                              ? 'Identifies the element to interact with.'
+                              : 'Another way to identify the same element.'
+                          }}</mat-hint>
+                        }
+                        <mat-error>Enter a selector.</mat-error>
+                      </mat-form-field>
+                      @if (paths.enabled && segments.length > 1) {
+                        <button
+                          mat-icon-button
+                          type="button"
+                          aria-label="Remove selector segment"
+                          (click)="stepForm().removeArrayItem(segments, segmentIndex)"
+                        >
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      }
+                      @if (paths.enabled && paths.length > 1 && segmentIndex === 0) {
+                        <button
+                          mat-icon-button
+                          type="button"
+                          aria-label="Remove selector"
+                          (click)="stepForm().removeArrayItem(paths, pathIndex)"
+                        >
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      }
+                    </div>
+                  }
+                  @if (paths.enabled) {
+                    <button
+                      mat-button
+                      class="selector-path__add"
+                      type="button"
+                      (click)="addSelectorSegment(segments, field)"
+                    >
+                      <mat-icon>add</mat-icon>Add path segment
+                    </button>
+                  }
+                </div>
+              }
+              @if (paths.enabled) {
+                <button
+                  mat-button
+                  class="selector-fields__add"
+                  type="button"
+                  (click)="stepForm().addArrayItem(paths, field)"
+                >
+                  <mat-icon>add</mat-icon>Add alternative selector
+                </button>
+              }
             </div>
+          } @else {
+            <section class="group-field">
+              <div class="group-field__header">
+                <div>
+                  <h4>{{ labelFor(field) }}</h4>
+                  @if (descriptionFor(field); as description) {
+                    <p>{{ description }}</p>
+                  }
+                </div>
+                <div class="group-field__actions">
+                  @if (asFormArray(fieldControl).enabled) {
+                    <button
+                      mat-icon-button
+                      aria-label="Add property to step"
+                      type="button"
+                      (click)="stepForm().addArrayItem(asFormArray(fieldControl), field)"
+                    >
+                      <mat-icon>library_add</mat-icon>
+                    </button>
+                  }
+                  @if (control().enabled && !field.required) {
+                    <button
+                      mat-icon-button
+                      aria-label="Delete property from step"
+                      type="button"
+                      (click)="stepForm().removeOptionalField(control(), field)"
+                    >
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  }
+                </div>
+              </div>
 
-            @if (asFormArray(fieldControl).hasError('minlength')) {
-              <p class="group-field__error">{{ labelFor(field) }} needs at least one item</p>
-            }
+              @if (asFormArray(fieldControl).hasError('minlength')) {
+                <p class="group-field__error">{{ labelFor(field) }} needs at least one item</p>
+              }
 
-            @if (field.element.kind === 'group') {
-              @for (itemControl of asFormArray(fieldControl).controls; track itemControl) {
-                <section class="array-item">
-                  <div class="array-item__header">
-                    <h5>{{ labelFor(field) }} {{ $index + 1 }}</h5>
+              @if (field.element.kind === 'group') {
+                @for (itemControl of asFormArray(fieldControl).controls; track itemControl) {
+                  <section class="array-item">
+                    <div class="array-item__header">
+                      <h5>{{ labelFor(field) }} {{ $index + 1 }}</h5>
+                      @if (asFormArray(fieldControl).enabled) {
+                        <button
+                          mat-icon-button
+                          aria-label="Delete property from step"
+                          type="button"
+                          (click)="stepForm().removeArrayItem(asFormArray(fieldControl), $index)"
+                        >
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      }
+                    </div>
+                    <builder-step-fields
+                      [variantId]="variantId()"
+                      [fields]="field.element.fields"
+                      [control]="asFormGroup(itemControl)"
+                      [stepForm]="stepForm()"
+                    />
+                  </section>
+                }
+              } @else {
+                @for (itemControl of asFormArray(fieldControl).controls; track itemControl) {
+                  <div class="field-row">
+                    <mat-form-field appearance="outline" class="field-row__control">
+                      <mat-label>{{ labelFor(field.element) }}</mat-label>
+                      <input
+                        matInput
+                        [formControl]="asFormControl(itemControl)"
+                        [type]="field.element.kind === 'number' ? 'number' : 'text'"
+                      />
+                    </mat-form-field>
                     @if (asFormArray(fieldControl).enabled) {
                       <button
                         mat-icon-button
@@ -273,39 +393,10 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
                       </button>
                     }
                   </div>
-                  <builder-step-fields
-                    [variantId]="variantId()"
-                    [fields]="field.element.fields"
-                    [control]="asFormGroup(itemControl)"
-                    [stepForm]="stepForm()"
-                  />
-                </section>
+                }
               }
-            } @else {
-              @for (itemControl of asFormArray(fieldControl).controls; track itemControl) {
-                <div class="field-row">
-                  <mat-form-field appearance="outline" class="field-row__control">
-                    <mat-label>{{ labelFor(field.element) }}</mat-label>
-                    <input
-                      matInput
-                      [formControl]="asFormControl(itemControl)"
-                      [type]="field.element.kind === 'number' ? 'number' : 'text'"
-                    />
-                  </mat-form-field>
-                  @if (asFormArray(fieldControl).enabled) {
-                    <button
-                      mat-icon-button
-                      aria-label="Delete property from step"
-                      type="button"
-                      (click)="stepForm().removeArrayItem(asFormArray(fieldControl), $index)"
-                    >
-                      <mat-icon>delete</mat-icon>
-                    </button>
-                  }
-                </div>
-              }
-            }
-          </section>
+            </section>
+          }
         }
         @case ('record') {
           <section class="group-field">
@@ -372,6 +463,56 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
     .step-fields {
       display: grid;
       gap: 16px;
+    }
+
+    .selector-fields,
+    .selector-path {
+      display: grid;
+      gap: 8px;
+    }
+
+    .selector-path__title {
+      margin: 0 0 4px;
+      color: var(--mat-sys-on-surface-variant, #45464f);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .selector-path__hint {
+      margin: 0 0 8px;
+      color: var(--mat-sys-on-surface-variant, #45464f);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .selector-path--alternative {
+      padding-left: 16px;
+      border-left: 2px solid var(--mat-sys-outline-variant, #d6dce3);
+    }
+
+    .selector-segment {
+      position: relative;
+    }
+
+    .selector-segment--child::before {
+      content: '';
+      position: absolute;
+      left: -12px;
+      top: -20px;
+      width: 8px;
+      height: 48px;
+      border-left: 1px solid var(--mat-sys-outline-variant, #d6dce3);
+      border-bottom: 1px solid var(--mat-sys-outline-variant, #d6dce3);
+      border-bottom-left-radius: 4px;
+    }
+
+    .selector-path + .selector-path {
+      margin-top: 8px;
+    }
+
+    .selector-path__add,
+    .selector-fields__add {
+      justify-self: start;
     }
 
     .field-row {
@@ -530,6 +671,29 @@ export class StepFieldsComponent {
 
   protected descriptionFor(field: BuilderFieldSpec): string | undefined {
     return getStepFieldPresentation(this.variantId(), field.path)?.description;
+  }
+
+  protected selectorSegments(path: AbstractControl): FormArray<AbstractControl> {
+    const segments = path.get('segments');
+    if (!(segments instanceof FormArray)) throw new Error('Missing selector segments');
+    return segments;
+  }
+
+  protected selectorLabel(pathIndex: number, segmentIndex: number, segmentCount: number): string {
+    const label = pathIndex === 0 ? 'Selector' : `Alternative selector ${pathIndex}`;
+    if (segmentCount === 1) return label;
+    if (segmentIndex === segmentCount - 1) return 'Target selector';
+    return segmentIndex === 0 ? 'Parent selector' : `Nested selector ${segmentIndex}`;
+  }
+
+  protected selectorIndent(segmentIndex: number): number {
+    return Math.min(segmentIndex, 3) * 16;
+  }
+
+  protected addSelectorSegment(segments: FormArray<AbstractControl>, field: BuilderFieldSpec): void {
+    if (field.kind !== 'array' || field.element.kind !== 'group') return;
+    const segmentField = field.element.fields.find((child) => child.path === 'selectors[].segments');
+    if (segmentField?.kind === 'array') this.stepForm().addArrayItem(segments, segmentField);
   }
 
   protected asFormArray(control: AbstractControl): FormArray<AbstractControl> {

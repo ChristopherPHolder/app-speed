@@ -11,7 +11,7 @@ describe('BuilderStepFormGroup', () => {
     expect(form.getRawValue()).toEqual({
       type: 'waitForElement',
       count: 1,
-      selectors: [],
+      selectors: [{ segments: [''] }],
     });
     expect(form.optionalFields(form.spec.fields, form).map((field) => field.path)).toEqual([
       'assertedEvents',
@@ -107,7 +107,8 @@ describe('BuilderStepFormGroup', () => {
     const selectorControl = selectorsControl.at(0) as FormGroup;
     const segmentsControl = selectorControl.get('segments');
 
-    expect(segmentsControl?.hasError('minlength')).toBe(true);
+    expect(segmentsControl?.invalid).toBe(true);
+    expect(segmentsControl?.get('0')?.hasError('required')).toBe(true);
   });
 
   it('does not add or remove optional fields when the target group is disabled', () => {
@@ -137,7 +138,7 @@ describe('BuilderStepFormGroup', () => {
     form.addArrayItem(selectorsControl, selectorsField);
     form.removeArrayItem(selectorsControl, 0);
 
-    expect(selectorsControl.length).toBe(1);
+    expect(selectorsControl.length).toBe(2);
   });
 
   it('does not add or remove record entries when the target record is disabled', () => {
