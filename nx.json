@@ -86,9 +86,17 @@
       "cache": true,
       "inputs": ["default", "^production"]
     },
-    "@app-speed/effect-tools:diagnostics": {
-      "cache": false,
-      "inputs": ["default", "^default"]
+    "effect:diagnostics": {
+      "cache": true,
+      "inputs": [
+        "default",
+        "^default",
+        "{workspaceRoot}/oxlint.effect.json",
+        "{workspaceRoot}/tsconfig.base.json",
+        {
+          "externalDependencies": ["oxlint", "oxlint-tsgolint", "@effect/tsgo"]
+        }
+      ]
     }
   },
   "sync": {
@@ -234,6 +242,12 @@
         "runTarget": {
           "name": "docker:run"
         }
+      }
+    },
+    {
+      "plugin": "@nx/oxlint",
+      "options": {
+        "targetName": "effect:diagnostics"
       }
     }
   ],

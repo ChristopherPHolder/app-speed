@@ -5,7 +5,7 @@
     "build:affected": "nx run-many --all -t build",
     "lint:affected": "nx run-many --all --t lint",
     "test:affected": "nx run-many --all -t test",
-    "prepare": "husky && ./scripts/prepare-effect.sh"
+    "prepare": "husky && effect-tsgo patch --no-typescript --oxlint && ./scripts/prepare-effect.sh"
   },
   "dependencies": {
     "@angular/animations": "22.1.5",
@@ -158,6 +158,10 @@
     "vitest": "^5.0.3",
     "webpack": "5.110.3",
     "webpack-cli": "7.2.3",
-    "webpack-dev-server": "5.2.6"
+    "webpack-dev-server": "5.2.6",
+    "@effect/tsgo": "0.48.0",
+    "@nx/oxlint": "23.2.0",
+    "oxlint": "1.86.0",
+    "oxlint-tsgolint": "7.0.2003"
   }
 }
