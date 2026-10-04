@@ -1,5 +1,5 @@
-import { HttpServerResponse } from 'effect/unstable/http';
-import { HttpApiBuilder, HttpApiError } from 'effect/unstable/httpapi';
+import { HttpServerResponse } from 'effect/http';
+import { HttpApiBuilder, HttpApiError } from 'effect/http-api';
 import { Duration, Effect, Schedule, Stream } from 'effect';
 
 import { AuditNotFoundError } from '@app-speed/audit/core/api-contract';

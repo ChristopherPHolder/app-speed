@@ -6,7 +6,7 @@ import { Config, Effect } from 'effect';
 export const makeNodeObservabilityLayer = ({ serviceName }: { serviceName: string }) =>
   NodeSdk.layer(
     Effect.gen(function* () {
-      const otlpBaseUrl = yield* Config.string('OTEL_EXPORTER_OTLP_ENDPOINT').pipe(
+      const otlpBaseUrl = yield* Config.String('OTEL_EXPORTER_OTLP_ENDPOINT').pipe(
         Config.withDefault('http://localhost:4318'),
       );
 

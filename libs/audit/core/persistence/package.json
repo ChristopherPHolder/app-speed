@@ -10,9 +10,9 @@
     "@app-speed/audit/core/domain": "0.0.1",
     "@nx/vite": "23.2.0",
     "drizzle-orm": "^0.45.2",
-    "effect": "4.0.0-beta.107",
+    "effect": "4.0.0",
     "pg": "^8.23.0",
-    "vitest": "^4.1.6"
+    "vitest": "^5.0.3"
   },
   "devDependencies": {
     "@types/pg": "^8.6.1"

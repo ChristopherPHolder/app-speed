@@ -1,6 +1,6 @@
 import { NodeRuntime } from '@effect/platform-node';
 import { Effect, Layer, Option } from 'effect';
-import { DevTools } from 'effect/unstable/devtools';
+import { DevTools } from 'effect/devtools';
 import {
   AwsRunnerManagerLive,
   LocalRunnerManagerLive,

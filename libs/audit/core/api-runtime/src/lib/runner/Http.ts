@@ -1,4 +1,4 @@
-import { HttpApiBuilder, HttpApiError } from 'effect/unstable/httpapi';
+import { HttpApiBuilder, HttpApiError } from 'effect/http-api';
 import { Effect, Match } from 'effect';
 import { CoreApi } from '@app-speed/audit/core/api-contract';
 import { AuditRepo } from '@app-speed/audit/core/persistence';

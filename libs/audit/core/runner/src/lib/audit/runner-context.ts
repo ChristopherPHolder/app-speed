@@ -8,8 +8,8 @@ export const RunnerContext = Effect.fn('runner.audit.acquireContext')(function* 
   defaultViewport: Viewport;
   userAgent: string;
 }) {
-  const headless = yield* Config.boolean('RUNNER_HEADLESS').pipe(Config.withDefault(false));
-  const testCertificateSpki = yield* Config.string('TEST_HTTPS_CERT_SPKI').pipe(Config.option);
+  const headless = yield* Config.Boolean('RUNNER_HEADLESS').pipe(Config.withDefault(false));
+  const testCertificateSpki = yield* Config.String('TEST_HTTPS_CERT_SPKI').pipe(Config.option);
   const args = [
     '--no-sandbox',
     '--disable-setuid-sandbox',

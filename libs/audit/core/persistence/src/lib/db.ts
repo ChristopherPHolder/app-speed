@@ -15,7 +15,7 @@ const databaseUrlConfig = Config.schema(
   Schema.String.annotate({ description: 'Postgres connection string used by the audit persistence runtime.' }),
   'DATABASE_URL',
 );
-const connectionTimeoutMillisConfig = Config.int('DATABASE_CONNECTION_TIMEOUT_MS').pipe(Config.withDefault(5_000));
+const connectionTimeoutMillisConfig = Config.Int('DATABASE_CONNECTION_TIMEOUT_MS').pipe(Config.withDefault(5_000));
 
 export class DbClient extends Context.Service<
   DbClient,

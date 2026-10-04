@@ -1,4 +1,4 @@
-import { HttpApi } from 'effect/unstable/httpapi';
+import { HttpApi } from 'effect/http-api';
 
 import { AuditApiGroup } from './audit/Api';
 import { HealthApiGroup } from './health/Api';

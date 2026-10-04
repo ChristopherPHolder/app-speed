@@ -2,7 +2,7 @@ import { Config, Effect, Layer, Option, Match } from 'effect';
 
 import { AwsS3RecordPersistenceService } from './aws-s3';
 import { InMemoryRecordPersistenceService } from './in-memory';
-const recordPersistenceModeConfig = Config.option(Config.literals(['memory', 's3'], 'RECORD_PERSISTENCE_MODE'));
+const recordPersistenceModeConfig = Config.option(Config.Literals(['memory', 's3'], 'RECORD_PERSISTENCE_MODE'));
 
 export const RecordPersistenceLive = Layer.unwrap(
   Effect.gen(function* () {

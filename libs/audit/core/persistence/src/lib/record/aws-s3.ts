@@ -4,9 +4,9 @@ import { Config, Effect, Layer, Option, Schema } from 'effect';
 import { AwsRegionSchema, RecordKeySchema, RecordPersistenceBucketSchema, type RecordKey } from './schema';
 import { RecordPersistenceError, RecordPersistenceService } from './service';
 
-const recordPersistenceBucketConfig = Config.string('RECORD_PERSISTENCE_BUCKET');
-const awsRegionConfig = Config.string('AWS_REGION').pipe(Config.option);
-const awsDefaultRegionConfig = Config.string('AWS_DEFAULT_REGION').pipe(Config.option);
+const recordPersistenceBucketConfig = Config.String('RECORD_PERSISTENCE_BUCKET');
+const awsRegionConfig = Config.String('AWS_REGION').pipe(Config.option);
+const awsDefaultRegionConfig = Config.String('AWS_DEFAULT_REGION').pipe(Config.option);
 const makeRecordKey = (value: string): RecordKey => Schema.decodeUnknownSync(RecordKeySchema)(value);
 
 const resolveAwsRegion = Effect.gen(function* () {

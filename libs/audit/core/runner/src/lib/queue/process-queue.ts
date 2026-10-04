@@ -31,9 +31,9 @@ const toErrorPayload = (cause: Cause.Cause<unknown>) => {
   return { name: 'Error', message: Cause.pretty(cause), stack: '' };
 };
 
-const runnerIdleTimeoutMsConfig = Config.int('RUNNER_IDLE_TIMEOUT_MS').pipe(Config.withDefault(60_000));
-const runnerIdlePollIntervalMsConfig = Config.int('RUNNER_IDLE_POLL_INTERVAL_MS').pipe(Config.withDefault(5_000));
-const runnerHeartbeatIntervalMsConfig = Config.int('RUNNER_HEARTBEAT_INTERVAL_MS').pipe(Config.withDefault(15_000));
+const runnerIdleTimeoutMsConfig = Config.Int('RUNNER_IDLE_TIMEOUT_MS').pipe(Config.withDefault(60_000));
+const runnerIdlePollIntervalMsConfig = Config.Int('RUNNER_IDLE_POLL_INTERVAL_MS').pipe(Config.withDefault(5_000));
+const runnerHeartbeatIntervalMsConfig = Config.Int('RUNNER_HEARTBEAT_INTERVAL_MS').pipe(Config.withDefault(15_000));
 
 type QueueBusyState = { state: 'BUSY'; idleSince: null };
 type QueueIdleState = { state: 'IDLE'; idleSince: number };

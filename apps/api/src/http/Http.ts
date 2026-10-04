@@ -1,5 +1,5 @@
-import { HttpRouter } from 'effect/unstable/http';
-import { HttpApiBuilder, HttpApiSwagger } from 'effect/unstable/httpapi';
+import { HttpRouter } from 'effect/http';
+import { HttpApiBuilder, HttpApiSwagger } from 'effect/http-api';
 import { NodeHttpServer } from '@effect/platform-node';
 import { Layer } from 'effect';
 import { createServer } from 'node:http';

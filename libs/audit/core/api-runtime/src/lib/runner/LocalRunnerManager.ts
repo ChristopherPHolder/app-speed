@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { appendFile } from 'node:fs/promises';
 import { Config, Effect, Exit, Layer, Option, Scope, Stream, SynchronizedRef } from 'effect';
-import { ChildProcess, ChildProcessSpawner } from 'effect/unstable/process';
+import { ChildProcess, ChildProcessSpawner } from 'effect/process';
 import { NodeServices } from '@effect/platform-node';
 
 import { RunnerManager, type ActiveRunnerList } from './RunnerManager.js';
@@ -23,7 +23,7 @@ const closeScope = (scope: Scope.Closeable) => Scope.close(scope, Exit.void);
 
 const startRunner = Effect.fn('runner.manager.startProcess')(function* (runnerId: string) {
   const scope = yield* Scope.make();
-  const runnerLogFile = yield* Config.string('RUNNER_LOG_FILE').pipe(Config.option);
+  const runnerLogFile = yield* Config.String('RUNNER_LOG_FILE').pipe(Config.option);
   const runnerProcess = yield* ChildProcess.make('pnpm', ['exec', 'nx', 'execute', 'runner'], {
     cwd: process.cwd(),
     stdout: Option.isSome(runnerLogFile) ? 'pipe' : 'inherit',

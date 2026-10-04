@@ -49,7 +49,7 @@ const isValidHttpsOrAboutBlankUrl = (value: string): boolean => {
 };
 
 export const UrlWithHttpsOrAboutBlankSchema = Schema.String.pipe(
-  Schema.check(Schema.isPattern(/^(?:about:blank|https:\/\/.+)$/)),
+  Schema.check(Schema.isPattern(/^(?:about:blank|https:\/\/.+)$/u)),
   Schema.check(
     Schema.makeFilter((value) => isValidHttpsOrAboutBlankUrl(value) || 'Expected an https URL or about:blank'),
   ),
