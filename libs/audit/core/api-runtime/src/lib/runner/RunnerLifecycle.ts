@@ -7,7 +7,7 @@ import { RunnerRegistry } from './RunnerRegistry.js';
 export type RunnerDesiredState = 'ACTIVE' | 'INACTIVE';
 export type RunnerInactivationSource = 'idle-reaper' | 'runner-shutdown';
 
-const runnerReconcileIntervalMsConfig = Config.int('RUNNER_RECONCILE_INTERVAL_MS').pipe(Config.withDefault(5_000));
+const runnerReconcileIntervalMsConfig = Config.Int('RUNNER_RECONCILE_INTERVAL_MS').pipe(Config.withDefault(5_000));
 
 export class RunnerLifecycle extends Context.Service<
   RunnerLifecycle,

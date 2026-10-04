@@ -1,4 +1,4 @@
-import { HttpApi, HttpApiEndpoint, HttpApiError, HttpApiGroup } from 'effect/unstable/httpapi';
+import { HttpApi, HttpApiEndpoint, HttpApiError, HttpApiGroup } from 'effect/http-api';
 import { Schema } from 'effect';
 
 import { UserFlowAuditDefinitionSchema } from '@app-speed/audit/user-flow/domain';

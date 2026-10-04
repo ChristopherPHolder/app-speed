@@ -1,4 +1,4 @@
-import { HttpApiEndpoint } from 'effect/unstable/httpapi';
+import { HttpApiEndpoint } from 'effect/http-api';
 import { Schema } from 'effect';
 
 import { AuditKindSchema } from '@app-speed/audit/core/domain';

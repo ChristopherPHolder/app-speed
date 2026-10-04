@@ -4,8 +4,8 @@ import { RunnerManager } from './RunnerManager.js';
 import { RunnerLifecycle } from './RunnerLifecycle.js';
 import { RunnerRegistry } from './RunnerRegistry.js';
 
-const runnerIdleTimeoutMsConfig = Config.int('RUNNER_IDLE_TIMEOUT_MS').pipe(Config.withDefault(60_000));
-const runnerIdleReaperIntervalMsConfig = Config.int('RUNNER_IDLE_REAPER_INTERVAL_MS').pipe(Config.withDefault(5_000));
+const runnerIdleTimeoutMsConfig = Config.Int('RUNNER_IDLE_TIMEOUT_MS').pipe(Config.withDefault(60_000));
+const runnerIdleReaperIntervalMsConfig = Config.Int('RUNNER_IDLE_REAPER_INTERVAL_MS').pipe(Config.withDefault(5_000));
 
 export class RunnerIdleReaper extends Context.Service<RunnerIdleReaper, Record<string, never>>()('RunnerIdleReaper') {}
 

@@ -1,4 +1,4 @@
-import { Command } from 'effect/unstable/cli';
+import { Command } from 'effect/cli';
 import { Duration, Effect } from 'effect';
 import { processQueue } from '@app-speed/audit/core/runner';
 

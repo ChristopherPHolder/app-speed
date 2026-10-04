@@ -1,4 +1,4 @@
-import { HttpApiEndpoint, HttpApiError, HttpApiSchema } from 'effect/unstable/httpapi';
+import { HttpApiEndpoint, HttpApiError, HttpApiSchema } from 'effect/http-api';
 import { Schema } from 'effect';
 
 import { AuditErrorSchema, AuditId, AuditNotFoundError, AuditResultStatusSchema } from '../Audit';

@@ -2,8 +2,8 @@ import { Config, Effect, Option } from 'effect';
 
 export type RunnerManagerMode = 'local' | 'manual' | 'aws';
 
-const RunnerManagerModeConfig = Config.option(Config.literals(['local', 'manual', 'aws'], 'RUNNER_MANAGER_MODE'));
-const DevToolsUrlConfig = Config.option(Config.string('DEVTOOLS_URL'));
+const RunnerManagerModeConfig = Config.option(Config.Literals(['local', 'manual', 'aws'], 'RUNNER_MANAGER_MODE'));
+const DevToolsUrlConfig = Config.option(Config.String('DEVTOOLS_URL'));
 
 export type ServerRuntimeConfig = {
   devToolsUrl: Option.Option<string>;

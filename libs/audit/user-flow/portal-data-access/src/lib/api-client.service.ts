@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
-import { FetchHttpClient } from 'effect/unstable/http';
-import { HttpApiClient } from 'effect/unstable/httpapi';
+import { FetchHttpClient } from 'effect/http';
+import { HttpApiClient } from 'effect/http-api';
 import { Effect, ManagedRuntime, Schema } from 'effect';
 
 import { from } from 'rxjs';

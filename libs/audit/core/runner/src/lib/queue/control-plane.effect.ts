@@ -1,5 +1,5 @@
 import { EC2Client, StopInstancesCommand } from '@aws-sdk/client-ec2';
-import { HttpClient, HttpClientRequest, HttpClientResponse } from 'effect/unstable/http';
+import { HttpClient, HttpClientRequest, HttpClientResponse } from 'effect/http';
 import { Clock, Config, Data, Effect, Match, Option, Schema } from 'effect';
 import { AuditKindSchema } from '@app-speed/audit/core/domain';
 
@@ -27,11 +27,11 @@ const RunnerShutdownResponseSchema = Schema.Struct({
   shouldTerminate: Schema.Boolean,
 });
 
-const baseUrlConfig = Config.string('RUNNER_API_BASE_URL').pipe(Config.withDefault('http://localhost:3000/api'));
-const runnerIdConfig = Config.string('RUNNER_ID').pipe(Config.option);
-const runnerEc2RegionConfig = Config.string('RUNNER_EC2_REGION').pipe(Config.option);
-const awsRegionConfig = Config.string('AWS_REGION').pipe(Config.option);
-const awsDefaultRegionConfig = Config.string('AWS_DEFAULT_REGION').pipe(Config.option);
+const baseUrlConfig = Config.String('RUNNER_API_BASE_URL').pipe(Config.withDefault('http://localhost:3000/api'));
+const runnerIdConfig = Config.String('RUNNER_ID').pipe(Config.option);
+const runnerEc2RegionConfig = Config.String('RUNNER_EC2_REGION').pipe(Config.option);
+const awsRegionConfig = Config.String('AWS_REGION').pipe(Config.option);
+const awsDefaultRegionConfig = Config.String('AWS_DEFAULT_REGION').pipe(Config.option);
 
 type RunnerShutdownReason = 'IDLE_TIMEOUT';
 

@@ -4,9 +4,9 @@
   "peerDependencies": {
     "@app-speed/convenience/trace/domain": "0.0.1",
     "@nx/vite": "23.2.0",
-    "effect": "4.0.0-beta.107",
+    "effect": "4.0.0",
     "fflate": "0.8.3",
-    "vitest": "^4.1.6"
+    "vitest": "^5.0.3"
   },
   "sideEffects": false
 }

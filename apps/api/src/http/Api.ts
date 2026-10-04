@@ -1,4 +1,4 @@
-import { HttpApi } from 'effect/unstable/httpapi';
+import { HttpApi } from 'effect/http-api';
 
 import { AuditApiGroup, HealthApiGroup, RunnerApiGroup } from '@app-speed/audit/core/api-contract';
 import { UserFlowAuditApiGroup } from '@app-speed/audit/user-flow/api-contract';

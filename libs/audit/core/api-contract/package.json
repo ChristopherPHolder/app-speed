@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "peerDependencies": {
     "@app-speed/audit/core/domain": "0.0.1",
-    "effect": "4.0.0-beta.107",
+    "effect": "4.0.0",
     "vite": "8.2.2",
     "@nx/vite": "23.2.0"
   },
