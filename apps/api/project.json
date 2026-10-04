@@ -131,11 +131,8 @@
       "outputs": ["{options.outputFile}"]
     },
     "effect:diagnostics": {
-      "executor": "@app-speed/effect-tools:diagnostics",
       "options": {
-        "tsConfig": "{projectRoot}/tsconfig.app.json",
-        "format": "text",
-        "severity": "error,warning,message"
+        "args": ["--tsconfig", "tsconfig.app.json"]
       }
     },
     "migrate": {
