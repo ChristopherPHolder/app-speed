@@ -13,10 +13,7 @@ import {
   type BuilderFieldValidationSpec,
   type BuilderStepSpec,
 } from '@app-speed/audit/core/domain';
-import {
-  USER_FLOW_AUDIT_BUILDER_STEP_VARIANTS,
-  deriveBuilderStepSpec,
-} from '@app-speed/audit/user-flow/domain';
+import { USER_FLOW_AUDIT_BUILDER_STEP_VARIANTS, deriveBuilderStepSpec } from '@app-speed/audit/user-flow/domain';
 
 export class BuilderStepFormGroup extends FormGroup {
   private _spec: BuilderStepSpec | null;
@@ -215,11 +212,19 @@ const createArrayControl = (
   value?: unknown,
 ): FormArray<AbstractControl> =>
   new FormArray<AbstractControl>(
-    asArray(value).map((item) => createControlForField(field.element, item)),
+    initialArrayItems(field, value).map((item) => createControlForField(field.element, item)),
     {
       validators: buildArrayValidators(field.validation),
     },
   );
+
+// Selector paths always start with an editable input, including imported empty paths.
+const initialArrayItems = (field: Extract<BuilderFieldSpec, { kind: 'array' }>, value: unknown): unknown[] => {
+  const items = asArray(value);
+  if (items.length > 0) return items;
+  if (field.path === 'selectors' || field.path === 'selectors[].segments') return [undefined];
+  return items;
+};
 
 const createRecordControl = (
   field: Extract<BuilderFieldSpec, { kind: 'record' }>,

@@ -14,10 +14,13 @@ import { StepFieldsComponent } from './step-fields.component';
 @Component({
   selector: 'ui-audit-builder-step',
   template: `
-    <mat-expansion-panel [expanded]="expanded()">
+    <mat-expansion-panel class="mat-elevation-z0" [expanded]="expanded()">
       @let control = stepControl();
       <mat-expansion-panel-header>
         <mat-panel-title>
+          @if (stepNumber(); as number) {
+            <span class="step-number"><span class="step-number__label">Step </span>{{ number }}</span>
+          }
           @if (control.selectionControl.value; as stepType) {
             <span class="step-title">
               <mat-icon [svgIcon]="getStepPresentation(stepType).icon" class="step-source-icon" aria-hidden="true" />
@@ -29,7 +32,7 @@ import { StepFieldsComponent } from './step-fields.component';
         </mat-panel-title>
       </mat-expansion-panel-header>
       <ng-content />
-      <mat-form-field>
+      <mat-form-field appearance="outline">
         <mat-label>Type</mat-label>
         <mat-select [formControl]="control.selectionControl">
           <mat-option value=""></mat-option>
@@ -46,7 +49,6 @@ import { StepFieldsComponent } from './step-fields.component';
           }
         </mat-select>
       </mat-form-field>
-
       @if (control.hasSpec) {
         <builder-step-fields
           [variantId]="control.selectionControl.value"
@@ -71,6 +73,46 @@ import { StepFieldsComponent } from './step-fields.component';
     StepFieldsComponent,
   ],
   styles: `
+    :host {
+      display: block;
+      position: relative;
+    }
+
+    mat-expansion-panel {
+      margin: 0;
+      background: #fff;
+      border: 1px solid #e1e5ea;
+      box-shadow: none;
+      border-radius: 10px;
+    }
+
+    .step-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+      min-width: 28px;
+      height: 28px;
+      padding-inline: 4px;
+      box-sizing: border-box;
+      margin-right: 12px;
+      border: 1px solid var(--mat-sys-outline-variant, #c4c7ce);
+      border-radius: 50%;
+      color: var(--mat-sys-on-surface-variant, #45464f);
+      font-size: 13px;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .step-number__label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
     .step-title {
       display: inline-flex;
       align-items: center;
@@ -99,6 +141,7 @@ import { StepFieldsComponent } from './step-fields.component';
 export class AuditStepComponent {
   stepControl = input.required<StepFormGroup>();
   expanded = input(true);
+  stepNumber = input<number>();
   private readonly destroyRef = inject(DestroyRef);
   protected readonly stepTypeOptions = STEP_SELECTION_OPTIONS_GROUPED;
 
