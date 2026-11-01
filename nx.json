@@ -105,9 +105,9 @@
       "flat": true,
       "inlineStyle": true,
       "inlineTemplate": true,
-      "setParserOptionsProject": true,
       "compilationMode": "partial",
-      "style": "scss"
+      "style": "scss",
+      "enableTypedLinting": true
     },
     "@nx/angular:component": {
       "style": "scss",
