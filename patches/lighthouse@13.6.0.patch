@@ -1,0 +1,917 @@
+diff --git a/core/audits/byte-efficiency/byte-efficiency-audit.js b/core/audits/byte-efficiency/byte-efficiency-audit.js
+index 44559ddca9f5f51528e4690430554a9ecb775267..bb4a9322e9b56d6a23d2e61a1baaa6a0d137f6a6 100644
+--- a/core/audits/byte-efficiency/byte-efficiency-audit.js
++++ b/core/audits/byte-efficiency/byte-efficiency-audit.js
+@@ -70,9 +70,10 @@ class ByteEfficiencyAudit extends Audit {
+     const hasContentfulRecords = networkRecords.some(record => record.transferSize);
+ 
+     // Requesting load simulator requires non-empty network records.
+-    // Timespans are not guaranteed to have any network activity.
++    // Timespans and soft navigations are not guaranteed to have any network activity.
+     // There are no bytes to be saved if no bytes were downloaded, so mark N/A if empty.
+-    if (!hasContentfulRecords && gatherContext.gatherMode === 'timespan') {
++    const isPageLoad = gatherContext.gatherMode === 'navigation' && !settings.softNavigation;
++    if (!hasContentfulRecords && !isPageLoad) {
+       return {
+         score: 1,
+         notApplicable: true,
+@@ -167,7 +168,11 @@ class ByteEfficiencyAudit extends Audit {
+     // `wastedMs` may be negative, if making the opportunity change could be detrimental.
+     // This is useful information in the LHR and should be preserved.
+     let wastedMs;
+-    if (metricComputationInput.gatherContext.gatherMode === 'navigation') {
++    // The page dependency graph is rooted at the main document request, which a soft navigation
++    // does not have.
++    const isPageLoad = metricComputationInput.gatherContext.gatherMode === 'navigation' &&
++      !metricComputationInput.settings.softNavigation;
++    if (isPageLoad) {
+       const optimisticFCPGraph = (await LanternFCP.request(metricComputationInput, context))
+         .optimisticGraph;
+       const optimisticLCPGraph = (await LanternLCP.request(metricComputationInput, context))
+diff --git a/core/audits/network-requests.js b/core/audits/network-requests.js
+index 149dba518beade88581a9f7c435bbfa7e3c1ebad..faac674ecaca685bb0cf1ccac2283514ef32caf8 100644
+--- a/core/audits/network-requests.js
++++ b/core/audits/network-requests.js
+@@ -40,11 +40,12 @@ class NetworkRequests extends Audit {
+     );
+ 
+     // Optional mainFrameId check because the main resource is only available for
+-    // navigations. TODO: https://github.com/GoogleChrome/lighthouse/issues/14157
++    // page loads, not timespans or soft navigations.
++    // TODO: https://github.com/GoogleChrome/lighthouse/issues/14157
+     // for the general solution to this.
+     /** @type {string|undefined} */
+     let mainFrameId;
+-    if (artifacts.GatherContext.gatherMode === 'navigation') {
++    if (artifacts.GatherContext.gatherMode === 'navigation' && !context.settings?.softNavigation) {
+       const mainResource = await MainResource.request({devtoolsLog, URL: artifacts.URL}, context);
+       mainFrameId = mainResource.frameId;
+     }
+diff --git a/core/computed/metrics/total-blocking-time.js b/core/computed/metrics/total-blocking-time.js
+index 1729305a60d82ca9af9afe001cd406cc8f54fe94..c6aa2a6ad5d5d0caa41c25f1ec4af9d38694e6fe 100644
+--- a/core/computed/metrics/total-blocking-time.js
++++ b/core/computed/metrics/total-blocking-time.js
+@@ -45,7 +45,16 @@ class TotalBlockingTime extends ComputedMetric {
+   static async computeObservedMetric(data, context) {
+     const events = TraceProcessor.getMainThreadTopLevelEvents(data.processedTrace);
+ 
+-    if (data.processedNavigation) {
++    if (data.processedNavigation && data.settings.softNavigation) {
++      // A soft navigation has no load event or TTI, so observe from its FCP to the end of the trace.
++      return {
++        timing: calculateSumOfBlockingTime(
++          events,
++          data.processedNavigation.timings.firstContentfulPaint,
++          data.processedTrace.timings.traceEnd
++        ),
++      };
++    } else if (data.processedNavigation) {
+       const {firstContentfulPaint} = data.processedNavigation.timings;
+       const metricData = ComputedMetric.getMetricComputationInput(data);
+       const interactiveTimeMs = (await Interactive.request(metricData, context)).timing;
+diff --git a/core/config/config.js b/core/config/config.js
+index b4e8f52fb0f162694b2efdabd8e05a657a79e23a..d54eb25478f1974188a74010e5302d294229dc26 100644
+--- a/core/config/config.js
++++ b/core/config/config.js
+@@ -18,7 +18,11 @@ import {
+   throwInvalidArtifactDependency,
+   assertValidConfig,
+ } from './validation.js';
+-import {filterConfigByGatherMode, filterConfigByExplicitFilters} from './filters.js';
++import {
++  filterConfigByGatherMode,
++  filterConfigByExplicitFilters,
++  filterConfigForSoftNavigation,
++} from './filters.js';
+ import {
+   deepCloneConfigJson,
+   resolveSettings,
+@@ -186,6 +190,16 @@ function overrideSettingsForGatherMode(settings, gatherMode) {
+       settings.throttlingMethod = 'devtools';
+     }
+   }
++
++  if (gatherMode === 'navigation' && settings.softNavigation) {
++    // A soft navigation has no document request to build a dependency graph from.
++    if (settings.throttlingMethod === 'simulate') {
++      settings.throttlingMethod = 'devtools';
++    }
++    // The page under test must keep its state, so it can't be reset before the run.
++    settings.skipAboutBlank = true;
++    settings.disableStorageReset = true;
++  }
+ }
+ 
+ /**
+@@ -247,6 +261,9 @@ async function initializeConfig(gatherMode, config, flags = {}) {
+   assertValidConfig(resolvedConfig);
+ 
+   resolvedConfig = filterConfigByGatherMode(resolvedConfig, gatherMode);
++  if (gatherMode === 'navigation' && settings.softNavigation) {
++    resolvedConfig = filterConfigForSoftNavigation(resolvedConfig);
++  }
+   resolvedConfig = filterConfigByExplicitFilters(resolvedConfig, settings);
+ 
+   log.timeEnd(status);
+diff --git a/core/config/constants.js b/core/config/constants.js
+index 8f53136d63876da9b4f19eab40a04353cdfaff10..03a9a27ee082175bd586b4623a06345270741ce2 100644
+--- a/core/config/constants.js
++++ b/core/config/constants.js
+@@ -73,6 +73,7 @@ const defaultSettings = {
+   usePassiveGathering: false,
+   disableFullPageScreenshot: false,
+   skipAboutBlank: false,
++  softNavigation: false,
+   blankPage: 'about:blank',
+   ignoreStatusCode: false,
+ 
+diff --git a/core/config/filters.js b/core/config/filters.js
+index 246db9f6abe9a52a8dc1d795df8e03b76a73afef..50c4fcb48eefea7b340e802f2c68a48f5609463c 100644
+--- a/core/config/filters.js
++++ b/core/config/filters.js
+@@ -252,6 +252,45 @@ function filterConfigByGatherMode(resolvedConfig, mode) {
+   };
+ }
+ 
++/**
++ * Audits that only declare support for navigation mode but can also evaluate a soft navigation.
++ * Every other navigation-only audit depends on the main document request, which a soft navigation
++ * does not have.
++ */
++const softNavigationAuditIds = new Set([
++  'first-contentful-paint',
++  'largest-contentful-paint',
++]);
++
++/**
++ * Filters a navigation config down to what can evaluate a soft navigation. A soft navigation
++ * happens on a page that is already loaded, so it is observed like a timespan: only the gatherers
++ * and audits that support timespan mode run, plus the navigation-only metrics in
++ * `softNavigationAuditIds`. Audits of the resulting page state belong in a snapshot.
++ *
++ * @param {LH.Config.ResolvedConfig} resolvedConfig
++ * @return {LH.Config.ResolvedConfig}
++ */
++function filterConfigForSoftNavigation(resolvedConfig) {
++  const artifacts = filterArtifactsByGatherMode(resolvedConfig.artifacts, 'timespan');
++  const supportedAudits = resolvedConfig.audits && resolvedConfig.audits.filter(audit => {
++    const meta = audit.implementation.meta;
++    return !meta.supportedModes ||
++      meta.supportedModes.includes('timespan') ||
++      softNavigationAuditIds.has(meta.id);
++  });
++  const audits = filterAuditsByAvailableArtifacts(supportedAudits, artifacts || []);
++  const supportedCategories = filterCategoriesByGatherMode(resolvedConfig.categories, 'timespan');
++  const categories = filterCategoriesByAvailableAudits(supportedCategories, audits || []);
++
++  return {
++    ...resolvedConfig,
++    artifacts,
++    audits,
++    categories,
++  };
++}
++
+ /**
+  * Filters a config's artifacts, audits, and categories down to the requested set.
+  * Skip audits overrides inclusion via `onlyAudits`/`onlyCategories`.
+@@ -311,6 +350,7 @@ function filterConfigByExplicitFilters(resolvedConfig, filters) {
+ export {
+   filterConfigByGatherMode,
+   filterConfigByExplicitFilters,
++  filterConfigForSoftNavigation,
+   filterArtifactsByGatherMode,
+   filterArtifactsByAvailableAudits,
+   filterAuditsByAvailableArtifacts,
+diff --git a/core/gather/driver/navigation.js b/core/gather/driver/navigation.js
+index 0f5ab2ec790b7a0e8c8c84b6e245746b5945b5fe..1cf0e51147cf7c252042f37173bcf592be1b3f5d 100644
+--- a/core/gather/driver/navigation.js
++++ b/core/gather/driver/navigation.js
+@@ -6,7 +6,12 @@
+ 
+ import log from 'lighthouse-logger';
+ 
+-import {waitForFullyLoaded, waitForFrameNavigated, waitForUserToContinue} from './wait-for-condition.js';
++import {
++  waitForFullyLoaded,
++  waitForFrameNavigated,
++  waitForSoftNavigation,
++  waitForUserToContinue,
++} from './wait-for-condition.js';
+ import * as constants from '../../config/constants.js';
+ import * as i18n from '../../lib/i18n/i18n.js';
+ import UrlUtils from '../../lib/url-utils.js';
+@@ -39,7 +44,7 @@ const DEFAULT_NETWORK_QUIET_THRESHOLD = 5000;
+ // Controls how long to wait between longtasks before determining the CPU is idle, off by default
+ const DEFAULT_CPU_QUIET_THRESHOLD = 0;
+ 
+-/** @typedef {{waitUntil: Array<'fcp'|'load'|'navigated'>, signal?: AbortSignal} & Partial<LH.Config.Settings>} NavigationOptions */
++/** @typedef {{waitUntil: Array<'fcp'|'load'|'navigated'|'softNavigation'>, signal?: AbortSignal} & Partial<LH.Config.Settings>} NavigationOptions */
+ 
+ /** @param {NavigationOptions} options */
+ function resolveWaitForFullyLoadedOptions(options) {
+@@ -104,9 +109,12 @@ async function gotoURL(driver, requestor, options) {
+   const waitForNavigated = options.waitUntil.includes('navigated');
+   const waitForLoad = options.waitUntil.includes('load');
+   const waitForFcp = options.waitUntil.includes('fcp');
++  const waitForSoftNav = options.waitUntil.includes('softNavigation');
+ 
+   /** @type {Array<Promise<{timedOut: boolean}>>} */
+   const waitConditionPromises = [];
++  /** @type {string|undefined} */
++  let softNavigationUrl;
+   /** @type {Array<() => void>} */
+   const cleanups = [];
+ 
+@@ -129,7 +137,19 @@ async function gotoURL(driver, requestor, options) {
+       .catch(() => ({timedOut: false})));
+   }
+ 
+-  if (waitForLoad) {
++  if (waitForSoftNav) {
++    if (waitForLoad || waitForNavigated) {
++      throw new Error('Cannot wait for a soft navigation and a page load at the same time');
++    }
++    const waitOptions = resolveWaitForFullyLoadedOptions(options);
++    waitConditionPromises.push(
++      waitForSoftNavigation(session, networkMonitor, waitOptions, options.signal)
++        .then(result => {
++          softNavigationUrl = result.url;
++          return {timedOut: result.timedOut};
++        })
++    );
++  } else if (waitForLoad) {
+     const waitOptions = resolveWaitForFullyLoadedOptions(options);
+     waitConditionPromises.push(
+       waitForFullyLoaded(session, networkMonitor, waitOptions, options.signal)
+@@ -151,21 +171,38 @@ async function gotoURL(driver, requestor, options) {
+     for (const cleanup of cleanups) cleanup();
+   }
+   const timedOut = waitConditions.some(condition => condition.timedOut);
+-  const navigationUrls = await networkMonitor.getNavigationUrls();
+ 
+-  let requestedUrl = navigationUrls.requestedUrl;
+-  if (typeof requestor === 'string') {
+-    if (requestedUrl && !UrlUtils.equalWithExcludedFragments(requestor, requestedUrl)) {
+-      log.error(
+-        'Navigation',
+-        `Provided URL (${requestor}) did not match initial navigation URL (${requestedUrl})`
+-      );
++  /** @type {string|undefined} */
++  let requestedUrl;
++  /** @type {string|undefined} */
++  let mainDocumentUrl;
++  if (waitForSoftNav) {
++    // A soft navigation has no document request. The URL the main frame navigated to within the
++    // document serves as both the requested URL and the main document URL. When the main frame
++    // never navigated, the run continues on the current URL so the trace is still processed and
++    // the metrics report why no soft navigation was found.
++    if (!softNavigationUrl) {
++      log.warn('Navigation', 'No soft navigation detected when running user defined requestor.');
+     }
+-    requestedUrl = requestor;
+-  }
+-  if (!requestedUrl) throw Error('No navigations detected when running user defined requestor.');
++    requestedUrl = softNavigationUrl || await driver.url();
++    mainDocumentUrl = requestedUrl;
++  } else {
++    const navigationUrls = await networkMonitor.getNavigationUrls();
++
++    requestedUrl = navigationUrls.requestedUrl;
++    if (typeof requestor === 'string') {
++      if (requestedUrl && !UrlUtils.equalWithExcludedFragments(requestor, requestedUrl)) {
++        log.error(
++          'Navigation',
++          `Provided URL (${requestor}) did not match initial navigation URL (${requestedUrl})`
++        );
++      }
++      requestedUrl = requestor;
++    }
++    if (!requestedUrl) throw Error('No navigations detected when running user defined requestor.');
+ 
+-  const mainDocumentUrl = navigationUrls.mainDocumentUrl || requestedUrl;
++    mainDocumentUrl = navigationUrls.mainDocumentUrl || requestedUrl;
++  }
+ 
+   // Bring `Page.navigate` errors back into the promise chain. See https://github.com/GoogleChrome/lighthouse/pull/6739.
+   await Promise.race(options.signal ?
+diff --git a/core/gather/driver/wait-for-condition.js b/core/gather/driver/wait-for-condition.js
+index dbc36abb85fb8c264f845520c4d8c491ea2f5399..457785154c251733c2e62a72047ade109ece43ec 100644
+--- a/core/gather/driver/wait-for-condition.js
++++ b/core/gather/driver/wait-for-condition.js
+@@ -29,7 +29,7 @@ import {ExecutionContext} from './execution-context.js';
+  * @prop {number} cpuQuietThresholdMs
+  * @prop {number} maxWaitForLoadedMs
+  * @prop {number|undefined} maxWaitForFcpMs
+- * @prop {{waitForFcp: typeof waitForFcp, waitForLoadEvent: typeof waitForLoadEvent, waitForNetworkIdle: typeof waitForNetworkIdle, waitForCPUIdle: typeof waitForCPUIdle}} [_waitForTestOverrides]
++ * @prop {{waitForFcp: typeof waitForFcp, waitForLoadEvent: typeof waitForLoadEvent, waitForNetworkIdle: typeof waitForNetworkIdle, waitForCPUIdle: typeof waitForCPUIdle, waitForNavigatedWithinDocument?: typeof waitForNavigatedWithinDocument}} [_waitForTestOverrides]
+  */
+ 
+ /**
+@@ -66,6 +66,61 @@ function waitForFrameNavigated(session) {
+   return {promise, cancel};
+ }
+ 
++/**
++ * Returns a promise that resolves with the new URL when the main frame navigates within the same
++ * document (e.g. via the History API), the way a soft navigation does.
++ * @param {LH.Gatherer.ProtocolSession} session
++ * @return {CancellableWait<string>}
++ */
++function waitForNavigatedWithinDocument(session) {
++  /** @type {(() => void)} */
++  let cancel = () => {
++    throw new Error('waitForNavigatedWithinDocument.cancel() called before it was defined');
++  };
++
++  /** @type {Promise<string>} */
++  const promise = new Promise((resolve, reject) => {
++    /** @type {string|undefined} */
++    let mainFrameId;
++    /** @type {Array<LH.Crdp.Page.NavigatedWithinDocumentEvent>} */
++    const events = [];
++
++    // The main frame id is resolved asynchronously, so buffer events until it is known.
++    const resolveIfMainFrameNavigated = () => {
++      if (!mainFrameId) return;
++      const event = events.find(e => e.frameId === mainFrameId);
++      if (!event) return;
++      resolve(event.url);
++      cancel();
++    };
++
++    /** @param {LH.Crdp.Page.NavigatedWithinDocumentEvent} e */
++    const listener = e => {
++      events.push(e);
++      resolveIfMainFrameNavigated();
++    };
++    session.on('Page.navigatedWithinDocument', listener);
++
++    session.sendCommand('Page.getFrameTree').then(({frameTree}) => {
++      mainFrameId = frameTree.frame.id;
++      resolveIfMainFrameNavigated();
++    }).catch(reject);
++
++    let canceled = false;
++    cancel = () => {
++      if (canceled) return;
++      canceled = true;
++      session.off('Page.navigatedWithinDocument', listener);
++      reject(new Error('Wait for navigated within document canceled'));
++    };
++  });
++
++  return {
++    promise,
++    cancel,
++  };
++}
++
+ /**
+  * Returns a promise that resolve when a frame has a FCP.
+  * @param {LH.Gatherer.ProtocolSession} session
+@@ -403,7 +458,13 @@ async function isPageHung(session) {
+ }
+ 
+ /** @type {Required<WaitOptions>['_waitForTestOverrides']} */
+-const DEFAULT_WAIT_FUNCTIONS = {waitForFcp, waitForLoadEvent, waitForCPUIdle, waitForNetworkIdle};
++const DEFAULT_WAIT_FUNCTIONS = {
++  waitForFcp,
++  waitForLoadEvent,
++  waitForCPUIdle,
++  waitForNetworkIdle,
++  waitForNavigatedWithinDocument,
++};
+ 
+ /**
+  * Returns a promise that resolves when:
+@@ -551,6 +612,125 @@ async function waitForFullyLoaded(session, networkMonitor, options, signal) {
+   return cleanupFn();
+ }
+ 
++/**
++ * Returns a promise that resolves when:
++ * - All of the following conditions have been met:
++ *    - the main frame has navigated within the same document (a soft navigation).
++ *    - networkQuietThresholdMs milliseconds have passed since the last network request that exceeded
++ *      2 inflight requests (network-2-quiet has been reached).
++ *    - cpuQuietThresholdMs have passed since the last long task after network-2-quiet.
++ * - maxWaitForLoadedMs milliseconds have passed.
++ * A soft navigation has no load event or FCP lifecycle event, so network and CPU quiet stand in for
++ * them. Resolves with the URL the main frame navigated to, when it was observed.
++ * @param {LH.Gatherer.ProtocolSession} session
++ * @param {NetworkMonitor} networkMonitor
++ * @param {WaitOptions} options
++ * @param {AbortSignal} [signal]
++ * @return {Promise<{timedOut: boolean, url?: string}>}
++ */
++async function waitForSoftNavigation(session, networkMonitor, options, signal) {
++  const {networkQuietThresholdMs, cpuQuietThresholdMs, maxWaitForLoadedMs} = options;
++  const waitFunctions = options._waitForTestOverrides || DEFAULT_WAIT_FUNCTIONS;
++  const {waitForNetworkIdle, waitForCPUIdle} = waitFunctions;
++  const waitForNavigatedWithinDocumentFn =
++    waitFunctions.waitForNavigatedWithinDocument || waitForNavigatedWithinDocument;
++  /** @type {NodeJS.Timeout|undefined} */
++  let maxTimeoutHandle;
++  /** @type {string|undefined} */
++  let url;
++
++  // Listener for the same-document navigation of the main frame.
++  const resolveOnNavigatedWithinDocument = waitForNavigatedWithinDocumentFn(session);
++  resolveOnNavigatedWithinDocument.promise.then(navigatedUrl => {
++    url = navigatedUrl;
++  }).catch(() => {});
++  // General network listener. Resolves when the network has been 2-idle for networkQuietThresholdMs.
++  // The document was loaded long ago, so DCL is treated as already fired.
++  const resolveOnNetworkIdle = waitForNetworkIdle(session, networkMonitor, {
++    networkQuietThresholdMs,
++    busyEvent: 'network-2-busy',
++    idleEvent: 'network-2-idle',
++    isIdle: recorder => recorder.is2Idle(),
++    pretendDCLAlreadyFired: true,
++  });
++  // Critical network listener. Resolves when the network has had 0 critical requests for networkQuietThresholdMs.
++  const resolveOnCriticalNetworkIdle = waitForNetworkIdle(session, networkMonitor, {
++    networkQuietThresholdMs,
++    busyEvent: 'network-critical-busy',
++    idleEvent: 'network-critical-idle',
++    isIdle: recorder => recorder.isCriticalIdle(),
++    pretendDCLAlreadyFired: true,
++  });
++  // CPU listener. Resolves when the CPU has been idle for cpuQuietThresholdMs after network idle.
++  let resolveOnCPUIdle = waitForNothing();
++
++  /** @type {Promise<() => Promise<{timedOut: boolean, url?: string}>>} */
++  const navigatedPromise = Promise.all([
++    resolveOnNavigatedWithinDocument.promise,
++    resolveOnNetworkIdle.promise,
++    resolveOnCriticalNetworkIdle.promise,
++  ]).then(() => {
++    resolveOnCPUIdle = waitForCPUIdle(session, cpuQuietThresholdMs);
++    return resolveOnCPUIdle.promise;
++  }).then(() => {
++    /** @return {Promise<{timedOut: boolean, url?: string}>} */
++    const cleanupFn = async function() {
++      log.verbose('waitFor', 'navigated within document and network considered idle');
++      return {timedOut: false, url};
++    };
++
++    return cleanupFn;
++  }).catch(err => {
++    // Throw the error in the cleanupFn so we still cleanup all our handlers.
++    return function() {
++      throw err;
++    };
++  });
++
++  // Last resort timeout. Resolves maxWaitForLoadedMs ms from now.
++  /** @type {Promise<() => Promise<{timedOut: boolean, url?: string}>>} */
++  const maxTimeoutPromise = new Promise((resolve, reject) => {
++    maxTimeoutHandle = setTimeout(resolve, maxWaitForLoadedMs);
++  }).then(_ => {
++    return async () => {
++      log.warn('waitFor', 'Timed out waiting for soft navigation. Checking if page is hung...');
++      if (await isPageHung(session)) {
++        log.warn('waitFor', 'Page appears to be hung, killing JavaScript...');
++        // We don't await these, as we want to exit with PAGE_HUNG
++        void session.sendCommandAndIgnore('Emulation.setScriptExecutionDisabled', {value: true});
++        void session.sendCommandAndIgnore('Runtime.terminateExecution');
++        throw new LighthouseError(LighthouseError.errors.PAGE_HUNG);
++      }
++
++      return {timedOut: true, url};
++    };
++  });
++
++  /** @type {(event: Event) => void} */
++  let onAbort = () => {};
++  /** @type {Promise<() => Promise<{timedOut: boolean, url?: string}>>} */
++  const abortPromise = new Promise((resolve) => {
++    signal?.throwIfAborted();
++    onAbort = () => resolve(async () => ({timedOut: false, url}));
++    signal?.addEventListener('abort', onAbort, {once: true});
++  });
++
++  const cleanupFn = await Promise.race([
++    navigatedPromise,
++    maxTimeoutPromise,
++    abortPromise,
++  ]);
++
++  signal?.removeEventListener('abort', onAbort);
++  maxTimeoutHandle && clearTimeout(maxTimeoutHandle);
++  resolveOnNavigatedWithinDocument.cancel();
++  resolveOnNetworkIdle.cancel();
++  resolveOnCriticalNetworkIdle.cancel();
++  resolveOnCPUIdle.cancel();
++
++  return cleanupFn();
++}
++
+ /**
+  * @param {LH.Gatherer.Driver} driver
+  */
+@@ -583,5 +763,7 @@ export {
+   waitForNetworkIdle,
+   waitForCPUIdle,
+   waitForFullyLoaded,
++  waitForNavigatedWithinDocument,
++  waitForSoftNavigation,
+   waitForUserToContinue,
+ };
+diff --git a/core/gather/gatherers/trace.js b/core/gather/gatherers/trace.js
+index 1e9f6d90afe52e0665e4696af840afe018086329..8036bf10da48905ca65b03863848199fc9a85a35 100644
+--- a/core/gather/gatherers/trace.js
++++ b/core/gather/gatherers/trace.js
+@@ -161,6 +161,11 @@ class Trace extends BaseGatherer {
+     if (gatherMode === 'timespan') {
+       await driver.defaultSession.sendCommand('Tracing.recordClockSyncMarker',
+         {syncId: TraceProcessor.TIMESPAN_MARKER_ID});
++    } else if (gatherMode === 'navigation' && settings.softNavigation) {
++      // The page is already loaded, so there is no navigationStart to anchor the trace to.
++      // The marker is the fallback time origin when no soft navigation is detected.
++      await driver.defaultSession.sendCommand('Tracing.recordClockSyncMarker',
++        {syncId: TraceProcessor.SOFT_NAVIGATION_MARKER_ID});
+     }
+   }
+ 
+diff --git a/core/gather/navigation-runner.js b/core/gather/navigation-runner.js
+index 325979cc47dfcc92f6ea2a3f58d8bffc53d1366d..6c955ffb1a2d4a55c93c6ccb0752b9a0405aa75d 100644
+--- a/core/gather/navigation-runner.js
++++ b/core/gather/navigation-runner.js
+@@ -23,6 +23,16 @@ import {getPageLoadError} from '../lib/navigation-error.js';
+ import Trace from './gatherers/trace.js';
+ import DevtoolsLog from './gatherers/devtools-log.js';
+ import {NetworkRecords} from '../computed/network-records.js';
++import * as i18n from '../lib/i18n/i18n.js';
++
++/* eslint-disable max-len */
++const UIStrings = {
++  /** A warning that indicates Lighthouse detected more than one soft navigation (a same-document navigation triggered by user interaction) during a run that measures a single one. */
++  warningMultipleSoftNavigations: 'Multiple soft navigations were detected during the run. Only the first soft navigation is measured.',
++};
++/* eslint-enable max-len */
++
++const str_ = i18n.createIcuMessageFn(import.meta.url, UIStrings);
+ 
+ /**
+  * @typedef NavigationContext
+@@ -75,6 +85,16 @@ async function _cleanupNavigation({driver}) {
+   await emulation.clearThrottling(driver.defaultSession);
+ }
+ 
++/**
++ * @param {LH.Config.Settings} settings
++ * @return {Array<'fcp'|'load'|'navigated'|'softNavigation'>}
++ */
++function _getWaitUntil(settings) {
++  // A soft navigation never fires a load event or an FCP lifecycle event.
++  if (settings.softNavigation) return ['softNavigation'];
++  return settings.pauseAfterFcpMs ? ['fcp', 'load'] : ['load'];
++}
++
+ /**
+  * @param {NavigationContext} navigationContext
+  * @return {Promise<{requestedUrl: string, mainDocumentUrl: string, navigationError: LH.LighthouseError | undefined}>}
+@@ -85,7 +105,7 @@ async function _navigate(navigationContext) {
+   try {
+     const {requestedUrl, mainDocumentUrl, warnings} = await gotoURL(driver, requestor, {
+       ...resolvedConfig.settings,
+-      waitUntil: resolvedConfig.settings.pauseAfterFcpMs ? ['fcp', 'load'] : ['load'],
++      waitUntil: _getWaitUntil(resolvedConfig.settings),
+       signal,
+     });
+ 
+@@ -143,8 +163,10 @@ async function _computeNavigationResult(
+   navigateResult
+ ) {
+   const {navigationError, requestedUrl, mainDocumentUrl} = navigateResult;
++  const {settings} = navigationContext.resolvedConfig;
+   const debugData = await _collectDebugData(navigationContext, phaseState);
+-  const pageLoadError = debugData.records
++  // A soft navigation has no document request to inspect for page load errors.
++  const pageLoadError = debugData.records && !settings.softNavigation
+     ? getPageLoadError(navigationError, {
+       url: mainDocumentUrl,
+       ignoreStatusCode: navigationContext.resolvedConfig.settings.ignoreStatusCode,
+@@ -174,10 +196,28 @@ async function _computeNavigationResult(
+   } else {
+     await collectPhaseArtifacts({phase: 'getArtifact', ...phaseState});
+ 
+-    return await awaitArtifacts(phaseState.artifactState);
++    const artifacts = await awaitArtifacts(phaseState.artifactState);
++    if (settings.softNavigation) {
++      navigationContext.baseArtifacts.LighthouseRunWarnings.push(
++        ..._getSoftNavigationWarnings(artifacts.Trace));
++    }
++    return artifacts;
+   }
+ }
+ 
++/**
++ * @param {LH.Trace|undefined} trace
++ * @return {Array<LH.IcuMessage>}
++ */
++function _getSoftNavigationWarnings(trace) {
++  // The trace artifact is an Error when its collection failed.
++  if (!trace || !Array.isArray(trace.traceEvents)) return [];
++  const softNavigationCount =
++    trace.traceEvents.filter(event => event.name === 'SoftNavigationStart').length;
++  if (softNavigationCount > 1) return [str_(UIStrings.warningMultipleSoftNavigations)];
++  return [];
++}
++
+ /**
+  * @param {NavigationContext} navigationContext
+  * @return {ReturnType<typeof _computeNavigationResult>}
+@@ -264,6 +304,9 @@ async function navigationGather(page, requestor, options = {}) {
+   const computedCache = new Map();
+ 
+   const isCallback = typeof requestor === 'function';
++  if (resolvedConfig.settings.softNavigation && !isCallback) {
++    throw new Error('A soft navigation can only be triggered by a callback requestor');
++  }
+ 
+   const runnerOptions = {resolvedConfig, computedCache};
+ 
+@@ -313,4 +356,5 @@ export {
+   _navigate,
+   _navigation,
+   _cleanup,
++  UIStrings,
+ };
+diff --git a/core/lib/lh-error.js b/core/lib/lh-error.js
+index b716246994a73de1b8a0712f6b2b8ed00428ce7d..1f4e62b8fb9ca1d0e4cf746c05987fbdd8778225 100644
+--- a/core/lib/lh-error.js
++++ b/core/lib/lh-error.js
+@@ -28,6 +28,11 @@ const UIStrings = {
+    * @example {NO_LCP} errorCode
+    * */
+   noLcp: 'The page did not display content that qualifies as a Largest Contentful Paint (LCP). Ensure the page has a valid LCP element and then try again. ({errorCode})',
++  /**
++   * @description Error message explaining that no soft navigation (a same-document navigation triggered by user interaction) was detected during a Lighthouse run that expected one.
++   * @example {NO_SOFT_NAVIGATION} errorCode
++   * */
++  noSoftNavigation: 'Lighthouse did not detect a soft navigation. Make sure the interaction updates the URL and renders new content, and that Chrome 149 or newer is being used. ({errorCode})',
+   /**
+    * @description Error message explaining that the page loaded too slowly to perform a Lighthouse run.
+    * @example {NO_TTI_CPU_IDLE_PERIOD} errorCode
+@@ -296,6 +301,11 @@ const ERRORS = {
+     code: 'NO_LCP_ALL_FRAMES',
+     message: UIStrings.noLcp,
+   },
++  NO_SOFT_NAVIGATION: {
++    code: 'NO_SOFT_NAVIGATION',
++    message: UIStrings.noSoftNavigation,
++    lhrRuntimeError: true,
++  },
+   UNSUPPORTED_OLD_CHROME: {
+     code: 'UNSUPPORTED_OLD_CHROME',
+     message: UIStrings.oldChromeDoesNotSupportFeature,
+diff --git a/core/lib/lh-trace-processor.js b/core/lib/lh-trace-processor.js
+index bb4173817b5f98c89471251c4d1da2ad3d70ee5d..7593dc2d676d1ea0554321bee4e8defe3473521d 100644
+--- a/core/lib/lh-trace-processor.js
++++ b/core/lib/lh-trace-processor.js
+@@ -40,6 +40,13 @@ class LHTraceProcessor extends TraceProcessor {
+   static createNoFirstContentfulPaintError() {
+     return new LighthouseError(LighthouseError.errors.NO_FCP);
+   }
++
++  /**
++   * @return {Error}
++   */
++  static createNoSoftNavigationError() {
++    return new LighthouseError(LighthouseError.errors.NO_SOFT_NAVIGATION);
++  }
+ }
+ 
+ export default LHTraceProcessor;
+diff --git a/core/lib/tracehouse/trace-processor.js b/core/lib/tracehouse/trace-processor.js
+index 61f93e97b84cc2890cb23f45e1a432828ac456bb..0a76ff85c2f4fc139c59de2414aab1585139d7b9 100644
+--- a/core/lib/tracehouse/trace-processor.js
++++ b/core/lib/tracehouse/trace-processor.js
+@@ -16,10 +16,12 @@
+  */
+ 
+ /** @typedef {Omit<LH.Artifacts.NavigationTraceTimes, 'firstContentfulPaintAllFrames'|'traceEnd'>} TraceNavigationTimesForFrame */
+-/** @typedef {'lastNavigationStart'|'firstResourceSendRequest'|'lighthouseMarker'|'auto'} TimeOriginDeterminationMethod */
++/** @typedef {'lastNavigationStart'|'firstResourceSendRequest'|'lighthouseMarker'|'softNavigationStart'|'auto'} TimeOriginDeterminationMethod */
+ /** @typedef {Omit<LH.TraceEvent, 'name'|'args'> & {name: 'FrameCommittedInBrowser', args: {data: {frame: string, url: string, parent?: string}}}} FrameCommittedEvent */
+ /** @typedef {Omit<LH.TraceEvent, 'name'|'args'> & {name: 'largestContentfulPaint::Invalidate'|'largestContentfulPaint::Candidate', args: {data?: {size?: number}, frame: string}}} LCPEvent */
+ /** @typedef {Omit<LH.TraceEvent, 'name'|'args'> & {name: 'largestContentfulPaint::Candidate', args: {data: {size: number}, frame: string}}} LCPCandidateEvent */
++/** @typedef {LH.TraceEvent & {name: 'SoftNavigationStart', args: {context: {URL?: string, firstContentfulPaint?: number, performanceTimelineNavigationId?: number, softNavContextId?: number, timeOrigin: number}}}} SoftNavigationStartEvent */
++/** @typedef {LH.TraceEvent & {name: 'largestContentfulPaint::CandidateForSoftNavigation', args: {data: {performanceTimelineNavigationId?: number}}}} SoftNavigationLCPCandidateEvent */
+ 
+ import log from 'lighthouse-logger';
+ 
+@@ -42,6 +44,10 @@ class TraceProcessor {
+     return '__lighthouseTimespanStart__';
+   }
+ 
++  static get SOFT_NAVIGATION_MARKER_ID() {
++    return '__lighthouseSoftNavigationStart__';
++  }
++
+   /**
+    * @return {Error}
+    */
+@@ -70,6 +76,13 @@ class TraceProcessor {
+     return new Error('No FirstContentfulPaint event found');
+   }
+ 
++  /**
++   * @return {Error}
++   */
++  static createNoSoftNavigationError() {
++    return new Error('No SoftNavigationStart event found');
++  }
++
+   /**
+    * @return {Error}
+    */
+@@ -870,6 +883,15 @@ class TraceProcessor {
+       mainFrameInfo,
+     } = processedTrace;
+ 
++    if (timeOriginEvt.name === 'SoftNavigationStart') {
++      return this.processSoftNavigation(processedTrace);
++    }
++    if (timeOriginEvt.name === 'clock_sync' &&
++        timeOriginEvt.args.sync_id === TraceProcessor.SOFT_NAVIGATION_MARKER_ID) {
++      // Lighthouse expected a soft navigation but Chrome never reported one.
++      throw this.createNoSoftNavigationError();
++    }
++
+     // Compute the key frame timings for the main frame.
+     const frameTimings = this.computeNavigationTimingsForFrame(frameEvents, {timeOriginEvt});
+ 
+@@ -928,6 +950,85 @@ class TraceProcessor {
+     };
+   }
+ 
++  /**
++   * Computes the key timings of a soft navigation (a same-document navigation triggered by user
++   * interaction) whose `SoftNavigationStart` event is the time origin of the processed trace.
++   *
++   * Chrome reports the soft navigation's first contentful paint on the `SoftNavigationStart` event
++   * itself and its LCP candidates as `largestContentfulPaint::CandidateForSoftNavigation` events,
++   * correlated by `performanceTimelineNavigationId`. The soft navigation is observed until the next
++   * one starts. There is no first paint, load or DOMContentLoaded for a soft navigation.
++   *
++   * @param {LH.Artifacts.ProcessedTrace} processedTrace
++   * @return {LH.Artifacts.ProcessedNavigation}
++   */
++  static processSoftNavigation(processedTrace) {
++    const {frameEvents, timeOriginEvt, timings, timestamps} = processedTrace;
++    const softNavigationStartEvt = /** @type {SoftNavigationStartEvent} */ (timeOriginEvt);
++    const {context} = softNavigationStartEvt.args;
++
++    const nextSoftNavigationStartEvt = frameEvents.find(
++      e => e.name === 'SoftNavigationStart' && e.ts > timeOriginEvt.ts
++    );
++    const windowEnd = nextSoftNavigationStartEvt?.ts ?? Infinity;
++    /** @param {number} ts */
++    const isInWindow = ts => ts >= timeOriginEvt.ts && ts < windowEnd;
++
++    const firstContentfulPaintTs = context.firstContentfulPaint;
++    if (firstContentfulPaintTs === undefined || !isInWindow(firstContentfulPaintTs)) {
++      throw this.createNoFirstContentfulPaintError();
++    }
++
++    // frameEvents are sorted by timestamp, so the last matching candidate is the final LCP.
++    const largestContentfulPaintEvt = frameEvents
++      .filter(e => e.name === 'largestContentfulPaint::CandidateForSoftNavigation')
++      .map(e => /** @type {SoftNavigationLCPCandidateEvent} */ (e))
++      .filter(e => {
++        return e.args.data.performanceTimelineNavigationId ===
++          context.performanceTimelineNavigationId && isInWindow(e.ts);
++      })
++      .at(-1);
++
++    /** @param {number} ts */
++    const getTiming = ts => (ts - timeOriginEvt.ts) / 1000;
++    /** @param {number=} ts */
++    const maybeGetTiming = (ts) => ts === undefined ? undefined : getTiming(ts);
++
++    return {
++      timings: {
++        timeOrigin: timings.timeOrigin,
++        firstPaint: undefined,
++        firstContentfulPaint: getTiming(firstContentfulPaintTs),
++        firstContentfulPaintAllFrames: getTiming(firstContentfulPaintTs),
++        largestContentfulPaint: maybeGetTiming(largestContentfulPaintEvt?.ts),
++        largestContentfulPaintAllFrames: maybeGetTiming(largestContentfulPaintEvt?.ts),
++        load: undefined,
++        domContentLoaded: undefined,
++        traceEnd: timings.traceEnd,
++      },
++      timestamps: {
++        timeOrigin: timestamps.timeOrigin,
++        firstPaint: undefined,
++        firstContentfulPaint: firstContentfulPaintTs,
++        firstContentfulPaintAllFrames: firstContentfulPaintTs,
++        largestContentfulPaint: largestContentfulPaintEvt?.ts,
++        largestContentfulPaintAllFrames: largestContentfulPaintEvt?.ts,
++        load: undefined,
++        domContentLoaded: undefined,
++        traceEnd: timestamps.traceEnd,
++      },
++      firstPaintEvt: undefined,
++      // There is no dedicated FCP event for a soft navigation; the start event carries its timing.
++      firstContentfulPaintEvt: softNavigationStartEvt,
++      firstContentfulPaintAllFramesEvt: softNavigationStartEvt,
++      largestContentfulPaintEvt,
++      largestContentfulPaintAllFramesEvt: largestContentfulPaintEvt,
++      loadEvt: undefined,
++      domContentLoadedEvt: undefined,
++      lcpInvalidated: false,
++    };
++  }
++
+   /**
+    * Computes the last observable timestamp in a set of trace events.
+    *
+@@ -981,6 +1082,23 @@ class TraceProcessor {
+       );
+     };
+ 
++    const softNavigationMarker = () => {
++      return traceEventSubsets.keyEvents.find(
++        evt =>
++          evt.name === 'clock_sync' &&
++          evt.args.sync_id === TraceProcessor.SOFT_NAVIGATION_MARKER_ID
++      );
++    };
++
++    const softNavigationStart = () => {
++      // Our time origin will be the first soft navigation of the frame that Lighthouse observed.
++      // The marker, when present, excludes soft navigations that completed before the run began.
++      const marker = softNavigationMarker();
++      return traceEventSubsets.frameEvents.find(
++        evt => evt.name === 'SoftNavigationStart' && (!marker || evt.ts >= marker.ts)
++      );
++    };
++
+     switch (method) {
+       case 'firstResourceSendRequest': {
+         // Our time origin will be the timestamp of the first request that's sent in the frame.
+@@ -1002,8 +1120,15 @@ class TraceProcessor {
+         if (!marker) throw this.createNoLighthouseMarkerError();
+         return marker;
+       }
++      case 'softNavigationStart': {
++        // Fall back to the marker so the trace is still usable when no soft navigation was detected.
++        const softNavStart = softNavigationStart() || softNavigationMarker();
++        if (!softNavStart) throw this.createNoSoftNavigationError();
++        return softNavStart;
++      }
+       case 'auto': {
+-        const marker = lighthouseMarker() || lastNavigationStart();
++        const marker = lighthouseMarker() || lastNavigationStart() ||
++          softNavigationStart() || softNavigationMarker();
+         if (!marker) throw this.createNoNavstartError();
+         return marker;
+       }
+diff --git a/core/user-flow.js b/core/user-flow.js
+index 518e5eef9e1680634c52932ea6a812604f6c4d61..ccfef85ad2441da8c8a4fd6c36295714968eeac7 100644
+--- a/core/user-flow.js
++++ b/core/user-flow.js
+@@ -28,6 +28,11 @@ const UIStrings = {
+    * @example {example.com/page} url
+    */
+   defaultNavigationName: 'Navigation report ({url})',
++  /**
++   * @description Default name for a Lighthouse report that analyzes a soft navigation: a same-document navigation triggered by user interaction, such as a single-page app changing its URL and content on a link click. "url" is a trimmed version of a url that only includes the domain name and path.
++   * @example {example.com/page} url
++   */
++  defaultSoftNavigationName: 'Soft navigation report ({url})',
+   /**
+    * @description Default name for a Lighthouse report that analyzes user interactions over a period of time. "url" is a trimmed version of a url that only includes the domain name and path.
+    * @example {example.com/page} url
+@@ -295,6 +300,9 @@ function getStepName(flags, artifacts) {
+   const shortUrl = shortenUrl(artifacts.URL.finalDisplayedUrl);
+   switch (artifacts.GatherContext.gatherMode) {
+     case 'navigation':
++      if (artifacts.settings.softNavigation) {
++        return translate(UIStrings.defaultSoftNavigationName, {url: shortUrl}, locale);
++      }
+       return translate(UIStrings.defaultNavigationName, {url: shortUrl}, locale);
+     case 'timespan':
+       return translate(UIStrings.defaultTimespanName, {url: shortUrl}, locale);
+diff --git a/types/lhr/settings.d.ts b/types/lhr/settings.d.ts
+index df95cb72989906b80e1af98331f66a6faad1207e..4d7fa2e84e32d07963d3fe8f7ba85c0d69d9a61a 100644
+--- a/types/lhr/settings.d.ts
++++ b/types/lhr/settings.d.ts
+@@ -81,6 +81,12 @@ export type ScreenEmulationSettings = {
+   debugNavigation?: boolean;
+   /** If set to true, will skip the initial navigation to about:blank. */
+   skipAboutBlank?: boolean;
++  /**
++   * EXPERIMENTAL. If set to true, the navigation is expected to be a soft navigation (a same-document
++   * navigation triggered by user interaction) instead of a full page load. Requires a callback
++   * requestor and Chrome 149 or newer. Audits that depend on the main document request are skipped.
++   */
++  softNavigation?: boolean;
+   /** If set to true, gatherers should avoid any behavior that may be destructive to the page state. (e.g. extra navigations, resizing the viewport) */
+   usePassiveGathering?: boolean;
+ 

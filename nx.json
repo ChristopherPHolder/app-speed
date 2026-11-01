@@ -34,6 +34,7 @@
         "production",
         "^production",
         "{workspaceRoot}/pnpm-workspace.yaml",
+        "{workspaceRoot}/patches/**/*",
         {
           "json": "{workspaceRoot}/package.json",
           "fields": [

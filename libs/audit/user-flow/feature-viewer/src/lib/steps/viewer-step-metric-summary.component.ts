@@ -7,6 +7,7 @@ export type MetricSummary = {
   value: string | undefined;
   description: string;
   status: StatusOptions;
+  errorMessage?: string;
 };
 
 @Component({
@@ -26,6 +27,9 @@ export type MetricSummary = {
             <div class="header-name">{{ metric.name }}</div>
             <div class="header-value" [style.color]="STATUS_COLOR[metric.status]">{{ metric.value }}</div>
           </div>
+          @if (metric.errorMessage) {
+            <p class="metric-error">{{ metric.errorMessage }}</p>
+          }
           @if (descriptionVisible()) {
             <div style="margin: 16px 0;" [innerHTML]="metric.description | mdToAnker"></div>
           }
@@ -86,6 +90,11 @@ export type MetricSummary = {
       font-size: large;
       font-weight: 500;
       margin-left: auto;
+    }
+
+    .metric-error {
+      font-size: 14px;
+      line-height: 1.5;
     }
   `,
   imports: [StatusBadgeComponent, MdToAnkerPipe],

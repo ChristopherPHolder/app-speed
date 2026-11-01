@@ -3,10 +3,7 @@ import {
   PUPPETEER_REPLAY_ASSERTION_STEP_TYPE,
   PUPPETEER_REPLAY_USER_STEP_TYPE,
 } from '@app-speed/audit/core/domain';
-import {
-  USER_FLOW_AUDIT_BUILDER_STEP_VARIANTS,
-  LIGHTHOUSE_AUDIT_STEP_TYPE,
-} from '@app-speed/audit/user-flow/domain';
+import { USER_FLOW_AUDIT_BUILDER_STEP_VARIANTS, LIGHTHOUSE_AUDIT_STEP_TYPE } from '@app-speed/audit/user-flow/domain';
 
 export type StepPresentationGroup = 'Audit Steps' | 'Custom Steps' | 'Assertion Steps' | 'Action Steps';
 export type StepPresentationIcon = 'lighthouse-badge' | 'puppeteer-badge';
@@ -35,6 +32,15 @@ type StepPresentationOverride = {
 };
 
 export const AUDIT_BUILDER_STEP_PRESENTATION_REGISTRY = {
+  startNavigation: {
+    fields: {
+      softNavigation: {
+        label: 'Soft Navigation (Experimental)',
+        description:
+          'Measure a same-document navigation triggered by the following interaction steps. Requires Chrome 149 or newer. Finish with End Navigation.',
+      },
+    },
+  },
   waitForElement: {
     fields: {
       selectors: {

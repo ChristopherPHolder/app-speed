@@ -1,8 +1,6 @@
 import { defaultConfig, desktopConfig } from 'lighthouse';
-import type Config from 'lighthouse/types/config.js';
 
 import { DEVICE_TYPE, DeviceSchema, type DeviceType } from '@app-speed/audit/core/domain';
-import { softNavigationConfig, softNavigationPerformanceAuditRefs } from '../soft-nav/config';
 import { Effect, Schema } from 'effect';
 
 export class InvalidDeviceConfigurationError extends Schema.TaggedError<InvalidDeviceConfigurationError>()(
@@ -32,22 +30,6 @@ const LighthouseRunnerSettingsSchema = Schema.Struct({
 
 export const AuditConfig = Effect.fn('deviceConfig')(function* (deviceType: DeviceType) {
   const devicePreset = lighthouseDevicePresets[deviceType];
-  const performanceCategory = devicePreset.categories?.['performance'];
-  const lighthousePreset = {
-    ...devicePreset,
-    audits: [...(devicePreset.audits ?? []), ...(softNavigationConfig.audits ?? [])],
-    categories: {
-      ...devicePreset.categories,
-      ...(performanceCategory
-        ? {
-            performance: {
-              ...performanceCategory,
-              auditRefs: [...performanceCategory.auditRefs, ...softNavigationPerformanceAuditRefs],
-            },
-          }
-        : {}),
-    },
-  } satisfies Config;
   const settings = yield* Schema.decodeUnknownEffect(LighthouseRunnerSettingsSchema)(devicePreset.settings).pipe(
     Effect.mapError(
       (cause) =>
@@ -60,7 +42,7 @@ export const AuditConfig = Effect.fn('deviceConfig')(function* (deviceType: Devi
   );
 
   return {
-    lighthousePreset,
+    lighthousePreset: devicePreset,
     userAgent: settings.emulatedUserAgent,
     defaultViewport: {
       width: settings.screenEmulation.width,

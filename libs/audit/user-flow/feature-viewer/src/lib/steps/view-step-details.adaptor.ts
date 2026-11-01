@@ -34,6 +34,12 @@ export const metricAudits = (auditRefs: Result.Category['auditRefs']): string[] 
 
 export const metricResults = (ids: string[], audits: Audits): MetricSummary[] =>
   ids.map((id: string) => {
-    const { title, displayValue, description, score, numericValue, scoringOptions } = audits[id];
-    return { name: title, value: displayValue, description, status: metricStatus(score, numericValue, scoringOptions) };
+    const { title, displayValue, description, score, numericValue, scoringOptions, errorMessage } = audits[id];
+    return {
+      name: title,
+      value: displayValue ?? (errorMessage ? 'Not measured' : undefined),
+      description,
+      status: errorMessage ? STATUS.ALERT : metricStatus(score, numericValue, scoringOptions),
+      ...(errorMessage ? { errorMessage } : {}),
+    };
   });
