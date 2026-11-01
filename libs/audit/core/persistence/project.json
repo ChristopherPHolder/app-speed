@@ -17,10 +17,6 @@
         "generatePackageJson": true
       }
     },
-    "lint": {
-      "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"]
-    },
     "effect:diagnostics": {
       "options": {
         "args": ["--tsconfig", "tsconfig.lib.json"]

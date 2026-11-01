@@ -19,9 +19,6 @@
         "passWithNoTests": true
       }
     },
-    "lint": {
-      "executor": "@nx/eslint:lint"
-    },
     "effect:diagnostics": {
       "options": {
         "args": ["--tsconfig", "tsconfig.lib.json"]

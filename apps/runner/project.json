@@ -60,10 +60,6 @@
       "command": "node dist/{projectRoot}",
       "dependsOn": ["build"]
     },
-    "lint": {
-      "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"]
-    },
     "deploy": {
       "executor": "@app-speed/aws-deploy:ec2-ssm-cycle",
       "defaultConfiguration": "development",

@@ -74,10 +74,6 @@
         "buildTarget": "portal:build"
       }
     },
-    "lint": {
-      "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"]
-    },
     "test": {},
     "serve-static": {
       "executor": "@nx/web:file-server",

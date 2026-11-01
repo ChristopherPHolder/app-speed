@@ -35,10 +35,6 @@
       "options": {
         "command": "tsc --noEmit -p apps/portal-e2e/tsconfig.json"
       }
-    },
-    "lint": {
-      "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"]
     }
   }
 }

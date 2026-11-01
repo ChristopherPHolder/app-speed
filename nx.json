@@ -27,10 +27,6 @@
     "integration": {
       "cache": false
     },
-    "@nx/eslint:lint": {
-      "inputs": ["default", "^default", "{workspaceRoot}/tools/eslint-rules/**/*", "{workspaceRoot}/eslint.config.mjs"],
-      "cache": true
-    },
     "@nx/jest:jest": {
       "inputs": ["default", "^default", "{workspaceRoot}/jest.preset.js"],
       "cache": true,
@@ -97,6 +93,10 @@
     "test": {
       "cache": true,
       "inputs": ["default", "^production"]
+    },
+    "lint": {
+      "inputs": ["default", "^default", "{workspaceRoot}/tools/eslint-rules/**/*", "{workspaceRoot}/eslint.config.mjs"],
+      "cache": true
     }
   },
   "sync": {
@@ -250,6 +250,43 @@
         "testTargetName": "test",
         "testMode": "run"
       }
+    },
+    {
+      "plugin": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "lint"
+      },
+      "include": [
+        "apps/api/**/*",
+        "apps/portal/**/*",
+        "apps/portal-e2e/**/*",
+        "apps/runner/**/*",
+        "libs/audit/core/api-contract/**/*",
+        "libs/audit/core/api-runtime/**/*",
+        "libs/audit/core/domain/**/*",
+        "libs/audit/core/feature-history/**/*",
+        "libs/audit/core/persistence/**/*",
+        "libs/audit/core/portal-ui/**/*",
+        "libs/audit/core/runner/**/*",
+        "libs/audit/user-flow/api-contract/**/*",
+        "libs/audit/user-flow/api-runtime/**/*",
+        "libs/audit/user-flow/domain/**/*",
+        "libs/audit/user-flow/feature-builder/**/*",
+        "libs/audit/user-flow/feature-viewer/**/*",
+        "libs/audit/user-flow/persistence/**/*",
+        "libs/audit/user-flow/portal-data-access/**/*",
+        "libs/audit/user-flow/runner/**/*",
+        "libs/convenience/feature-catalog/**/*",
+        "libs/convenience/trace/domain/**/*",
+        "libs/convenience/trace/feature-tools/**/*",
+        "libs/convenience/trace/portal-data-access/**/*",
+        "libs/convenience/trace/portal-ui/**/*",
+        "libs/platform/observability/**/*",
+        "libs/ui/**/*",
+        "tools/aws-deploy/**/*",
+        "tools/db-tools/**/*",
+        "tools/test-orchestration/**/*"
+      ]
     }
   ],
   "release": {
