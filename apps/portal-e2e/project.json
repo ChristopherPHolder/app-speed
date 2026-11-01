@@ -24,10 +24,9 @@
       }
     },
     "cypress": {
-      "executor": "@nx/cypress:cypress",
       "cache": false,
       "options": {
-        "cypressConfig": "apps/portal-e2e/cypress.config.ts"
+        "config-file": "./cypress.config.ts"
       }
     },
     "typecheck": {
