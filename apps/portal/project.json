@@ -56,6 +56,9 @@
       "defaultConfiguration": "development",
       "continuous": true,
       "dependsOn": ["api:serve"],
+      "readyWhen": {
+        "signal": true
+      },
       "options": {
         "proxyConfig": "apps/portal/proxy.conf.json"
       },
@@ -66,9 +69,6 @@
         "development": {
           "buildTarget": "portal:build:development"
         }
-      },
-      "readyWhen": {
-        "signal": true
       }
     },
     "extract-i18n": {
@@ -82,7 +82,11 @@
       "executor": "@nx/web:file-server",
       "options": {
         "buildTarget": "portal:build"
-      }
+      },
+      "readyWhen": {
+        "signal": true
+      },
+      "dependsOn": ["build"]
     },
     "deploy": {
       "executor": "@app-speed/aws-deploy:s3-upload",
