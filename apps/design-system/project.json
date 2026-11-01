@@ -7,6 +7,7 @@
   "targets": {
     "serve": {
       "executor": "@storybook/angular:start-storybook",
+      "continuous": true,
       "options": {
         "port": 4400,
         "configDir": "apps/design-system/.storybook",
@@ -19,6 +20,10 @@
         "ci": {
           "quiet": true
         }
+      },
+      "readyWhen": {
+        "port": "{env.SBCONFIG_PORT ?? options.port ?? 9009}",
+        "host": "{env.SBCONFIG_HOSTNAME ?? options.host ?? localhost}"
       }
     },
     "build": {
@@ -41,6 +46,7 @@
     "deploy": {
       "executor": "@app-speed/aws-deploy:s3-upload",
       "dependsOn": ["build"],
+      "defaultConfiguration": "development",
       "options": {
         "upload": "dist/storybook/design-system"
       },
@@ -51,8 +57,7 @@
         "development": {
           "bucket": "s3://ds.appspeed.dev"
         }
-      },
-      "defaultConfiguration": "development"
+      }
     }
   }
 }
