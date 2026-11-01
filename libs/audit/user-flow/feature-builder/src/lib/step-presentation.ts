@@ -60,7 +60,7 @@ export const AUDIT_BUILDER_STEP_PRESENTATION_REGISTRY = {
         label: 'Navigation Title',
       },
       'assertedEvents[].url': {
-        label: 'Navigation Url',
+        label: 'Navigation URL',
       },
       attributes: {
         description: 'Whether matching elements should also expose these attributes.',
@@ -89,7 +89,7 @@ export const AUDIT_BUILDER_STEP_PRESENTATION_REGISTRY = {
   addCookie: {
     fields: {
       url: {
-        label: 'Cookie Url',
+        label: 'Cookie URL',
       },
       sameSite: {
         label: 'Same Site',
@@ -175,7 +175,8 @@ export function humanizeStepToken(value: string): string {
     .replace(/[_-]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
-    .replace(/^\w/, (character) => character.toUpperCase());
+    .replace(/^\w/, (character) => character.toUpperCase())
+    .replace(/\bUrl\b/gi, 'URL');
 }
 
 function getStepGroup(variantId: string): StepPresentationGroup {

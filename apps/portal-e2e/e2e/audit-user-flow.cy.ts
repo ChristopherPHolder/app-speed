@@ -37,12 +37,12 @@ describe('full local audit system', () => {
     cy.visit(`/audits/user-flow?audit-details=${draft}`);
 
     cy.get('[data-testid="audit-builder-card"]').should('be.visible');
-    cy.get('input[placeholder="Audit Title"]').clear();
-    cy.get('input[placeholder="Audit Title"]').type(auditTitle);
+    cy.get('input[name="audit title"]').clear();
+    cy.get('input[name="audit title"]').type(auditTitle);
     cy.get('ui-audit-builder-step')
       .eq(1)
       .within(() => {
-        cy.contains('mat-label', 'Url').closest('mat-form-field').find('input').as('fixtureUrlInput');
+        cy.contains('mat-label', /^URL$/).closest('mat-form-field').find('input').as('fixtureUrlInput');
         cy.get('@fixtureUrlInput').clear();
         cy.get('@fixtureUrlInput').type(fixtureBaseUrl);
       });
