@@ -219,7 +219,7 @@
     {
       "plugin": "@nx/cypress/plugin",
       "options": {
-        "targetName": "e2e",
+        "targetName": "cypress",
         "openTargetName": "open-cypress",
         "componentTestingTargetName": "component-test",
         "ciTargetName": "e2e-ci"
