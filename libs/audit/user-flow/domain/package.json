@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "peerDependencies": {
     "@app-speed/audit/core/domain": "0.0.1",
-    "effect": "4.0.0",
-    "lighthouse": "^13.4.1"
+    "effect": "4.1.1",
+    "lighthouse": "^13.6.0"
   },
   "sideEffects": false
 }

@@ -2,10 +2,10 @@
   "name": "@app-speed/aws-deploy",
   "version": "0.0.1",
   "dependencies": {
-    "@nx/devkit": "20.7.1",
+    "@nx/devkit": "24.0.3",
     "@aws-sdk/client-ec2": "^3.1127.0",
     "@aws-sdk/client-ssm": "^3.1127.0",
-    "effect": "4.0.0",
+    "effect": "4.1.1",
     "dotenv": "16.4.7",
     "archiver": "^7.0.1"
   },

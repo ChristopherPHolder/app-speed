@@ -7,8 +7,8 @@
     "@angular/core": "22.1.5",
     "@app-speed/audit/user-flow/api-contract": "0.0.1",
     "@app-speed/audit/user-flow/domain": "0.0.1",
-    "@nx/vite": "23.2.0",
-    "effect": "4.0.0",
+    "@nx/vite": "24.0.3",
+    "effect": "4.1.1",
     "rxjs": "^7.8.0",
     "vitest": "^5.0.3"
   },

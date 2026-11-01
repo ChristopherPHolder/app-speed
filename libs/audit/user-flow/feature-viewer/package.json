@@ -11,12 +11,12 @@
     "@app-speed/audit/core/portal-ui": "0.0.1",
     "@app-speed/audit/user-flow/portal-data-access": "0.0.1",
     "@app-speed/ui": "0.0.0",
-    "lighthouse": "^13.4.1",
+    "lighthouse": "^13.6.0",
     "rxjs": "^7.8.0",
     "swiper": "^12.1.4",
     "vitest": "^5.0.3",
     "@analogjs/vite-plugin-angular": "2.7.1",
-    "@nx/vite": "23.2.0",
+    "@nx/vite": "24.0.3",
     "@storybook/angular": "10.6.0"
   },
   "sideEffects": false
