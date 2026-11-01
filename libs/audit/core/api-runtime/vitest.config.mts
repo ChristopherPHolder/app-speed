@@ -1,10 +1,12 @@
 import { defineConfig } from 'vitest/config';
-import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 
 export default defineConfig(() => ({
+  resolve: {
+    tsconfigPaths: true,
+  },
   root: import.meta.dirname,
   cacheDir: '../../../../node_modules/.vite/libs/audit/core/api-runtime',
-  plugins: [nxViteTsPaths()],
+  plugins: [],
   test: {
     name: 'audit-api-runtime',
     watch: false,

@@ -1,12 +1,14 @@
 /// <reference types='vitest' />
 import { defineConfig } from 'vitest/config';
 import angular from '@analogjs/vite-plugin-angular';
-import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 
 export default defineConfig(({ mode }) => ({
+  resolve: {
+    tsconfigPaths: true,
+  },
   root: import.meta.dirname,
   cacheDir: '../../../../node_modules/.vite/libs/audit/user-flow/feature-builder',
-  plugins: [angular(), nxViteTsPaths()],
+  plugins: [angular()],
   test: {
     watch: false,
     globals: true,
