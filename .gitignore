@@ -140,3 +140,4 @@ opensrc/
 .repos/effect-v3
 
 .claude/worktrees
+.vitest
