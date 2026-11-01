@@ -82,10 +82,6 @@
       "dependsOn": ["^build"],
       "inputs": ["production", "^production"]
     },
-    "@nx/vitest:test": {
-      "cache": true,
-      "inputs": ["default", "^production"]
-    },
     "effect:diagnostics": {
       "cache": true,
       "inputs": [
@@ -97,6 +93,10 @@
           "externalDependencies": ["oxlint", "oxlint-tsgolint", "@effect/tsgo"]
         }
       ]
+    },
+    "test": {
+      "cache": true,
+      "inputs": ["default", "^production"]
     }
   },
   "sync": {
@@ -217,12 +217,6 @@
       }
     },
     {
-      "plugin": "@nx/vitest",
-      "options": {
-        "testTargetName": "test"
-      }
-    },
-    {
       "plugin": "@nx/cypress/plugin",
       "options": {
         "targetName": "e2e",
@@ -248,6 +242,13 @@
       "plugin": "@nx/oxlint",
       "options": {
         "targetName": "effect:diagnostics"
+      }
+    },
+    {
+      "plugin": "@nx/vitest",
+      "options": {
+        "testTargetName": "test",
+        "testMode": "run"
       }
     }
   ],

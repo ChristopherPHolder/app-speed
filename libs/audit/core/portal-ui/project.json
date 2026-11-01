@@ -4,19 +4,12 @@
   "sourceRoot": "libs/audit/core/portal-ui",
   "prefix": "b-ui",
   "projectType": "library",
-  "tags": [
-    "type:domain",
-    "scope:audit",
-    "feature:audit-core",
-    "runtime:web",
-    "layer:ui"
-  ],
+  "tags": ["type:domain", "scope:audit", "feature:audit-core", "runtime:web", "layer:ui"],
   "targets": {
     "build": {
       "executor": "@nx/angular:ng-packagr-lite",
-      "outputs": [
-        "{workspaceRoot}/dist/{projectRoot}"
-      ],
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "defaultConfiguration": "production",
       "options": {
         "project": "libs/audit/core/portal-ui/ng-package.json",
         "tsConfig": "libs/audit/core/portal-ui/tsconfig.lib.json"
@@ -26,17 +19,10 @@
           "tsConfig": "libs/audit/core/portal-ui/tsconfig.lib.prod.json"
         },
         "development": {}
-      },
-      "defaultConfiguration": "production"
+      }
     },
     "test": {
-      "executor": "@nx/vitest:test",
-      "outputs": [
-        "{options.reportsDirectory}"
-      ],
       "options": {
-        "configFile": "{projectRoot}/vitest.config.mts",
-        "reportsDirectory": "{projectRoot}/../../../../coverage/libs/audit/core/portal-ui",
         "passWithNoTests": true
       }
     },

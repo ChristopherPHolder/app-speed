@@ -15,10 +15,13 @@
       }
     },
     "test": {
-      "executor": "@nx/vitest:test",
-      "options": { "configFile": "{projectRoot}/vitest.config.mts", "passWithNoTests": true }
+      "options": {
+        "passWithNoTests": true
+      }
     },
-    "lint": { "executor": "@nx/eslint:lint" },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
     "effect:diagnostics": {
       "options": {
         "args": ["--tsconfig", "tsconfig.lib.json"]

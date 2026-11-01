@@ -7,20 +7,9 @@
   "targets": {
     "lint": {
       "executor": "@nx/eslint:lint",
-      "outputs": [
-        "{options.outputFile}"
-      ]
+      "outputs": ["{options.outputFile}"]
     },
-    "test": {
-      "executor": "@nx/vitest:test",
-      "outputs": [
-        "{options.reportsDirectory}"
-      ],
-      "options": {
-        "configFile": "{projectRoot}/vitest.config.ts",
-        "reportsDirectory": "{projectRoot}/../../coverage/tools/aws-deploy"
-      }
-    },
+    "test": {},
     "effect:diagnostics": {
       "options": {
         "args": ["--tsconfig", "tsconfig.lib.json"]
