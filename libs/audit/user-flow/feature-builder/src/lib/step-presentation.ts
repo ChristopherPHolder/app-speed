@@ -32,6 +32,15 @@ type StepPresentationOverride = {
 };
 
 export const AUDIT_BUILDER_STEP_PRESENTATION_REGISTRY = {
+  startNavigation: {
+    fields: {
+      softNavigation: {
+        label: 'Soft Navigation (Experimental)',
+        description:
+          'Measure a same-document navigation triggered by the following interaction steps. Requires Chrome 149 or newer. Finish with End Navigation.',
+      },
+    },
+  },
   waitForElement: {
     fields: {
       selectors: {

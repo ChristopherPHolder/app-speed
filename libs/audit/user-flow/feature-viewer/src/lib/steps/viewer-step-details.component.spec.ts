@@ -187,6 +187,16 @@ describe('ViewerStepDetailComponent', () => {
     component = fixture.componentInstance;
   });
 
+  it('shows the warning when only the first soft navigation was measured', async () => {
+    const warning = 'Multiple soft navigations were detected during the run. Only the first soft navigation is measured.';
+    fixture.componentRef.setInput('stepDetails', {
+      ...multiCategoryStep,
+      lhr: { ...multiCategoryStep.lhr, runWarnings: [warning] },
+    });
+    await fixture.whenStable();
+    expect(fixture.nativeElement.querySelector('[aria-label="Lighthouse warnings"]')?.textContent).toContain(warning);
+  });
+
   it('builds sections for non-performance Lighthouse categories', () => {
     fixture.componentRef.setInput('stepDetails', multiCategoryStep);
     fixture.detectChanges();

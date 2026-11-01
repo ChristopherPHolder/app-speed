@@ -17,3 +17,6 @@ overrides:
 onlyBuiltDependencies:
   - cypress
   - puppeteer
+
+patchedDependencies:
+  lighthouse@13.6.0: patches/lighthouse@13.6.0.patch

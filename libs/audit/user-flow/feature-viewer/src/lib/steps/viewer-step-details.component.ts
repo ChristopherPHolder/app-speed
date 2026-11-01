@@ -45,6 +45,17 @@ type CategoryView = {
   template: `
     @let categories = categoryViews();
 
+    @if (stepDetails().lhr.runWarnings?.length) {
+      <aside class="run-warnings" aria-label="Lighthouse warnings">
+        <h3>Audit warnings</h3>
+        <ul>
+          @for (warning of stepDetails().lhr.runWarnings; track $index) {
+            <li>{{ warning }}</li>
+          }
+        </ul>
+      </aside>
+    }
+
     @if (filmStrip(); as filmStrip) {
       <viewer-film-strip [filmStrip]="filmStrip" />
     }
@@ -89,6 +100,13 @@ type CategoryView = {
     }
     .pad {
       padding: 20px;
+    }
+
+    .run-warnings {
+      margin: 20px;
+      padding: 16px;
+      border: 1px solid currentColor;
+      border-radius: 8px;
     }
   `,
 })

@@ -4,6 +4,18 @@ import { describe, expect, it } from 'vitest';
 import { BuilderStepFormGroup, findStepSpec } from './step-form';
 
 describe('BuilderStepFormGroup', () => {
+  it('edits soft navigation as an optional Start Navigation property', () => {
+    const form = createForm('startNavigation');
+    const field = findField(form.spec.fields, 'softNavigation');
+    expect(form.getRawValue()).toEqual({ type: 'customStep', step: 'startNavigation' });
+    form.addOptionalField(form, field);
+    form.get('softNavigation')?.setValue(true);
+    expect(form.getRawValue()).toEqual({ type: 'customStep', step: 'startNavigation', softNavigation: true });
+    form.removeOptionalField(form, field);
+    expect(form.getRawValue()).toEqual({ type: 'customStep', step: 'startNavigation' });
+    expect(createForm('startTimespan').spec.fields.some((field) => field.path === 'softNavigation')).toBe(false);
+  });
+
   it('builds a step form from the derived spec and keeps optional fields omittable at root and nested struct arrays', () => {
     const form = createForm('waitForElement');
     const assertedEventsField = expectArrayField(findField(form.spec.fields, 'assertedEvents'));

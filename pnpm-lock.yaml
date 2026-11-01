@@ -20,6 +20,11 @@ overrides:
   typescript: 6.0.3
   '@effect/platform-node-shared': 4.1.1
 
+patchedDependencies:
+  lighthouse@13.6.0:
+    hash: 95e4d9b523166a40c7eaa8488ece598368888230cbb13d18609a91eeb675aab4
+    path: patches/lighthouse@13.6.0.patch
+
 importers:
 
   .:
@@ -110,7 +115,7 @@ importers:
         version: 1.43.0
       '@puppeteer/replay':
         specifier: ^4.0.2
-        version: 4.0.2(lighthouse@13.6.0(ajv@8.20.0)(rollup@4.60.4)(webpack@5.110.3)(yauzl@3.4.0))(puppeteer@25.10.0(yauzl@3.4.0))
+        version: 4.0.2(lighthouse@13.6.0(patch_hash=95e4d9b523166a40c7eaa8488ece598368888230cbb13d18609a91eeb675aab4)(ajv@8.20.0)(rollup@4.60.4)(webpack@5.110.3)(yauzl@3.4.0))(puppeteer@25.10.0(yauzl@3.4.0))
       '@rx-angular/cdk':
         specifier: 21.1.1
         version: 21.1.1(@angular-devkit/core@22.1.7(chokidar@4.0.0))(@angular-devkit/schematics@22.1.7(chokidar@4.0.0))(@angular/core@22.1.5(@angular/compiler@22.1.5)(rxjs@7.8.2)(zone.js@0.16.3))(rxjs@7.8.2)
@@ -136,8 +141,8 @@ importers:
         specifier: 0.8.3
         version: 0.8.3
       lighthouse:
-        specifier: ^13.6.0
-        version: 13.6.0(ajv@8.20.0)(rollup@4.60.4)(webpack@5.110.3)(yauzl@3.4.0)
+        specifier: 13.6.0
+        version: 13.6.0(patch_hash=95e4d9b523166a40c7eaa8488ece598368888230cbb13d18609a91eeb675aab4)(ajv@8.20.0)(rollup@4.60.4)(webpack@5.110.3)(yauzl@3.4.0)
       lodash-es:
         specifier: ^4.18.1
         version: 4.18.1
@@ -20078,9 +20083,9 @@ snapshots:
     optionalDependencies:
       yauzl: 3.4.0
 
-  '@puppeteer/replay@4.0.2(lighthouse@13.6.0(ajv@8.20.0)(rollup@4.60.4)(webpack@5.110.3)(yauzl@3.4.0))(puppeteer@25.10.0(yauzl@3.4.0))':
+  '@puppeteer/replay@4.0.2(lighthouse@13.6.0(patch_hash=95e4d9b523166a40c7eaa8488ece598368888230cbb13d18609a91eeb675aab4)(ajv@8.20.0)(rollup@4.60.4)(webpack@5.110.3)(yauzl@3.4.0))(puppeteer@25.10.0(yauzl@3.4.0))':
     optionalDependencies:
-      lighthouse: 13.6.0(ajv@8.20.0)(rollup@4.60.4)(webpack@5.110.3)(yauzl@3.4.0)
+      lighthouse: 13.6.0(patch_hash=95e4d9b523166a40c7eaa8488ece598368888230cbb13d18609a91eeb675aab4)(ajv@8.20.0)(rollup@4.60.4)(webpack@5.110.3)(yauzl@3.4.0)
       puppeteer: 25.10.0(yauzl@3.4.0)
 
   '@redis/bloom@6.3.0(@redis/client@6.3.0(@node-rs/xxhash@1.7.7)(@opentelemetry/api@1.9.1))':
@@ -25308,7 +25313,7 @@ snapshots:
 
   lighthouse-stack-packs@1.12.3: {}
 
-  lighthouse@13.6.0(ajv@8.20.0)(rollup@4.60.4)(webpack@5.110.3)(yauzl@3.4.0):
+  lighthouse@13.6.0(patch_hash=95e4d9b523166a40c7eaa8488ece598368888230cbb13d18609a91eeb675aab4)(ajv@8.20.0)(rollup@4.60.4)(webpack@5.110.3)(yauzl@3.4.0):
     dependencies:
       '@paulirish/trace_engine': 0.0.67
       '@sentry/node': 11.10.0(rollup@4.60.4)(webpack@5.110.3)

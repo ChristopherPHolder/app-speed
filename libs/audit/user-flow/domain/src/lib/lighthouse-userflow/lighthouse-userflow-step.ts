@@ -19,6 +19,7 @@ export const UserflowStartNavigationStepSchema = Schema.Struct({
   ...AuditCustomStepBaseSchema.fields,
   step: LighthouseAuditStepTypeSchema.pick([LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION]),
   name: Schema.optional(Schema.NonEmptyString),
+  softNavigation: Schema.optional(Schema.Boolean),
 });
 export const UserflowEndNavigationStepSchema = Schema.Struct({
   ...AuditCustomStepBaseSchema.fields,
@@ -78,18 +79,26 @@ const UserflowStartNavigationRunnerStepSchema = UserflowStartNavigationStepSchem
     Schema.Struct({
       type: ReplayUserflowStepWithFlagsSchema.fields.type,
       name: Schema.Literal(LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION),
-      parameters: Schema.optional(Schema.Struct({ name: Schema.String })),
+      parameters: Schema.optional(
+        Schema.Struct({
+          name: Schema.optional(Schema.NonEmptyString),
+          softNavigation: Schema.optional(Schema.Boolean),
+        }),
+      ),
     }),
     SchemaTransformation.transform({
-      decode: ({ name }) => ({
+      decode: ({ name, softNavigation }) => ({
         type: PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP,
         name: LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
-        ...(name ? { parameters: { name } } : {}),
+        ...(name !== undefined || softNavigation !== undefined
+          ? { parameters: { ...(name ? { name } : {}), ...(softNavigation !== undefined ? { softNavigation } : {}) } }
+          : {}),
       }),
       encode: ({ parameters }) => ({
         type: PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP,
         step: LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION,
         name: parameters?.name,
+        softNavigation: parameters?.softNavigation,
       }),
     }),
   ),
