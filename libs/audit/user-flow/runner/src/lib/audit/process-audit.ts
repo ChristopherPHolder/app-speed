@@ -16,8 +16,9 @@ export const executeUserFlowAudit = (claim: AuditClaim): Effect.Effect<UserFlowE
     const replayRecording = yield* Schema.decodeUnknownEffect(PuppeteerReplayUserflowRunnerSchema)(audit);
     const configuration = yield* AuditConfig(audit.device);
     const { browser, page } = yield* RunnerContext(configuration);
-    const flow = yield* Effect.promise(() =>
-      startFlow(page, { name: audit.title, config: configuration.lighthousePreset }),
+    const flow = yield* Effect.acquireRelease(
+      Effect.promise(() => startFlow(page, { name: audit.title, config: configuration.lighthousePreset })),
+      (flow) => Effect.sync(() => flow.dispose()),
     );
     const extension = new UserFlowRunnerExtension(browser, page, flow, { timeout: audit.timeout ?? 30_000 });
     yield* runPuppeteerReplay(replayRecording, extension);
