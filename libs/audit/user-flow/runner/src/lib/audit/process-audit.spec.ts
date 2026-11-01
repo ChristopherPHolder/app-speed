@@ -1,31 +1,12 @@
-import { assert, it } from '@effect/vitest';
-import { beforeEach, describe, vi } from 'vitest';
-import { Deferred, Effect, Exit, Fiber, Result } from 'effect';
+import { assert, describe, layer } from '@effect/vitest';
+import { Cause, Context, Deferred, Effect, Exit, Fiber, Layer, Ref, Result } from 'effect';
 import { TestClock } from 'effect/testing';
-import type { AuditClaim } from '@app-speed/audit/core/runner';
+
 import { AuditKindSchema } from '@app-speed/audit/core/domain';
+import type { AuditClaim } from '@app-speed/audit/core/runner';
 
 import { executeUserFlowAudit } from './process-audit';
-
-const mocks = vi.hoisted(() => ({
-  startFlow: vi.fn(),
-  dispose: vi.fn(),
-  createFlowResult: vi.fn(),
-  generateReport: vi.fn(),
-  runnerContext: vi.fn(),
-  replay: vi.fn(),
-}));
-
-vi.mock('lighthouse', () => ({
-  startFlow: mocks.startFlow,
-  generateReport: mocks.generateReport,
-}));
-vi.mock('@app-speed/audit/core/runner', () => ({
-  RunnerContext: mocks.runnerContext,
-  runPuppeteerReplay: mocks.replay,
-}));
-vi.mock('./audit-config', () => ({ AuditConfig: () => Effect.succeed({ lighthousePreset: {} }) }));
-vi.mock('./runner-extension', () => ({ UserFlowRunnerExtension: class {} }));
+import { UserFlowDriver, type UserFlowExecutionResult } from './user-flow-driver';
 
 const claim: AuditClaim = {
   auditId: 'audit-1',
@@ -36,98 +17,133 @@ const claim: AuditClaim = {
     steps: [{ type: 'customStep', step: 'startNavigation', name: 'Initial navigation' }],
   },
 };
+const report: UserFlowExecutionResult = {
+  flowResult: { name: 'Navigation audit', steps: [] },
+  reportHtml: '<html>report</html>',
+};
+const replayFailure = new Error('net::ERR_NAME_NOT_RESOLVED');
+const setupFailure = new Error('flow setup failed');
 
-describe('executeUserFlowAudit cleanup', () => {
-  let events: string[];
+type Scenario = 'success' | 'replay failure' | 'pending navigation' | 'setup failure';
 
-  beforeEach(() => {
-    vi.resetAllMocks();
-    events = [];
-    mocks.runnerContext.mockImplementation(() =>
-      Effect.acquireRelease(Effect.succeed({ browser: {}, page: {} }), () =>
-        Effect.sync(() => {
-          events.push('browser closed');
+class DriverState extends Context.Service<
+  DriverState,
+  {
+    readonly events: Ref.Ref<ReadonlyArray<string>>;
+    readonly navigationStarted: Deferred.Deferred<void>;
+  }
+>()('test/UserFlowDriverState') {
+  static readonly layer = Layer.effect(DriverState)(
+    Effect.gen(function* () {
+      return {
+        events: yield* Ref.make<ReadonlyArray<string>>([]),
+        navigationStarted: yield* Deferred.make<void>(),
+      };
+    }),
+  );
+}
+
+// Each layer invocation owns fresh state; no module mocks or shared test mutation.
+const driverLayer = (scenario: Scenario) =>
+  Layer.effect(UserFlowDriver)(
+    Effect.gen(function* () {
+      const state = yield* DriverState;
+      const record = (event: string) => Ref.update(state.events, (events) => [...events, event]);
+
+      return {
+        start: Effect.fn(function* () {
+          yield* Effect.acquireRelease(record('browser opened'), () => record('browser closed'));
+          if (scenario === 'setup failure') return yield* Effect.fail(setupFailure);
+          return {
+            replay: () =>
+              Effect.gen(function* () {
+                yield* Deferred.succeed(state.navigationStarted, undefined);
+                if (scenario === 'replay failure') return yield* Effect.fail(replayFailure);
+                if (scenario === 'pending navigation') return yield* Effect.never;
+              }),
+            result: record('report generated').pipe(Effect.as(report)),
+            dispose: record('flow disposed'),
+          };
         }),
-      ),
+      };
+    }),
+  ).pipe(Layer.provideMerge(DriverState.layer));
+
+describe('executeUserFlowAudit resource lifetime', () => {
+  layer(driverLayer('success'))('successful replay', (it) => {
+    it.effect('produces the report before releasing the flow and browser', () =>
+      Effect.gen(function* () {
+        const state = yield* DriverState;
+        const result = yield* executeUserFlowAudit(claim);
+
+        assert.deepEqual(result, report);
+        assert.deepEqual(yield* Ref.get(state.events), [
+          'browser opened',
+          'report generated',
+          'flow disposed',
+          'browser closed',
+        ]);
+      }),
     );
-    mocks.startFlow.mockResolvedValue({ dispose: mocks.dispose, createFlowResult: mocks.createFlowResult });
-    mocks.dispose.mockImplementation(() => {
-      events.push('flow disposed');
-    });
-    mocks.createFlowResult.mockResolvedValue({ name: 'Navigation audit', steps: [] });
-    mocks.generateReport.mockImplementation(() => {
-      events.push('report generated');
-      return '<html>report</html>';
-    });
-    mocks.replay.mockReturnValue(Effect.void);
   });
 
-  it.effect('generates the result before disposing the flow and closing the browser', () =>
-    Effect.gen(function* () {
-      const result = yield* executeUserFlowAudit(claim);
+  layer(driverLayer('replay failure'))('failed navigation', (it) => {
+    it.effect('preserves the original replay error and releases resources in order', () =>
+      Effect.gen(function* () {
+        const state = yield* DriverState;
+        const result = yield* executeUserFlowAudit(claim).pipe(Effect.result);
 
-      assert.deepEqual(result, {
-        flowResult: { name: 'Navigation audit', steps: [] },
-        reportHtml: '<html>report</html>',
-      });
-      assert.deepEqual(events, ['report generated', 'flow disposed', 'browser closed']);
-      assert.strictEqual(mocks.dispose.mock.calls.length, 1);
-    }),
-  );
+        assert.isTrue(Result.isFailure(result) && result.failure === replayFailure);
+        assert.deepEqual(yield* Ref.get(state.events), ['browser opened', 'flow disposed', 'browser closed']);
+      }),
+    );
+  });
 
-  it.effect('preserves the replay failure and disposes before browser teardown', () =>
-    Effect.gen(function* () {
-      const failure = new Error('net::ERR_NAME_NOT_RESOLVED');
-      mocks.replay.mockReturnValue(Effect.fail(failure));
+  layer(driverLayer('pending navigation'))('interrupted navigation', (it) => {
+    it.effect('interrupts pending replay and releases the flow before the browser', () =>
+      Effect.gen(function* () {
+        const state = yield* DriverState;
+        const fiber = yield* executeUserFlowAudit(claim).pipe(Effect.forkChild);
+        yield* Deferred.await(state.navigationStarted);
+        assert.deepEqual(yield* Ref.get(state.events), ['browser opened']);
 
-      const result = yield* executeUserFlowAudit(claim).pipe(Effect.result);
+        yield* Fiber.interrupt(fiber);
+        const exit = yield* Fiber.await(fiber);
 
-      assert.isTrue(Result.isFailure(result));
-      if (Result.isFailure(result)) assert.strictEqual(result.failure, failure);
-      assert.deepEqual(events, ['flow disposed', 'browser closed']);
-      assert.strictEqual(mocks.createFlowResult.mock.calls.length, 0);
-    }),
-  );
+        assert.isTrue(Exit.isFailure(exit) && Cause.hasInterruptsOnly(exit.cause));
+        assert.deepEqual(yield* Ref.get(state.events), ['browser opened', 'flow disposed', 'browser closed']);
+      }),
+    );
+  });
 
-  it.effect('disposes an active flow when execution is interrupted', () =>
-    Effect.gen(function* () {
-      const started = yield* Deferred.make<void>();
-      mocks.replay.mockReturnValue(Deferred.succeed(started, undefined).pipe(Effect.andThen(Effect.never)));
-      const fiber = yield* executeUserFlowAudit(claim).pipe(Effect.forkChild);
-      yield* Deferred.await(started);
+  layer(driverLayer('pending navigation'))('timed out navigation', (it) => {
+    it.effect('returns a timeout error after releasing the pending flow and browser', () =>
+      Effect.gen(function* () {
+        const state = yield* DriverState;
+        const fiber = yield* executeUserFlowAudit(claim).pipe(
+          Effect.timeout('1 second'),
+          Effect.result,
+          Effect.forkChild,
+        );
+        yield* Deferred.await(state.navigationStarted);
+        yield* TestClock.adjust('1 second');
+        const result = yield* Fiber.join(fiber);
 
-      yield* Fiber.interrupt(fiber);
-      const exit = yield* Fiber.await(fiber);
+        assert.isTrue(Result.isFailure(result) && Cause.isTimeoutError(result.failure));
+        assert.deepEqual(yield* Ref.get(state.events), ['browser opened', 'flow disposed', 'browser closed']);
+      }),
+    );
+  });
 
-      assert.isTrue(Exit.isFailure(exit));
-      assert.deepEqual(events, ['flow disposed', 'browser closed']);
-      assert.strictEqual(mocks.createFlowResult.mock.calls.length, 0);
-    }),
-  );
+  layer(driverLayer('setup failure'))('failed flow acquisition', (it) => {
+    it.effect('preserves the setup error and closes only the acquired browser', () =>
+      Effect.gen(function* () {
+        const state = yield* DriverState;
+        const result = yield* executeUserFlowAudit(claim).pipe(Effect.result);
 
-  it.effect('disposes an active flow when execution times out', () =>
-    Effect.gen(function* () {
-      const started = yield* Deferred.make<void>();
-      mocks.replay.mockReturnValue(Deferred.succeed(started, undefined).pipe(Effect.andThen(Effect.never)));
-      const fiber = yield* executeUserFlowAudit(claim).pipe(Effect.timeout('1 second'), Effect.exit, Effect.forkChild);
-      yield* Deferred.await(started);
-      yield* TestClock.adjust('1 second');
-      const exit = yield* Fiber.join(fiber);
-
-      assert.isTrue(Exit.isFailure(exit));
-      assert.deepEqual(events, ['flow disposed', 'browser closed']);
-    }),
-  );
-
-  it.effect('closes the browser if flow creation fails without trying to dispose an uncreated flow', () =>
-    Effect.gen(function* () {
-      mocks.startFlow.mockRejectedValue(new Error('flow setup failed'));
-
-      const exit = yield* executeUserFlowAudit(claim).pipe(Effect.exit);
-
-      assert.isTrue(Exit.isFailure(exit));
-      assert.deepEqual(events, ['browser closed']);
-      assert.strictEqual(mocks.dispose.mock.calls.length, 0);
-    }),
-  );
+        assert.isTrue(Result.isFailure(result) && result.failure === setupFailure);
+        assert.deepEqual(yield* Ref.get(state.events), ['browser opened', 'browser closed']);
+      }),
+    );
+  });
 });
