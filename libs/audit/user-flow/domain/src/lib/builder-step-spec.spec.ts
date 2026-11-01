@@ -30,7 +30,7 @@ describe('builder step spec', () => {
     ]);
   });
 
-  it('derives an optional non-negative integer spec for waitForNetworkIdle', () => {
+  it('derives an optional non-negative safe integer spec for waitForNetworkIdle', () => {
     const waitForNetworkIdle = deriveBuilderStepSpec(findVariant('waitForNetworkIdle'));
 
     expect(waitForNetworkIdle.defaultValue).toEqual({
@@ -41,17 +41,17 @@ describe('builder step spec', () => {
       expect.objectContaining({
         path: 'idleTime',
         required: false,
-        validation: { integer: true, minimum: 0 },
+        validation: { integer: true, minimum: 0, maximum: Number.MAX_SAFE_INTEGER },
       }),
       expect.objectContaining({
         path: 'timeout',
         required: false,
-        validation: { integer: true, minimum: 0 },
+        validation: { integer: true, minimum: 0, maximum: Number.MAX_SAFE_INTEGER },
       }),
       expect.objectContaining({
         path: 'concurrency',
         required: false,
-        validation: { integer: true, minimum: 0 },
+        validation: { integer: true, minimum: 0, maximum: Number.MAX_SAFE_INTEGER },
       }),
     ]);
   });

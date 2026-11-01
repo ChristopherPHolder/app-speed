@@ -5,7 +5,7 @@
     "@puppeteer/replay": "^4.0.2",
     "effect": "4.1.1",
     "vite": "8.2.2",
-    "@nx/vite": "24.0.3"
+    "vite-plugin-static-copy": "4.1.1"
   },
   "sideEffects": false
 }

@@ -18,7 +18,7 @@
     },
     "effect:diagnostics": {
       "options": {
-        "args": ["--tsconfig", "tsconfig.lib.json"]
+        "args": ["--tsconfig", "{projectRoot}/tsconfig.lib.json"]
       }
     }
   }
