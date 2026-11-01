@@ -75,7 +75,11 @@
         {
           "externalDependencies": ["oxlint", "oxlint-tsgolint", "@effect/tsgo"]
         }
-      ]
+      ],
+      "parallelism": false,
+      "options": {
+        "config": "oxlint.effect.json"
+      }
     },
     "test": {
       "cache": true,

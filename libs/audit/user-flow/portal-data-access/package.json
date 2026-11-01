@@ -2,12 +2,11 @@
   "name": "@app-speed/audit/user-flow/portal-data-access",
   "version": "0.0.1",
   "peerDependencies": {
-    "@analogjs/vite-plugin-angular": "2.7.1",
+    "@analogjs/vite-plugin-angular": "2.7.5",
     "@angular/common": "22.1.5",
     "@angular/core": "22.1.5",
     "@app-speed/audit/user-flow/api-contract": "0.0.1",
     "@app-speed/audit/user-flow/domain": "0.0.1",
-    "@nx/vite": "24.0.3",
     "effect": "4.1.1",
     "rxjs": "^7.8.0",
     "vitest": "^5.0.3"
