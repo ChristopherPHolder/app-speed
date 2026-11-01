@@ -70,7 +70,7 @@ index 1729305a60d82ca9af9afe001cd406cc8f54fe94..c6aa2a6ad5d5d0caa41c25f1ec4af9d3
        const metricData = ComputedMetric.getMetricComputationInput(data);
        const interactiveTimeMs = (await Interactive.request(metricData, context)).timing;
 diff --git a/core/config/config.js b/core/config/config.js
-index b4e8f52fb0f162694b2efdabd8e05a657a79e23a..d54eb25478f1974188a74010e5302d294229dc26 100644
+index b4e8f52fb0f162694b2efdabd8e05a657a79e23a..39f95024b72091e0ff54c9f49ded1b32f04e11e9 100644
 --- a/core/config/config.js
 +++ b/core/config/config.js
 @@ -18,7 +18,11 @@ import {
@@ -103,12 +103,16 @@ index b4e8f52fb0f162694b2efdabd8e05a657a79e23a..d54eb25478f1974188a74010e5302d29
  }
  
  /**
-@@ -247,6 +261,9 @@ async function initializeConfig(gatherMode, config, flags = {}) {
+@@ -246,7 +260,12 @@ async function initializeConfig(gatherMode, config, flags = {}) {
+ 
    assertValidConfig(resolvedConfig);
  
-   resolvedConfig = filterConfigByGatherMode(resolvedConfig, gatherMode);
+-  resolvedConfig = filterConfigByGatherMode(resolvedConfig, gatherMode);
 +  if (gatherMode === 'navigation' && settings.softNavigation) {
++    // Filter directly: the regular navigation filter would discard timespan-only audits like INP.
 +    resolvedConfig = filterConfigForSoftNavigation(resolvedConfig);
++  } else {
++    resolvedConfig = filterConfigByGatherMode(resolvedConfig, gatherMode);
 +  }
    resolvedConfig = filterConfigByExplicitFilters(resolvedConfig, settings);
  
