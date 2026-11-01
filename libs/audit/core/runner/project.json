@@ -20,8 +20,9 @@
       "outputs": ["{options.outputFile}"]
     },
     "test": {
-      "executor": "@nx/vitest:test",
-      "options": { "configFile": "{projectRoot}/vitest.config.mts", "passWithNoTests": true }
+      "options": {
+        "passWithNoTests": true
+      }
     },
     "effect:diagnostics": {
       "options": {

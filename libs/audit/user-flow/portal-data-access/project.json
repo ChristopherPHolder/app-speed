@@ -4,23 +4,13 @@
   "sourceRoot": "libs/audit/user-flow/portal-data-access/src",
   "prefix": "lib",
   "projectType": "library",
-  "implicitDependencies": [
-    "audit-user-flow-api-contract",
-    "audit-user-flow-domain"
-  ],
-  "tags": [
-    "type:domain",
-    "scope:audit",
-    "feature:audit-user-flow",
-    "runtime:web",
-    "layer:data-access"
-  ],
+  "tags": ["type:domain", "scope:audit", "feature:audit-user-flow", "runtime:web", "layer:data-access"],
+  "implicitDependencies": ["audit-user-flow-api-contract", "audit-user-flow-domain"],
   "targets": {
     "build": {
       "executor": "@nx/angular:ng-packagr-lite",
-      "outputs": [
-        "{workspaceRoot}/dist/{projectRoot}"
-      ],
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "defaultConfiguration": "production",
       "options": {
         "project": "libs/audit/user-flow/portal-data-access/ng-package.json",
         "tsConfig": "libs/audit/user-flow/portal-data-access/tsconfig.lib.json"
@@ -30,17 +20,10 @@
           "tsConfig": "libs/audit/user-flow/portal-data-access/tsconfig.lib.prod.json"
         },
         "development": {}
-      },
-      "defaultConfiguration": "production"
+      }
     },
     "test": {
-      "executor": "@nx/vitest:test",
-      "outputs": [
-        "{options.reportsDirectory}"
-      ],
       "options": {
-        "configFile": "{projectRoot}/vitest.config.mts",
-        "reportsDirectory": "{projectRoot}/../../../../coverage/libs/audit/user-flow/portal-data-access",
         "passWithNoTests": true
       }
     },

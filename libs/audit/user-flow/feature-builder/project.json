@@ -4,19 +4,12 @@
   "sourceRoot": "libs/audit/user-flow/feature-builder/src",
   "prefix": "lib",
   "projectType": "library",
-  "tags": [
-    "type:domain",
-    "scope:audit",
-    "feature:audit-user-flow",
-    "runtime:web",
-    "layer:feature"
-  ],
+  "tags": ["type:domain", "scope:audit", "feature:audit-user-flow", "runtime:web", "layer:feature"],
   "targets": {
     "build": {
       "executor": "@nx/angular:ng-packagr-lite",
-      "outputs": [
-        "{workspaceRoot}/dist/{projectRoot}"
-      ],
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "defaultConfiguration": "production",
       "options": {
         "project": "{projectRoot}/ng-package.json",
         "tsConfig": "{projectRoot}/tsconfig.lib.json"
@@ -26,17 +19,10 @@
           "tsConfig": "{projectRoot}/tsconfig.lib.prod.json"
         },
         "development": {}
-      },
-      "defaultConfiguration": "production"
+      }
     },
     "test": {
-      "executor": "@nx/vitest:test",
-      "outputs": [
-        "{options.reportsDirectory}"
-      ],
       "options": {
-        "configFile": "{projectRoot}/vitest.config.mts",
-        "reportsDirectory": "{projectRoot}/../../../../coverage/libs/audit/user-flow/feature-builder",
         "passWithNoTests": true
       }
     },

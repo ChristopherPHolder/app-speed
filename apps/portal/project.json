@@ -4,12 +4,7 @@
   "projectType": "application",
   "prefix": "app",
   "sourceRoot": "apps/portal/src",
-  "tags": [
-    "type:app",
-    "scope:portal",
-    "runtime:web",
-    "app:portal"
-  ],
+  "tags": ["type:app", "scope:portal", "runtime:web", "app:portal"],
   "targets": {
     "typecheck": {
       "executor": "nx:run-commands",
@@ -19,24 +14,16 @@
     },
     "build": {
       "executor": "@nx/angular:browser-esbuild",
-      "outputs": [
-        "{options.outputPath}"
-      ],
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
       "options": {
         "outputPath": "dist/{projectRoot}",
         "index": "{projectRoot}/src/index.html",
         "main": "{projectRoot}/src/main.ts",
-        "polyfills": [
-          "zone.js"
-        ],
+        "polyfills": ["zone.js"],
         "tsConfig": "{projectRoot}/tsconfig.app.json",
-        "assets": [
-          "{projectRoot}/src/favicon.ico",
-          "{projectRoot}/src/assets"
-        ],
-        "styles": [
-          "{workspaceRoot}/libs/ui/theme/styles.scss"
-        ]
+        "assets": ["{projectRoot}/src/favicon.ico", "{projectRoot}/src/assets"],
+        "styles": ["{workspaceRoot}/libs/ui/theme/styles.scss"]
       },
       "configurations": {
         "production": {
@@ -62,11 +49,16 @@
           "sourceMap": true,
           "namedChunks": true
         }
-      },
-      "defaultConfiguration": "production"
+      }
     },
     "serve": {
       "executor": "@nx/angular:dev-server",
+      "defaultConfiguration": "development",
+      "continuous": true,
+      "dependsOn": ["api:serve"],
+      "options": {
+        "proxyConfig": "apps/portal/proxy.conf.json"
+      },
       "configurations": {
         "production": {
           "buildTarget": "portal:build:production"
@@ -74,15 +66,7 @@
         "development": {
           "buildTarget": "portal:build:development"
         }
-      },
-      "defaultConfiguration": "development",
-      "options": {
-        "proxyConfig": "apps/portal/proxy.conf.json"
-      },
-      "continuous": true,
-      "dependsOn": [
-        "api:serve"
-      ]
+      }
     },
     "extract-i18n": {
       "executor": "@angular-devkit/build-angular:extract-i18n",
@@ -92,20 +76,9 @@
     },
     "lint": {
       "executor": "@nx/eslint:lint",
-      "outputs": [
-        "{options.outputFile}"
-      ]
+      "outputs": ["{options.outputFile}"]
     },
-    "test": {
-      "executor": "@nx/vitest:test",
-      "outputs": [
-        "{options.reportsDirectory}"
-      ],
-      "options": {
-        "configFile": "{projectRoot}/vitest.config.mts",
-        "reportsDirectory": "{projectRoot}/../../coverage/apps/portal"
-      }
-    },
+    "test": {},
     "serve-static": {
       "executor": "@nx/web:file-server",
       "options": {
@@ -114,9 +87,8 @@
     },
     "deploy": {
       "executor": "@app-speed/aws-deploy:s3-upload",
-      "dependsOn": [
-        "build"
-      ],
+      "dependsOn": ["build"],
+      "defaultConfiguration": "development",
       "options": {
         "upload": "dist/{projectRoot}"
       },
@@ -127,8 +99,7 @@
         "development": {
           "bucket": "s3://dev.appspeed.dev"
         }
-      },
-      "defaultConfiguration": "development"
+      }
     }
   }
 }

@@ -56,9 +56,6 @@
         "{workspaceRoot}/dist/apps/api/patches",
         "{workspaceRoot}/dist/apps/api/local_path_modules"
       ],
-      "options": {
-        "buildTarget": "build"
-      },
       "inputs": [
         "default",
         "^default",
@@ -67,7 +64,10 @@
         {
           "runtime": "node -e \"try{console.log('pnpm major '+require('child_process').execSync('pnpm --version',{stdio:['ignore','pipe','ignore']}).toString().trim().split('.')[0])}catch{console.log('pnpm major unavailable')}\""
         }
-      ]
+      ],
+      "options": {
+        "buildTarget": "build"
+      }
     },
     "copy-workspace-modules": {
       "dependsOn": ["build"],
@@ -100,13 +100,7 @@
         }
       }
     },
-    "test": {
-      "executor": "@nx/vitest:test",
-      "outputs": ["{options.reportsDirectory}"],
-      "options": {
-        "reportsDirectory": "{projectRoot}/../../coverage/apps/api"
-      }
-    },
+    "test": {},
     "integration": {
       "executor": "@app-speed/test-orchestration:local-system-test",
       "cache": false,
@@ -118,12 +112,12 @@
       }
     },
     "integration-tests": {
-      "executor": "@nx/vitest:test",
+      "executor": "nx:run-commands",
       "cache": false,
-      "outputs": ["{options.reportsDirectory}"],
+      "outputs": ["{workspaceRoot}/coverage/apps/api"],
       "options": {
-        "configFile": "{projectRoot}/vitest.config.integration.mts",
-        "reportsDirectory": "{projectRoot}/../../coverage/apps/api"
+        "command": "vitest run --config vitest.config.integration.mts",
+        "cwd": "apps/api"
       }
     },
     "lint": {
