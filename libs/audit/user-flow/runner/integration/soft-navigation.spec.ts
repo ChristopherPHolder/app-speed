@@ -19,6 +19,8 @@ const server = createServer((_request, response) => {
     </style><main><h1>Explore the collection</h1><p>Choose an item to open its details without reloading.</p>
     <button id="product">View product</button><button id="noop">Keep browsing</button><section id="content"></section></main>
     <script>let count = 0; document.querySelector('#product').onclick = () => {
+      const start = performance.now();
+      while (performance.now() - start < 180) { /* Deliberately block the triggering interaction. */ }
       count++; history.pushState({}, '', '/products/' + count);
       setTimeout(() => {
         document.querySelector('#content').innerHTML = '<h1>Product ' + count + '</h1><p>A new view rendered by a same-document navigation.</p>';
@@ -43,6 +45,7 @@ afterAll(async () => {
 });
 
 const decodeStep = Schema.decodeUnknownPromise(UserflowRunnerStepSchema);
+const RecordedInteraction = Schema.Struct({ interactionId: Schema.Number, duration: Schema.Number });
 
 describe('Lighthouse navigation experiment in Chrome', () => {
   it('measures a soft navigation through the replay start/end navigation steps', async () => {
@@ -55,6 +58,16 @@ describe('Lighthouse navigation experiment in Chrome', () => {
       await flow.navigate(baseUrl, { name: 'Initial page load' });
       const extension = new UserFlowRunnerExtension(browser, page, flow);
       await page.evaluate(() => localStorage.setItem('session', 'preserved'));
+      const observedInteractions = await page.evaluateHandle(() => {
+        const entries: PerformanceEventTiming[] = [];
+        const observer = new PerformanceObserver((list) => {
+          for (const entry of list.getEntries()) {
+            if (entry instanceof PerformanceEventTiming && entry.interactionId > 0) entries.push(entry);
+          }
+        });
+        observer.observe({ type: 'event', buffered: true });
+        return { entries, stop: () => observer.disconnect() };
+      });
       await extension.runStep(
         await decodeStep({
           type: 'customStep',
@@ -69,15 +82,50 @@ describe('Lighthouse navigation experiment in Chrome', () => {
         title: 'Navigation experiment',
         steps: [],
       });
+      const triggeringEvents = await observedInteractions.evaluate(({ entries, stop }) => {
+        stop();
+        return entries.map((entry) => ({
+          name: entry.name,
+          targetId: entry.target instanceof Element ? entry.target.id : undefined,
+          interactionId: entry.interactionId,
+          duration: entry.duration,
+        }));
+      });
+      await observedInteractions.dispose();
       await flow.startTimespan({ name: 'Ordinary interaction' });
       await page.click('#noop');
       await flow.endTimespan();
       expect(await page.evaluate(() => localStorage.getItem('session'))).toBe('preserved');
       const result = await flow.createFlowResult();
+      if (process.env['APP_SPEED_SOFT_NAV_ARTIFACTS']) {
+        const directory = resolve(process.env['APP_SPEED_SOFT_NAV_ARTIFACTS']);
+        await mkdir(directory, { recursive: true });
+        await writeFile(resolve(directory, 'flow-result.json'), JSON.stringify(result));
+        await writeFile(resolve(directory, 'flow-report.html'), generateReport(result, 'html'));
+        await writeFile(
+          resolve(directory, 'triggering-interaction.json'),
+          JSON.stringify(
+            {
+              triggeringEvents,
+              inp: result.steps[1].lhr.audits['interaction-to-next-paint'],
+              traceEvents: flow
+                .createArtifactsJson()
+                .gatherSteps[1].artifacts.Trace.traceEvents.filter((event) =>
+                  ['EventTiming', 'Responsiveness.Renderer.UserInteraction', 'SoftNavigationStart'].includes(
+                    event.name,
+                  ),
+                ),
+            },
+            null,
+            2,
+          ),
+        );
+      }
       const [hard, soft, timespan] = result.steps.map((step) => step.lhr);
       expect(hard.gatherMode).toBe('navigation');
       expect(hard.configSettings.softNavigation).toBe(false);
       expect(hard.audits['first-contentful-paint'].numericValue).toBeGreaterThan(0);
+      expect(hard.audits['interaction-to-next-paint']).toBeUndefined();
       expect(soft.gatherMode).toBe('navigation');
       expect(soft.configSettings.softNavigation).toBe(true);
       expect(soft.finalDisplayedUrl).toBe(`${baseUrl}/products/1`);
@@ -85,19 +133,59 @@ describe('Lighthouse navigation experiment in Chrome', () => {
         expect(soft.audits[id].scoreDisplayMode).toBe('numeric');
         expect(soft.audits[id].numericValue).toBeGreaterThan(0);
       }
+      const inp = soft.audits['interaction-to-next-paint'];
+      expect(inp.scoreDisplayMode).toBe('numeric');
+      expect(inp.numericValue).toBeGreaterThanOrEqual(180);
+      expect(soft.categories['performance'].auditRefs).toContainEqual({
+        id: 'interaction-to-next-paint',
+        weight: 0,
+        group: 'metrics',
+        acronym: 'INP',
+      });
+      expect(new Set(triggeringEvents.map((entry) => entry.interactionId)).size).toBe(1);
+      const trigger = triggeringEvents.find((entry) => entry.name === 'click' && entry.targetId === 'product');
+      expect(trigger).toBeDefined();
+      const recordedInteractions = flow
+        .createArtifactsJson()
+        .gatherSteps[1].artifacts.Trace.traceEvents.filter((event) => event.name === 'EventTiming' && event.ph !== 'e')
+        .map((event) => event.args['data'])
+        .filter(Schema.is(RecordedInteraction));
+      expect(recordedInteractions).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ interactionId: trigger?.interactionId, duration: inp.numericValue }),
+        ]),
+      );
+      // Event Timing rounds public durations to 8 ms; Lighthouse uses the unrounded trace timing.
+      expect(Math.abs((inp.numericValue ?? 0) - (trigger?.duration ?? 0))).toBeLessThanOrEqual(16);
       expect(soft.audits['document-latency-insight'].scoreDisplayMode).toBe('notApplicable');
       expect(Object.values(soft.audits).filter((audit) => audit.scoreDisplayMode === 'error')).toEqual([]);
       expect(soft.categories['performance'].auditRefs.some((ref) => ref.id === 'largest-contentful-paint')).toBe(true);
       expect(timespan.gatherMode).toBe('timespan');
       expect(timespan.audits['soft-nav-fcp']).toBeUndefined();
       expect(timespan.audits['first-contentful-paint']).toBeUndefined();
+    } finally {
+      flow.dispose();
+      await page.close();
+    }
+  });
 
-      if (process.env['APP_SPEED_SOFT_NAV_ARTIFACTS']) {
-        const directory = resolve(process.env['APP_SPEED_SOFT_NAV_ARTIFACTS']);
-        await mkdir(directory, { recursive: true });
-        await writeFile(resolve(directory, 'flow-result.json'), JSON.stringify(result));
-        await writeFile(resolve(directory, 'flow-report.html'), generateReport(result, 'html'));
-      }
+  it('does not invent an INP value when the callback has no user interaction', async () => {
+    const page = await browser.newPage();
+    const flow = await startFlow(page, { flags: { throttlingMethod: 'provided' } });
+    try {
+      await page.goto(baseUrl);
+      await flow.navigate(
+        async () => {
+          await page.evaluate(() => {
+            history.pushState({}, '', '/programmatic');
+            document.querySelector('#content')?.replaceChildren('Programmatic content update');
+          });
+        },
+        { softNavigation: true },
+      );
+      const inp = (await flow.createFlowResult()).steps[0].lhr.audits['interaction-to-next-paint'];
+      expect(inp.scoreDisplayMode).toBe('notApplicable');
+      expect(inp.numericValue).toBeUndefined();
     } finally {
       flow.dispose();
       await page.close();
