@@ -1,11 +1,13 @@
 import { defineConfig } from 'vitest/config';
 import angular from '@analogjs/vite-plugin-angular';
-import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 
 export default defineConfig(() => ({
+  resolve: {
+    tsconfigPaths: true,
+  },
   root: import.meta.dirname,
   cacheDir: '../../node_modules/.vite/apps/portal',
-  plugins: [angular(), nxViteTsPaths()],
+  plugins: [angular()],
   test: {
     name: 'portal',
     watch: false,

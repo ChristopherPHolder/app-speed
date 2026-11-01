@@ -174,10 +174,10 @@ importers:
     devDependencies:
       '@analogjs/vite-plugin-angular':
         specifier: 2.7.5
-        version: 2.7.5(1fb3862e7435edf704a268c04b416377)
+        version: 2.7.5(018cdd97e7b03d48cbd34cb4cc845f4e)
       '@analogjs/vitest-angular':
         specifier: 2.8.0
-        version: 2.8.0(@analogjs/vite-plugin-angular@2.7.5(1fb3862e7435edf704a268c04b416377))(@angular-devkit/architect@0.2201.7(chokidar@4.0.0))(@angular-devkit/schematics@22.1.7(chokidar@4.0.0))(vitest@5.0.3)(zone.js@0.16.3)
+        version: 2.8.0(@analogjs/vite-plugin-angular@2.7.5(018cdd97e7b03d48cbd34cb4cc845f4e))(@angular-devkit/architect@0.2201.7(chokidar@4.0.0))(@angular-devkit/schematics@22.1.7(chokidar@4.0.0))(vitest@5.0.3)(zone.js@0.16.3)
       '@angular-devkit/build-angular':
         specifier: 22.1.7
         version: 22.1.7(@angular/compiler-cli@22.1.5(@angular/compiler@22.1.5)(typescript@6.0.3))(@angular/compiler@22.1.5)(@angular/core@22.1.5(@angular/compiler@22.1.5)(rxjs@7.8.2)(zone.js@0.16.3))(@angular/platform-browser@22.1.5(@angular/animations@22.1.5(@angular/core@22.1.5(@angular/compiler@22.1.5)(rxjs@7.8.2)(zone.js@0.16.3)))(@angular/common@22.1.5(@angular/core@22.1.5(@angular/compiler@22.1.5)(rxjs@7.8.2)(zone.js@0.16.3))(rxjs@7.8.2))(@angular/core@22.1.5(@angular/compiler@22.1.5)(rxjs@7.8.2)(zone.js@0.16.3)))(@rspack/core@1.6.8(@swc/helpers@0.5.23))(@swc/core@1.16.2(@swc/helpers@0.5.23))(@types/node@24.19.1)(chokidar@4.0.0)(html-webpack-plugin@5.6.8(@rspack/core@1.6.8(@swc/helpers@0.5.23))(webpack@5.110.3))(jiti@2.7.0)(ng-packagr@22.1.1(@angular/compiler-cli@22.1.5(@angular/compiler@22.1.5)(typescript@6.0.3))(tslib@2.8.1)(typescript@6.0.3))(rollup@4.60.4)(sass-embedded@1.97.3)(tsx@4.22.1)(typescript@6.0.3)(vitest@5.0.3)(webpack-cli@7.2.3)(yaml@2.9.0)
@@ -472,6 +472,9 @@ importers:
       vite:
         specifier: 8.2.2
         version: 8.2.2(@types/node@24.19.1)(esbuild@0.27.3)(jiti@2.7.0)(less@4.6.4)(sass-embedded@1.97.3)(sass@1.101.0)(terser@5.51.2)(tsx@4.22.1)(yaml@2.9.0)
+      vite-plugin-static-copy:
+        specifier: 4.1.1
+        version: 4.1.1(vite@8.2.2(@types/node@24.19.1)(esbuild@0.27.3)(jiti@2.7.0)(less@4.6.4)(sass-embedded@1.97.3)(sass@1.101.0)(terser@5.51.2)(tsx@4.22.1)(yaml@2.9.0))
       vitest:
         specifier: ^5.0.3
         version: 5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.19.1)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(jsdom@26.0.0)(vite@8.2.2(@types/node@24.19.1)(esbuild@0.27.3)(jiti@2.7.0)(less@4.6.4)(sass-embedded@1.97.3)(sass@1.101.0)(terser@5.51.2)(tsx@4.22.1)(yaml@2.9.0))
@@ -13836,6 +13839,12 @@ packages:
     resolution: {integrity: sha512-ZZKSmDAEFOijERBLkmYfJ+vmk3w+7hOLYDNkRCuRuMJGEmqYNCNLyBBFwWKVMhfwaEF3WOd0Zlw86U/WC/+nYw==}
     engines: {'0': node >=0.6.0}
 
+  vite-plugin-static-copy@4.1.1:
+    resolution: {integrity: sha512-GrlA8YklrAfSyxJ4M3fdQLOo9oNkp56IM9FYgX/WtEgeIFkPwhu4wzpufBCIuNKCa6Fn77FkRdYxkHqV0FwjAw==}
+    engines: {node: ^22.0.0 || >=24.0.0}
+    peerDependencies:
+      vite: ^6.0.0 || ^7.0.0 || ^8.0.0
+
   vite@8.1.5:
     resolution: {integrity: sha512-7ULLwsCdYx/nRyrpiEwvqb5TFHrMVZyBt+rg/OAXT7rgj/z+DtTDyKFeLAdDkubDVDKD8jOsndmy7m55XcfUsw==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -14435,11 +14444,11 @@ snapshots:
       '@jridgewell/gen-mapping': 0.3.13
       '@jridgewell/trace-mapping': 0.3.31
 
-  '@analogjs/vite-plugin-angular@2.7.5(1fb3862e7435edf704a268c04b416377)':
+  '@analogjs/vite-plugin-angular@2.7.5(018cdd97e7b03d48cbd34cb4cc845f4e)':
     dependencies:
       magic-string: 0.30.21
       obug: 2.1.4
-      oxc-parser: 0.121.0(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)
+      oxc-parser: 0.121.0(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)
       tinyglobby: 0.2.17
     optionalDependencies:
       '@angular-devkit/build-angular': 22.1.7(@angular/compiler-cli@22.1.5(@angular/compiler@22.1.5)(typescript@6.0.3))(@angular/compiler@22.1.5)(@angular/core@22.1.5(@angular/compiler@22.1.5)(rxjs@7.8.2)(zone.js@0.16.3))(@angular/platform-browser@22.1.5(@angular/animations@22.1.5(@angular/core@22.1.5(@angular/compiler@22.1.5)(rxjs@7.8.2)(zone.js@0.16.3)))(@angular/common@22.1.5(@angular/core@22.1.5(@angular/compiler@22.1.5)(rxjs@7.8.2)(zone.js@0.16.3))(rxjs@7.8.2))(@angular/core@22.1.5(@angular/compiler@22.1.5)(rxjs@7.8.2)(zone.js@0.16.3)))(@rspack/core@1.6.8(@swc/helpers@0.5.23))(@swc/core@1.16.2(@swc/helpers@0.5.23))(@types/node@24.19.1)(chokidar@4.0.0)(html-webpack-plugin@5.6.8(@rspack/core@1.6.8(@swc/helpers@0.5.23))(webpack@5.110.3))(jiti@2.7.0)(ng-packagr@22.1.1(@angular/compiler-cli@22.1.5(@angular/compiler@22.1.5)(typescript@6.0.3))(tslib@2.8.1)(typescript@6.0.3))(rollup@4.60.4)(sass-embedded@1.97.3)(tsx@4.22.1)(typescript@6.0.3)(vitest@5.0.3)(webpack-cli@7.2.3)(yaml@2.9.0)
@@ -14449,9 +14458,9 @@ snapshots:
       - '@emnapi/core'
       - '@emnapi/runtime'
 
-  '@analogjs/vitest-angular@2.8.0(@analogjs/vite-plugin-angular@2.7.5(1fb3862e7435edf704a268c04b416377))(@angular-devkit/architect@0.2201.7(chokidar@4.0.0))(@angular-devkit/schematics@22.1.7(chokidar@4.0.0))(vitest@5.0.3)(zone.js@0.16.3)':
+  '@analogjs/vitest-angular@2.8.0(@analogjs/vite-plugin-angular@2.7.5(018cdd97e7b03d48cbd34cb4cc845f4e))(@angular-devkit/architect@0.2201.7(chokidar@4.0.0))(@angular-devkit/schematics@22.1.7(chokidar@4.0.0))(vitest@5.0.3)(zone.js@0.16.3)':
     dependencies:
-      '@analogjs/vite-plugin-angular': 2.7.5(1fb3862e7435edf704a268c04b416377)
+      '@analogjs/vite-plugin-angular': 2.7.5(018cdd97e7b03d48cbd34cb4cc845f4e)
       '@angular-devkit/architect': 0.2201.7(chokidar@4.0.0)
       '@angular-devkit/schematics': 22.1.7(chokidar@4.0.0)
       vitest: 5.0.3(@opentelemetry/api@1.9.1)(@types/node@24.19.1)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(jsdom@26.0.0)(vite@8.2.2(@types/node@24.19.1)(esbuild@0.27.3)(jiti@2.7.0)(less@4.6.4)(sass-embedded@1.97.3)(sass@1.101.0)(terser@5.51.2)(tsx@4.22.1)(yaml@2.9.0))
@@ -19548,9 +19557,9 @@ snapshots:
   '@oxc-parser/binding-openharmony-arm64@0.152.0':
     optional: true
 
-  '@oxc-parser/binding-wasm32-wasi@0.121.0(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)':
+  '@oxc-parser/binding-wasm32-wasi@0.121.0(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)':
     dependencies:
-      '@napi-rs/wasm-runtime': 1.2.3(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)
+      '@napi-rs/wasm-runtime': 1.2.3(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)
     transitivePeerDependencies:
       - '@emnapi/core'
       - '@emnapi/runtime'
@@ -26228,7 +26237,7 @@ snapshots:
 
   ospath@1.2.2: {}
 
-  oxc-parser@0.121.0(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0):
+  oxc-parser@0.121.0(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2):
     dependencies:
       '@oxc-project/types': 0.121.0
     optionalDependencies:
@@ -26248,7 +26257,7 @@ snapshots:
       '@oxc-parser/binding-linux-x64-gnu': 0.121.0
       '@oxc-parser/binding-linux-x64-musl': 0.121.0
       '@oxc-parser/binding-openharmony-arm64': 0.121.0
-      '@oxc-parser/binding-wasm32-wasi': 0.121.0(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)
+      '@oxc-parser/binding-wasm32-wasi': 0.121.0(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)
       '@oxc-parser/binding-win32-arm64-msvc': 0.121.0
       '@oxc-parser/binding-win32-ia32-msvc': 0.121.0
       '@oxc-parser/binding-win32-x64-msvc': 0.121.0
@@ -29074,6 +29083,14 @@ snapshots:
       assert-plus: 1.0.0
       core-util-is: 1.0.2
       extsprintf: 1.3.0
+
+  vite-plugin-static-copy@4.1.1(vite@8.2.2(@types/node@24.19.1)(esbuild@0.27.3)(jiti@2.7.0)(less@4.6.4)(sass-embedded@1.97.3)(sass@1.101.0)(terser@5.51.2)(tsx@4.22.1)(yaml@2.9.0)):
+    dependencies:
+      chokidar: 4.0.0
+      p-map: 7.0.7
+      picocolors: 1.1.1
+      tinyglobby: 0.2.17
+      vite: 8.2.2(@types/node@24.19.1)(esbuild@0.27.3)(jiti@2.7.0)(less@4.6.4)(sass-embedded@1.97.3)(sass@1.101.0)(terser@5.51.2)(tsx@4.22.1)(yaml@2.9.0)
 
   vite@8.1.5(@types/node@24.19.1)(esbuild@0.28.2)(jiti@2.7.0)(less@4.6.4)(sass-embedded@1.97.3)(sass@1.101.0)(terser@5.51.2)(tsx@4.22.1)(yaml@2.9.0):
     dependencies:

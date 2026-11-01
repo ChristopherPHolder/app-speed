@@ -1,11 +1,13 @@
 /// <reference types="vitest" />
-import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+  resolve: {
+    tsconfigPaths: true,
+  },
   root: import.meta.dirname,
   cacheDir: '../../../../node_modules/.vite/libs/audit/user-flow/persistence',
-  plugins: [nxViteTsPaths()],
+  plugins: [],
   test: {
     watch: false,
     globals: true,
