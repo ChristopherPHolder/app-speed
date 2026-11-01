@@ -27,19 +27,6 @@
     "integration": {
       "cache": false
     },
-    "@nx/jest:jest": {
-      "inputs": ["default", "^default", "{workspaceRoot}/jest.preset.js"],
-      "cache": true,
-      "options": {
-        "passWithNoTests": true
-      },
-      "configurations": {
-        "ci": {
-          "ci": true,
-          "codeCoverage": true
-        }
-      }
-    },
     "@nx/esbuild:esbuild": {
       "cache": true,
       "dependsOn": ["^build"],
