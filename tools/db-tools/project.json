@@ -4,10 +4,6 @@
   "sourceRoot": "tools/db-tools/src",
   "projectType": "library",
   "tags": [],
-  "targets": {
-    "lint": {
-      "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"]
-    }
-  }
+  "// targets": "to see all targets run: nx show project db-tools --web",
+  "targets": {}
 }

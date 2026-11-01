@@ -9,6 +9,7 @@
     "build": {
       "executor": "@nx/angular:ng-packagr-lite",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "defaultConfiguration": "production",
       "options": {
         "project": "libs/audit/core/domain/ng-package.json"
       },
@@ -19,11 +20,7 @@
         "development": {
           "tsConfig": "libs/audit/core/domain/tsconfig.lib.json"
         }
-      },
-      "defaultConfiguration": "production"
-    },
-    "lint": {
-      "executor": "@nx/eslint:lint"
+      }
     },
     "effect:diagnostics": {
       "options": {

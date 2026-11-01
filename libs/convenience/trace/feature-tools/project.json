@@ -21,9 +21,6 @@
         "development": {}
       }
     },
-    "test": {},
-    "lint": {
-      "executor": "@nx/eslint:lint"
-    }
+    "test": {}
   }
 }
