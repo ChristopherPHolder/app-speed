@@ -25,6 +25,16 @@ The viewer labels the step “soft navigation.” Ordinary timespans no longer r
 `soft-nav-fcp` / `soft-nav-lcp` audits.
 Previously saved reports retain their original audits.
 
+If a timespan contains a confirmed soft navigation in the main frame, its report warns:
+
+> A soft navigation was detected during this timespan. Use a navigation step with Soft Navigation enabled
+> to capture FCP and LCP alongside INP.
+
+The warning appears once per timespan, including when several soft navigations occur. It uses Chrome's
+soft-navigation trace events, so a same-document URL update alone does not trigger it. Existing page-load
+navigation warnings remain in place. The timespan retains its interaction metrics and is not converted
+into a navigation automatically.
+
 ## Lighthouse patch
 
 Lighthouse is pinned to **13.6.0** with a pnpm patch in `patches/lighthouse@13.6.0.patch`. The patch ports the
@@ -73,6 +83,8 @@ This uncached target starts an isolated local HTTP fixture and Puppeteer's insta
 - No invented INP value when the callback changes the URL/content without user input.
 - Missing soft navigation errors with a bounded wait.
 - Multiple soft navigation warnings.
+- A recommendation to use navigation mode when a timespan contains confirmed soft navigations, without
+  warning for ordinary interactions or programmatic URL/content changes.
 
 Set `APP_SPEED_SOFT_NAV_ARTIFACTS` to an absolute output directory to retain the real flow result JSON and
 HTML from the successful browser test. These are generated test artifacts, not repository fixtures.
@@ -89,3 +101,5 @@ is not exercised.
 ![Soft navigation configured on Start Navigation](screenshots/soft-navigation-builder.png)
 
 ![Soft navigation metrics in Performance](screenshots/soft-navigation-results.png)
+
+![Timespan warning recommending a soft-navigation step](screenshots/timespan-soft-navigation-warning.png)

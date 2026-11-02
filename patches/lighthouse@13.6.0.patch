@@ -644,6 +644,44 @@ index 325979cc47dfcc92f6ea2a3f58d8bffc53d1366d..6c955ffb1a2d4a55c93c6ccb0752b9a0
    _cleanup,
 +  UIStrings,
  };
+diff --git a/core/gather/timespan-runner.js b/core/gather/timespan-runner.js
+index 3b619d5874770a8d6e93e0ecd3950bfc5b02963d..d06ca38ff371e02b46547b89bd37863034bcf850 100644
+--- a/core/gather/timespan-runner.js
++++ b/core/gather/timespan-runner.js
+@@ -18,6 +18,8 @@ import * as i18n from '../lib/i18n/i18n.js';
+ const UIStrings = {
+   /** A warning that indicates page navigations should be audited using navigation mode, as opposed to timespan mode. "navigation mode" refers to a Lighthouse mode that analyzes a page navigation. "timespan mode" refers to a Lighthouse mode that analyzes user interactions over an arbitrary period of time. */
+   warningNavigationDetected: 'A page navigation was detected during the run. Using timespan mode to audit page navigations is not recommended. Use navigation mode to audit page navigations for better third-party attribution and main thread detection.',
++  /** A warning recommending a soft-navigation step when a timespan contains a confirmed soft navigation. */
++  warningSoftNavigationDetected: 'A soft navigation was detected during this timespan. Use a navigation step with Soft Navigation enabled to capture FCP and LCP alongside INP.',
+ };
+ /* eslint-enable max-len */
+ 
+@@ -55,6 +57,9 @@ async function startTimespanGather(page, options = {}) {
+ 
+   await prepareTargetForTimespanMode(driver, resolvedConfig.settings);
+ 
++  const {frameTree} = await driver.defaultSession.sendCommand('Page.getFrameTree');
++  const mainFrameId = frameTree.frame.id;
++
+   let pageNavigationDetected = false;
+   function onFrameNavigated() {
+     pageNavigationDetected = true;
+@@ -92,6 +97,14 @@ async function startTimespanGather(page, options = {}) {
+         await driver.disconnect();
+ 
+         const artifacts = await awaitArtifacts(artifactState);
++        const trace = artifacts.Trace;
++        // Trace can be missing or an Error when collection failed. A URL change alone is not proof
++        // of a soft navigation, and soft navigations in embedded frames are not top-level steps.
++        if (trace && Array.isArray(trace.traceEvents) && trace.traceEvents.some(event =>
++          event.name === 'SoftNavigationStart' && event.args.frame === mainFrameId
++        )) {
++          baseArtifacts.LighthouseRunWarnings.push(str_(UIStrings.warningSoftNavigationDetected));
++        }
+         return finalizeArtifacts(baseArtifacts, artifacts);
+       };
+ 
 diff --git a/core/lib/lh-error.js b/core/lib/lh-error.js
 index b716246994a73de1b8a0712f6b2b8ed00428ce7d..1f4e62b8fb9ca1d0e4cf746c05987fbdd8778225 100644
 --- a/core/lib/lh-error.js
