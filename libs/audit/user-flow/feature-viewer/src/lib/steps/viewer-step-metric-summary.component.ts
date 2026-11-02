@@ -14,7 +14,12 @@ export type MetricSummary = {
   selector: 'viewer-step-metric-summary',
   template: `
     <div class="header">
-      <span>METRICS</span>
+      <div class="header-title">
+        <span>METRICS</span>
+        @if (softNavigation()) {
+          <span class="experimental-metrics" role="note">Experimental soft navigation</span>
+        }
+      </div>
       <button type="button" class="header-toggle" (click)="toddleDescriptionVisibility()">
         {{ toggleBtnText() }} view
       </button>
@@ -45,8 +50,28 @@ export type MetricSummary = {
 
     .header {
       display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px 12px;
       justify-content: space-between;
       margin: 8px 0;
+    }
+
+    .header-title {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .experimental-metrics {
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: #fff4ce;
+      color: #713f00;
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 20px;
     }
 
     .content {
@@ -64,6 +89,7 @@ export type MetricSummary = {
     }
 
     .header-toggle {
+      margin-left: auto;
       border: 0;
       padding: 0;
       background: transparent;
@@ -102,6 +128,7 @@ export type MetricSummary = {
 })
 export class ViewerStepMetricSummaryComponent {
   metricSummary = input.required<MetricSummary[]>();
+  softNavigation = input(false);
   readonly descriptionVisible = signal(false);
   readonly toggleBtnText = computed(() => (this.descriptionVisible() ? 'Collapse' : 'Expand'));
   toddleDescriptionVisibility(): void {

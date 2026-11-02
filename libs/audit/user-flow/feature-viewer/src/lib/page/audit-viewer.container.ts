@@ -80,7 +80,6 @@ export class AuditViewerContainer {
           screenShotSize: fitScreenshotPreview(screenshot?.width ?? 0, screenshot?.height ?? 0),
           title: name,
           subTitle: softNavigation ? 'soft navigation' : gatherMode,
-          experimental: softNavigation,
           shouldDisplayAsFraction: shouldDisplayAsFraction(gatherMode),
           categoryScores: Object.values(categories).map((category) => {
             const extendedCategory = {

@@ -67,7 +67,11 @@ type CategoryView = {
         @for (category of categories; track category.id) {
           <mat-tab [label]="category.title">
             @if (category.metricSummary.length) {
-              <viewer-step-metric-summary [metricSummary]="category.metricSummary" class="pad" />
+              <viewer-step-metric-summary
+                [metricSummary]="category.metricSummary"
+                [softNavigation]="stepDetails().softNavigation ?? false"
+                class="pad"
+              />
             }
 
             @for (section of category.sections; track section.key) {
