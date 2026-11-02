@@ -156,10 +156,12 @@ describe('Lighthouse navigation experiment in Chrome', () => {
       }
       const [hard, soft, timespan] = result.steps.map((step) => step.lhr);
       expect(hard.gatherMode).toBe('navigation');
+      expect(hard.runWarnings.join(' ')).not.toContain('Multiple navigations');
       expect(result.steps[0].softNavigation).toBeUndefined();
       expect(hard.audits['first-contentful-paint'].numericValue).toBeGreaterThan(0);
       expect(hard.audits['interaction-to-next-paint']).toBeUndefined();
       expect(soft.gatherMode).toBe('navigation');
+      expect(soft.runWarnings.join(' ')).not.toContain('Multiple navigations');
       expect(result.steps[1].softNavigation).toBe(true);
       expect(soft.finalDisplayedUrl).toBe(`${baseUrl}/products/1`);
       for (const id of ['first-contentful-paint', 'largest-contentful-paint']) {
@@ -345,20 +347,64 @@ describe('Lighthouse navigation experiment in Chrome', () => {
     const flow = await createFlow(page, { flags: { throttlingMethod: 'provided' } });
     try {
       await page.goto(baseUrl);
-      await flow.navigate(async () => {
-        await page.click('#product');
-        await page.waitForSelector('#content h1');
-        await page.evaluate(
-          () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))),
-        );
-        await page.click('#product');
-      }, {});
-      const { lhr } = (await flow.createFlowResult()).steps[0];
+      await flow.navigate(
+        async () => {
+          await page.click('#product');
+          await page.waitForSelector('#content h1');
+          await page.evaluate(
+            () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))),
+          );
+          await page.click('#product');
+        },
+        { name: 'Browse products' },
+      );
+      const result = await flow.createFlowResult();
+      const { lhr } = result.steps[0];
       expect(lhr.runWarnings.join(' ')).toContain('Only the first soft navigation is measured');
+      expect(lhr.runWarnings.filter((warning) => warning.includes('Multiple navigations'))).toHaveLength(1);
+      expect(lhr.runWarnings.join(' ')).toContain('Record each navigation in a separate step.');
       expect(lhr.audits['first-contentful-paint'].numericValue).toBeGreaterThan(0);
+      if (process.env['APP_SPEED_SOFT_NAV_ARTIFACTS']) {
+        const directory = resolve(process.env['APP_SPEED_SOFT_NAV_ARTIFACTS']);
+        await mkdir(directory, { recursive: true });
+        await writeFile(resolve(directory, 'multiple-navigation-result.json'), JSON.stringify(result));
+      }
     } finally {
       flow.dispose();
       await page.close();
     }
   });
+
+  it.each(['document', 'soft'])(
+    'warns when a native navigation step also contains a second %s navigation',
+    async (secondNavigation) => {
+      const page = await browser.newPage();
+      const flow = await createFlow(page, { flags: { throttlingMethod: 'provided' } }, ['navigation']);
+      try {
+        await flow.startNavigation({ name: 'Several page views' });
+        await page.goto(baseUrl);
+        if (secondNavigation === 'document') {
+          await page.goto(`${baseUrl}/document`);
+        } else {
+          await page.click('#product');
+          await page.waitForSelector('#content h1');
+          await page.evaluate(
+            () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))),
+          );
+        }
+        await flow.endNavigation();
+        const result = await flow.createFlowResult();
+        const { lhr } = result.steps[0];
+        expect(lhr.gatherMode).toBe('navigation');
+        expect(result.steps[0].softNavigation).toBeUndefined();
+        const warnings = lhr.runWarnings.filter((warning) => warning.includes('Multiple navigations'));
+        expect(warnings).toHaveLength(1);
+        expect(warnings[0]).toContain('Record each navigation in a separate step.');
+        expect(generateReport(result, 'html')).toContain('Multiple navigations were detected');
+      } finally {
+        flow.dispose();
+        await page.close();
+      }
+    },
+  );
 });

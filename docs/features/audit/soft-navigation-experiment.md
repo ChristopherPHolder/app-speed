@@ -21,8 +21,9 @@ Use a snapshot afterwards to audit the resulting page state.
 ```
 
 The application result remains `gatherMode: "navigation"` and has `softNavigation: true` on its flow step.
-Standard FCP, LCP, and INP appear in Performance. The viewer displays an amber
-**Soft navigation · Experimental metrics** badge. Exported Lighthouse HTML uses its existing Navigation label.
+Standard FCP, LCP, and INP appear in Performance. The viewer displays a small amber **Experimental** badge
+beside the soft navigation label under the step title. Warnings appear as compact amber rows after the
+filmstrip, immediately above the audit category tabs. Exported Lighthouse HTML uses its existing Navigation label.
 
 ## Local implementation
 
@@ -46,12 +47,14 @@ late rendering without network activity can still outlast the observation window
 This requires Chrome 149 or newer. FCP/LCP use experimental page-load scoring curves. INP is scripted lab
 responsiveness for the complete step, not a whole-visit real-user INP value. With no user interaction,
 INP is not applicable. Multiple soft navigations produce a warning: FCP/LCP describe the first, while INP
-covers interactions in the recorded step.
+covers interactions in the recorded step. Navigation steps also warn when the trace contains multiple
+main-frame document loads or a mix of document and soft navigations, recommending a separate step for
+each navigation. Iframe loads and placeholder documents do not count.
 
 If a timespan contains a confirmed main-frame soft navigation, its report warns once:
 
 > A soft navigation was detected during this timespan. Use a navigation step to capture FCP and LCP
-> alongside INP. Soft navigation measurements are enabled automatically.
+> alongside INP.
 
 A URL/content update without a detected soft navigation does not trigger this warning. Timespans retain
 their native interaction metrics and are not converted automatically. Missing detections and metric
@@ -65,7 +68,8 @@ pnpm exec nx run audit-user-flow-runner:integration
 
 This uncached target runs Puppeteer's Chrome against a local fixture. It checks native page loads,
 automatic soft navigation metrics, timespan recommendations, missing detection, programmatic URL updates,
-and multiple detections. The triggering click blocks for 180 ms; its INP is compared with Chrome's Event
+and multiple detections, including consecutive document loads and mixed document/soft navigation steps.
+The triggering click blocks for 180 ms; its INP is compared with Chrome's Event
 Timing observer and a trace event with the same interaction ID and exact duration. Regression tests cover
 an idle delay before a click that fetches delayed content and a click that falls back to a full page load.
 
@@ -78,3 +82,5 @@ database persistence is not exercised in the screenshot session.
 ![Soft navigation metrics marked as experimental](screenshots/soft-navigation-results.png)
 
 ![Timespan warning recommending a navigation step](screenshots/timespan-soft-navigation-warning.png)
+
+![Warning for several navigations in one navigation step](screenshots/multiple-navigation-warning.png)

@@ -131,6 +131,10 @@ describe('AuditViewerContainer', () => {
     });
     await fixture.whenStable();
     expect(fixture.nativeElement.querySelector('.summary-subtitle')?.textContent).toContain('soft navigation');
+    expect(
+      fixture.nativeElement.querySelector('.summary-subtitle [aria-label="Experimental soft navigation metrics"]')
+        ?.textContent,
+    ).toContain('Experimental');
   });
 
   it('writes the visible step to the URL fragment', async () => {
