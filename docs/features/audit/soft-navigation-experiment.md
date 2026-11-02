@@ -21,8 +21,8 @@ Use a snapshot afterwards to audit the resulting page state.
 ```
 
 The application result remains `gatherMode: "navigation"` and has `softNavigation: true` on its flow step.
-Standard FCP, LCP, and INP appear in Performance. The viewer displays a small amber **Experimental** badge
-beside the soft navigation label under the step title. Warnings appear as compact amber rows after the
+Standard FCP, LCP, and INP appear in Performance. The viewer displays an amber **Experimental soft navigation**
+badge beside **METRICS**. Warnings appear as compact amber rows after the
 filmstrip, immediately above the audit category tabs. Exported Lighthouse HTML uses its existing Navigation label.
 
 ## Local implementation
@@ -72,6 +72,10 @@ and multiple detections, including consecutive document loads and mixed document
 The triggering click blocks for 180 ms; its INP is compared with Chrome's Event
 Timing observer and a trace event with the same interaction ID and exact duration. Regression tests cover
 an idle delay before a click that fetches delayed content and a click that falls back to a full page load.
+
+The integration target first runs `test-orchestration:install-browser`, an Nx executor that installs the Chrome
+build pinned by Puppeteer. This also prepares clean CI runners where the browser is not cached. The fixture
+uses the same sandbox flags as the application runner when running in CI.
 
 Set `APP_SPEED_SOFT_NAV_ARTIFACTS` to an absolute directory to retain real flow result JSON, exported HTML,
 and `triggering-interaction.json`. Screenshots use this captured data through fixture API responses;

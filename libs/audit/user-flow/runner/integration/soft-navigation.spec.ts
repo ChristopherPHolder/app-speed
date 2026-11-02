@@ -49,7 +49,10 @@ beforeAll(async () => {
   const address = server.address();
   if (!address || typeof address === 'string') throw new Error('Missing fixture address');
   baseUrl = `http://127.0.0.1:${address.port}`;
-  browser = await puppeteer.launch({ headless: true });
+  browser = await puppeteer.launch({
+    headless: true,
+    args: process.env['CI'] ? ['--no-sandbox', '--disable-setuid-sandbox'] : [],
+  });
 });
 
 afterAll(async () => {
