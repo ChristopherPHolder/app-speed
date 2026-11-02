@@ -2,6 +2,7 @@ import { defaultConfig, desktopConfig } from 'lighthouse';
 
 import { DEVICE_TYPE, DeviceSchema, type DeviceType } from '@app-speed/audit/core/domain';
 import { Effect, Schema } from 'effect';
+import { experimentalNavigationConfig } from '../soft-navigation/audits';
 
 export class InvalidDeviceConfigurationError extends Schema.TaggedError<InvalidDeviceConfigurationError>()(
   'InvalidDeviceConfigurationError',
@@ -42,7 +43,7 @@ export const AuditConfig = Effect.fn('deviceConfig')(function* (deviceType: Devi
   );
 
   return {
-    lighthousePreset: devicePreset,
+    lighthousePreset: experimentalNavigationConfig(devicePreset),
     userAgent: settings.emulatedUserAgent,
     defaultViewport: {
       width: settings.screenEmulation.width,

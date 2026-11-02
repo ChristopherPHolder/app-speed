@@ -27,16 +27,6 @@ const createExtension = (flow: UserFlow, page: Page = createPage(), timeout?: nu
   new UserFlowRunnerExtension({} as never, page, flow, timeout === undefined ? undefined : { timeout });
 
 describe('UserFlowRunnerExtension', () => {
-  it.each([true, false])('passes the soft navigation setting to Lighthouse: %s', async (softNavigation) => {
-    const flow = createFlow();
-    await createExtension(flow).runStep(
-      { type: 'customStep', name: 'startNavigation', parameters: { softNavigation } },
-      {} as never,
-    );
-    expect(flow.startNavigation).toHaveBeenCalledWith({ softNavigation });
-    expect(flow.startTimespan).not.toHaveBeenCalled();
-  });
-
   it('dispatches each supported custom step exhaustively', async () => {
     const flow = createFlow();
     const extension = createExtension(flow);

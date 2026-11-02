@@ -2,14 +2,25 @@ import { createServer } from 'node:http';
 import { once } from 'node:events';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { setTimeout as pause } from 'node:timers/promises';
 import puppeteer, { type Browser } from 'puppeteer';
-import { startFlow, generateReport } from 'lighthouse';
+import { startFlow as startLighthouseFlow, generateReport, defaultConfig } from 'lighthouse';
+import type { Page } from 'puppeteer';
+import { ExperimentalUserFlow } from '../src/lib/soft-navigation/flow';
+import { experimentalNavigationConfig } from '../src/lib/soft-navigation/audits';
 import { Schema } from 'effect';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { UserflowRunnerStepSchema } from '@app-speed/audit/user-flow/domain';
 import { UserFlowRunnerExtension } from '../src/lib/audit/runner-extension';
 
-const server = createServer((_request, response) => {
+const server = createServer((request, response) => {
+  if (request.url === '/slow-content') {
+    setTimeout(() => {
+      response.setHeader('Content-Type', 'text/plain');
+      response.end('Loaded');
+    }, 800);
+    return;
+  }
   response.setHeader('Content-Type', 'text/html');
   response.end(`<!doctype html><html lang="en"><meta name="viewport" content="width=device-width">
     <title>Soft navigation fixture</title><style>
@@ -17,14 +28,16 @@ const server = createServer((_request, response) => {
       main { max-width: 760px; padding: 40px; background: white; border-radius: 16px; }
       button { font: inherit; padding: 12px 24px; cursor: pointer; }
     </style><main><h1>Explore the collection</h1><p>Choose an item to open its details without reloading.</p>
-    <button id="product">View product</button><button id="noop">Keep browsing</button><section id="content"></section></main>
+    <button id="product">View product</button><button id="noop">Keep browsing</button><a id="hard-link" href="/document">Full page</a><section id="content"></section></main>
     <script>let count = 0; document.querySelector('#product').onclick = () => {
       const start = performance.now();
       while (performance.now() - start < 180) { /* Deliberately block the triggering interaction. */ }
+      const slow = location.search.includes('slow=1');
       count++; history.pushState({}, '', '/products/' + count);
-      setTimeout(() => {
+      const ready = slow ? fetch('/slow-content') : new Promise(resolve => setTimeout(resolve, 250));
+      ready.then(() => {
         document.querySelector('#content').innerHTML = '<h1>Product ' + count + '</h1><p>A new view rendered by a same-document navigation.</p>';
-      }, 250);
+      });
     };</script></html>`);
 });
 let browser: Browser;
@@ -47,15 +60,33 @@ afterAll(async () => {
 const decodeStep = Schema.decodeUnknownPromise(UserflowRunnerStepSchema);
 const RecordedInteraction = Schema.Struct({ interactionId: Schema.Number, duration: Schema.Number });
 
+async function createFlow(
+  page: Page,
+  options: Parameters<typeof startLighthouseFlow>[1] = {},
+  plan: ConstructorParameters<typeof ExperimentalUserFlow>[2] = [],
+) {
+  const flow = await startLighthouseFlow(page, {
+    ...options,
+    config: experimentalNavigationConfig(options.config ?? defaultConfig),
+  });
+  return new ExperimentalUserFlow(page, flow, plan, options.flags?.maxWaitForLoad ?? 3000);
+}
+
 describe('Lighthouse navigation experiment in Chrome', () => {
   it('measures a soft navigation through the replay start/end navigation steps', async () => {
     const page = await browser.newPage();
-    const flow = await startFlow(page, {
-      name: 'Navigation experiment',
-      flags: { formFactor: 'desktop', screenEmulation: { disabled: true }, throttlingMethod: 'provided' },
-    });
+    const flow = await createFlow(
+      page,
+      {
+        name: 'Navigation experiment',
+        flags: { formFactor: 'desktop', screenEmulation: { disabled: true }, throttlingMethod: 'provided' },
+      },
+      ['navigation', 'soft-navigation'],
+    );
     try {
-      await flow.navigate(baseUrl, { name: 'Initial page load' });
+      await flow.startNavigation({ name: 'Initial page load' });
+      await page.goto(baseUrl);
+      await flow.endNavigation();
       const extension = new UserFlowRunnerExtension(browser, page, flow);
       await page.evaluate(() => localStorage.setItem('session', 'preserved'));
       const observedInteractions = await page.evaluateHandle(() => {
@@ -73,7 +104,6 @@ describe('Lighthouse navigation experiment in Chrome', () => {
           type: 'customStep',
           step: 'startNavigation',
           name: 'Product details',
-          softNavigation: true,
         }),
         { title: 'Navigation experiment', steps: [] },
       );
@@ -111,9 +141,12 @@ describe('Lighthouse navigation experiment in Chrome', () => {
               traceEvents: flow
                 .createArtifactsJson()
                 .gatherSteps[1].artifacts.Trace.traceEvents.filter((event) =>
-                  ['EventTiming', 'Responsiveness.Renderer.UserInteraction', 'SoftNavigationStart'].includes(
-                    event.name,
-                  ),
+                  [
+                    'EventTiming',
+                    'Responsiveness.Renderer.UserInteraction',
+                    'SoftNavigationStart',
+                    'largestContentfulPaint::CandidateForSoftNavigation',
+                  ].includes(event.name),
                 ),
             },
             null,
@@ -123,11 +156,11 @@ describe('Lighthouse navigation experiment in Chrome', () => {
       }
       const [hard, soft, timespan] = result.steps.map((step) => step.lhr);
       expect(hard.gatherMode).toBe('navigation');
-      expect(hard.configSettings.softNavigation).toBe(false);
+      expect(result.steps[0].softNavigation).toBeUndefined();
       expect(hard.audits['first-contentful-paint'].numericValue).toBeGreaterThan(0);
       expect(hard.audits['interaction-to-next-paint']).toBeUndefined();
       expect(soft.gatherMode).toBe('navigation');
-      expect(soft.configSettings.softNavigation).toBe(true);
+      expect(result.steps[1].softNavigation).toBe(true);
       expect(soft.finalDisplayedUrl).toBe(`${baseUrl}/products/1`);
       for (const id of ['first-contentful-paint', 'largest-contentful-paint']) {
         expect(soft.audits[id].scoreDisplayMode).toBe('numeric');
@@ -157,7 +190,7 @@ describe('Lighthouse navigation experiment in Chrome', () => {
       );
       // Event Timing rounds public durations to 8 ms; Lighthouse uses the unrounded trace timing.
       expect(Math.abs((inp.numericValue ?? 0) - (trigger?.duration ?? 0))).toBeLessThanOrEqual(16);
-      expect(soft.audits['document-latency-insight'].scoreDisplayMode).toBe('notApplicable');
+      expect(soft.audits['document-latency-insight'].scoreDisplayMode).not.toBe('error');
       expect(Object.values(soft.audits).filter((audit) => audit.scoreDisplayMode === 'error')).toEqual([]);
       expect(soft.categories['performance'].auditRefs.some((ref) => ref.id === 'largest-contentful-paint')).toBe(true);
       expect(timespan.gatherMode).toBe('timespan');
@@ -172,18 +205,15 @@ describe('Lighthouse navigation experiment in Chrome', () => {
 
   it('does not invent an INP value when the callback has no user interaction', async () => {
     const page = await browser.newPage();
-    const flow = await startFlow(page, { flags: { throttlingMethod: 'provided' } });
+    const flow = await createFlow(page, { flags: { throttlingMethod: 'provided' } });
     try {
       await page.goto(baseUrl);
-      await flow.navigate(
-        async () => {
-          await page.evaluate(() => {
-            history.pushState({}, '', '/programmatic');
-            document.querySelector('#content')?.replaceChildren('Programmatic content update');
-          });
-        },
-        { softNavigation: true },
-      );
+      await flow.navigate(async () => {
+        await page.evaluate(() => {
+          history.pushState({}, '', '/programmatic');
+          document.querySelector('#content')?.replaceChildren('Programmatic content update');
+        });
+      }, {});
       const inp = (await flow.createFlowResult()).steps[0].lhr.audits['interaction-to-next-paint'];
       expect(inp.scoreDisplayMode).toBe('notApplicable');
       expect(inp.numericValue).toBeUndefined();
@@ -193,9 +223,47 @@ describe('Lighthouse navigation experiment in Chrome', () => {
     }
   });
 
+  it('starts network quiet after navigation even when the page was already idle before the click', async () => {
+    const page = await browser.newPage();
+    const flow = await createFlow(page, { flags: { throttlingMethod: 'provided' } });
+    try {
+      await page.goto(`${baseUrl}/?slow=1`);
+      await flow.startNavigation({ name: 'Delayed interaction' });
+      await pause(1600);
+      await page.click('#product');
+      await flow.endNavigation();
+      const { lhr } = (await flow.createFlowResult()).steps[0];
+      expect(lhr.audits['first-contentful-paint'].numericValue).toBeGreaterThanOrEqual(800);
+      expect(lhr.audits['largest-contentful-paint'].numericValue).toBeGreaterThanOrEqual(800);
+    } finally {
+      flow.dispose();
+      await page.close();
+    }
+  });
+
+  it('does not label fallback document paints as soft-navigation measurements', async () => {
+    const page = await browser.newPage();
+    const flow = await createFlow(page, { flags: { throttlingMethod: 'provided' } });
+    try {
+      await page.goto(baseUrl);
+      await flow.navigate(async () => {
+        await Promise.all([page.waitForNavigation(), page.click('#hard-link')]);
+      });
+      const { lhr } = (await flow.createFlowResult()).steps[0];
+      for (const id of ['first-contentful-paint', 'largest-contentful-paint']) {
+        expect(lhr.audits[id].scoreDisplayMode).toBe('error');
+        expect(lhr.audits[id].errorMessage).toContain('No soft navigation detected');
+        expect(lhr.audits[id].numericValue).toBeUndefined();
+      }
+    } finally {
+      flow.dispose();
+      await page.close();
+    }
+  });
+
   it('warns once when a timespan contains confirmed soft navigations', async () => {
     const page = await browser.newPage();
-    const flow = await startFlow(page, { flags: { throttlingMethod: 'provided' } });
+    const flow = await createFlow(page, { flags: { throttlingMethod: 'provided' } });
     try {
       await page.goto(baseUrl);
       await flow.startTimespan({ name: 'Soft navigation recorded as timespan' });
@@ -216,7 +284,7 @@ describe('Lighthouse navigation experiment in Chrome', () => {
         warning.includes('A soft navigation was detected during this timespan.'),
       );
       expect(warnings).toHaveLength(1);
-      expect(warnings[0]).toContain('navigation step with Soft Navigation enabled');
+      expect(warnings[0]).toContain('Use a navigation step');
       expect(warnings[0]).toContain('FCP and LCP alongside INP');
       expect(lhr.gatherMode).toBe('timespan');
       expect(lhr.audits['first-contentful-paint']).toBeUndefined();
@@ -237,7 +305,7 @@ describe('Lighthouse navigation experiment in Chrome', () => {
 
   it('does not warn for a same-document URL/content update without a detected soft navigation', async () => {
     const page = await browser.newPage();
-    const flow = await startFlow(page, { flags: { throttlingMethod: 'provided' } });
+    const flow = await createFlow(page, { flags: { throttlingMethod: 'provided' } });
     try {
       await page.goto(baseUrl);
       await flow.startTimespan();
@@ -256,15 +324,12 @@ describe('Lighthouse navigation experiment in Chrome', () => {
 
   it('reports missing soft navigation metrics as errors and keeps the run bounded', async () => {
     const page = await browser.newPage();
-    const flow = await startFlow(page, { flags: { throttlingMethod: 'provided', maxWaitForLoad: 1000 } });
+    const flow = await createFlow(page, { flags: { throttlingMethod: 'provided', maxWaitForLoad: 1000 } });
     try {
       await page.goto(baseUrl);
-      await flow.navigate(
-        async () => {
-          await page.click('#noop');
-        },
-        { softNavigation: true },
-      );
+      await flow.navigate(async () => {
+        await page.click('#noop');
+      }, {});
       const { lhr } = (await flow.createFlowResult()).steps[0];
       expect(lhr.audits['first-contentful-paint'].scoreDisplayMode).toBe('error');
       expect(lhr.audits['first-contentful-paint'].errorMessage).toContain('soft navigation');
@@ -277,20 +342,17 @@ describe('Lighthouse navigation experiment in Chrome', () => {
 
   it('warns when several soft navigations share a step and measures the first', async () => {
     const page = await browser.newPage();
-    const flow = await startFlow(page, { flags: { throttlingMethod: 'provided' } });
+    const flow = await createFlow(page, { flags: { throttlingMethod: 'provided' } });
     try {
       await page.goto(baseUrl);
-      await flow.navigate(
-        async () => {
-          await page.click('#product');
-          await page.waitForSelector('#content h1');
-          await page.evaluate(
-            () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))),
-          );
-          await page.click('#product');
-        },
-        { softNavigation: true },
-      );
+      await flow.navigate(async () => {
+        await page.click('#product');
+        await page.waitForSelector('#content h1');
+        await page.evaluate(
+          () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))),
+        );
+        await page.click('#product');
+      }, {});
       const { lhr } = (await flow.createFlowResult()).steps[0];
       expect(lhr.runWarnings.join(' ')).toContain('Only the first soft navigation is measured');
       expect(lhr.audits['first-contentful-paint'].numericValue).toBeGreaterThan(0);

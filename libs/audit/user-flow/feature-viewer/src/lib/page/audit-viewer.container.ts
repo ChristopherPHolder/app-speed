@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, input, model } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { combineLatest, distinctUntilChanged, filter, map, Observable, shareReplay, switchMap } from 'rxjs';
-import type { FlowResult } from 'lighthouse';
+import type { UserFlowResult } from '@app-speed/audit/user-flow/domain';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ViewerStepDetailComponent } from '../steps/viewer-step-details.component';
 import { calculateCategoryFraction, shouldDisplayAsFraction } from '../lighthouse-report-utils';
@@ -52,10 +52,10 @@ export class AuditViewerContainer {
   readonly #route = inject(ActivatedRoute);
   readonly #router = inject(Router);
 
-  flowResult$: Observable<FlowResult> = toObservable(this.auditId).pipe(
+  flowResult$: Observable<UserFlowResult> = toObservable(this.auditId).pipe(
     switchMap((auditId) => {
       return this.#api
-        .get<{ status: 'SUCCESS' | 'FAILURE'; result: FlowResult }>(`/api/audits/user-flow/${auditId}/result`)
+        .get<{ status: 'SUCCESS' | 'FAILURE'; result: UserFlowResult }>(`/api/audits/user-flow/${auditId}/result`)
         .pipe(
           filter((response) => response.status === 'SUCCESS'),
           map((response) => response.result),
@@ -73,13 +73,13 @@ export class AuditViewerContainer {
     }
 
     return results.steps.map(
-      ({ lhr: { fullPageScreenshot, categories, gatherMode, audits, configSettings }, name }) => {
+      ({ lhr: { fullPageScreenshot, categories, gatherMode, audits }, name, softNavigation }) => {
         const screenshot = fullPageScreenshot?.screenshot;
         return {
           screenShot: screenshot?.data || '',
           screenShotSize: fitScreenshotPreview(screenshot?.width ?? 0, screenshot?.height ?? 0),
           title: name,
-          subTitle: gatherMode === 'navigation' && configSettings.softNavigation ? 'soft navigation' : gatherMode,
+          subTitle: softNavigation ? 'soft navigation' : gatherMode,
           shouldDisplayAsFraction: shouldDisplayAsFraction(gatherMode),
           categoryScores: Object.values(categories).map((category) => {
             const extendedCategory = {

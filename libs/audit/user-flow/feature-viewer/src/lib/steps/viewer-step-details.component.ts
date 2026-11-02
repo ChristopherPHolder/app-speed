@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { MatTab, MatTabGroup } from '@angular/material/tabs';
 import { FlowResult, Result } from 'lighthouse';
+import type { UserFlowResult } from '@app-speed/audit/user-flow/domain';
 import { Result as AuditResult } from 'lighthouse/types/lhr/audit-result';
 
 import {
@@ -44,6 +45,10 @@ type CategoryView = {
   selector: 'viewer-step-detail',
   template: `
     @let categories = categoryViews();
+
+    @if (stepDetails().softNavigation) {
+      <p class="experimental-metrics" role="note">Soft navigation · Experimental metrics</p>
+    }
 
     @if (stepDetails().lhr.runWarnings?.length) {
       <aside class="run-warnings" aria-label="Lighthouse warnings">
@@ -108,10 +113,20 @@ type CategoryView = {
       border: 1px solid currentColor;
       border-radius: 8px;
     }
+    .experimental-metrics {
+      display: inline-flex;
+      margin: 20px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid #b76e00;
+      background: #fff4ce;
+      color: #713f00;
+      font-weight: 600;
+    }
   `,
 })
 export class ViewerStepDetailComponent {
-  stepDetails = input.required<FlowResult.Step>();
+  stepDetails = input.required<UserFlowResult['steps'][number]>();
   private readonly report = computed(() => this.stepDetails().lhr);
   private readonly categoryEntries = computed(() => {
     return Object.entries(this.report().categories) as [string, Result.Category][];

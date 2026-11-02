@@ -13,32 +13,6 @@ import {
 } from './lighthouse-userflow-step';
 
 describe('UserflowRunnerStepSchema', () => {
-  it.effect.each([true, false])('round trips a navigation setting without a name: %s', (softNavigation) =>
-    Effect.gen(function* () {
-      const input = { type: 'customStep', step: 'startNavigation', softNavigation };
-      const decoded = yield* Schema.decodeUnknownEffect(UserflowRunnerStepSchema)(input);
-      expect(decoded).toEqual({ type: 'customStep', name: 'startNavigation', parameters: { softNavigation } });
-      expect(yield* Schema.encodeEffect(UserflowRunnerStepSchema)(decoded)).toEqual(input);
-      expect(yield* Schema.decodeUnknownEffect(ReplayUserflowStepSchema)(decoded)).toEqual(decoded);
-    }),
-  );
-
-  it.effect('preserves the name alongside the soft navigation setting', () =>
-    Effect.gen(function* () {
-      const decoded = yield* Schema.decodeUnknownEffect(UserflowRunnerStepSchema)({
-        type: 'customStep',
-        step: 'startNavigation',
-        name: 'Product details',
-        softNavigation: true,
-      });
-      expect(decoded).toEqual({
-        type: 'customStep',
-        name: 'startNavigation',
-        parameters: { name: 'Product details', softNavigation: true },
-      });
-    }),
-  );
-
   it.effect('should decode an explicit custom-step schema', () =>
     Effect.gen(function* () {
       const startNavigationStep = {

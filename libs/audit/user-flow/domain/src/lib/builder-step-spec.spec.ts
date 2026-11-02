@@ -176,8 +176,7 @@ describe('builder step spec', () => {
       type: 'customStep',
       step: 'startNavigation',
     });
-    expect(startNavigation.fields.map((field) => field.path)).toEqual(['name', 'softNavigation']);
-    expect(findField(startNavigation, 'softNavigation')).toMatchObject({ kind: 'boolean', required: false });
+    expect(startNavigation.fields.map((field) => field.path)).toEqual(['name']);
     expect(addCookie.defaultValue).toEqual({
       type: 'customStep',
       step: 'addCookie',

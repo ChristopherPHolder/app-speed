@@ -124,7 +124,7 @@ describe('AuditViewerContainer', () => {
         steps: [
           {
             ...successfulResult.steps[0],
-            lhr: { ...successfulResult.steps[0].lhr, configSettings: { softNavigation: true } },
+            softNavigation: true,
           },
         ],
       },

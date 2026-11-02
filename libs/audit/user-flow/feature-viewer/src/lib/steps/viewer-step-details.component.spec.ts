@@ -187,6 +187,17 @@ describe('ViewerStepDetailComponent', () => {
     component = fixture.componentInstance;
   });
 
+  it.each([true, false])(
+    'shows the experimental metrics badge only for soft navigation: %s',
+    async (softNavigation) => {
+      fixture.componentRef.setInput('stepDetails', { ...multiCategoryStep, softNavigation });
+      await fixture.whenStable();
+      expect(fixture.nativeElement.querySelector('.experimental-metrics')?.textContent ?? '').toBe(
+        softNavigation ? 'Soft navigation · Experimental metrics' : '',
+      );
+    },
+  );
+
   it('shows the warning when only the first soft navigation was measured', async () => {
     const warning =
       'Multiple soft navigations were detected during the run. Only the first soft navigation is measured.';
