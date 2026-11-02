@@ -8,7 +8,6 @@ interface StartNavigationStep {
   type: typeof PUPPETEER_REPLAY_CUSTOM_STEP_TYPE.CUSTOM_STEP;
   step: typeof LIGHTHOUSE_AUDIT_STEP_TYPE.START_NAVIGATION;
   name?: string;
-  softNavigation?: boolean;
 }
 
 interface EndNavigationStep {

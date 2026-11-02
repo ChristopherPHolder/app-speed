@@ -1,71 +1,61 @@
 # Soft navigation experiment
 
-Soft navigations are navigation steps in a user flow. Set `softNavigation: true` on **Start Navigation**,
-perform an interaction that updates the URL and renders new content in the same document, then use **End
-Navigation**. Load the application before starting the soft navigation. Use a snapshot afterwards when you
-also want to audit the resulting page state.
+The experiment is enabled by default, using stock Lighthouse 13.6.0 and local Performance audit overrides.
+There is no dependency patch or builder toggle.
 
-In the builder, add the optional **Soft Navigation (Experimental)** property to Start Navigation and select
-True. Omitting it, or selecting False, keeps the existing page-load behavior. It is not a timespan option.
+Use **Start Navigation**, the interaction steps, then **End Navigation**. A navigation containing an explicit
+**Navigate** action uses Lighthouse's native page-load runner. Interaction-driven navigation steps collect
+an interaction trace and use the local FCP/LCP audits. If a click falls back to a document load, the soft
+paint metrics report missing detection instead of presenting document paints as soft-navigation results.
+Use a snapshot afterwards to audit the resulting page state.
 
 ```json
 [
   { "type": "customStep", "step": "startNavigation", "name": "Initial page load" },
   { "type": "navigate", "url": "https://example.com" },
   { "type": "customStep", "step": "endNavigation" },
-  { "type": "customStep", "step": "startNavigation", "name": "Product details", "softNavigation": true },
+  { "type": "customStep", "step": "startNavigation", "name": "Product details" },
   { "type": "click", "offsetX": 40, "offsetY": 15, "selectors": [{ "segments": ["#product"] }] },
   { "type": "customStep", "step": "endNavigation" }
 ]
 ```
 
-The result stays `gatherMode: "navigation"` with `configSettings.softNavigation: true`. Standard First
-Contentful Paint, Largest Contentful Paint, and Interaction to Next Paint audits appear in Performance.
-The viewer labels the step “soft navigation.” Ordinary timespans no longer receive the previous
-`soft-nav-fcp` / `soft-nav-lcp` audits.
-Previously saved reports retain their original audits.
+The application result remains `gatherMode: "navigation"` and has `softNavigation: true` on its flow step.
+Standard FCP, LCP, and INP appear in Performance. The viewer displays an amber
+**Soft navigation · Experimental metrics** badge. Exported Lighthouse HTML uses its existing Navigation label.
 
-If a timespan contains a confirmed soft navigation in the main frame, its report warns:
+## Local implementation
 
-> A soft navigation was detected during this timespan. Use a navigation step with Soft Navigation enabled
-> to capture FCP and LCP alongside INP.
+`libs/audit/user-flow/runner/src/lib/soft-navigation/` contains the flow adapter, configuration overrides,
+and trace timing extraction. The implementation is informed by
+[GoogleChrome/lighthouse#17075](https://github.com/GoogleChrome/lighthouse/pull/17075) and the earlier
+[soft-navigation plugin](https://github.com/adamraine/lighthouse-plugin-soft-navigation).
+Lighthouse itself is unmodified. The version is pinned because the experiment reads Chrome trace formats
+and imports Lighthouse's native metric classes and processed-trace helper.
 
-The warning appears once per timespan, including when several soft navigations occur. It uses Chrome's
-soft-navigation trace events, so a same-document URL update alone does not trigger it. Existing page-load
-navigation warnings remain in place. The timespan retains its interaction metrics and is not converted
-into a navigation automatically.
+For an interaction-driven navigation, Lighthouse's public timespan API collects the trace without resetting
+page state. The local FCP/LCP audits use the first main-frame `SoftNavigationStart`, its first-contentful-paint
+timestamp, and LCP candidates with the matching navigation ID. The adapter records the result as an
+application navigation step. Native INP measures the interactions recorded in that step and keeps its zero
+Performance-score weight. Explicit page-load navigation steps delegate paint metrics to the native audits.
 
-## Lighthouse patch
+The adapter waits for navigation and then starts a fresh network-quiet window. An idle period before a
+recorded click cannot satisfy the post-navigation wait. Quiet time is bounded by the audit timeout; very
+late rendering without network activity can still outlast the observation window.
 
-Lighthouse is pinned to **13.6.0** with a pnpm patch in `patches/lighthouse@13.6.0.patch`. The patch ports the
-runtime and settings changes from [GoogleChrome/lighthouse#17075](https://github.com/GoogleChrome/lighthouse/pull/17075)
-at commit `4deeacee1a6328eb6e0ce6a87cf588e5cd42f81e`, authored by ChristopherPHolder. Upstream Lighthouse's
-Apache-2.0 license headers are preserved. Remove the patch and version pin once a released implementation
-can replace it. Installation applies the patch automatically, including the runner's packaged dependencies.
+This requires Chrome 149 or newer. FCP/LCP use experimental page-load scoring curves. INP is scripted lab
+responsiveness for the complete step, not a whole-visit real-user INP value. With no user interaction,
+INP is not applicable. Multiple soft navigations produce a warning: FCP/LCP describe the first, while INP
+covers interactions in the recorded step.
 
-The patch changes navigation gathering, same-document navigation waiting, trace processing, audit filtering,
-and metric timing. It does not build upstream's flow-report UI changes; exported Lighthouse HTML uses its
-existing Navigation label, while App Speed distinguishes soft navigation steps.
+If a timespan contains a confirmed main-frame soft navigation, its report warns once:
 
-The local patch additionally applies the soft-navigation filter directly, rather than first applying the
-normal navigation filter. This retains the timespan-only INP audit specifically for soft navigations;
-ordinary page-load navigations still omit INP. INP keeps its zero weight in the Performance score.
+> A soft navigation was detected during this timespan. Use a navigation step to capture FCP and LCP
+> alongside INP. Soft navigation measurements are enabled automatically.
 
-This requires Chrome 149 or newer. The experimental implementation preserves page state, skips storage
-reset and `about:blank`, and uses observed throttling rather than Lantern simulation. Metrics use Chrome's
-soft-navigation trace events and navigation IDs. Page-load-only audits are filtered out or become not
-applicable. FCP/LCP retain Lighthouse's page-load scoring curves; those thresholds are experimental for
-soft navigations.
-
-Use one soft navigation per step. Multiple detections produce a warning and only the first is measured.
-No detection produces explicit metric errors instead of reusing the initial page's paint timing. Run
-warnings and metric errors are displayed in the viewer.
-
-INP covers interactions recorded between Start Navigation and End Navigation, including the interaction
-that triggers the soft navigation. Its measurement window is the complete recorded step, so multiple
-interactions in that step can contribute even when FCP/LCP describe only the first soft navigation. With
-no recorded user interaction, INP is not applicable. This is a lab measurement for scripted interactions,
-not a whole-visit real-user INP value.
+A URL/content update without a detected soft navigation does not trigger this warning. Timespans retain
+their native interaction metrics and are not converted automatically. Missing detections and metric
+errors appear in the viewer and exported HTML.
 
 ## Verification
 
@@ -73,33 +63,18 @@ not a whole-visit real-user INP value.
 pnpm exec nx run audit-user-flow-runner:integration
 ```
 
-This uncached target starts an isolated local HTTP fixture and Puppeteer's installed Chrome. It verifies:
+This uncached target runs Puppeteer's Chrome against a local fixture. It checks native page loads,
+automatic soft navigation metrics, timespan recommendations, missing detection, programmatic URL updates,
+and multiple detections. The triggering click blocks for 180 ms; its INP is compared with Chrome's Event
+Timing observer and a trace event with the same interaction ID and exact duration. Regression tests cover
+an idle delay before a click that fetches delayed content and a click that falls back to a full page load.
 
-- A page load, a soft navigation through the real replay extension, and an ordinary timespan in one flow.
-- Standard FCP/LCP results, navigation metadata, preserved local storage, and no audit errors.
-- INP for the triggering click: a 180 ms blocking click handler, with Lighthouse's reported latency
-  compared against Chrome's Event Timing observer for the same button and single interaction ID, and
-  matched to a trace event with that interaction ID and exact unrounded duration.
-- No invented INP value when the callback changes the URL/content without user input.
-- Missing soft navigation errors with a bounded wait.
-- Multiple soft navigation warnings.
-- A recommendation to use navigation mode when a timespan contains confirmed soft navigations, without
-  warning for ordinary interactions or programmatic URL/content changes.
+Set `APP_SPEED_SOFT_NAV_ARTIFACTS` to an absolute directory to retain real flow result JSON, exported HTML,
+and `triggering-interaction.json`. Screenshots use this captured data through fixture API responses;
+database persistence is not exercised in the screenshot session.
 
-Set `APP_SPEED_SOFT_NAV_ARTIFACTS` to an absolute output directory to retain the real flow result JSON and
-HTML from the successful browser test. These are generated test artifacts, not repository fixtures.
-The same directory also receives `triggering-interaction.json`, containing the observed interaction,
-reported INP, and relevant trace events for inspection.
+![Interaction-driven navigation without a feature toggle](screenshots/soft-navigation-builder.png)
 
-## Screenshots
+![Soft navigation metrics marked as experimental](screenshots/soft-navigation-results.png)
 
-The builder screenshot demonstrates the optional navigation setting. The results screenshot uses actual
-Lighthouse output from the Chrome 152 browser test, with a 180 ms blocking click and a 250 ms delayed SPA render.
-For this UI review, Playwright fulfills the API responses with that captured result; database persistence
-is not exercised.
-
-![Soft navigation configured on Start Navigation](screenshots/soft-navigation-builder.png)
-
-![Soft navigation metrics in Performance](screenshots/soft-navigation-results.png)
-
-![Timespan warning recommending a soft-navigation step](screenshots/timespan-soft-navigation-warning.png)
+![Timespan warning recommending a navigation step](screenshots/timespan-soft-navigation-warning.png)
