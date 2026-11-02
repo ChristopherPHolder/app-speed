@@ -187,6 +187,19 @@ describe('ViewerStepDetailComponent', () => {
     component = fixture.componentInstance;
   });
 
+  it.each([true, false])(
+    'marks the metrics header as experimental only for soft navigation: %s',
+    async (softNavigation) => {
+      fixture.componentRef.setInput('stepDetails', { ...multiCategoryStep, softNavigation });
+      await fixture.whenStable();
+      const metricsHeader = fixture.nativeElement.querySelector('viewer-step-metric-summary .header-title');
+      expect(metricsHeader?.textContent).toContain('METRICS');
+      expect(metricsHeader?.querySelector('.experimental-metrics')?.textContent ?? '').toBe(
+        softNavigation ? 'Experimental soft navigation' : '',
+      );
+    },
+  );
+
   it('shows the warning when only the first soft navigation was measured', async () => {
     const warning =
       'Multiple navigations were detected in this navigation step. Only the first soft navigation is measured.';
