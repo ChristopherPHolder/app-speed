@@ -187,20 +187,9 @@ describe('ViewerStepDetailComponent', () => {
     component = fixture.componentInstance;
   });
 
-  it.each([true, false])(
-    'shows the experimental metrics badge only for soft navigation: %s',
-    async (softNavigation) => {
-      fixture.componentRef.setInput('stepDetails', { ...multiCategoryStep, softNavigation });
-      await fixture.whenStable();
-      expect(fixture.nativeElement.querySelector('.experimental-metrics')?.textContent ?? '').toBe(
-        softNavigation ? 'Soft navigation · Experimental metrics' : '',
-      );
-    },
-  );
-
   it('shows the warning when only the first soft navigation was measured', async () => {
     const warning =
-      'Multiple soft navigations were detected during the run. Only the first soft navigation is measured.';
+      'Multiple navigations were detected in this navigation step. Only the first soft navigation is measured.';
     fixture.componentRef.setInput('stepDetails', {
       ...multiCategoryStep,
       lhr: { ...multiCategoryStep.lhr, runWarnings: [warning] },
@@ -212,7 +201,7 @@ describe('ViewerStepDetailComponent', () => {
   it('shows the recommendation to measure a detected soft navigation in navigation mode', async () => {
     const warning =
       'A soft navigation was detected during this timespan. ' +
-      'Use a navigation step with Soft Navigation enabled to capture FCP and LCP alongside INP.';
+      'Use a navigation step to capture FCP and LCP alongside INP.';
     fixture.componentRef.setInput('stepDetails', {
       ...multiCategoryStep,
       lhr: { ...multiCategoryStep.lhr, gatherMode: 'timespan', runWarnings: [warning] },

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { MatTab, MatTabGroup } from '@angular/material/tabs';
+import { MatIcon } from '@angular/material/icon';
 import { FlowResult, Result } from 'lighthouse';
 import type { UserFlowResult } from '@app-speed/audit/user-flow/domain';
 import { Result as AuditResult } from 'lighthouse/types/lhr/audit-result';
@@ -46,23 +47,19 @@ type CategoryView = {
   template: `
     @let categories = categoryViews();
 
-    @if (stepDetails().softNavigation) {
-      <p class="experimental-metrics" role="note">Soft navigation · Experimental metrics</p>
-    }
-
-    @if (stepDetails().lhr.runWarnings?.length) {
-      <aside class="run-warnings" aria-label="Lighthouse warnings">
-        <h3>Audit warnings</h3>
-        <ul>
-          @for (warning of stepDetails().lhr.runWarnings; track $index) {
-            <li>{{ warning }}</li>
-          }
-        </ul>
-      </aside>
-    }
-
     @if (filmStrip(); as filmStrip) {
       <viewer-film-strip [filmStrip]="filmStrip" />
+    }
+
+    @if (reportWarnings().length) {
+      <aside class="run-warnings" aria-label="Lighthouse warnings">
+        <mat-icon aria-hidden="true">warning_amber</mat-icon>
+        <div>
+          @for (warning of reportWarnings(); track $index) {
+            <p>{{ warning }}</p>
+          }
+        </div>
+      </aside>
     }
 
     @if (categories.length) {
@@ -89,6 +86,7 @@ type CategoryView = {
   imports: [
     MatTabGroup,
     MatTab,
+    MatIcon,
     ViewerStepMetricSummaryComponent,
     ViewerFilmStripComponent,
     ViewerStepDetailSectionComponent,
@@ -108,26 +106,42 @@ type CategoryView = {
     }
 
     .run-warnings {
-      margin: 20px;
-      padding: 16px;
-      border: 1px solid currentColor;
-      border-radius: 8px;
-    }
-    .experimental-metrics {
-      display: inline-flex;
-      margin: 20px;
-      padding: 8px 14px;
-      border-radius: 999px;
-      border: 1px solid #b76e00;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin: 0 20px 12px;
+      padding: 10px 12px;
+      border-left: 3px solid #b76e00;
+      border-radius: 4px;
       background: #fff4ce;
       color: #713f00;
-      font-weight: 600;
+      font-size: 14px;
+      line-height: 22px;
+    }
+    .run-warnings mat-icon {
+      flex-shrink: 0;
+      width: 20px;
+      height: 22px;
+      font-size: 20px;
+      line-height: 22px;
+    }
+    .run-warnings p {
+      margin: 0;
+    }
+    .run-warnings p + p {
+      margin-top: 6px;
+    }
+    @media (max-width: 599px) {
+      .run-warnings {
+        margin-inline: 12px;
+      }
     }
   `,
 })
 export class ViewerStepDetailComponent {
   stepDetails = input.required<UserFlowResult['steps'][number]>();
   private readonly report = computed(() => this.stepDetails().lhr);
+  readonly reportWarnings = computed(() => this.report().runWarnings ?? []);
   private readonly categoryEntries = computed(() => {
     return Object.entries(this.report().categories) as [string, Result.Category][];
   });

@@ -13,6 +13,7 @@ export type AuditSummary = {
   };
   title: string;
   subTitle: string;
+  experimental?: boolean;
   shouldDisplayAsFraction: boolean;
   categoryScores: {
     name: string;
@@ -71,7 +72,14 @@ export function fitScreenshotPreview(width: number, height: number): { width: nu
           </div>
 
           <div class="summary-title">{{ step.title }}</div>
-          <div class="summary-subtitle">{{ step.subTitle }}</div>
+          <div class="summary-subtitle">
+            {{ step.subTitle }}
+            @if (step.experimental) {
+              <span class="experimental-metrics" role="note" aria-label="Experimental soft navigation metrics">
+                Experimental
+              </span>
+            }
+          </div>
 
           @if (activeIndex() === $index) {
             <div class="score-container">
@@ -211,9 +219,23 @@ export function fitScreenshotPreview(width: number, height: number): { width: nu
       margin: 16px 0 8px 0;
     }
     .summary-subtitle {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
       font-size: medium;
       text-align: center;
       margin-bottom: 12px;
+    }
+    .experimental-metrics {
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: #fff4ce;
+      color: #713f00;
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 20px;
     }
   `,
 })

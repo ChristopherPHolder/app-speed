@@ -11,9 +11,25 @@ const StartArgs = Schema.Struct({ context: StartContext });
 
 export const TIMESPAN_SOFT_NAVIGATION_WARNING =
   'A soft navigation was detected during this timespan. ' +
-  'Use a navigation step to capture FCP and LCP alongside INP. Soft navigation measurements are enabled automatically.';
+  'Use a navigation step to capture FCP and LCP alongside INP.';
 export const MULTIPLE_SOFT_NAVIGATION_WARNING =
-  'Multiple soft navigations were detected during the run. Only the first soft navigation is measured for FCP and LCP; INP covers the recorded step.';
+  'Multiple navigations were detected in this navigation step. ' +
+  'Only the first soft navigation is measured for FCP and LCP; INP covers the whole step. ' +
+  'Record each navigation in a separate step.';
+export const MULTIPLE_NAVIGATION_WARNING =
+  'Multiple navigations were detected in this navigation step. Results may combine different page views. ' +
+  'Record each navigation in a separate step.';
+
+export function documentNavigationCount(events: TraceEvent[], frameId: string): number {
+  return events.filter(
+    (event) =>
+      event.name === 'navigationStart' &&
+      event.args['frame'] === frameId &&
+      event.args['data']?.isLoadingMainFrame === true &&
+      typeof event.args['data']?.documentLoaderURL === 'string' &&
+      /^(chrome|https?):/.test(event.args['data'].documentLoaderURL),
+  ).length;
+}
 
 export function softNavigationTimings(events: TraceEvent[], frameId: string) {
   const starts = events

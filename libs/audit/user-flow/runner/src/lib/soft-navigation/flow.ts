@@ -3,7 +3,13 @@ import type { Frame, Page } from 'puppeteer';
 import type { UserFlow } from 'lighthouse';
 import { ProcessedTrace } from 'lighthouse/core/computed/processed-trace.js';
 import type { UserFlowResult, PuppeteerReplayUserflowRunnerSchema } from '@app-speed/audit/user-flow/domain';
-import { softNavigationTimings, TIMESPAN_SOFT_NAVIGATION_WARNING, MULTIPLE_SOFT_NAVIGATION_WARNING } from './metrics';
+import {
+  documentNavigationCount,
+  softNavigationTimings,
+  TIMESPAN_SOFT_NAVIGATION_WARNING,
+  MULTIPLE_SOFT_NAVIGATION_WARNING,
+  MULTIPLE_NAVIGATION_WARNING,
+} from './metrics';
 
 type Flags = Parameters<UserFlow['startNavigation']>[0];
 type Mode = 'navigation' | 'soft-navigation' | 'timespan' | 'snapshot';
@@ -130,16 +136,21 @@ export class ExperimentalUserFlow {
     const steps = await Promise.all(
       result.steps.map(async (step, index): Promise<UserFlowResult['steps'][number]> => {
         const mode = this.modes[index];
-        if (mode !== 'timespan' && mode !== 'soft-navigation') return step;
+        if (mode !== 'timespan' && mode !== 'soft-navigation' && mode !== 'navigation') return step;
         const trace = artifacts[index].artifacts.Trace;
         const warnings = [...step.lhr.runWarnings];
         if (trace && Array.isArray(trace.traceEvents)) {
           const processed = await ProcessedTrace.request(trace, { computedCache: new Map() });
           const { count } = softNavigationTimings(trace.traceEvents, processed.mainFrameInfo.frameId);
           if (mode === 'timespan' && count) warnings.push(TIMESPAN_SOFT_NAVIGATION_WARNING);
-          if (mode === 'soft-navigation' && count > 1) warnings.push(MULTIPLE_SOFT_NAVIGATION_WARNING);
+          const totalNavigations = count + documentNavigationCount(trace.traceEvents, processed.mainFrameInfo.frameId);
+          if (mode !== 'timespan' && totalNavigations > 1) {
+            warnings.push(
+              mode === 'soft-navigation' && count > 0 ? MULTIPLE_SOFT_NAVIGATION_WARNING : MULTIPLE_NAVIGATION_WARNING,
+            );
+          }
         }
-        if (mode === 'timespan') return { ...step, lhr: { ...step.lhr, runWarnings: warnings } };
+        if (mode !== 'soft-navigation') return { ...step, lhr: { ...step.lhr, runWarnings: warnings } };
         return { ...step, softNavigation: true, lhr: { ...step.lhr, gatherMode: 'navigation', runWarnings: warnings } };
       }),
     );
