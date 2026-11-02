@@ -163,6 +163,7 @@ describe('Lighthouse navigation experiment in Chrome', () => {
       expect(timespan.gatherMode).toBe('timespan');
       expect(timespan.audits['soft-nav-fcp']).toBeUndefined();
       expect(timespan.audits['first-contentful-paint']).toBeUndefined();
+      expect(timespan.runWarnings.join(' ')).not.toContain('A soft navigation was detected during this timespan.');
     } finally {
       flow.dispose();
       await page.close();
@@ -186,6 +187,67 @@ describe('Lighthouse navigation experiment in Chrome', () => {
       const inp = (await flow.createFlowResult()).steps[0].lhr.audits['interaction-to-next-paint'];
       expect(inp.scoreDisplayMode).toBe('notApplicable');
       expect(inp.numericValue).toBeUndefined();
+    } finally {
+      flow.dispose();
+      await page.close();
+    }
+  });
+
+  it('warns once when a timespan contains confirmed soft navigations', async () => {
+    const page = await browser.newPage();
+    const flow = await startFlow(page, { flags: { throttlingMethod: 'provided' } });
+    try {
+      await page.goto(baseUrl);
+      await flow.startTimespan({ name: 'Soft navigation recorded as timespan' });
+      await page.click('#product');
+      await page.waitForSelector('#content h1');
+      await page.evaluate(
+        () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))),
+      );
+      await page.click('#product');
+      await page.waitForFunction(() => document.querySelector('#content h1')?.textContent === 'Product 2');
+      await page.evaluate(
+        () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))),
+      );
+      await flow.endTimespan();
+      const result = await flow.createFlowResult();
+      const { lhr } = result.steps[0];
+      const warnings = lhr.runWarnings.filter((warning) =>
+        warning.includes('A soft navigation was detected during this timespan.'),
+      );
+      expect(warnings).toHaveLength(1);
+      expect(warnings[0]).toContain('navigation step with Soft Navigation enabled');
+      expect(warnings[0]).toContain('FCP and LCP alongside INP');
+      expect(lhr.gatherMode).toBe('timespan');
+      expect(lhr.audits['first-contentful-paint']).toBeUndefined();
+      expect(lhr.audits['interaction-to-next-paint'].scoreDisplayMode).toBe('numeric');
+      const report = generateReport(result, 'html');
+      expect(report).toContain('A soft navigation was detected during this timespan.');
+      if (process.env['APP_SPEED_SOFT_NAV_ARTIFACTS']) {
+        const directory = resolve(process.env['APP_SPEED_SOFT_NAV_ARTIFACTS']);
+        await mkdir(directory, { recursive: true });
+        await writeFile(resolve(directory, 'timespan-warning-result.json'), JSON.stringify(result));
+        await writeFile(resolve(directory, 'timespan-warning-report.html'), report);
+      }
+    } finally {
+      flow.dispose();
+      await page.close();
+    }
+  });
+
+  it('does not warn for a same-document URL/content update without a detected soft navigation', async () => {
+    const page = await browser.newPage();
+    const flow = await startFlow(page, { flags: { throttlingMethod: 'provided' } });
+    try {
+      await page.goto(baseUrl);
+      await flow.startTimespan();
+      await page.evaluate(() => {
+        history.pushState({}, '', '/programmatic');
+        document.querySelector('#content')?.replaceChildren('Programmatic content update');
+      });
+      await flow.endTimespan();
+      const { lhr } = (await flow.createFlowResult()).steps[0];
+      expect(lhr.runWarnings.join(' ')).not.toContain('A soft navigation was detected during this timespan.');
     } finally {
       flow.dispose();
       await page.close();

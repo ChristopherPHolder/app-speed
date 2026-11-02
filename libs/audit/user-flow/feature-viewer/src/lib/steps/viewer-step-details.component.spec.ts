@@ -188,10 +188,23 @@ describe('ViewerStepDetailComponent', () => {
   });
 
   it('shows the warning when only the first soft navigation was measured', async () => {
-    const warning = 'Multiple soft navigations were detected during the run. Only the first soft navigation is measured.';
+    const warning =
+      'Multiple soft navigations were detected during the run. Only the first soft navigation is measured.';
     fixture.componentRef.setInput('stepDetails', {
       ...multiCategoryStep,
       lhr: { ...multiCategoryStep.lhr, runWarnings: [warning] },
+    });
+    await fixture.whenStable();
+    expect(fixture.nativeElement.querySelector('[aria-label="Lighthouse warnings"]')?.textContent).toContain(warning);
+  });
+
+  it('shows the recommendation to measure a detected soft navigation in navigation mode', async () => {
+    const warning =
+      'A soft navigation was detected during this timespan. ' +
+      'Use a navigation step with Soft Navigation enabled to capture FCP and LCP alongside INP.';
+    fixture.componentRef.setInput('stepDetails', {
+      ...multiCategoryStep,
+      lhr: { ...multiCategoryStep.lhr, gatherMode: 'timespan', runWarnings: [warning] },
     });
     await fixture.whenStable();
     expect(fixture.nativeElement.querySelector('[aria-label="Lighthouse warnings"]')?.textContent).toContain(warning);
@@ -205,12 +218,18 @@ describe('ViewerStepDetailComponent', () => {
       expect.arrayContaining(['Performance', 'Accessibility', 'SEO']),
     );
     expect(component.categoryViews().find((category) => category.id === 'performance')?.metricSummary).toHaveLength(1);
-    expect(component.categoryViews().find((category) => category.id === 'accessibility')?.sections.map((section) => section.title)).toEqual(
-      expect.arrayContaining(['Accessibility: Names and labels']),
-    );
-    expect(component.categoryViews().find((category) => category.id === 'seo')?.sections.map((section) => section.title)).toEqual(
-      ['SEO: Content Best Practices'],
-    );
+    expect(
+      component
+        .categoryViews()
+        .find((category) => category.id === 'accessibility')
+        ?.sections.map((section) => section.title),
+    ).toEqual(expect.arrayContaining(['Accessibility: Names and labels']));
+    expect(
+      component
+        .categoryViews()
+        .find((category) => category.id === 'seo')
+        ?.sections.map((section) => section.title),
+    ).toEqual(['SEO: Content Best Practices']);
   });
 
   it('does not require a performance category to render category sections', () => {
@@ -219,6 +238,8 @@ describe('ViewerStepDetailComponent', () => {
 
     expect(component.categoryViews().map((category) => category.title)).toEqual(['Accessibility']);
     expect(component.categoryViews()[0]?.metricSummary).toEqual([]);
-    expect(component.categoryViews()[0]?.sections.map((section) => section.title)).toEqual(['Accessibility: Names and labels']);
+    expect(component.categoryViews()[0]?.sections.map((section) => section.title)).toEqual([
+      'Accessibility: Names and labels',
+    ]);
   });
 });
