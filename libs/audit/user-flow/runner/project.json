@@ -20,6 +20,7 @@
       }
     },
     "integration": {
+      "dependsOn": ["test-orchestration:install-browser"],
       "command": "vitest run --config libs/audit/user-flow/runner/vitest.integration.config.mts"
     },
     "effect:diagnostics": {
