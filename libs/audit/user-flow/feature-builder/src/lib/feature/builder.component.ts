@@ -3,6 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MatCard, MatCardContent } from '@angular/material/card';
 import { Store } from '@ngrx/store';
 
+import { AuditOwnershipComponent } from '../saved/audit-ownership.component';
 import { AuditDetails } from '../audit-details';
 import { AuditBuilderComponent } from '../components/audit-builder.component';
 import { loadAuditDetails, submitAuditRequest, updateAuditDetails } from './builder.actions';
@@ -10,7 +11,7 @@ import { auditBuilderFeature } from './builder.state';
 
 @Component({
   selector: 'audit',
-  imports: [AuditBuilderComponent, MatCard, MatCardContent],
+  imports: [AuditOwnershipComponent, AuditBuilderComponent, MatCard, MatCardContent],
   template: `
     @if (auditDetails(); as auditDetails) {
       <ui-audit-builder
@@ -22,6 +23,7 @@ import { auditBuilderFeature } from './builder.state';
         (submitAudit)="submitAudit($event)"
       />
     }
+    <audit-ownership [definition]="auditDetails()" />
     @if (auditRequestError(); as errorMessage) {
       <mat-card data-testid="audit-inline-error" role="alert">
         <mat-card-content>{{ errorMessage }}</mat-card-content>

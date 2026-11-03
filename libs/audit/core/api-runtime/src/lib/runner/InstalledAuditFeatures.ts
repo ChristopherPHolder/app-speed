@@ -6,7 +6,11 @@ import type { AuditRunId, AuditTemplateId, QueryError } from '@app-speed/audit/c
 export class InstalledAuditFeatures extends Context.Service<
   InstalledAuditFeatures,
   {
-    getDefinition: (kind: AuditKind, templateId: AuditTemplateId) => Effect.Effect<unknown, QueryError>;
+    getDefinition: (
+      kind: AuditKind,
+      templateId: AuditTemplateId,
+      runId: AuditRunId,
+    ) => Effect.Effect<unknown, QueryError>;
     completeSuccess: (
       kind: AuditKind,
       id: AuditRunId,

@@ -1,6 +1,6 @@
 import { EC2Client, StopInstancesCommand } from '@aws-sdk/client-ec2';
 import { HttpClient, HttpClientRequest, HttpClientResponse } from 'effect/http';
-import { Clock, Config, Data, Effect, Match, Option, Schema } from 'effect';
+import { Clock, Config, Data, Effect, Match, Option, Redacted, Schema } from 'effect';
 import { AuditKindSchema } from '@app-speed/audit/core/domain';
 
 export const AuditClaimSchema = Schema.Struct({
@@ -63,7 +63,11 @@ const getApiBaseUrl = Effect.gen(function* () {
 });
 
 const getHttpClient = Effect.gen(function* () {
-  return (yield* HttpClient.HttpClient).pipe(HttpClient.filterStatusOk);
+  const token = Redacted.value(yield* Config.Redacted('RUNNER_API_TOKEN'));
+  return (yield* HttpClient.HttpClient).pipe(
+    HttpClient.mapRequest(HttpClientRequest.setHeader('authorization', `Bearer ${token}`)),
+    HttpClient.filterStatusOk,
+  );
 });
 
 const parseManagedEc2InstanceId = (runnerId: string): Option.Option<string> => {

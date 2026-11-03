@@ -5,6 +5,7 @@ import { Clock, Context, Effect, Layer, Option, Schema } from 'effect';
 import {
   auditResultTable,
   auditRunTable,
+  auditVersionTable,
   DbClient,
   QueryError,
   type AuditRunId,
@@ -13,17 +14,17 @@ import {
   RecordPersistenceError,
   RecordPersistenceService,
 } from '@app-speed/audit/core/persistence';
-import type { UserFlowAuditDefinition } from '@app-speed/audit/user-flow/domain';
+import { UserFlowAuditDefinitionSchema, type UserFlowAuditDefinition } from '@app-speed/audit/user-flow/domain';
 
 import { userFlowAuditResultTable, userFlowAuditTemplateTable } from './schema';
 
 export type UserFlowAuditResult =
-  | { status: 'SUCCESS'; flowResult: unknown; reportHtml: string }
-  | { status: 'FAILURE'; error: unknown };
+  { status: 'SUCCESS'; flowResult: unknown; reportHtml: string } | { status: 'FAILURE'; error: unknown };
 
 export class UserFlowAuditRepo extends Context.Service<
   UserFlowAuditRepo,
   {
+    getRunDefinition: (id: AuditRunId) => Effect.Effect<UserFlowAuditDefinition | null, QueryError>;
     getDefinition: (templateId: AuditTemplateId) => Effect.Effect<UserFlowAuditDefinition | null, QueryError>;
     getResultByRunId: (id: AuditRunId) => Effect.Effect<UserFlowAuditResult | null, QueryError>;
     completeSuccess: (
@@ -66,6 +67,26 @@ const getDefinition = Effect.fn('db.userFlow.getDefinition')(function* (template
       )[0],
   );
   return row?.definition ?? null;
+});
+
+const getRunDefinition = Effect.fn('db.userFlow.getRunDefinition')(function* (id: AuditRunId) {
+  const db = yield* DbClient;
+  const row = yield* db.run(
+    async (client) =>
+      (
+        await client
+          .select({ definition: auditVersionTable.definition, legacy: userFlowAuditTemplateTable.definition })
+          .from(auditRunTable)
+          .leftJoin(auditVersionTable, eq(auditRunTable.versionId, auditVersionTable.id))
+          .innerJoin(userFlowAuditTemplateTable, eq(auditRunTable.templateId, userFlowAuditTemplateTable.templateId))
+          .where(eq(auditRunTable.id, id))
+          .limit(1)
+      )[0],
+  );
+  if (!row) return null;
+  return yield* Schema.decodeUnknownEffect(UserFlowAuditDefinitionSchema)(row.definition ?? row.legacy).pipe(
+    Effect.mapError((cause) => new QueryError({ message: 'Invalid saved user-flow definition.', cause })),
+  );
 });
 
 const getResultByRunId = Effect.fn('db.userFlow.getResultByRunId')(function* (id: AuditRunId) {
@@ -158,6 +179,7 @@ export const UserFlowAuditRepoLive = Layer.effect(UserFlowAuditRepo)(
     const provide = <A, E, R>(effect: Effect.Effect<A, E, R>) =>
       effect.pipe(Effect.provideService(DbClient, db), Effect.provideService(RecordPersistenceService, records));
     return {
+      getRunDefinition: (id: AuditRunId) => provide(getRunDefinition(id)),
       getDefinition: (templateId: AuditTemplateId) => provide(getDefinition(templateId)),
       getResultByRunId: (id: AuditRunId) => provide(getResultByRunId(id)),
       completeSuccess: (id: AuditRunId, result: { flowResult: unknown; reportHtml: string }, durationMs: number) =>

@@ -10,3 +10,7 @@ export { RunnerLifecycle, RunnerLifecycleLive } from './lib/runner/RunnerLifecyc
 export { RunnerManager } from './lib/runner/RunnerManager';
 export { RunnerRegistry, RunnerRegistryLive } from './lib/runner/RunnerRegistry';
 export { InstalledAuditFeatures } from './lib/runner/InstalledAuditFeatures';
+
+export { AuditAccess, hashCredential, newCredential } from './lib/audit/access';
+
+export { RecurringPollerLive } from './lib/audit/recurring-poller';

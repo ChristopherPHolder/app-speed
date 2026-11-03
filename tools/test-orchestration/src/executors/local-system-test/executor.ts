@@ -97,6 +97,7 @@ export default async function localSystemTestExecutor(
     await assertPortsAvailable(ports);
 
     database = await createTestDatabase(baseDatabaseUrl, options.suite);
+    setEnvironment(originalEnvironment, 'RUNNER_API_TOKEN', globalThis.crypto.randomUUID());
     setEnvironment(originalEnvironment, 'DATABASE_URL', database.runtimeUrl);
     setEnvironment(originalEnvironment, 'DATABASE_MIGRATION_URL', database.runtimeUrl);
     setEnvironment(originalEnvironment, 'RUNNER_MANAGER_MODE', options.suite === 'e2e' ? 'local' : 'manual');
@@ -106,10 +107,16 @@ export default async function localSystemTestExecutor(
     setEnvironment(originalEnvironment, 'PORTAL_BASE_URL', `http://127.0.0.1:${portalPort}`);
     setEnvironment(originalEnvironment, 'FIXTURE_BASE_URL', `https://localhost:${fixturePort}`);
 
-    await runTarget('api:build:production', context);
+    if (options.captureJourneys) {
+      setEnvironment(originalEnvironment, 'APP_SPEED_DEMO_CAPTURE', 'true');
+      setEnvironment(originalEnvironment, 'PERSONAL_ACTIVE_SCHEDULE_LIMIT', '2');
+      setEnvironment(originalEnvironment, 'ORGANIZATION_ACTIVE_SCHEDULE_LIMIT', '2');
+    }
+    const buildConfiguration = options.captureJourneys ? 'screenshots' : 'production';
+    await runTarget(`api:build:${buildConfiguration}`, context);
     if (options.suite === 'e2e') {
       await runTarget('runner:build:production', context);
-      await runTarget('portal:build:production', context);
+      await runTarget(`portal:build:${buildConfiguration}`, context);
     }
     await runTarget('api:migrate', context);
 
@@ -129,7 +136,9 @@ export default async function localSystemTestExecutor(
         startPortalServer({
           apiPort,
           logPath: join(artifactDirectory, 'portal.log'),
-          portalRoot: resolvePortalRoot(workspaceRoot),
+          portalRoot: options.captureJourneys
+            ? resolve(workspaceRoot, 'dist/apps/portal-screenshots')
+            : resolvePortalRoot(workspaceRoot),
           port: portalPort,
         }),
       );
@@ -137,7 +146,12 @@ export default async function localSystemTestExecutor(
 
     processes.push(
       startProcess({
-        args: [resolve(workspaceRoot, 'dist/apps/api/main.js')],
+        args: [
+          resolve(
+            workspaceRoot,
+            options.captureJourneys ? 'dist/apps/api-screenshots/main.screenshots.js' : 'dist/apps/api/main.js',
+          ),
+        ],
         command: process.execPath,
         cwd: workspaceRoot,
         env: process.env,

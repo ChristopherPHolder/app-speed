@@ -1,0 +1,37 @@
+<section class="guest-panel">
+  <div class="guest-copy">
+    <span class="feature-icon"><mat-icon>bookmark_border</mat-icon></span>
+    <h2>Keep your audits in a space</h2>
+    <p>
+      Turn a one-time check into a repeatable routine. Sign in to save audits, track versions, and schedule recurring
+      runs.
+    </p>
+    <button mat-flat-button type="button" (click)="auth.signIn()" [disabled]="!auth.configured()">
+      Sign in<mat-icon>arrow_forward</mat-icon>
+    </button>
+    <span class="guest-note">You can always run a manual audit as a guest.</span>
+  </div>
+  <div class="guest-features">
+    <div>
+      <span class="benefit-icon"><mat-icon>layers</mat-icon></span>
+      <div>
+        <h3>A history you can trust</h3>
+        <p>Every saved version stays exactly as it was.</p>
+      </div>
+    </div>
+    <div>
+      <span class="benefit-icon"><mat-icon>update</mat-icon></span>
+      <div>
+        <h3>Checks on your schedule</h3>
+        <p>Run by interval, or at a local daily or weekly time.</p>
+      </div>
+    </div>
+    <div>
+      <span class="benefit-icon"><mat-icon>group</mat-icon></span>
+      <div>
+        <h3>A space for your team</h3>
+        <p>Share visibility while keeping clear ownership.</p>
+      </div>
+    </div>
+  </div>
+</section>

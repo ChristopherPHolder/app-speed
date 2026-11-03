@@ -1,3 +1,4 @@
+import { AccountComponent } from '@app-speed/platform/auth-portal';
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
@@ -13,12 +14,22 @@ interface PrimaryNavigationItem {
 
 @Component({
   selector: 'app-shell',
-  imports: [MatButton, MatIcon, MatIconButton, MatToolbar, RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [
+    AccountComponent,
+    MatButton,
+    MatIcon,
+    MatIconButton,
+    MatToolbar,
+    RouterLink,
+    RouterLinkActive,
+    RouterOutlet,
+  ],
   template: `
     <a class="skip-link" href="#main-content">Skip to content</a>
 
     <div class="app-shell">
       <header class="app-header">
+        <platform-account />
         <mat-toolbar>
           <div class="toolbar-content">
             <a class="brand" routerLink="/" aria-label="App Speed home">
@@ -374,6 +385,7 @@ export class ShellComponent {
   protected readonly mobileMenuOpen = signal(false);
   protected readonly navigationItems: ReadonlyArray<PrimaryNavigationItem> = [
     { label: 'Run audit', route: '/audits/user-flow', icon: 'speed', exact: true },
+    { label: 'Saved audits', route: '/audits/saved', icon: 'schedule', exact: true },
     { label: 'Audit history', route: '/audits/history', icon: 'history', exact: true },
     { label: 'Trace tools', route: '/convenience', icon: 'construction', exact: false },
   ];

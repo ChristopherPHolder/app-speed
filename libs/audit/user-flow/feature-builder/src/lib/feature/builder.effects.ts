@@ -43,6 +43,7 @@ const updateAuditDetailsEffect = createEffect(
       tap(({ audit }) => {
         void router.navigate([], {
           queryParams: { ['audit-details']: JSON.stringify(audit) },
+          queryParamsHandling: 'merge',
           replaceUrl: true,
         });
       }),

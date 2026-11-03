@@ -6,19 +6,18 @@ import { catchError, map, of, startWith, switchMap } from 'rxjs';
 import { UserFlowAuditPageComponent } from '@app-speed/audit/user-flow/feature-viewer';
 import { ApiClient, AuditProgressService } from '@app-speed/audit/user-flow/portal-data-access';
 
+import { AuditOwnershipComponent } from '../saved/audit-ownership.component';
 import type { AuditDetails } from '../audit-details';
 import { AuditBuilderComponent } from '../components/audit-builder.component';
 
 type AuditLoadState =
-  | { status: 'loading' }
-  | { status: 'loaded'; audit: AuditDetails }
-  | { status: 'failed'; message: string };
+  { status: 'loading' } | { status: 'loaded'; audit: AuditDetails } | { status: 'failed'; message: string };
 
 const INITIAL_AUDIT_LOAD_STATE: AuditLoadState = { status: 'loading' };
 
 @Component({
   selector: 'user-flow-audit-result-page',
-  imports: [AuditBuilderComponent, UserFlowAuditPageComponent],
+  imports: [AuditOwnershipComponent, AuditBuilderComponent, UserFlowAuditPageComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @switch (auditLoadState().status) {
@@ -38,6 +37,7 @@ const INITIAL_AUDIT_LOAD_STATE: AuditLoadState = { status: 'loading' };
       }
     }
 
+    <audit-ownership [runId]="id()" [definition]="loadedAudit()" />
     <user-flow-audit-page [id]="id()" />
   `,
 })

@@ -13,6 +13,9 @@ import {
 } from '@app-speed/audit/core/api-contract';
 
 export { AuditId };
+export { ManagementOverviewSchema, OccurrenceHistorySchema, AuditManagementCommandSchema } from './management';
+export type { AuditManagementCommand } from './management';
+import { AuditManagementCommandSchema } from './management';
 
 export const findUserFlowAuditByIdEndpoint = HttpApiEndpoint.get('findUserFlowAuditById', '/:id', {
   params: { id: AuditId },
@@ -20,19 +23,27 @@ export const findUserFlowAuditByIdEndpoint = HttpApiEndpoint.get('findUserFlowAu
     status: AuditRunStatusSchema,
     audit: UserFlowAuditDefinitionSchema,
   }),
-  error: [HttpApiError.BadRequestNoContent, AuditNotFoundError],
+  error: [HttpApiError.BadRequestNoContent, HttpApiError.NotFoundNoContent, AuditNotFoundError],
 });
 
 export const scheduleUserFlowAuditEndpoint = HttpApiEndpoint.post('scheduleUserFlowAudit', '/schedule', {
   payload: UserFlowAuditDefinitionSchema,
   success: Schema.Struct({
     auditId: Schema.String,
+    claimToken: Schema.NullOr(Schema.String),
     auditQueuePosition: Schema.Number.check(Schema.isInt(), Schema.isGreaterThanOrEqualTo(0)),
   }),
-  error: HttpApiError.BadRequestNoContent,
+  error: [HttpApiError.BadRequestNoContent, HttpApiError.ForbiddenNoContent, HttpApiError.UnauthorizedNoContent],
+});
+
+export const manageAuditEndpoint = HttpApiEndpoint.post('manage', '/manage', {
+  payload: AuditManagementCommandSchema,
+  success: Schema.Unknown,
+  error: [HttpApiError.BadRequestNoContent, HttpApiError.ForbiddenNoContent, HttpApiError.UnauthorizedNoContent],
 });
 
 export class UserFlowAuditApiGroup extends HttpApiGroup.make('userFlowAudit')
+  .add(manageAuditEndpoint)
   .add(scheduleUserFlowAuditEndpoint)
   .add(findUserFlowAuditByIdEndpoint)
   .add(watchByIdEndpoint)

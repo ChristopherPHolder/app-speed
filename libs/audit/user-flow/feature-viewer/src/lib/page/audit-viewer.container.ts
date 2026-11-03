@@ -46,16 +46,20 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class AuditViewerContainer {
   auditId = input.required<string>();
+  shareToken = input<string>();
   activeIndex = model<number>(0);
   readonly #api = inject(HttpClient);
   readonly #destroyRef = inject(DestroyRef);
   readonly #route = inject(ActivatedRoute);
   readonly #router = inject(Router);
 
-  flowResult$: Observable<FlowResult> = toObservable(this.auditId).pipe(
-    switchMap((auditId) => {
+  flowResult$: Observable<FlowResult> = combineLatest([toObservable(this.auditId), toObservable(this.shareToken)]).pipe(
+    switchMap(([auditId, share]) => {
       return this.#api
-        .get<{ status: 'SUCCESS' | 'FAILURE'; result: FlowResult }>(`/api/audits/user-flow/${auditId}/result`)
+        .get<{ status: 'SUCCESS' | 'FAILURE'; result: FlowResult }>(
+          `/api/audits/user-flow/${encodeURIComponent(auditId)}/result`,
+          share ? { params: { share } } : {},
+        )
         .pipe(
           filter((response) => response.status === 'SUCCESS'),
           map((response) => response.result),

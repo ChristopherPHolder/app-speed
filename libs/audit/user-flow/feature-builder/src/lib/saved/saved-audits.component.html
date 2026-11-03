@@ -1,0 +1,323 @@
+<section class="saved-page">
+  <header class="page-heading">
+    <div>
+      <p class="eyebrow">
+        <span class="space-dot"></span
+        >{{ !auth.userId() ? 'Guest' : overview()?.space?.kind === 'organization' ? 'Organization' : 'Personal' }} space
+      </p>
+      <h1>Saved audits & schedules</h1>
+      <p class="page-description">Your user journeys, ready to run. Keep every version and automate the next check.</p>
+    </div>
+    <a mat-flat-button routerLink="/audits/user-flow"><mat-icon>add</mat-icon>Build an audit</a>
+  </header>
+
+  @if (!auth.userId()) {
+    <audit-saved-onboarding />
+  }
+  @if (message()) {
+    <p class="notice" role="status"><mat-icon>info</mat-icon>{{ message() }}</p>
+  }
+  @if (overview(); as view) {
+    <audit-space-overview [view]="view" />
+    <div class="workspace" [class.with-editor]="editorOpen()">
+      <section class="library" aria-labelledby="definitions-title">
+        <div class="section-heading">
+          <div>
+            <h2 id="definitions-title">
+              Saved definitions <span class="count">{{ view.templates.length }}</span>
+            </h2>
+            <p>Versioned snapshots of the journeys you want to keep.</p>
+          </div>
+        </div>
+        <div class="audit-list">
+          @for (audit of view.templates; track audit.id) {
+            <article class="panel audit-card">
+              <div class="card-heading">
+                <span class="card-icon"><mat-icon>route</mat-icon></span>
+                <div>
+                  <h3>{{ audit.title }}</h3>
+                  <p>
+                    {{ versions(audit.id).length }} saved
+                    {{ versions(audit.id).length === 1 ? 'version' : 'versions' }} ·
+                    {{ canManage(audit.createdBy) ? 'Managed by you' : 'Team audit' }}
+                  </p>
+                </div>
+              </div>
+              <div class="version-list">
+                @for (version of versions(audit.id); track version.id; let i = $index) {
+                  <div class="version">
+                    <div class="version-info">
+                      <span class="version-number"
+                        >Version {{ versions(audit.id).length - i }}
+                        @if (i === 0) {
+                          <span class="latest">Latest</span>
+                        }</span
+                      ><span class="secondary">{{ version.createdAt | date: 'MMM d, y · HH:mm' }}</span>
+                    </div>
+                    <div class="version-actions">
+                      <button mat-stroked-button type="button" [disabled]="busy()" (click)="chooseVersion(version.id)">
+                        <mat-icon>schedule</mat-icon>Schedule</button
+                      ><button mat-flat-button type="button" [disabled]="busy()" (click)="run(version.id)">
+                        <mat-icon>play_arrow</mat-icon>Run
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+              @if (canManage(audit.createdBy)) {
+                <div class="card-footer">
+                  @if (versions(audit.id)[0]; as latest) {
+                    <button mat-button type="button" (click)="edit(audit.id, latest.definition)">
+                      <mat-icon>edit</mat-icon>Edit as new version
+                    </button>
+                  }
+                  <button
+                    mat-button
+                    class="danger-action"
+                    type="button"
+                    [disabled]="busy()"
+                    (click)="mutate({ action: 'deleteAudit', templateId: audit.id })"
+                  >
+                    Delete audit
+                  </button>
+                </div>
+              }
+            </article>
+          } @empty {
+            <audit-saved-empty-state
+              icon="bookmark_border"
+              heading="Your first saved audit starts here"
+              description="Build a journey, then save a version or claim a completed guest run."
+              [buildLink]="true"
+            />
+          }
+        </div>
+      </section>
+
+      @if (editorOpen()) {
+        <aside class="panel editor" id="schedule-editor" aria-labelledby="editor-title">
+          <div class="editor-heading">
+            <span class="card-icon"><mat-icon>schedule</mat-icon></span>
+            <div>
+              <p class="eyebrow">Automation</p>
+              <h2 id="editor-title">{{ editingId() ? 'Edit schedule' : 'Create schedule' }}</h2>
+            </div>
+            <button mat-icon-button type="button" aria-label="Close schedule editor" (click)="closeEditor()">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+          <form (submit)="saveSchedule($event)">
+            <label
+              >Pinned audit version<select [formField]="scheduleForm.versionId">
+                <option value="">Choose a saved version</option>
+                @for (version of view.versions; track version.id) {
+                  <option [value]="version.id">
+                    {{ title(version.templateId) }} · v{{ versionNumber(version.id) }}
+                  </option>
+                }</select
+              ><span class="field-hint">This snapshot stays pinned until you change it.</span></label
+            >
+            <label
+              >Repeat<select [formField]="scheduleForm.kind">
+                <option value="interval">Fixed interval</option>
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+              </select></label
+            >
+            @if (model().kind === 'interval') {
+              <label
+                >Interval<select [formField]="scheduleForm.minutes">
+                  <option value="5">5 minutes</option>
+                  <option value="15">15 minutes</option>
+                  <option value="30">30 minutes</option>
+                  <option value="60">1 hour</option>
+                  <option value="360">6 hours</option>
+                  <option value="720">12 hours</option>
+                </select></label
+              >
+            } @else {
+              <div class="time-fields">
+                <label>Local time<input type="time" [formField]="scheduleForm.time" /></label>
+                @if (model().kind === 'weekly') {
+                  <label
+                    >Weekday<select [formField]="scheduleForm.weekday">
+                      @for (day of weekdays; track day.value) {
+                        <option [value]="day.value">{{ day.label }}</option>
+                      }
+                    </select></label
+                  >
+                }
+              </div>
+              <label
+                >IANA timezone<input [formField]="scheduleForm.timezone" list="timezones" /><span class="field-hint"
+                  >Calendar runs follow this timezone, including daylight saving.</span
+                ></label
+              >
+              <datalist id="timezones">
+                @for (zone of timezones; track zone) {
+                  <option [value]="zone"></option>
+                }
+              </datalist>
+            }
+            @if (editingId() && view.space.kind === 'organization' && view.space.role === 'admin') {
+              <label
+                >Schedule manager<input [formField]="scheduleForm.createdBy" /><span class="field-hint"
+                  >Enter the organization member's Clerk user ID.</span
+                ></label
+              >
+            }
+            <div class="editor-note">
+              <mat-icon>info_outline</mat-icon>
+              <p>Starts at the next future occurrence. Overlapping runs and downtime are skipped.</p>
+            </div>
+            @if (!editingId() && activeCount() >= view.limit) {
+              <p class="quota-warning">Active schedule limit reached. Pause a schedule to make room.</p>
+            }
+            <div class="editor-actions">
+              <button
+                mat-flat-button
+                type="submit"
+                [disabled]="busy() || !model().versionId || (!editingId() && activeCount() >= view.limit)"
+              >
+                {{ editingId() ? 'Save schedule' : 'Create schedule' }}
+              </button>
+              @if (editingId()) {
+                <button mat-button type="button" (click)="resetEditor()">Cancel edit</button>
+              }
+            </div>
+          </form>
+        </aside>
+      }
+
+      <section class="schedules" aria-labelledby="schedules-title">
+        <div class="section-heading">
+          <div>
+            <h2 id="schedules-title">
+              Recurring schedules <span class="count">{{ view.schedules.length }}</span>
+            </h2>
+            <p>Keep checking, without starting every run yourself.</p>
+          </div>
+          <button mat-stroked-button type="button" [disabled]="!view.versions.length" (click)="newSchedule()">
+            <mat-icon>add</mat-icon>New schedule
+          </button>
+        </div>
+        @for (schedule of view.schedules; track schedule.id) {
+          <article class="panel schedule-card">
+            <div class="card-heading">
+              <span class="card-icon"><mat-icon>update</mat-icon></span>
+              <div>
+                <h3>{{ title(schedule.templateId) }}</h3>
+                <p>{{ recurrenceLabel(schedule) }}</p>
+              </div>
+              <span class="status" [attr.data-state]="schedule.state"><span></span>{{ schedule.state }}</span>
+            </div>
+            <dl class="schedule-meta">
+              <div>
+                <dt>
+                  {{
+                    schedule.state === 'active'
+                      ? 'Next due'
+                      : schedule.state === 'deleted'
+                        ? 'Stopped'
+                        : 'Paused; previous due'
+                  }}
+                </dt>
+                <dd>{{ schedule.state === 'deleted' ? 'History retained' : dueLabel(schedule) }}</dd>
+              </div>
+              <div>
+                <dt>Pinned snapshot</dt>
+                <dd>Version {{ versionNumber(schedule.versionId) }}</dd>
+              </div>
+              <div>
+                <dt>Manager</dt>
+                <dd [title]="schedule.createdBy">{{ managerLabel(schedule.createdBy) }}</dd>
+              </div>
+            </dl>
+            <div class="schedule-actions">
+              <button mat-button type="button" [disabled]="busy()" (click)="showHistory(schedule.id)">
+                <mat-icon>history</mat-icon>Occurrence history
+              </button>
+              @if (schedule.state !== 'deleted' && canManage(schedule.createdBy)) {
+                <button mat-button type="button" (click)="editSchedule(schedule)">
+                  <mat-icon>tune</mat-icon>Edit recurrence or pinned version</button
+                ><button
+                  mat-button
+                  type="button"
+                  [disabled]="busy() || (schedule.state === 'paused' && activeCount() >= view.limit)"
+                  (click)="
+                    mutate({
+                      action: 'updateSchedule',
+                      scheduleId: schedule.id,
+                      state: schedule.state === 'active' ? 'paused' : 'active',
+                    })
+                  "
+                >
+                  <mat-icon>{{ schedule.state === 'active' ? 'pause' : 'play_arrow' }}</mat-icon
+                  >{{ schedule.state === 'active' ? 'Pause' : 'Resume' }}</button
+                ><button
+                  mat-button
+                  class="danger-action"
+                  type="button"
+                  [disabled]="busy()"
+                  (click)="mutate({ action: 'updateSchedule', scheduleId: schedule.id, state: 'deleted' })"
+                >
+                  Delete schedule
+                </button>
+              }
+            </div>
+            @if (historyId() === schedule.id) {
+              <audit-occurrence-history [entries]="history()" [versions]="view.versions" />
+            }
+          </article>
+        } @empty {
+          <audit-saved-empty-state
+            icon="schedule"
+            heading="A little less manual work"
+            description="Choose a saved version to set up your first recurring check."
+            [compact]="true"
+          />
+        }
+      </section>
+
+      <section class="shares" aria-labelledby="shares-title">
+        <div class="section-heading">
+          <div>
+            <h2 id="shares-title">
+              Public result links <span class="count">{{ view.shares.length }}</span>
+            </h2>
+            <p>One link, one result. You control when access ends.</p>
+          </div>
+          <span class="privacy-note"><mat-icon>lock_outline</mat-icon>Private by default</span>
+        </div>
+        <div class="panel share-list">
+          @for (share of view.shares; track share.id) {
+            <div class="share-row">
+              <span class="card-icon"><mat-icon>link</mat-icon></span>
+              <div>
+                <strong>Audit result {{ share.runId.slice(0, 8) }}</strong
+                ><span class="secondary">Read-only access to this run</span>
+              </div>
+              <span class="share-status" [class.revoked]="share.revokedAt">{{
+                share.revokedAt ? 'Revoked' : 'Active'
+              }}</span>
+              @if (!share.revokedAt) {
+                <button
+                  mat-button
+                  type="button"
+                  [disabled]="busy()"
+                  (click)="mutate({ action: 'revokeShare', shareId: share.id })"
+                >
+                  Revoke link
+                </button>
+              }
+            </div>
+          } @empty {
+            <div class="share-empty">
+              <mat-icon>link_off</mat-icon><span>No public share links. Create one from a completed result.</span>
+            </div>
+          }
+        </div>
+      </section>
+    </div>
+  }
+</section>

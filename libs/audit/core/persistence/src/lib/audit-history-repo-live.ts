@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, lt, or, sql } from 'drizzle-orm';
+import { isNull, and, desc, eq, inArray, lt, or, sql } from 'drizzle-orm';
 import { Effect, Layer, Schema } from 'effect';
 
 import type { AuditKind } from '@app-speed/audit/core/domain';
@@ -15,6 +15,8 @@ import { DbClient } from './db';
 import { auditResultTable, auditRunTable, auditTemplateTable } from './schema';
 
 const listRunsPage = Effect.fn('db.auditHistory.listPage')(function* (params: {
+  spaceId?: string | null;
+  browserHash?: string | null;
   search?: string | null;
   outcome?: 'SUCCESS' | 'FAILURE' | null;
   limit: number;
@@ -27,6 +29,12 @@ const listRunsPage = Effect.fn('db.auditHistory.listPage')(function* (params: {
   const limit = Math.max(1, Math.min(params.limit, 100));
   const search = params.search?.trim();
   const filters = [
+    isNull(auditTemplateTable.deletedAt),
+    params.spaceId
+      ? eq(auditTemplateTable.spaceId, params.spaceId)
+      : params.browserHash
+        ? and(isNull(auditTemplateTable.spaceId), eq(auditTemplateTable.guestBrowserHash, params.browserHash))
+        : sql`false`,
     search
       ? or(
           sql`strpos(lower(${auditTemplateTable.title}), lower(${search})) > 0`,
@@ -96,6 +104,8 @@ export const AuditHistoryRepoLive = Layer.effect(AuditHistoryRepo)(
     const auditRepo = yield* AuditRepo;
     return {
       listRunsPage: (params: {
+        spaceId?: string | null;
+        browserHash?: string | null;
         search?: string | null;
         outcome?: 'SUCCESS' | 'FAILURE' | null;
         limit: number;

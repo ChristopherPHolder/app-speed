@@ -26,3 +26,13 @@ export { RecordPersistenceLive, RecordPersistenceService } from './lib/record';
 export { RecordPersistenceError } from './lib/record/service';
 export type { RecordPersistence } from './lib/record/service';
 export { auditResultTable, auditRunTable, auditTemplateTable, schema as coreAuditSchema } from './lib/schema';
+
+export {
+  auditSpaceTable,
+  auditVersionTable,
+  auditScheduleTable,
+  auditOccurrenceTable,
+  auditShareTable,
+} from './lib/schema';
+
+export { RecurringDispatch, DISPATCH_WINDOW_MS } from './lib/recurring-dispatch';

@@ -131,6 +131,12 @@ jobs:
           ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
           DEPLOY_ENV: ${{ needs.determine-deploy-scope.outputs.deploy_env }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+          CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY }}
+          CLERK_AUTHORIZED_PARTIES: ${{ secrets.CLERK_AUTHORIZED_PARTIES }}
+          RUNNER_API_TOKEN: ${{ secrets.RUNNER_API_TOKEN }}
+          PERSONAL_ACTIVE_SCHEDULE_LIMIT: ${{ vars.PERSONAL_ACTIVE_SCHEDULE_LIMIT || '10' }}
+          ORGANIZATION_ACTIVE_SCHEDULE_LIMIT: ${{ vars.ORGANIZATION_ACTIVE_SCHEDULE_LIMIT || '10' }}
         run: |
           if [ "$DEPLOY_ENV" = "production" ]; then
             IMAGE_REF="${ECR_REGISTRY}/app-speed/api:${GITHUB_SHA::12}"

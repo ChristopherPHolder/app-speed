@@ -29,6 +29,13 @@
       "when": 1785513691834,
       "tag": "0003_thick_forgotten_one",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793646282186,
+      "tag": "0004_stale_colossus",
+      "breakpoints": true
     }
   ]
 }

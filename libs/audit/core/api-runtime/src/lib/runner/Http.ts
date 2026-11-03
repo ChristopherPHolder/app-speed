@@ -2,6 +2,7 @@ import { HttpApiBuilder, HttpApiError } from 'effect/http-api';
 import { Effect, Match } from 'effect';
 import { CoreApi } from '@app-speed/audit/core/api-contract';
 import { AuditRepo } from '@app-speed/audit/core/persistence';
+import { requireRunnerIdentity } from './auth';
 import { RunnerLifecycle } from './RunnerLifecycle.js';
 import { RunnerRegistry } from './RunnerRegistry.js';
 import { InstalledAuditFeatures } from './InstalledAuditFeatures.js';
@@ -36,18 +37,20 @@ export const RunnerGroupLive = HttpApiBuilder.group(CoreApi, 'runner', (handlers
         'claim',
         Effect.fn('api.runner.claim')((request) =>
           Effect.gen(function* () {
+            yield* requireRunnerIdentity;
             yield* Effect.annotateCurrentSpan({ 'runner.id': request.payload.runnerId });
             const run = yield* repo.claimNextRun();
             const response = yield* Match.value(run).pipe(
               Match.when(null, () => Effect.succeed(unavailableClaimResponse)),
               Match.orElse((nextRun) =>
                 installedFeatures
-                  .getDefinition(nextRun.kind, nextRun.templateId)
+                  .getDefinition(nextRun.kind, nextRun.templateId, nextRun.id)
                   .pipe(Effect.map((definition) => availableClaimResponse(nextRun.id, nextRun.kind, definition))),
               ),
             );
 
             yield* runnerRegistry.recordClaimResult(request.payload.runnerId, response.available);
+            yield* requireRunnerIdentity;
             yield* Effect.annotateCurrentSpan({
               'runner.claim_available': response.available,
               'audit.id': response.available ? response.auditId : null,
@@ -64,6 +67,7 @@ export const RunnerGroupLive = HttpApiBuilder.group(CoreApi, 'runner', (handlers
         'complete',
         Effect.fn('api.runner.complete')((request) =>
           Effect.gen(function* () {
+            yield* requireRunnerIdentity;
             yield* Effect.annotateCurrentSpan({
               'runner.id': request.payload.runnerId,
               'audit.id': request.payload.auditId,
@@ -94,30 +98,35 @@ export const RunnerGroupLive = HttpApiBuilder.group(CoreApi, 'runner', (handlers
       .handle(
         'heartbeat',
         Effect.fn('api.runner.heartbeat')((request) =>
-          runnerRegistry
-            .recordHeartbeat(request.payload.runnerId, {
-              timestamp: request.payload.timestamp,
-              state: request.payload.state,
-              idleSince: request.payload.idleSince,
-            })
-            .pipe(
-              Effect.tap(() =>
-                Effect.annotateCurrentSpan({
-                  'runner.id': request.payload.runnerId,
-                  'runner.heartbeat_timestamp': request.payload.timestamp ?? null,
-                  'runner.heartbeat_state': request.payload.state ?? null,
-                  'runner.idle_since': request.payload.idleSince ?? null,
-                }),
-              ),
-              Effect.as(okResponse),
-              Effect.withSpan('api.runner.heartbeat'),
+          requireRunnerIdentity.pipe(
+            Effect.andThen(
+              runnerRegistry
+                .recordHeartbeat(request.payload.runnerId, {
+                  timestamp: request.payload.timestamp,
+                  state: request.payload.state,
+                  idleSince: request.payload.idleSince,
+                })
+                .pipe(
+                  Effect.tap(() =>
+                    Effect.annotateCurrentSpan({
+                      'runner.id': request.payload.runnerId,
+                      'runner.heartbeat_timestamp': request.payload.timestamp ?? null,
+                      'runner.heartbeat_state': request.payload.state ?? null,
+                      'runner.idle_since': request.payload.idleSince ?? null,
+                    }),
+                  ),
+                  Effect.as(okResponse),
+                  Effect.withSpan('api.runner.heartbeat'),
+                ),
             ),
+          ),
         ),
       )
       .handle(
         'shutdown',
         Effect.fn('api.runner.shutdown')((request) =>
           Effect.gen(function* () {
+            yield* requireRunnerIdentity;
             yield* Effect.annotateCurrentSpan({
               'runner.id': request.payload.runnerId,
               'runner.shutdown_reason': request.payload.reason,

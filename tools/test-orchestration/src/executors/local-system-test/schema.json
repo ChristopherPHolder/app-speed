@@ -32,6 +32,11 @@
     "databaseEnvironmentVariable": {
       "type": "string",
       "default": "APP_SPEED_TEST_DATABASE_URL"
+    },
+    "captureJourneys": {
+      "type": "boolean",
+      "default": false,
+      "description": "Use isolated local demo identity builds for desktop/mobile journey screenshots."
     }
   },
   "required": ["suite", "testTarget"]

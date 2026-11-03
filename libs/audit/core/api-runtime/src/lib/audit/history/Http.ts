@@ -1,5 +1,6 @@
 import { Effect, Schema } from 'effect';
 
+import { AuditAccess } from '../access';
 import type { AuditHistoryQuerySchema } from '@app-speed/audit/core/api-contract';
 import type { AuditKind } from '@app-speed/audit/core/domain';
 import { AuditHistoryRepo } from '@app-speed/audit/core/persistence';
@@ -116,13 +117,25 @@ const normalizeError = (
 export const historyHandler = (kind: AuditKind | null) =>
   Effect.fn('api.audit.history')((request: AuditHistoryRequest) =>
     Effect.gen(function* () {
+      const access = yield* AuditAccess;
+      const actor = yield* access.current;
+      const space = actor.identity ? yield* access.space : null;
       const repo = yield* AuditHistoryRepo;
       const limit = yield* parseLimit(request.query.limit);
       const status = yield* parseStatusFilter(request.query.status);
       const cursor = yield* decodeCursor(request.query.cursor);
       const search = yield* parseSearch(request.query.search);
       const outcome = yield* parseOutcome(request.query.outcome);
-      const page = yield* repo.listRunsPage({ limit, cursor, status, kind, search, outcome });
+      const page = yield* repo.listRunsPage({
+        limit,
+        cursor,
+        status,
+        kind,
+        search,
+        outcome,
+        spaceId: space?.id,
+        browserHash: actor.browserHash,
+      });
 
       return {
         items: page.items.map((run) => ({

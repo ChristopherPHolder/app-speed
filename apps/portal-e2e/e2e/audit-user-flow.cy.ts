@@ -34,6 +34,11 @@ describe('full local audit system', () => {
     cy.intercept('GET', /\/api\/audits\/user-flow\/[0-9a-f-]+\/result$/).as('auditResult');
 
     const draft = encodeURIComponent(JSON.stringify(auditDraft(fixtureBaseUrl)));
+    cy.visit('/audits/saved');
+    cy.contains('h1', 'Saved audits & schedules').should('be.visible');
+    cy.contains('Keep your audits in a space').should('be.visible');
+    cy.contains('button', 'Reject analytics').click();
+    cy.screenshot('saved-audits-guest', { capture: 'fullPage' });
     cy.visit(`/audits/user-flow?audit-details=${draft}`);
 
     cy.get('[data-testid="audit-builder-card"]').should('be.visible');

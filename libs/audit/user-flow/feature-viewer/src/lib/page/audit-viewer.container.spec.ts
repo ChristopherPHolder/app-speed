@@ -12,10 +12,11 @@ import { AuditViewerContainer } from './audit-viewer.container';
 @Component({
   standalone: true,
   imports: [AuditViewerContainer],
-  template: ` <viewer-container [auditId]="auditId" /> `,
+  template: ` <viewer-container [auditId]="auditId" [shareToken]="shareToken" /> `,
 })
 class TestHostComponent {
   auditId = 'run-123';
+  shareToken: string | undefined;
 }
 
 const successfulResult = {
@@ -89,6 +90,21 @@ describe('AuditViewerContainer', () => {
 
     expect(fixture.nativeElement.querySelector('[data-testid="audit-results-loading"]')).toBeNull();
     expect(fixture.nativeElement.textContent).toContain('Home page');
+  });
+
+  it('passes the public capability when loading a shared result', async () => {
+    fixture.componentInstance.shareToken = 'public-capability';
+    await fixture.whenStable();
+
+    const request = http.expectOne(
+      (request) =>
+        request.url === '/api/audits/user-flow/run-123/result' && request.params.get('share') === 'public-capability',
+    );
+    request.flush({ status: 'SUCCESS', result: successfulResult });
+    await fixture.whenStable();
+
+    expect(fixture.nativeElement.textContent).toContain('Home page');
+    expect(navigate).toHaveBeenCalledWith([], expect.objectContaining({ queryParamsHandling: 'preserve' }));
   });
 
   it('selects the step encoded in the URL fragment once results load', async () => {

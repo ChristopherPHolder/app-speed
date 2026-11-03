@@ -266,6 +266,8 @@
         "libs/convenience/trace/feature-tools/**/*",
         "libs/convenience/trace/portal-data-access/**/*",
         "libs/convenience/trace/portal-ui/**/*",
+        "libs/platform/auth-api/**/*",
+        "libs/platform/auth-portal/**/*",
         "libs/platform/observability/**/*",
         "libs/ui/**/*",
         "tools/aws-deploy/**/*",

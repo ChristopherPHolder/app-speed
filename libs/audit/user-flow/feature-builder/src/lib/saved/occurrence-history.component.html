@@ -1,0 +1,37 @@
+<div class="occurrence-history">
+  <h4>Occurrence history</h4>
+  <ol>
+    @for (entry of entries(); track entry.occurrence.id) {
+      <li>
+        <span class="outcome-icon" [attr.data-tone]="occurrenceTone(entry)"
+          ><mat-icon>{{
+            occurrenceTone(entry) === 'success' ? 'check' : occurrenceTone(entry) === 'failure' ? 'close' : 'skip_next'
+          }}</mat-icon></span
+        >
+        <div class="occurrence-body">
+          <div class="occurrence-title">
+            <strong>{{ occurrenceLabel(entry) }}</strong
+            ><time>{{ entry.occurrence.dueAt | date: 'MMM d · HH:mm' }}</time>
+          </div>
+          <p>
+            @if (entry.occurrence.outcome === 'overlap') {
+              Previous run queued or running ·
+            }
+            {{ entry.occurrence.count }} occurrence(s) · Version
+            {{ versionNumber(entry.occurrence.versionId) }}
+          </p>
+          @if (entry.resultStatus === 'FAILURE') {
+            <p class="error-detail">{{ errorText(entry.error) }}</p>
+          }
+        </div>
+        @if (entry.occurrence.runId) {
+          <a class="run-link" [routerLink]="['/audits/user-flow', entry.occurrence.runId]"
+            >View run<mat-icon>arrow_outward</mat-icon></a
+          >
+        }
+      </li>
+    } @empty {
+      <li class="history-empty">No occurrences yet. The first run will appear here when it is due.</li>
+    }
+  </ol>
+</div>

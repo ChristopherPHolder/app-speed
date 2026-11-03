@@ -19,11 +19,11 @@ export const InstalledAuditFeaturesLive = Layer.effect(InstalledAuditFeatures)(
       );
 
     return {
-      getDefinition: (kind, templateId) =>
+      getDefinition: (kind, _templateId, runId) =>
         decodeInstalledKind(kind).pipe(
           Effect.flatMap((installedKind) =>
             Match.value(installedKind).pipe(
-              Match.when('user-flow', () => userFlowRepo.getDefinition(templateId)),
+              Match.when('user-flow', () => userFlowRepo.getRunDefinition(runId)),
               Match.exhaustive,
             ),
           ),

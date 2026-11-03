@@ -22,3 +22,12 @@ export const schema = {
   ...coreAuditSchema,
   ...userFlowAuditSchema,
 };
+
+// eslint-disable-next-line @nx/enforce-module-boundaries
+export {
+  auditSpaceTable,
+  auditVersionTable,
+  auditScheduleTable,
+  auditOccurrenceTable,
+  auditShareTable,
+} from '../../../../libs/audit/core/persistence/src/lib/schema';

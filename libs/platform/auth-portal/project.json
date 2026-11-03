@@ -1,0 +1,25 @@
+{
+  "name": "platform-auth-portal",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/platform/auth-portal/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": ["type:platform", "scope:shared", "runtime:web"],
+  "targets": {
+    "build": {
+      "executor": "@nx/angular:ng-packagr-lite",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "project": "libs/platform/auth-portal/ng-package.json",
+        "tsConfig": "libs/platform/auth-portal/tsconfig.lib.json"
+      },
+      "configurations": {
+        "production": {
+          "tsConfig": "libs/platform/auth-portal/tsconfig.lib.prod.json"
+        },
+        "development": {}
+      }
+    }
+  }
+}

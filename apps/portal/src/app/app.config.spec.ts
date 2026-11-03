@@ -11,9 +11,18 @@ describe('shell audit routes', () => {
   const auditRoutes = shellRoutes[0]?.children?.find((route) => route.path === 'audits')?.children ?? [];
 
   it('mounts combined and fixed user-flow history before the user-flow feature', () => {
-    expect(auditRoutes.map((route) => route.path)).toEqual(['history', 'user-flow/history', 'user-flow', '']);
-    expect(auditRoutes[0]?.data?.['auditHistory'].endpoint).toBe('/api/audits/history');
-    expect(auditRoutes[1]?.data?.['auditHistory'].endpoint).toBe('/api/audits/user-flow/history');
+    expect(auditRoutes.map((route) => route.path)).toEqual([
+      'saved',
+      'shared/:id',
+      'history',
+      'user-flow/history',
+      'user-flow',
+      '',
+    ]);
+    expect(auditRoutes.find((r) => r.path === 'history')?.data?.['auditHistory'].endpoint).toBe('/api/audits/history');
+    expect(auditRoutes.find((r) => r.path === 'user-flow/history')?.data?.['auditHistory'].endpoint).toBe(
+      '/api/audits/user-flow/history',
+    );
   });
 
   it('redirects the audits root to combined history', () => {

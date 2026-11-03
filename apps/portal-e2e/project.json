@@ -3,8 +3,14 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "sourceRoot": "apps/portal-e2e",
-  "tags": ["e2e"],
-  "implicitDependencies": ["portal", "api", "runner"],
+  "tags": [
+    "e2e"
+  ],
+  "implicitDependencies": [
+    "portal",
+    "api",
+    "runner"
+  ],
   "targets": {
     "e2e": {
       "executor": "@app-speed/test-orchestration:local-system-test",
@@ -33,6 +39,29 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "tsc --noEmit -p apps/portal-e2e/tsconfig.json"
+      }
+    },
+    "capture-journeys": {
+      "executor": "@app-speed/test-orchestration:local-system-test",
+      "cache": false,
+      "options": {
+        "suite": "e2e",
+        "testTarget": "portal-e2e:capture-browser",
+        "captureJourneys": true,
+        "portalPort": 4420,
+        "fixturePort": 4444,
+        "timeoutMs": 600000
+      }
+    },
+    "capture-browser": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "options": {
+        "command": "cypress run --config-file cypress.capture.config.ts",
+        "cwd": "apps/portal-e2e",
+        "env": {
+          "TS_NODE_COMPILER_OPTIONS": "{\"customConditions\":null}"
+        }
       }
     }
   }

@@ -35,6 +35,7 @@ describe('ShellComponent', () => {
     expect(element.querySelector('.brand')?.getAttribute('href')).toBe('/');
     expect(Array.from(primaryNavigation?.querySelectorAll('a') ?? [], (link) => link.textContent?.trim())).toEqual([
       'Run audit',
+      'Saved audits',
       'Audit history',
       'Trace tools',
     ]);

@@ -1,0 +1,114 @@
+:host {
+  display: block;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.2fr;
+  gap: 16px;
+  margin-bottom: 36px;
+}
+.metric {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  border: 1px solid #e0e7f0;
+  border-radius: 16px;
+  background: #fff;
+}
+.metric > div {
+  display: grid;
+  gap: 5px;
+}
+.metric strong {
+  font-size: 28px;
+  line-height: 1;
+  font-weight: 650;
+  letter-spacing: -0.8px;
+}
+.metric strong small {
+  color: #65758b;
+  font-size: 17px;
+  font-weight: 400;
+}
+.metric div > span {
+  color: #65758b;
+  font-size: 12px;
+}
+.metric-icon {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: #eef4fe;
+  color: #2667c7;
+}
+.metric-icon {
+  width: 48px;
+  height: 48px;
+  background: #f0f5fc;
+}
+.quota {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 9px 22px;
+}
+.quota-bar {
+  height: 6px;
+  background: #eaf0f8;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.quota-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #2c6fd6;
+}
+.quota-note {
+  grid-column: 1 / -1;
+  font-size: 10px;
+  color: #65758b;
+}
+@media (max-width: 760px) {
+  .metrics {
+    gap: 8px;
+    grid-template-columns: 1fr 1fr;
+    margin-bottom: 28px;
+  }
+  .metric {
+    padding: 16px;
+    gap: 10px;
+  }
+  .metric-icon {
+    width: 34px;
+    height: 34px;
+  }
+  .metric-icon mat-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+  }
+  .metric strong {
+    font-size: 24px;
+  }
+  .metric div > span {
+    font-size: 10px;
+  }
+  .quota {
+    grid-column: 1 / -1;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .quota > div:first-child {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .quota-note {
+    font-size: 10px;
+  }
+}

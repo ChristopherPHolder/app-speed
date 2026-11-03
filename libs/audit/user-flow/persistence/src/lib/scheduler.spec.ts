@@ -55,9 +55,15 @@ describe('UserFlowAuditScheduler', () => {
 
     expect(auditId).toBeTypeOf('string');
     expect(transactionCount).toBe(1);
-    expect(inserts.map(({ table }) => table)).toEqual(['audit_templates', 'user_flow_audit_templates', 'audit_runs']);
+    expect(inserts.map(({ table }) => table)).toEqual([
+      'audit_templates',
+      'user_flow_audit_templates',
+      'audit_versions',
+      'audit_runs',
+    ]);
     expect(inserts[0].values).toMatchObject({ kind: 'user-flow' });
     expect(inserts[1].values).toMatchObject({ definition });
-    expect(inserts[2].values).toMatchObject({ status: 'SCHEDULED' });
+    expect(inserts[2].values).toMatchObject({ definition });
+    expect(inserts[3].values).toMatchObject({ status: 'SCHEDULED' });
   });
 });

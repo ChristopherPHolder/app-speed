@@ -1,0 +1,34 @@
+<div class="metrics" aria-label="Space overview">
+  <div class="metric">
+    <span class="metric-icon"><mat-icon>folder_open</mat-icon></span>
+    <div>
+      <strong>{{ view().templates.length }}</strong
+      ><span>Saved audits</span>
+    </div>
+  </div>
+  <div class="metric">
+    <span class="metric-icon"><mat-icon>layers</mat-icon></span>
+    <div>
+      <strong>{{ view().versions.length }}</strong
+      ><span>Immutable versions</span>
+    </div>
+  </div>
+  <div class="metric quota">
+    <div>
+      <strong
+        >{{ activeCount() }} <small>/ {{ view().limit }}</small></strong
+      ><span>Active schedules</span>
+    </div>
+    <div
+      class="quota-bar"
+      role="progressbar"
+      aria-label="Active schedule quota"
+      [attr.aria-valuenow]="activeCount()"
+      aria-valuemin="0"
+      [attr.aria-valuemax]="view().limit"
+    >
+      <span [style.width.%]="view().limit ? (activeCount() / view().limit) * 100 : 0"></span>
+    </div>
+    <span class="quota-note">{{ activeCount() }} / {{ view().limit }} active schedules · paused don't count</span>
+  </div>
+</div>

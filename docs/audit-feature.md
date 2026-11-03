@@ -21,7 +21,7 @@ This document defines the architecture for scheduling user flow audits, executin
 
 ## Non-Goals
 
-- Multi-tenant authorization, billing, or quota policies.
+- Billing and subscription policies.
 - UI design details beyond API contracts and event shapes.
 - Full autoscaling policies across multiple EC2 instance pools.
 
@@ -201,6 +201,10 @@ The Angular app uses HTTP for submission and SSE for status updates.
 - See `docs/observability-backend.md` for the backend tracing plan and local setup.
 
 ## Security
+
+Authentication, personal/organization ownership, guest claims, run sharing, and durable recurring schedules are
+part of the audit scope. See [Spaces and schedules](features/audit/spaces-and-schedules.md) for their access model,
+migration policy, timing rules, and Clerk/deployment configuration.
 
 - Runner endpoints must be authenticated with a shared secret or mTLS.
 - API endpoints should validate audit schemas and enforce rate limits.

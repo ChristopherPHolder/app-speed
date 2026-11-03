@@ -61,3 +61,12 @@ AWS production:
 ```bash
 RUNNER_MANAGER_MODE=aws
 ```
+
+## Account and runner configuration
+
+Set `RUNNER_API_TOKEN` to a high-entropy shared secret in the API environment and in any separately started runner.
+Locally spawned runners inherit it. Every runner endpoint requires this machine identity.
+
+Clerk authentication, organization invitations, space ownership, guest claiming, public sharing, and recurring
+schedules are documented in [Spaces and schedules](../../docs/features/audit/spaces-and-schedules.md).
+Guest manual audits work without Clerk keys; account features require the documented Clerk configuration.

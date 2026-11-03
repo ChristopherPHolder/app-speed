@@ -1,38 +1,32 @@
-import { Injectable } from '@angular/core';
-
-import { FetchHttpClient } from 'effect/http';
-import { HttpApiClient } from 'effect/http-api';
-import { Effect, ManagedRuntime, Schema } from 'effect';
-
-import { from } from 'rxjs';
-import { AuditId, UserFlowApi } from '@app-speed/audit/user-flow/api-contract';
+import { inject, Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Schema } from 'effect';
+import { map, tap } from 'rxjs';
 import { UserFlowAuditDefinitionSchema } from '@app-speed/audit/user-flow/domain';
-
+const ScheduledSchema = Schema.Struct({
+  auditId: Schema.String,
+  auditQueuePosition: Schema.Number,
+  claimToken: Schema.NullOr(Schema.String),
+});
+const AuditSchema = Schema.Struct({
+  status: Schema.Literals(['SCHEDULED', 'IN_PROGRESS', 'COMPLETE']),
+  audit: UserFlowAuditDefinitionSchema,
+});
 @Injectable({ providedIn: 'root' })
 export class ApiClient {
-  private readonly runtime = ManagedRuntime.make(FetchHttpClient.layer);
-
+  private readonly http = inject(HttpClient);
   findAudit(auditId: string) {
-    return from(
-      this.runtime.runPromise(
-        Effect.gen(function* () {
-          const apiClient = yield* HttpApiClient.make(UserFlowApi);
-          const id = yield* Schema.decodeUnknownEffect(AuditId)(auditId);
-          return yield* apiClient.userFlowAudit.findUserFlowAuditById({ params: { id } });
-        }),
-      ),
-    );
+    return this.http
+      .get<unknown>(`/api/audits/user-flow/${encodeURIComponent(auditId)}`)
+      .pipe(map((value) => Schema.decodeUnknownSync(AuditSchema)(value)));
   }
-
   scheduleAudit(auditDetails: unknown) {
-    return from(
-      this.runtime.runPromise(
-        Effect.gen(function* () {
-          const apiClient = yield* HttpApiClient.make(UserFlowApi);
-          const payload = yield* Schema.decodeUnknownEffect(UserFlowAuditDefinitionSchema)(auditDetails);
-          return yield* apiClient.userFlowAudit.scheduleUserFlowAudit({ payload });
-        }),
-      ),
+    const payload = Schema.decodeUnknownSync(UserFlowAuditDefinitionSchema)(auditDetails);
+    return this.http.post<unknown>('/api/audits/user-flow/schedule', payload).pipe(
+      map((value) => Schema.decodeUnknownSync(ScheduledSchema)(value)),
+      tap((run) => {
+        if (run.claimToken) localStorage.setItem(`audit-claim:${run.auditId}`, run.claimToken);
+      }),
     );
   }
 }

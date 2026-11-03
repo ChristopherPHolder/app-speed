@@ -1,0 +1,52 @@
+:host {
+  display: block;
+}
+h3 {
+  margin: 0;
+  font-weight: 600;
+}
+
+.empty-icon {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: #eef4fe;
+  color: #2667c7;
+}
+.empty-state {
+  display: grid;
+  justify-items: center;
+  padding: 36px 24px;
+  text-align: center;
+  border: 1px dashed #d6e1ef;
+  border-radius: 14px;
+  background: #fcfdff;
+}
+.empty-icon {
+  margin-bottom: 16px;
+  width: 48px;
+  height: 48px;
+}
+.empty-state h3 {
+  font-size: 15px;
+}
+.empty-state p {
+  max-width: 360px;
+  margin: 6px 0 18px;
+  color: #65758b;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.compact {
+  padding: 24px;
+}
+.compact .empty-icon {
+  width: 36px;
+  height: 36px;
+}
+.compact p {
+  margin-bottom: 0;
+}

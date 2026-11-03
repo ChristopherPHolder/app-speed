@@ -18,7 +18,10 @@
     "vitest": "^5.0.3",
     "@analogjs/vite-plugin-angular": "2.7.5",
     "@storybook/angular": "10.6.5",
-    "@app-speed/audit/core/domain": "0.0.1"
+    "@app-speed/audit/core/domain": "0.0.1",
+    "@app-speed/platform/auth-portal": "0.0.1",
+    "effect": "4.1.1",
+    "@app-speed/audit/user-flow/api-contract": "0.0.1"
   },
   "sideEffects": false
 }

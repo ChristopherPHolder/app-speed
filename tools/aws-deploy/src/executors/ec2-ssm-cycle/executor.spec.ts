@@ -1,4 +1,4 @@
-import { Effect } from 'effect';
+import { Effect, Schema } from 'effect';
 import { waitForSsmCommandCompletion } from '../../lib/ssm';
 import { startInstanceIfNeeded, stopInstance } from './ec2';
 import executor from './executor';
@@ -66,6 +66,27 @@ describe('ec2-ssm-cycle executor', () => {
       message: 'ok',
       commandId: 'cmd-123',
     });
+  });
+
+  it('passes the machine secret from the deployment environment with shell quoting', async () => {
+    vi.stubEnv('RUNNER_API_TOKEN', 'test token with spaces');
+    try {
+      await executor({
+        region: 'eu-central-1',
+        instanceId: 'i-123',
+        imageRef: 'registry/runner:test',
+        additionalRunArgs: ['-e RUNNER_API_TOKEN'],
+      });
+      const [command] = ssmClientSendMock.mock.calls[0] ?? [];
+      const decoded = Schema.decodeUnknownSync(
+        Schema.Struct({
+          input: Schema.Struct({ Parameters: Schema.Struct({ commands: Schema.Array(Schema.String) }) }),
+        }),
+      )(command);
+      expect(decoded.input.Parameters.commands.join('\n')).toContain('RUNNER_API_TOKEN=test token with spaces');
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 
   it('runs the runner container with a restart policy so it comes back after EC2 restarts', async () => {

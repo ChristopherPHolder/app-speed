@@ -42,12 +42,14 @@ describe('requestRunnerTermination', () => {
     vi.resetModules();
     stopInstanceMock.mockReset();
     stopInstanceMock.mockResolvedValue({});
+    process.env['RUNNER_API_TOKEN'] = 'test-machine-token';
     process.env['RUNNER_API_BASE_URL'] = 'http://runner.test/api';
     process.env['RUNNER_ID'] = 'ec2-i-0123456789abcdef0';
     process.env['AWS_REGION'] = 'eu-central-1';
   });
 
   afterEach(() => {
+    delete process.env['RUNNER_API_TOKEN'];
     delete process.env['RUNNER_API_BASE_URL'];
     delete process.env['RUNNER_ID'];
     delete process.env['AWS_REGION'];

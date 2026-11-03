@@ -27,6 +27,11 @@ export default defineConfig({
         if (certificateSpki && browser.family === 'chromium') {
           launchOptions.args.push(`--ignore-certificate-errors-spki-list=${certificateSpki}`);
         }
+        if (process.env['APP_SPEED_DEMO_CAPTURE'] === 'true' && browser.family === 'chromium') {
+          // Leave room for the Cypress sidebar and the complete 1440px application viewport.
+          launchOptions.args = launchOptions.args.filter((arg) => !arg.startsWith('--window-size='));
+          launchOptions.args.push('--window-size=2000,1600');
+        }
         return launchOptions;
       });
 

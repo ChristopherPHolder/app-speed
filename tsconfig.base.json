@@ -41,7 +41,9 @@
       "@app-speed/convenience/trace/domain": ["./libs/convenience/trace/domain/src/index.ts"],
       "@app-speed/convenience/trace/portal-data-access": ["./libs/convenience/trace/portal-data-access/src/index.ts"],
       "@app-speed/convenience/trace/portal-ui": ["./libs/convenience/trace/portal-ui/src/index.ts"],
-      "@app-speed/convenience/trace/feature-tools": ["./libs/convenience/trace/feature-tools/src/index.ts"]
+      "@app-speed/convenience/trace/feature-tools": ["./libs/convenience/trace/feature-tools/src/index.ts"],
+      "@app-speed/platform/auth-api": ["./libs/platform/auth-api/src/index.ts"],
+      "@app-speed/platform/auth-portal": ["./libs/platform/auth-portal/src/index.ts"]
     },
     "plugins": [
       {

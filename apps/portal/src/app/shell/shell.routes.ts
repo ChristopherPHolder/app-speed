@@ -26,6 +26,16 @@ export const shellRoutes: Route[] = [
         path: 'audits',
         children: [
           {
+            path: 'saved',
+            loadComponent: () =>
+              import('@app-speed/audit/user-flow/feature-builder').then((m) => m.SavedAuditsComponent),
+          },
+          {
+            path: 'shared/:id',
+            loadComponent: () =>
+              import('@app-speed/audit/user-flow/feature-builder').then((m) => m.SharedResultComponent),
+          },
+          {
             path: 'history',
             loadChildren: () => import('@app-speed/audit/core/feature-history').then((m) => m.auditHistoryRoutes),
             data: { auditHistory: { endpoint: '/api/audits/history', resultRoute } },
