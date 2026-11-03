@@ -21,9 +21,22 @@ interface PrimaryNavigationItem {
       <header class="app-header">
         <mat-toolbar>
           <div class="toolbar-content">
+            <button
+              class="mobile-menu-trigger"
+              type="button"
+              mat-icon-button
+              aria-controls="mobile-navigation"
+              [attr.aria-expanded]="mobileMenuOpen()"
+              [attr.aria-label]="mobileMenuOpen() ? 'Close navigation menu' : 'Open navigation menu'"
+              (click)="mobileMenuOpen.update((open) => !open)"
+            >
+              <mat-icon aria-hidden="true">{{ mobileMenuOpen() ? 'close' : 'menu' }}</mat-icon>
+            </button>
+
             <a class="brand" routerLink="/" aria-label="App Speed home">
               <picture>
-                <source media="(max-width: 760px)" srcset="assets/logo.svg#mobile" />
+                <source media="(width < 600px)" srcset="assets/logo.svg#compact" />
+                <source media="(width < 960px)" srcset="assets/logo.svg#mobile" />
                 <img src="assets/logo.svg" alt="" />
               </picture>
             </a>
@@ -53,18 +66,6 @@ interface PrimaryNavigationItem {
               >
                 <img src="assets/GitHub_Invertocat_Black.svg" alt="" />
               </a>
-
-              <button
-                class="mobile-menu-trigger"
-                type="button"
-                mat-icon-button
-                aria-controls="mobile-navigation"
-                [attr.aria-expanded]="mobileMenuOpen()"
-                [attr.aria-label]="mobileMenuOpen() ? 'Close navigation menu' : 'Open navigation menu'"
-                (click)="mobileMenuOpen.update((open) => !open)"
-              >
-                <mat-icon aria-hidden="true">{{ mobileMenuOpen() ? 'close' : 'menu' }}</mat-icon>
-              </button>
             </div>
           </div>
         </mat-toolbar>
@@ -236,14 +237,15 @@ interface PrimaryNavigationItem {
     .mobile-navigation {
       position: absolute;
       top: calc(100% + 8px);
-      right: 14px;
+      inset-inline-start: 8px;
       z-index: 2;
       display: none;
-      width: min(320px, calc(100vw - 28px));
+      box-sizing: border-box;
+      width: min(320px, calc(100% - 16px));
       padding: 10px;
       border: 1px solid var(--mat-sys-outline-variant);
       border-radius: 16px;
-      background: #fff;
+      background: var(--mat-sys-surface-container);
       box-shadow: 0 16px 40px rgb(31 31 31 / 18%);
       gap: 3px;
     }
@@ -269,8 +271,8 @@ interface PrimaryNavigationItem {
 
     .mobile-navigation a:hover,
     .mobile-navigation a.active-navigation-item {
-      background: #e9f2ff;
-      color: var(--mat-sys-primary);
+      background: var(--mat-sys-secondary-container);
+      color: var(--mat-sys-on-secondary-container);
     }
 
     .mobile-navigation a:focus-visible {
@@ -335,39 +337,33 @@ interface PrimaryNavigationItem {
       text-underline-offset: 3px;
     }
 
-    @media (max-width: 760px) {
-      mat-toolbar {
-        height: 80px;
+    @media (width < 960px) {
+      .app-header {
+        background: var(--mat-sys-surface);
+        backdrop-filter: none;
       }
 
-      .toolbar-content,
-      .footer-content {
-        width: min(100% - 28px, 1120px);
+      mat-toolbar {
+        position: relative;
+        z-index: 2;
+        height: 64px;
+        background: var(--mat-sys-surface);
       }
 
       .toolbar-content {
-        gap: 12px;
+        width: calc(100% - 8px);
+        gap: 6px;
       }
 
       .brand {
-        flex: 0 1 145px;
         min-width: 48px;
         min-height: 48px;
-      }
-
-      .brand picture {
-        display: block;
-        width: 100%;
+        justify-content: center;
       }
 
       .brand img {
-        width: 100%;
-        height: auto;
+        height: 32px;
         aspect-ratio: 688 / 318;
-      }
-
-      .toolbar-actions {
-        flex-shrink: 0;
       }
 
       .desktop-navigation {
@@ -375,9 +371,11 @@ interface PrimaryNavigationItem {
       }
 
       .mobile-menu-trigger {
-        display: inline-flex;
+        display: inline-grid;
         width: 48px;
         height: 48px;
+        padding: 0;
+        place-items: center;
         color: var(--mat-sys-on-surface);
       }
 
@@ -389,8 +387,20 @@ interface PrimaryNavigationItem {
         display: block;
       }
 
-      .github-link {
+      .toolbar-actions {
         display: none;
+      }
+    }
+
+    @media (width < 600px) {
+      .brand img {
+        aspect-ratio: 1;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .footer-content {
+        width: min(100% - 28px, 1120px);
       }
     }
   `,

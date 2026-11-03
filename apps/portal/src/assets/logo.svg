@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 985.88983 686.3344">
   <!-- Mobile view removes empty canvas around the complete artwork. -->
+  <view id="compact" viewBox="179 187 330 330"/>
   <view id="mobile" viewBox="179 192 688 318"/>
   <defs>
     <style>
