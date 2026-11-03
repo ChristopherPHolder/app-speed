@@ -62,6 +62,8 @@ export class SavedAuditsComponent {
   protected readonly busy = signal(false);
   protected readonly editingId = signal('');
   protected readonly editorOpen = signal(false);
+  protected readonly members = signal<ReadonlyArray<{ id: string; name: string }>>([]);
+  private membersRequested = false;
   protected readonly model = signal(initialForm());
   protected readonly scheduleForm = form(this.model, (path) => {
     required(path.versionId);
@@ -86,6 +88,17 @@ export class SavedAuditsComponent {
   private async refresh() {
     try {
       this.overview.set(Schema.decodeUnknownSync(ManagementOverviewSchema)(await this.command({ action: 'list' })));
+      if (
+        this.overview()?.space.kind === 'organization' &&
+        this.overview()?.space.role === 'admin' &&
+        !this.membersRequested
+      ) {
+        this.membersRequested = true;
+        void this.auth
+          .organizationMembers()
+          .then((members) => this.members.set(members))
+          .catch(() => this.members.set([]));
+      }
     } catch {
       this.message.set('Unable to load this space. Check your access and try again.');
     }
@@ -107,7 +120,9 @@ export class SavedAuditsComponent {
     return versions.length - versions.findIndex((v) => v.id === versionId);
   }
   protected managerLabel(userId: string) {
-    return this.overview()?.space.userId === userId ? 'You' : userId;
+    return this.overview()?.space.userId === userId
+      ? 'You'
+      : (this.members().find((member) => member.id === userId)?.name ?? 'Assigned member');
   }
   protected closeEditor() {
     this.editorOpen.set(false);

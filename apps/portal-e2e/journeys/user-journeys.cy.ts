@@ -261,11 +261,10 @@ for (const device of [
       });
       saved();
       cy.contains('button', 'Edit recurrence or pinned version').first().click();
-      cy.get('form').contains('label', 'Schedule manager').find('input').clear();
-      cy.get('form').contains('label', 'Schedule manager').find('input').type('user_demo_member');
+      cy.get('form').contains('label', 'Schedule manager').find('select').select('user_demo_member');
       screenshot('28-admin-reassigns-schedule');
       cy.contains('button', /^\s*Save schedule\s*$/).click();
-      cy.contains('dd', 'user_demo_member').should('be.visible');
+      cy.contains('dd', 'Sam Rivera').should('be.visible');
       // A second real UI session uses the organization member identity.
       cy.visit('/audits/saved', {
         onBeforeLoad(win) {

@@ -161,8 +161,15 @@
             }
             @if (editingId() && view.space.kind === 'organization' && view.space.role === 'admin') {
               <label
-                >Schedule manager<input [formField]="scheduleForm.createdBy" /><span class="field-hint"
-                  >Enter the organization member's Clerk user ID.</span
+                >Schedule manager<select [formField]="scheduleForm.createdBy">
+                  <option [value]="model().createdBy">{{ managerLabel(model().createdBy) }}</option>
+                  @for (member of members(); track member.id) {
+                    @if (member.id !== model().createdBy) {
+                      <option [value]="member.id">{{ member.name }}</option>
+                    }
+                  }</select
+                ><span class="field-hint"
+                  >Choose who can manage this schedule. Organization admins keep access.</span
                 ></label
               >
             }

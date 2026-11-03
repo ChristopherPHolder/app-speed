@@ -31,6 +31,12 @@ class CaptureAuthService {
     if (this.spaceId()) headers['x-audit-space'] = this.spaceId() ?? '';
     return headers;
   }
+  async organizationMembers() {
+    return [
+      { id: 'user_demo_admin', name: 'Alex Morgan' },
+      { id: 'user_demo_member', name: 'Sam Rivera' },
+    ];
+  }
   signIn() {
     localStorage.setItem('capture-user', 'user_demo_admin');
     location.reload();

@@ -68,6 +68,24 @@ export class AuthService {
     }
     return headers;
   }
+  async organizationMembers(): Promise<ReadonlyArray<{ id: string; name: string }>> {
+    const organization = this.clerk?.organization;
+    if (!organization) return [];
+    const members: { id: string; name: string }[] = [];
+    for (let page = 1; ; page++) {
+      const response = await organization.getMemberships({ pageSize: 100, initialPage: page });
+      for (const membership of response.data) {
+        const user = membership.publicUserData;
+        if (user?.userId) {
+          members.push({
+            id: user.userId,
+            name: [user.firstName, user.lastName].filter(Boolean).join(' ') || user.identifier,
+          });
+        }
+      }
+      if (response.data.length < 100) return members;
+    }
+  }
   signIn() {
     this.clerk?.openSignIn({ forceRedirectUrl: window.location.href });
   }
