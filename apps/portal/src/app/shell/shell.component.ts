@@ -35,8 +35,7 @@ interface PrimaryNavigationItem {
 
             <a class="brand" routerLink="/" aria-label="App Speed home">
               <picture>
-                <source media="(width < 600px)" srcset="assets/logo.svg#compact" />
-                <source media="(width < 960px)" srcset="assets/logo.svg#mobile" />
+                <source media="(width < 960px)" srcset="assets/logo-wordmark.svg" />
                 <img src="assets/logo.svg" alt="" />
               </picture>
             </a>
@@ -362,7 +361,7 @@ interface PrimaryNavigationItem {
       }
 
       .brand img {
-        height: 32px;
+        height: 44px;
         aspect-ratio: 688 / 318;
       }
 
@@ -389,12 +388,6 @@ interface PrimaryNavigationItem {
 
       .toolbar-actions {
         display: none;
-      }
-    }
-
-    @media (width < 600px) {
-      .brand img {
-        aspect-ratio: 1;
       }
     }
 
