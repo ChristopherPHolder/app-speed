@@ -54,7 +54,9 @@ import { RouterLink } from '@angular/router';
               <strong>Use trace tools</strong>
               <span>Extract screenshots and build filmstrips from Chrome traces locally.</span>
             </span>
-            <span class="feature-card__action">Explore tools <mat-icon aria-hidden="true">arrow_forward</mat-icon></span>
+            <span class="feature-card__action"
+              >Explore tools <mat-icon aria-hidden="true">arrow_forward</mat-icon></span
+            >
           </a>
         </div>
       </section>
@@ -62,11 +64,12 @@ import { RouterLink } from '@angular/router';
   `,
   styles: `
     .landing {
-      width: min(100% - 48px, 1120px);
-      margin: 28px auto 64px;
+      --landing-typeface: Roboto, 'Helvetica Neue', sans-serif;
+      width: min(100% - 32px, 1120px);
+      margin: 16px auto 48px;
     }
     .hero {
-      padding: 56px;
+      padding: 24px;
       border: 1px solid var(--mat-sys-outline-variant, #c4c7c5);
       border-radius: 28px;
       background: var(--mat-sys-surface-container-low, #f8f9ff);
@@ -74,28 +77,25 @@ import { RouterLink } from '@angular/router';
     .eyebrow {
       margin: 0 0 8px;
       color: var(--mat-sys-primary, #0b57d0);
-      font-weight: 600;
-      text-transform: uppercase;
+      font: var(--mat-sys-label-large, 500 0.875rem/1.25rem var(--landing-typeface));
     }
     h1 {
       max-width: 760px;
       margin: 0;
-      font-size: 3rem;
-      line-height: 1.08;
-      letter-spacing: -0.035em;
+      font: var(--mat-sys-headline-large, 400 2rem/2.5rem var(--landing-typeface));
+      text-wrap: balance;
     }
     .hero__description {
       max-width: 680px;
-      margin: 20px 0 0;
+      margin: 16px 0 0;
       color: var(--mat-sys-on-surface-variant, #444746);
-      font-size: 1.125rem;
-      line-height: 1.6;
+      font: var(--mat-sys-body-large, 400 1rem/1.5rem var(--landing-typeface));
     }
     .hero__actions {
       display: flex;
-      margin-top: 28px;
-      align-items: center;
-      flex-wrap: wrap;
+      margin-top: 24px;
+      align-items: stretch;
+      flex-direction: column;
       gap: 12px;
     }
     .feature-card:focus-visible {
@@ -103,22 +103,22 @@ import { RouterLink } from '@angular/router';
       outline-offset: 3px;
     }
     .features {
-      margin-top: 44px;
+      margin-top: 32px;
     }
     h2 {
-      margin: 0 0 20px;
+      margin: 0 0 16px;
+      font: var(--mat-sys-headline-small, 400 1.5rem/2rem var(--landing-typeface));
     }
     .feature-grid {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 18px;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 16px;
     }
     .feature-card {
       display: grid;
-      min-height: 230px;
-      padding: 26px;
+      padding: 16px;
       border: 1px solid var(--mat-sys-outline-variant, #c4c7c5);
-      border-radius: 22px;
+      border-radius: 24px;
       background: var(--mat-sys-surface, #ffffff);
       color: var(--mat-sys-on-surface, #1f1f1f);
       text-decoration: none;
@@ -126,9 +126,9 @@ import { RouterLink } from '@angular/router';
     }
     .feature-card__icon {
       display: grid;
-      width: 52px;
-      height: 52px;
-      margin-bottom: 22px;
+      width: 48px;
+      height: 48px;
+      margin-bottom: 16px;
       border-radius: 16px;
       background: var(--mat-sys-primary-container, #d7e3ff);
       color: var(--mat-sys-on-primary-container, #001b3f);
@@ -137,50 +137,59 @@ import { RouterLink } from '@angular/router';
     .feature-card__content {
       display: grid;
       align-content: start;
-      gap: 9px;
+      gap: 8px;
     }
     .feature-card__content strong {
-      font-size: 1.25rem;
+      font: var(--mat-sys-title-large, 400 1.375rem/1.75rem var(--landing-typeface));
     }
     .feature-card__content > span {
       color: var(--mat-sys-on-surface-variant, #444746);
-      line-height: 1.45;
+      font: var(--mat-sys-body-medium, 400 0.875rem/1.25rem var(--landing-typeface));
     }
     .feature-card__action {
       display: flex;
-      margin-top: 24px;
+      margin-top: 16px;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
+      font: var(--mat-sys-label-large, 500 0.875rem/1.25rem var(--landing-typeface));
       color: var(--mat-sys-primary, #0b57d0);
     }
-    @media (max-width: 800px) {
-      .hero {
-        padding: 48px 36px;
-      }
-      h1 {
-        font-size: 2.5rem;
-      }
-      .feature-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-    @media (max-width: 520px) {
+    @media (min-width: 600px) {
       .landing {
-        width: min(100% - 28px, 1120px);
-        margin-top: 14px;
+        width: min(100% - 48px, 1120px);
+        margin-block: 24px 64px;
       }
       .hero {
-        padding: 36px 24px;
+        padding: 32px;
       }
       h1 {
-        font-size: 2.1rem;
+        font: var(--mat-sys-display-small, 400 2.25rem/2.75rem var(--landing-typeface));
       }
       .hero__actions {
-        align-items: stretch;
-        flex-direction: column;
+        align-items: center;
+        flex-direction: row;
+        flex-wrap: wrap;
       }
-      .hero__actions a {
-        text-align: center;
+      .feature-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .feature-card {
+        padding: 24px;
+      }
+    }
+    @media (min-width: 840px) {
+      .hero {
+        padding: 48px;
+      }
+      h1 {
+        font: var(--mat-sys-display-medium, 400 2.8125rem/3.25rem var(--landing-typeface));
+      }
+      .features {
+        margin-top: 48px;
+      }
+      .feature-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 24px;
       }
     }
   `,
