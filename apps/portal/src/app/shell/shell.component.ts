@@ -22,7 +22,10 @@ interface PrimaryNavigationItem {
         <mat-toolbar>
           <div class="toolbar-content">
             <a class="brand" routerLink="/" aria-label="App Speed home">
-              <img src="assets/logo.svg" alt="" />
+              <picture>
+                <source media="(max-width: 760px)" srcset="assets/logo.svg#mobile" />
+                <img src="assets/logo.svg" alt="" />
+              </picture>
             </a>
 
             <nav class="desktop-navigation" aria-label="Primary navigation">
@@ -188,6 +191,7 @@ interface PrimaryNavigationItem {
       display: block;
       width: auto;
       height: 60px;
+      aspect-ratio: 985.88983 / 686.3344;
     }
 
     .desktop-navigation {
@@ -333,7 +337,7 @@ interface PrimaryNavigationItem {
 
     @media (max-width: 760px) {
       mat-toolbar {
-        height: 68px;
+        height: 80px;
       }
 
       .toolbar-content,
@@ -341,8 +345,29 @@ interface PrimaryNavigationItem {
         width: min(100% - 28px, 1120px);
       }
 
+      .toolbar-content {
+        gap: 12px;
+      }
+
+      .brand {
+        flex: 0 1 145px;
+        min-width: 48px;
+        min-height: 48px;
+      }
+
+      .brand picture {
+        display: block;
+        width: 100%;
+      }
+
       .brand img {
-        height: 54px;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 688 / 318;
+      }
+
+      .toolbar-actions {
+        flex-shrink: 0;
       }
 
       .desktop-navigation {
@@ -351,7 +376,8 @@ interface PrimaryNavigationItem {
 
       .mobile-menu-trigger {
         display: inline-flex;
-        margin-right: -8px;
+        width: 48px;
+        height: 48px;
         color: var(--mat-sys-on-surface);
       }
 
