@@ -1,0 +1,222 @@
+{
+  "issue": 222,
+  "screenshots": 71,
+  "steps": [
+    {
+      "id": "01-guest-home",
+      "title": "Guest home",
+      "caption": "Start a new audit without an account.",
+      "journey": "guest"
+    },
+    {
+      "id": "02-mobile-navigation",
+      "title": "Mobile navigation",
+      "caption": "Open the responsive navigation menu.",
+      "journey": "guest"
+    },
+    {
+      "id": "03-build-manual-audit",
+      "title": "Build an audit",
+      "caption": "Configure the checkout steps and target device.",
+      "journey": "guest"
+    },
+    {
+      "id": "04-queued-or-running",
+      "title": "Run progress",
+      "caption": "Submit the audit and follow its execution.",
+      "journey": "guest"
+    },
+    {
+      "id": "05-completed-result",
+      "title": "Completed result",
+      "caption": "Inspect a real runner result and performance scores.",
+      "journey": "guest"
+    },
+    {
+      "id": "06-browser-history",
+      "title": "Browser history",
+      "caption": "Find audits associated with this browser.",
+      "journey": "guest"
+    },
+    {
+      "id": "07-reopened-result",
+      "title": "Reopen a result",
+      "caption": "Return to a completed run from history.",
+      "journey": "guest"
+    },
+    {
+      "id": "08-sign-in-required",
+      "title": "Save requires a space",
+      "caption": "See the sign-in prompt for saved audits.",
+      "journey": "personal"
+    },
+    {
+      "id": "09-sign-in-claim-prompt",
+      "title": "Claim prompt",
+      "caption": "Demo sign-in reveals the option to claim this browser audit.",
+      "journey": "personal"
+    },
+    {
+      "id": "09b-personal-empty-state",
+      "title": "Personal space onboarding",
+      "caption": "An empty signed-in space introduces saved audits, schedules, and sharing.",
+      "journey": "personal"
+    },
+    {
+      "id": "10-claim-confirmed-private",
+      "title": "Claim confirmed",
+      "caption": "Move the browser audit into the active personal space.",
+      "journey": "personal"
+    },
+    {
+      "id": "11-saved-immutable-version",
+      "title": "Saved definition",
+      "caption": "Inspect the immutable version created by claiming.",
+      "journey": "personal"
+    },
+    {
+      "id": "12-fixed-interval-editor",
+      "title": "Fixed interval",
+      "caption": "Pin a saved version and choose an elapsed interval.",
+      "journey": "schedules"
+    },
+    {
+      "id": "13-active-schedule-next-due",
+      "title": "Active schedule",
+      "caption": "Inspect the next due time and schedule controls.",
+      "journey": "schedules"
+    },
+    {
+      "id": "14-daily-timezone-editor",
+      "title": "Daily and timezone",
+      "caption": "Choose a local time and an IANA timezone.",
+      "journey": "schedules"
+    },
+    {
+      "id": "15-weekly-weekday-editor",
+      "title": "Weekly recurrence",
+      "caption": "Choose a weekday, local time, and timezone.",
+      "journey": "schedules"
+    },
+    {
+      "id": "16-occurrence-success-failure-skips",
+      "title": "Occurrence history",
+      "caption": "Inspect a real successful run alongside seeded failure, overlap, and downtime examples.",
+      "journey": "schedules"
+    },
+    {
+      "id": "17-paused-schedule",
+      "title": "Pause a schedule",
+      "caption": "Paused schedules release active quota.",
+      "journey": "schedules"
+    },
+    {
+      "id": "18-resumed-schedule",
+      "title": "Resume a schedule",
+      "caption": "Resume with a future due time and retained history.",
+      "journey": "schedules"
+    },
+    {
+      "id": "19-edit-audit-as-new-version",
+      "title": "Edit a definition",
+      "caption": "Change the draft while retaining its saved audit identity.",
+      "journey": "versions"
+    },
+    {
+      "id": "20-two-saved-versions",
+      "title": "Two immutable versions",
+      "caption": "Inspect both snapshots under the same saved audit.",
+      "journey": "versions"
+    },
+    {
+      "id": "21-explicitly-repin-version",
+      "title": "Repin a schedule",
+      "caption": "Explicitly choose the newly saved version.",
+      "journey": "versions"
+    },
+    {
+      "id": "22-active-schedule-limit",
+      "title": "Active schedule quota",
+      "caption": "The demo deployment uses a limit of two active schedules.",
+      "journey": "schedules"
+    },
+    {
+      "id": "22b-quota-reached-editor",
+      "title": "Quota reached in the editor",
+      "caption": "See why a new active schedule cannot be created and how to make room.",
+      "journey": "schedules"
+    },
+    {
+      "id": "23-create-run-share-link",
+      "title": "Create a public link",
+      "caption": "Share a specific completed result.",
+      "journey": "sharing"
+    },
+    {
+      "id": "24-anonymous-shared-report",
+      "title": "Anonymous report",
+      "caption": "Open the shared report after signing out.",
+      "journey": "sharing"
+    },
+    {
+      "id": "25-share-link-revoked",
+      "title": "Revoke a link",
+      "caption": "Revoke the public result link from the owning space.",
+      "journey": "sharing"
+    },
+    {
+      "id": "26-revoked-public-access",
+      "title": "Revoked access",
+      "caption": "Verify that the anonymous report is unavailable.",
+      "journey": "sharing"
+    },
+    {
+      "id": "26b-organization-empty-state",
+      "title": "Empty organization space",
+      "caption": "Inspect onboarding before the organization has saved resources.",
+      "journey": "organization"
+    },
+    {
+      "id": "27-organization-admin",
+      "title": "Organization administrator",
+      "caption": "Switch to Acme Performance and inspect shared resources.",
+      "journey": "organization"
+    },
+    {
+      "id": "27a-organization-workspace-menu",
+      "title": "Workspace settings",
+      "caption": "Open organization creation, membership, and invitation entry points. Hosted Clerk dialogs require live credentials.",
+      "journey": "organization"
+    },
+    {
+      "id": "27b-run-saved-organization-version",
+      "title": "Run a saved version",
+      "caption": "Execute the organization version through the real runner.",
+      "journey": "organization"
+    },
+    {
+      "id": "28-admin-reassigns-schedule",
+      "title": "Assign a schedule manager",
+      "caption": "The administrator assigns management to the demo member.",
+      "journey": "organization"
+    },
+    {
+      "id": "29-organization-member-permissions",
+      "title": "Organization member",
+      "caption": "Inspect the member view and creator permissions.",
+      "journey": "organization"
+    },
+    {
+      "id": "30-member-manages-assigned-schedule",
+      "title": "Manage the assigned schedule",
+      "caption": "The assigned member pauses the schedule.",
+      "journey": "organization"
+    },
+    {
+      "id": "31-deleted-schedule-history-preserved",
+      "title": "Delete and retain history",
+      "caption": "Delete the schedule and reopen its retained occurrence history.",
+      "journey": "organization"
+    }
+  ]
+}
