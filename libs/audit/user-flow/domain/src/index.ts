@@ -8,6 +8,7 @@ export { USER_FLOW_AUDIT_KIND, USER_FLOW_AUDIT_KIND_LITERAL, UserFlowAuditKindSc
 export type { UserFlowAuditKind } from './lib/audit-kind';
 export { USER_FLOW_AUDIT_BUILDER_STEP_VARIANTS, deriveBuilderStepSpec } from './lib/builder-step-spec';
 export type { AppSpeedUserFlow } from './lib/runtime/replay';
+export type { UserFlowResult } from './lib/runtime/result';
 export { LIGHTHOUSE_AUDIT_STEP_TYPE } from './lib/lighthouse-userflow/lighthouse-userflow-step-type';
 export {
   LighthouseAuditStepTypeSchema,

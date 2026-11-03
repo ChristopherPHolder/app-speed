@@ -5,6 +5,10 @@
   "projectType": "library",
   "tags": ["type:tooling"],
   "targets": {
+    "install-browser": {
+      "executor": "@app-speed/test-orchestration:install-browser",
+      "cache": false
+    },
     "typecheck": {
       "executor": "nx:run-commands",
       "options": {

@@ -1,5 +1,10 @@
 {
   "executors": {
+    "install-browser": {
+      "implementation": "./src/executors/install-browser/executor",
+      "schema": "./src/executors/install-browser/schema.json",
+      "description": "Install the Chrome build required by Puppeteer browser tests"
+    },
     "local-system-test": {
       "implementation": "./src/executors/local-system-test/executor",
       "schema": "./src/executors/local-system-test/schema.json",

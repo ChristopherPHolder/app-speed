@@ -9,6 +9,7 @@
     "@angular/platform-browser": "22.1.5",
     "@angular/router": "22.1.5",
     "@app-speed/audit/core/portal-ui": "0.0.1",
+    "@app-speed/audit/user-flow/domain": "0.0.1",
     "@app-speed/audit/user-flow/portal-data-access": "0.0.1",
     "@app-speed/ui": "0.0.0",
     "lighthouse": "^13.6.0",

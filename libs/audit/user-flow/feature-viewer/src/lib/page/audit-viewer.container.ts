@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, input, model } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { combineLatest, distinctUntilChanged, filter, map, Observable, shareReplay, switchMap } from 'rxjs';
-import type { FlowResult } from 'lighthouse';
+import type { UserFlowResult } from '@app-speed/audit/user-flow/domain';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ViewerStepDetailComponent } from '../steps/viewer-step-details.component';
 import { calculateCategoryFraction, shouldDisplayAsFraction } from '../lighthouse-report-utils';
@@ -53,10 +53,13 @@ export class AuditViewerContainer {
   readonly #route = inject(ActivatedRoute);
   readonly #router = inject(Router);
 
-  flowResult$: Observable<FlowResult> = combineLatest([toObservable(this.auditId), toObservable(this.shareToken)]).pipe(
+  flowResult$: Observable<UserFlowResult> = combineLatest([
+    toObservable(this.auditId),
+    toObservable(this.shareToken),
+  ]).pipe(
     switchMap(([auditId, share]) => {
       return this.#api
-        .get<{ status: 'SUCCESS' | 'FAILURE'; result: FlowResult }>(
+        .get<{ status: 'SUCCESS' | 'FAILURE'; result: UserFlowResult }>(
           `/api/audits/user-flow/${encodeURIComponent(auditId)}/result`,
           share ? { params: { share } } : {},
         )
@@ -76,29 +79,31 @@ export class AuditViewerContainer {
       return undefined;
     }
 
-    return results.steps.map(({ lhr: { fullPageScreenshot, categories, gatherMode, audits }, name }) => {
-      const screenshot = fullPageScreenshot?.screenshot;
-      return {
-        screenShot: screenshot?.data || '',
-        screenShotSize: fitScreenshotPreview(screenshot?.width ?? 0, screenshot?.height ?? 0),
-        title: name,
-        subTitle: gatherMode,
-        shouldDisplayAsFraction: shouldDisplayAsFraction(gatherMode),
-        categoryScores: Object.values(categories).map((category) => {
-          const extendedCategory = {
-            ...category,
-            auditRefs: category.auditRefs.map((ref) => {
-              return { ...ref, result: audits[ref.id] };
-            }),
-          };
-          return {
-            name: category.title,
-            asFraction: calculateCategoryFraction(extendedCategory),
-            score: parseInt(((category.score || 0) * 100).toFixed(0), 10),
-          };
-        }),
-      };
-    });
+    return results.steps.map(
+      ({ lhr: { fullPageScreenshot, categories, gatherMode, audits }, name, softNavigation }) => {
+        const screenshot = fullPageScreenshot?.screenshot;
+        return {
+          screenShot: screenshot?.data || '',
+          screenShotSize: fitScreenshotPreview(screenshot?.width ?? 0, screenshot?.height ?? 0),
+          title: name,
+          subTitle: softNavigation ? 'soft navigation' : gatherMode,
+          shouldDisplayAsFraction: shouldDisplayAsFraction(gatherMode),
+          categoryScores: Object.values(categories).map((category) => {
+            const extendedCategory = {
+              ...category,
+              auditRefs: category.auditRefs.map((ref) => {
+                return { ...ref, result: audits[ref.id] };
+              }),
+            };
+            return {
+              name: category.title,
+              asFraction: calculateCategoryFraction(extendedCategory),
+              score: parseInt(((category.score || 0) * 100).toFixed(0), 10),
+            };
+          }),
+        };
+      },
+    );
   });
 
   auditStep = computed(() => {

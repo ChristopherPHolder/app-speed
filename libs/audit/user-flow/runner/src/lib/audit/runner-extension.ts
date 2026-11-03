@@ -11,7 +11,10 @@ export class UserFlowRunnerExtension extends CoreRunnerExtension {
   constructor(
     browser: Browser,
     page: Page,
-    private readonly flow: UserFlow,
+    private readonly flow: Pick<
+      UserFlow,
+      'startNavigation' | 'endNavigation' | 'startTimespan' | 'endTimespan' | 'snapshot'
+    >,
     opts?: { timeout?: number },
   ) {
     super(browser, page, opts);

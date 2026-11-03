@@ -187,6 +187,42 @@ describe('ViewerStepDetailComponent', () => {
     component = fixture.componentInstance;
   });
 
+  it.each([true, false])(
+    'marks the metrics header as experimental only for soft navigation: %s',
+    async (softNavigation) => {
+      fixture.componentRef.setInput('stepDetails', { ...multiCategoryStep, softNavigation });
+      await fixture.whenStable();
+      const metricsHeader = fixture.nativeElement.querySelector('viewer-step-metric-summary .header-title');
+      expect(metricsHeader?.textContent).toContain('METRICS');
+      expect(metricsHeader?.querySelector('.experimental-metrics')?.textContent ?? '').toBe(
+        softNavigation ? 'Experimental soft navigation' : '',
+      );
+    },
+  );
+
+  it('shows the warning when only the first soft navigation was measured', async () => {
+    const warning =
+      'Multiple navigations were detected in this navigation step. Only the first soft navigation is measured.';
+    fixture.componentRef.setInput('stepDetails', {
+      ...multiCategoryStep,
+      lhr: { ...multiCategoryStep.lhr, runWarnings: [warning] },
+    });
+    await fixture.whenStable();
+    expect(fixture.nativeElement.querySelector('[aria-label="Lighthouse warnings"]')?.textContent).toContain(warning);
+  });
+
+  it('shows the recommendation to measure a detected soft navigation in navigation mode', async () => {
+    const warning =
+      'A soft navigation was detected during this timespan. ' +
+      'Use a navigation step to capture FCP and LCP alongside INP.';
+    fixture.componentRef.setInput('stepDetails', {
+      ...multiCategoryStep,
+      lhr: { ...multiCategoryStep.lhr, gatherMode: 'timespan', runWarnings: [warning] },
+    });
+    await fixture.whenStable();
+    expect(fixture.nativeElement.querySelector('[aria-label="Lighthouse warnings"]')?.textContent).toContain(warning);
+  });
+
   it('builds sections for non-performance Lighthouse categories', () => {
     fixture.componentRef.setInput('stepDetails', multiCategoryStep);
     fixture.detectChanges();
@@ -195,12 +231,18 @@ describe('ViewerStepDetailComponent', () => {
       expect.arrayContaining(['Performance', 'Accessibility', 'SEO']),
     );
     expect(component.categoryViews().find((category) => category.id === 'performance')?.metricSummary).toHaveLength(1);
-    expect(component.categoryViews().find((category) => category.id === 'accessibility')?.sections.map((section) => section.title)).toEqual(
-      expect.arrayContaining(['Accessibility: Names and labels']),
-    );
-    expect(component.categoryViews().find((category) => category.id === 'seo')?.sections.map((section) => section.title)).toEqual(
-      ['SEO: Content Best Practices'],
-    );
+    expect(
+      component
+        .categoryViews()
+        .find((category) => category.id === 'accessibility')
+        ?.sections.map((section) => section.title),
+    ).toEqual(expect.arrayContaining(['Accessibility: Names and labels']));
+    expect(
+      component
+        .categoryViews()
+        .find((category) => category.id === 'seo')
+        ?.sections.map((section) => section.title),
+    ).toEqual(['SEO: Content Best Practices']);
   });
 
   it('does not require a performance category to render category sections', () => {
@@ -209,6 +251,8 @@ describe('ViewerStepDetailComponent', () => {
 
     expect(component.categoryViews().map((category) => category.title)).toEqual(['Accessibility']);
     expect(component.categoryViews()[0]?.metricSummary).toEqual([]);
-    expect(component.categoryViews()[0]?.sections.map((section) => section.title)).toEqual(['Accessibility: Names and labels']);
+    expect(component.categoryViews()[0]?.sections.map((section) => section.title)).toEqual([
+      'Accessibility: Names and labels',
+    ]);
   });
 });

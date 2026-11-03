@@ -25,6 +25,7 @@ const successfulResult = {
       name: 'Home page',
       lhr: {
         gatherMode: 'navigation',
+        configSettings: {},
         fullPageScreenshot: null,
         categoryGroups: {},
         categories: {
@@ -129,6 +130,23 @@ describe('AuditViewerContainer', () => {
     const container = fixture.debugElement.query(By.directive(AuditViewerContainer))
       .componentInstance as AuditViewerContainer;
     expect(container.activeIndex()).toBe(1);
+  });
+
+  it('labels soft navigation results separately from page loads', async () => {
+    await fixture.whenStable();
+    http.expectOne('/api/audits/user-flow/run-123/result').flush({
+      status: 'SUCCESS',
+      result: {
+        steps: [
+          {
+            ...successfulResult.steps[0],
+            softNavigation: true,
+          },
+        ],
+      },
+    });
+    await fixture.whenStable();
+    expect(fixture.nativeElement.querySelector('.summary-subtitle')?.textContent).toContain('soft navigation');
   });
 
   it('writes the visible step to the URL fragment', async () => {
