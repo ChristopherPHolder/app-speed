@@ -11,3 +11,7 @@ body {
 html {
   @include theme.all-component-theme;
 }
+
+html:has(.mobile-navigation[open]) {
+  overflow: hidden;
+}
