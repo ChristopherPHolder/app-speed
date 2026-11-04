@@ -1,4 +1,6 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { BreakpointObserver } from '@angular/cdk/layout';
+import { ChangeDetectionStrategy, Component, ElementRef, inject, signal, viewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatToolbar } from '@angular/material/toolbar';
@@ -26,11 +28,12 @@ interface PrimaryNavigationItem {
               type="button"
               mat-icon-button
               aria-controls="mobile-navigation"
+              aria-haspopup="dialog"
               [attr.aria-expanded]="mobileMenuOpen()"
-              [attr.aria-label]="mobileMenuOpen() ? 'Close navigation menu' : 'Open navigation menu'"
-              (click)="mobileMenuOpen.update((open) => !open)"
+              aria-label="Open navigation menu"
+              (click)="openMobileNavigation($event)"
             >
-              <mat-icon aria-hidden="true">{{ mobileMenuOpen() ? 'close' : 'menu' }}</mat-icon>
+              <mat-icon aria-hidden="true">menu</mat-icon>
             </button>
 
             <a class="brand" routerLink="/" aria-label="App Speed home">
@@ -68,43 +71,56 @@ interface PrimaryNavigationItem {
             </div>
           </div>
         </mat-toolbar>
-
-        @if (mobileMenuOpen()) {
-          <button
-            class="navigation-scrim"
-            type="button"
-            aria-hidden="true"
-            tabindex="-1"
-            (click)="mobileMenuOpen.set(false)"
-          ></button>
-          <nav id="mobile-navigation" class="mobile-navigation" aria-label="Mobile navigation">
-            <span class="mobile-navigation__label">Navigate</span>
-            @for (item of navigationItems; track item.route) {
-              <a
-                [routerLink]="item.route"
-                routerLinkActive="active-navigation-item"
-                [routerLinkActiveOptions]="{ exact: item.exact }"
-                ariaCurrentWhenActive="page"
-                (click)="mobileMenuOpen.set(false)"
-              >
-                <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
-                <span>{{ item.label }}</span>
-                <mat-icon class="mobile-navigation__arrow" aria-hidden="true">arrow_forward</mat-icon>
-              </a>
-            }
-            <a
-              class="mobile-navigation__github"
-              href="https://github.com/ChristopherPHolder/app-speed"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <img src="assets/GitHub_Invertocat_Black.svg" alt="" />
-              <span>View on GitHub</span>
-              <mat-icon class="mobile-navigation__arrow" aria-hidden="true">open_in_new</mat-icon>
-            </a>
-          </nav>
-        }
       </header>
+
+      <!-- The backdrop is pointer-only. The close button and native Escape handle keyboard dismissal. -->
+      <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
+      <dialog
+        #mobileNavigation
+        id="mobile-navigation"
+        class="mobile-navigation"
+        aria-label="Navigation menu"
+        (close)="mobileMenuOpen.set(false)"
+        (click)="dismissFromBackdrop($event)"
+      >
+        <div class="mobile-navigation__toolbar">
+          <button
+            class="mobile-navigation__close"
+            type="button"
+            mat-icon-button
+            autofocus
+            aria-label="Close navigation menu"
+            (click)="mobileNavigation.close()"
+          >
+            <mat-icon aria-hidden="true">menu_open</mat-icon>
+          </button>
+          <img class="mobile-navigation__brand" src="assets/logo-wordmark.svg" alt="" />
+        </div>
+        <nav class="mobile-navigation__links" aria-label="Mobile navigation">
+          @for (item of mobileNavigationItems; track item.route) {
+            <a
+              [routerLink]="item.route"
+              routerLinkActive="active-navigation-item"
+              [routerLinkActiveOptions]="{ exact: item.exact }"
+              ariaCurrentWhenActive="page"
+              (click)="mobileNavigation.close()"
+            >
+              <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
+              <span>{{ item.label }}</span>
+            </a>
+          }
+          <a
+            href="https://github.com/ChristopherPHolder/app-speed"
+            target="_blank"
+            rel="noopener noreferrer"
+            (click)="mobileNavigation.close()"
+          >
+            <img class="mobile-navigation__github" src="assets/GitHub_Invertocat_Black.svg" alt="" />
+            <span>View on GitHub</span>
+            <mat-icon class="mobile-navigation__external" aria-hidden="true">open_in_new</mat-icon>
+          </a>
+        </nav>
+      </dialog>
 
       <main id="main-content" tabindex="-1">
         <router-outlet />
@@ -234,77 +250,84 @@ interface PrimaryNavigationItem {
     }
 
     .mobile-navigation {
-      position: absolute;
-      top: calc(100% + 8px);
-      inset-inline-start: 8px;
-      z-index: 2;
-      display: none;
+      position: fixed;
+      inset: 0 auto 0 0;
+      inset-inline: 0 auto;
       box-sizing: border-box;
-      width: min(320px, calc(100% - 16px));
-      padding: 10px;
-      border: 1px solid var(--mat-sys-outline-variant);
-      border-radius: 16px;
-      background: var(--mat-sys-surface-container);
-      box-shadow: 0 16px 40px rgb(31 31 31 / 18%);
-      gap: 3px;
+      width: min(320px, calc(100% - 48px));
+      max-width: none;
+      height: 100dvh;
+      max-height: none;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      border: 0;
+      background: var(--mat-sys-surface-container, #eef0f6);
+      color: var(--mat-sys-on-surface, #1f1f1f);
+      box-shadow: 0 0 12px rgb(0 0 0 / 18%);
     }
 
-    .mobile-navigation__label {
-      padding: 8px 12px 10px;
-      color: var(--mat-sys-on-surface-variant);
-      font: var(--mat-sys-label-small);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
+    .mobile-navigation[open] {
+      display: grid;
+      grid-template-rows: 64px minmax(0, 1fr);
     }
 
-    .mobile-navigation a {
+    .mobile-navigation::backdrop {
+      background: linear-gradient(to bottom, transparent 64px, rgb(0 0 0 / 32%) 64px);
+    }
+
+    .mobile-navigation__toolbar {
       display: flex;
-      min-height: 50px;
-      padding: 0 12px;
-      border-radius: 13px;
       align-items: center;
-      gap: 12px;
-      color: var(--mat-sys-on-surface);
+      gap: 6px;
+      padding-inline: 4px;
+      background: var(--mat-sys-surface, #fff);
+    }
+
+    .mobile-navigation__brand {
+      display: block;
+      height: 44px;
+    }
+
+    .mobile-navigation__links {
+      padding: 0 8px 16px;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+
+    .mobile-navigation__links a {
+      display: flex;
+      min-height: 48px;
+      padding: 0 16px;
+      border-radius: 999px;
+      align-items: center;
+      gap: 16px;
+      color: var(--mat-sys-on-surface-variant, #44474f);
+      font: var(--mat-sys-label-large, 500 1rem/1.5rem Roboto, sans-serif);
       text-decoration: none;
     }
 
-    .mobile-navigation a:hover,
-    .mobile-navigation a.active-navigation-item {
-      background: var(--mat-sys-secondary-container);
-      color: var(--mat-sys-on-secondary-container);
+    .mobile-navigation__links a:hover {
+      background: var(--mat-sys-surface-container-high, #e5e8f0);
     }
 
-    .mobile-navigation a:focus-visible {
-      outline: 3px solid var(--mat-sys-primary);
-      outline-offset: -1px;
+    .mobile-navigation__links a.active-navigation-item {
+      background: var(--mat-sys-secondary-container, #d7e3ff);
+      color: var(--mat-sys-on-secondary-container, #001b3f);
     }
 
-    .mobile-navigation__arrow {
-      width: 19px;
-      height: 19px;
-      margin-left: auto;
-      font-size: 19px;
-      opacity: 0.72;
+    .mobile-navigation__links a:focus-visible {
+      outline: 3px solid var(--mat-sys-primary, #005cbb);
+      outline-offset: -3px;
     }
 
     .mobile-navigation__github {
-      margin-top: 7px;
-      border-top: 1px solid rgb(7 26 50 / 8%);
-      border-radius: 0 0 13px 13px;
+      width: 24px;
+      height: 24px;
     }
 
-    .mobile-navigation__github img {
-      width: 22px;
-      height: 22px;
-    }
-
-    .navigation-scrim {
-      position: fixed;
-      inset: 0;
-      z-index: 1;
-      display: none;
-      border: 0;
-      background: rgb(7 26 50 / 28%);
+    .mobile-navigation__external {
+      margin-inline-start: auto;
     }
 
     main {
@@ -338,15 +361,12 @@ interface PrimaryNavigationItem {
 
     @media (width < 960px) {
       .app-header {
-        background: var(--mat-sys-surface);
+        background: var(--mat-sys-surface, #fff);
         backdrop-filter: none;
       }
 
       mat-toolbar {
-        position: relative;
-        z-index: 2;
         height: 64px;
-        background: var(--mat-sys-surface);
       }
 
       .toolbar-content {
@@ -369,21 +389,14 @@ interface PrimaryNavigationItem {
         display: none;
       }
 
-      .mobile-menu-trigger {
+      .mobile-menu-trigger,
+      .mobile-navigation__close {
         display: inline-grid;
         width: 48px;
         height: 48px;
         padding: 0;
         place-items: center;
-        color: var(--mat-sys-on-surface);
-      }
-
-      .mobile-navigation {
-        display: grid;
-      }
-
-      .navigation-scrim {
-        display: block;
+        color: var(--mat-sys-on-surface, #1f1f1f);
       }
 
       .toolbar-actions {
@@ -400,10 +413,41 @@ interface PrimaryNavigationItem {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShellComponent {
+  private readonly mobileNavigationDialog = viewChild.required<ElementRef<HTMLDialogElement>>('mobileNavigation');
   protected readonly mobileMenuOpen = signal(false);
   protected readonly navigationItems: ReadonlyArray<PrimaryNavigationItem> = [
     { label: 'Run audit', route: '/audits/user-flow', icon: 'speed', exact: true },
     { label: 'Audit history', route: '/audits/history', icon: 'history', exact: true },
     { label: 'Trace tools', route: '/convenience', icon: 'construction', exact: false },
   ];
+  protected readonly mobileNavigationItems: ReadonlyArray<PrimaryNavigationItem> = [
+    { label: 'Home', route: '/', icon: 'home', exact: true },
+    ...this.navigationItems,
+  ];
+
+  constructor() {
+    inject(BreakpointObserver)
+      .observe('(width < 960px)')
+      .pipe(takeUntilDestroyed())
+      .subscribe(({ matches }) => {
+        if (!matches && this.mobileMenuOpen()) {
+          this.mobileNavigationDialog().nativeElement.close();
+        }
+      });
+  }
+
+  protected openMobileNavigation(event: MouseEvent): void {
+    if (event.currentTarget instanceof HTMLButtonElement) {
+      event.currentTarget.focus();
+    }
+    this.mobileNavigationDialog().nativeElement.showModal();
+    this.mobileMenuOpen.set(true);
+  }
+
+  protected dismissFromBackdrop(event: MouseEvent): void {
+    const dialog = this.mobileNavigationDialog().nativeElement;
+    if (event.target === dialog) {
+      dialog.close();
+    }
+  }
 }

@@ -113,8 +113,13 @@ import { AnalyticsConsentService } from './analytics-consent.service';
       .consent-banner {
         inset: auto 12px 12px;
         width: auto;
-        max-height: calc(100dvh - 24px);
         padding: 16px;
+      }
+    }
+    @media (width < 960px) {
+      .consent-banner {
+        /* Reserve the app bar and the banner's bottom inset. */
+        max-height: calc(100dvh - 88px);
       }
     }
   `,
