@@ -1,5 +1,8 @@
-import { BreakpointObserver } from '@angular/cdk/layout';
 import { ChangeDetectionStrategy, Component, ElementRef, inject, signal, viewChild } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
+import { AccountMenuComponent } from '../auth/account-menu.component';
+import { PortalAuthService } from '../auth/portal-auth.service';
+import { BreakpointObserver } from '@angular/cdk/layout';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
@@ -15,11 +18,21 @@ interface PrimaryNavigationItem {
 
 @Component({
   selector: 'app-shell',
-  imports: [MatButton, MatIcon, MatIconButton, MatToolbar, RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [
+    MatButton,
+    MatIcon,
+    MatIconButton,
+    MatToolbar,
+    RouterLink,
+    RouterLinkActive,
+    RouterOutlet,
+    NgTemplateOutlet,
+    AccountMenuComponent,
+  ],
   template: `
     <a class="skip-link" href="#main-content">Skip to content</a>
 
-    <div class="app-shell">
+    <div class="app-shell" [class.signed-in]="auth.signedIn()">
       <header class="app-header">
         <mat-toolbar>
           <div class="toolbar-content">
@@ -43,34 +56,41 @@ interface PrimaryNavigationItem {
               </picture>
             </a>
 
-            <nav class="desktop-navigation" aria-label="Primary navigation">
-              @for (item of navigationItems; track item.route) {
-                <a
-                  mat-button
-                  [routerLink]="item.route"
-                  routerLinkActive="active-navigation-item"
-                  [routerLinkActiveOptions]="{ exact: item.exact }"
-                  ariaCurrentWhenActive="page"
-                >
-                  {{ item.label }}
-                </a>
-              }
-            </nav>
+            @if (!auth.signedIn()) {
+              <ng-container [ngTemplateOutlet]="desktopNavigation" />
+            }
 
             <div class="toolbar-actions">
-              <a
-                class="github-link"
-                mat-icon-button
-                href="https://github.com/ChristopherPHolder/app-speed"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Open the app-speed repository on GitHub"
-              >
-                <img src="assets/GitHub_Invertocat_Black.svg" alt="" />
-              </a>
+              @if (auth.signedIn()) {
+                @defer (when auth.signedIn()) {
+                  <app-account-menu />
+                }
+              } @else {
+                <button
+                  matButton="outlined"
+                  type="button"
+                  [disabled]="auth.availability() === 'loading'"
+                  (click)="signIn()"
+                >
+                  Sign in
+                </button>
+                <a
+                  class="github-link"
+                  mat-icon-button
+                  href="https://github.com/ChristopherPHolder/app-speed"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Open the app-speed repository on GitHub"
+                >
+                  <img src="assets/GitHub_Invertocat_Black.svg" alt="" />
+                </a>
+              }
             </div>
           </div>
         </mat-toolbar>
+        @if (showAuthError()) {
+          <p class="auth-error" role="status">Sign-in is unavailable right now. You can still use the audit tools.</p>
+        }
       </header>
 
       <!-- The backdrop is pointer-only. The close button and native Escape handle keyboard dismissal. -->
@@ -122,6 +142,12 @@ interface PrimaryNavigationItem {
         </nav>
       </dialog>
 
+      @if (auth.signedIn()) {
+        <aside class="sidebar">
+          <ng-container [ngTemplateOutlet]="desktopNavigation" />
+        </aside>
+      }
+
       <main id="main-content" tabindex="-1">
         <router-outlet />
       </main>
@@ -135,6 +161,21 @@ interface PrimaryNavigationItem {
         </div>
       </footer>
     </div>
+    <ng-template #desktopNavigation>
+      <nav class="desktop-navigation" aria-label="Primary navigation">
+        @for (item of navigationItems; track item.route) {
+          <a
+            mat-button
+            [routerLink]="item.route"
+            routerLinkActive="active-navigation-item"
+            [routerLinkActiveOptions]="{ exact: item.exact }"
+            ariaCurrentWhenActive="page"
+          >
+            {{ item.label }}
+          </a>
+        }
+      </nav>
+    </ng-template>
   `,
   styles: `
     :host {
@@ -163,6 +204,48 @@ interface PrimaryNavigationItem {
       display: flex;
       min-height: 100dvh;
       flex-direction: column;
+    }
+
+    .auth-error {
+      margin: 0;
+      padding: 8px 16px;
+      text-align: center;
+      color: var(--mat-sys-error);
+      font: var(--mat-sys-body-medium);
+    }
+
+    @media (width >= 960px) {
+      .signed-in {
+        display: grid;
+        grid-template-columns: 208px minmax(0, 1fr);
+        grid-template-rows: auto 1fr auto;
+      }
+
+      .signed-in .app-header,
+      .signed-in footer {
+        grid-column: 1 / -1;
+      }
+
+      .signed-in .toolbar-content {
+        width: calc(100% - 48px);
+      }
+
+      .sidebar {
+        padding: 16px 12px;
+        background: var(--mat-sys-surface-container-low);
+        border-inline-end: 1px solid var(--mat-sys-outline-variant);
+      }
+
+      .sidebar nav {
+        position: sticky;
+        top: 89px;
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .sidebar a {
+        justify-content: flex-start;
+      }
     }
 
     .app-header {
@@ -399,7 +482,8 @@ interface PrimaryNavigationItem {
         color: var(--mat-sys-on-surface, #1f1f1f);
       }
 
-      .toolbar-actions {
+      .github-link,
+      .sidebar {
         display: none;
       }
     }
@@ -414,6 +498,18 @@ interface PrimaryNavigationItem {
 })
 export class ShellComponent {
   private readonly mobileNavigationDialog = viewChild.required<ElementRef<HTMLDialogElement>>('mobileNavigation');
+  protected readonly auth = inject(PortalAuthService);
+  protected readonly showAuthError = signal(false);
+
+  protected signIn(): void {
+    this.mobileMenuOpen.set(false);
+    if (this.auth.availability() === 'ready') {
+      this.auth.openSignIn();
+    } else {
+      this.showAuthError.set(true);
+    }
+  }
+
   protected readonly mobileMenuOpen = signal(false);
   protected readonly navigationItems: ReadonlyArray<PrimaryNavigationItem> = [
     { label: 'Run audit', route: '/audits/user-flow', icon: 'speed', exact: true },

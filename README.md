@@ -66,3 +66,13 @@ For publishable Angular libraries with secondary entry points, keep the root pac
 Reference:
 
 - [docs/conventions/angular-secondary-entry-points.md](docs/conventions/angular-secondary-entry-points.md)
+
+### Portal sign-in
+
+Export `CLERK_PUBLISHABLE_KEY` with your Clerk development instance's publishable key before running
+`pnpm exec nx serve portal`. Enable sign-up in that instance to test account creation. The portal only needs the
+publishable key; never supply a Clerk secret key to the browser build.
+
+The portal deployment workflow reads the GitHub Actions repository variable `CLERK_PUBLISHABLE_KEY` for production
+and `CLERK_DEVELOPMENT_PUBLISHABLE_KEY` for development. Configure each Clerk instance for its portal domain.
+Without a key, guests can still run audits, browse audit history, and use trace tools.

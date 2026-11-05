@@ -23,6 +23,23 @@ export const shellRoutes: Route[] = [
     component: ShellComponent,
     children: [
       {
+        path: 'sign-in',
+        loadComponent: () => import('../auth/auth-page.component').then((m) => m.AuthPageComponent),
+        title: 'Sign in | App Speed',
+      },
+      {
+        path: 'sign-up',
+        loadComponent: () => import('../auth/auth-page.component').then((m) => m.AuthPageComponent),
+        data: { signingUp: true },
+        title: 'Create account | App Speed',
+      },
+      {
+        path: 'auth/callback',
+        loadComponent: () => import('../auth/auth-page.component').then((m) => m.AuthPageComponent),
+        data: { callback: true },
+        title: 'Signing in | App Speed',
+      },
+      {
         path: 'audits',
         children: [
           {

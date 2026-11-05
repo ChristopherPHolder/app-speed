@@ -21,6 +21,7 @@
     "@aws-sdk/client-ec2": "^3.1127.0",
     "@aws-sdk/client-s3": "^3.1127.0",
     "@aws-sdk/client-ssm": "^3.1127.0",
+    "@clerk/clerk-js": "^6.42.2",
     "@effect/opentelemetry": "4.1.1",
     "@effect/platform-node": "4.1.1",
     "@effect/sql-pg": "4.1.1",

@@ -50,10 +50,13 @@ jobs:
 
       - name: Deploy Portal (Auto Main)
         if: ${{ github.event_name == 'push' }}
+        env:
+          CLERK_PUBLISHABLE_KEY: ${{ vars.CLERK_PUBLISHABLE_KEY }}
         run: pnpm exec nx deploy portal --configuration=production
 
       - name: Deploy Portal (Manual)
         if: ${{ github.event_name == 'workflow_dispatch' }}
         env:
+          CLERK_PUBLISHABLE_KEY: ${{ vars[inputs.environment == 'production' && 'CLERK_PUBLISHABLE_KEY' || 'CLERK_DEVELOPMENT_PUBLISHABLE_KEY'] }}
           DEPLOY_ENV: ${{ github.event.inputs.environment }}
         run: pnpm exec nx deploy portal --configuration="${DEPLOY_ENV}"
