@@ -75,6 +75,8 @@ typings/
 # dotenv environment variables file
 .env
 .env.test
+.env.local
+.env.*.local
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -143,3 +145,8 @@ opensrc/
 .vitest
 
 .data/
+
+# Local end-to-end diagnostics
+artifacts/
+apps/portal-e2e/cypress/screenshots/
+apps/portal-e2e/cypress/videos/

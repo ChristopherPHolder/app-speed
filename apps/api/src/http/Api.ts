@@ -1,9 +1,12 @@
+import { WorkspaceApiGroup } from '@app-speed/workspace/api-runtime';
+
 import { HttpApi } from 'effect/http-api';
 
 import { AuditApiGroup, HealthApiGroup, RunnerApiGroup } from '@app-speed/audit/core/api-contract';
 import { UserFlowAuditApiGroup } from '@app-speed/audit/user-flow/api-contract';
 
 export class Api extends HttpApi.make('api')
+  .add(WorkspaceApiGroup)
   .add(HealthApiGroup)
   .add(AuditApiGroup)
   .add(RunnerApiGroup)

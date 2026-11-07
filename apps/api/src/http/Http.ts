@@ -7,10 +7,12 @@ import { createServer } from 'node:http';
 import { AuditGroupLive, HealthGroupLive, RunnerGroupLive } from '@app-speed/audit/core/api-runtime';
 import { UserFlowAuditGroupLive } from '@app-speed/audit/user-flow/api-runtime';
 
+import { WorkspaceGroupLive } from '@app-speed/workspace/api-runtime';
+
 import { Api } from './Api.js';
 
 const ApiLive = HttpApiBuilder.layer(Api).pipe(
-  Layer.provide([HealthGroupLive, AuditGroupLive, RunnerGroupLive, UserFlowAuditGroupLive]),
+  Layer.provide([WorkspaceGroupLive, HealthGroupLive, AuditGroupLive, RunnerGroupLive, UserFlowAuditGroupLive]),
 );
 
 const RoutesLive = Layer.mergeAll(ApiLive, HttpApiSwagger.layer(Api), HttpRouter.cors());

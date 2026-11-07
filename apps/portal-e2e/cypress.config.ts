@@ -1,5 +1,6 @@
 import { nxE2EPreset } from '@nx/cypress/plugins/cypress-preset';
 import { defineConfig } from 'cypress';
+import { registerVisualSnapshots } from './visual-snapshots';
 
 const nxPreset = nxE2EPreset(__filename, {
   cypressDir: '.',
@@ -10,6 +11,7 @@ export default defineConfig({
   retries: 0,
   e2e: {
     ...nxPreset,
+    specPattern: 'e2e/**/*.cy.ts',
     baseUrl: process.env['PORTAL_BASE_URL'] ?? 'http://127.0.0.1:4200',
     defaultCommandTimeout: 20_000,
     requestTimeout: 20_000,
@@ -23,6 +25,8 @@ export default defineConfig({
       }
 
       on('before:browser:launch', (browser, launchOptions) => {
+        if (browser.family === 'chromium')
+          launchOptions.args.push('--window-size=2000,1600', '--force-device-scale-factor=1');
         const certificateSpki = process.env['TEST_HTTPS_CERT_SPKI'];
         if (certificateSpki && browser.family === 'chromium') {
           launchOptions.args.push(`--ignore-certificate-errors-spki-list=${certificateSpki}`);
@@ -30,6 +34,7 @@ export default defineConfig({
         return launchOptions;
       });
 
+      registerVisualSnapshots(on, config);
       return config;
     },
   },

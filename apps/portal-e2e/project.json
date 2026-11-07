@@ -20,7 +20,12 @@
       "options": {
         "suite": "e2e",
         "testTarget": "portal-e2e:cypress",
-        "timeoutMs": 300000
+        "timeoutMs": 600000
+      },
+      "configurations": {
+        "update-snapshots": {
+          "updateSnapshots": true
+        }
       }
     },
     "cypress": {
@@ -33,6 +38,37 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "tsc --noEmit -p apps/portal-e2e/tsconfig.json"
+      }
+    },
+    "e2e-clerk": {
+      "executor": "@app-speed/test-orchestration:local-system-test",
+      "cache": false,
+      "options": {
+        "suite": "e2e",
+        "clerk": true,
+        "testTarget": "portal-e2e:cypress-clerk",
+        "timeoutMs": 300000
+      }
+    },
+    "cypress-clerk": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "options": {
+        "command": "cypress run --config-file=cypress.clerk.config.ts",
+        "cwd": "apps/portal-e2e"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run --config apps/portal-e2e/vitest.config.mts"
+      }
+    },
+    "install-cypress": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "options": {
+        "command": "cypress install"
       }
     }
   }

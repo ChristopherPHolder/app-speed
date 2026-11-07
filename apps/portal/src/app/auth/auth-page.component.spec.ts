@@ -30,7 +30,7 @@ describe('Material authentication page', () => {
       providers: [
         { provide: PortalAuthService, useValue: auth },
         provideRouter([
-          { path: 'audits/user-flow', children: [] },
+          { path: 'workspaces', children: [] },
           { path: 'sign-in', component: AuthPageComponent },
           { path: 'sign-up', component: AuthPageComponent, data: { signingUp: true } },
           { path: 'auth/callback', component: AuthPageComponent, data: { callback: true } },
@@ -124,7 +124,7 @@ describe('Material authentication page', () => {
     enterUsername('christopherholder2');
     await submit();
     expect(auth.completeSignUp).toHaveBeenLastCalledWith(expect.objectContaining({ username: 'christopherholder2' }));
-    expect(TestBed.inject(Router).url).toBe('/audits/user-flow');
+    expect(TestBed.inject(Router).url).toBe('/workspaces');
   });
 
   it('handles the OAuth callback without rendering another sign-in form', async () => {

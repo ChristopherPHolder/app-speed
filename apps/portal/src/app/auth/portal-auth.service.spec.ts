@@ -112,7 +112,7 @@ describe('PortalAuthService custom authentication', () => {
       expect(sdk.client.signIn.authenticateWithRedirect).toHaveBeenCalledWith({
         strategy,
         redirectUrl: '/auth/callback',
-        redirectUrlComplete: '/audits/user-flow',
+        redirectUrlComplete: '/workspaces',
       });
       await auth.completeRedirect();
       expect(sdk.handleRedirectCallback).toHaveBeenCalledWith(

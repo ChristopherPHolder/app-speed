@@ -12,7 +12,7 @@ Treat this repository as a single-context repo.
 
 ## Current repo state
 
-- `CONTEXT.md` is not present today.
+- `CONTEXT.md` defines the account → workspace → project model and the current implementation boundaries.
 - `CONTEXT-MAP.md` is not present today.
 - `docs/adr/` exists and should be treated as the primary decision record location.
 

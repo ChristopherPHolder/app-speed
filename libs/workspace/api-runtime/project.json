@@ -1,0 +1,40 @@
+{
+  "name": "workspace-api-runtime",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/workspace/api-runtime/src",
+  "projectType": "library",
+  "tags": ["type:domain", "scope:shared", "runtime:node"],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "platform": "node",
+        "outputPath": "dist/libs/workspace/api-runtime",
+        "format": ["esm"],
+        "bundle": true,
+        "main": "libs/workspace/api-runtime/src/index.ts",
+        "tsConfig": "libs/workspace/api-runtime/tsconfig.lib.json"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "eslint libs/workspace/api-runtime/src"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit -p libs/workspace/api-runtime/tsconfig.lib.json"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run --config libs/workspace/api-runtime/vitest.config.mts"
+      },
+      "inputs": ["default", "^production", "{workspaceRoot}/apps/api/migrations/**/*"]
+    }
+  }
+}

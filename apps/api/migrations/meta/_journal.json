@@ -29,6 +29,20 @@
       "when": 1785513691834,
       "tag": "0003_thick_forgotten_one",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793906589205,
+      "tag": "0004_workspaces_and_projects",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793911446955,
+      "tag": "0005_workspace_logo",
+      "breakpoints": true
     }
   ]
 }
