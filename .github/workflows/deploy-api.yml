@@ -121,8 +121,10 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Run Audit Database Migrations
+        if: ${{ needs.determine-deploy-scope.outputs.deploy_env == 'production' }}
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          APP_ENV: production
           DATABASE_MIGRATION_URL: ${{ secrets.DATABASE_MIGRATION_URL }}
         run: pnpm exec nx run api:migrate
 

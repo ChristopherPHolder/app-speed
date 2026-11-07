@@ -5,5 +5,4 @@ export interface LocalSystemTestExecutorSchema {
   apiPort?: number;
   portalPort?: number;
   fixturePort?: number;
-  databaseEnvironmentVariable?: string;
 }

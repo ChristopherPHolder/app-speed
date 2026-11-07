@@ -10,12 +10,22 @@ import {
   RunnerRegistryLive,
 } from '@app-speed/audit/core/api-runtime';
 import {
+  SqliteDbClient,
+  SqliteAuditRepoLive,
+  SqliteAuditHistoryRepoLive,
+  SqliteRecordPersistenceLive,
+  productionStorage,
   AuditHistoryRepoLive,
   AuditRepoLive,
   DbClient,
   RecordPersistenceLive,
 } from '@app-speed/audit/core/persistence';
-import { UserFlowAuditRepoLive, UserFlowAuditSchedulerLive } from '@app-speed/audit/user-flow/persistence';
+import {
+  SqliteUserFlowAuditRepoLive,
+  SqliteUserFlowAuditSchedulerLive,
+  UserFlowAuditRepoLive,
+  UserFlowAuditSchedulerLive,
+} from '@app-speed/audit/user-flow/persistence';
 import { makeNodeObservabilityLayer } from '@app-speed/platform/observability';
 import { ServerConfig } from './Config/config.js';
 import { HttpLive } from './http/Http.js';
@@ -36,18 +46,29 @@ const MainLayer = Layer.unwrap(
         : runtimeConfig.runnerManagerMode === 'manual'
           ? ManualRunnerManagerLive
           : LocalRunnerManagerLive;
+    const production = yield* productionStorage;
+    const PostgresBase = Layer.mergeAll(DbClient.live, RecordPersistenceLive);
+    const PostgresRepos = Layer.provideMerge(AuditHistoryRepoLive, Layer.provideMerge(AuditRepoLive, PostgresBase));
+    const PostgresPersistence = Layer.provideMerge(
+      UserFlowAuditSchedulerLive,
+      Layer.provideMerge(UserFlowAuditRepoLive, PostgresRepos),
+    );
+    const SqliteBase = Layer.provideMerge(SqliteRecordPersistenceLive, SqliteDbClient.live);
+    const SqliteRepos = Layer.provideMerge(
+      SqliteAuditHistoryRepoLive,
+      Layer.provideMerge(SqliteAuditRepoLive, SqliteBase),
+    );
+    const SqlitePersistence = Layer.provideMerge(
+      SqliteUserFlowAuditSchedulerLive,
+      Layer.provideMerge(SqliteUserFlowAuditRepoLive, SqliteRepos),
+    );
     const BaseLayer = Layer.mergeAll(
       DevToolsLive,
-      DbClient.live,
+      production ? PostgresPersistence : SqlitePersistence,
       ObservabilityLive,
       RunnerRegistryLive,
-      RecordPersistenceLive,
     );
-    const WithAuditRepo = Layer.provideMerge(AuditRepoLive, BaseLayer);
-    const WithAuditHistory = Layer.provideMerge(AuditHistoryRepoLive, WithAuditRepo);
-    const WithUserFlowRepo = Layer.provideMerge(UserFlowAuditRepoLive, WithAuditHistory);
-    const WithInstalledFeatures = Layer.provideMerge(InstalledAuditFeaturesLive, WithUserFlowRepo);
-    const WithUserFlowScheduler = Layer.provideMerge(UserFlowAuditSchedulerLive, WithInstalledFeatures);
+    const WithUserFlowScheduler = Layer.provideMerge(InstalledAuditFeaturesLive, BaseLayer);
     const WithRunnerManager = Layer.provideMerge(RunnerManagerLive, WithUserFlowScheduler);
     const AppLayer = Layer.provideMerge(RunnerLifecycleLive, WithRunnerManager);
     const RuntimeLayer = Layer.mergeAll(HttpLive, RunnerIdleReaperLive);

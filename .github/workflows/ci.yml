@@ -128,22 +128,8 @@ jobs:
     name: Integration Affected
     needs: setup
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:17
-        env:
-          POSTGRES_DB: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_USER: postgres
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 12
     env:
-      APP_SPEED_TEST_DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/postgres
+      APP_ENV: test
       RUNNER_MANAGER_MODE: manual
       RUNNER_HEADLESS: true
 
@@ -178,22 +164,8 @@ jobs:
     needs: setup
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    services:
-      postgres:
-        image: postgres:17
-        env:
-          POSTGRES_DB: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_USER: postgres
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 12
     env:
-      APP_SPEED_TEST_DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/postgres
+      APP_ENV: test
       RUNNER_MANAGER_MODE: local
       RUNNER_HEADLESS: true
 

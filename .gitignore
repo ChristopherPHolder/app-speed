@@ -141,3 +141,5 @@ opensrc/
 
 .claude/worktrees
 .vitest
+
+.data/

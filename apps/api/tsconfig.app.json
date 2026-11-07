@@ -4,7 +4,7 @@
     "outDir": "../../dist/out-tsc",
     "types": ["node"]
   },
-  "include": ["src/**/*.ts", "drizzle.config.ts"],
+  "include": ["src/**/*.ts", "drizzle.config.ts", "drizzle.sqlite.config.ts"],
   "exclude": [
     "vite.config.ts",
     "vite.config.mts",

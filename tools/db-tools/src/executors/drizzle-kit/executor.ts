@@ -1,3 +1,5 @@
+import { Effect } from 'effect';
+import { productionStorage, SqliteDbClient } from '@app-speed/audit/core/persistence';
 import { spawn } from 'node:child_process';
 import * as path from 'node:path';
 import { ExecutorContext, logger, type PromiseExecutor } from '@nx/devkit';
@@ -17,12 +19,26 @@ const runProcess = (command: string, args: string[], cwd: string): Promise<numbe
   });
 
 const runExecutor: PromiseExecutor<DrizzleKitExecutorSchema> = async (options, context: ExecutorContext) => {
+  const production = await Effect.runPromise(productionStorage);
+  if (options.command === 'migrate' && !production) {
+    await Effect.runPromise(
+      Effect.scoped(
+        Effect.gen(function* () {
+          yield* SqliteDbClient;
+        }),
+      ).pipe(Effect.provide(SqliteDbClient.live)),
+    );
+    return { success: true };
+  }
   const workspaceRoot = context.root ?? process.cwd();
   const cwd = path.resolve(workspaceRoot, options.cwd ?? '.');
   const args = ['exec', 'drizzle-kit', options.command];
 
   if (options.config) {
-    args.push('--config', path.resolve(workspaceRoot, options.config));
+    args.push(
+      '--config',
+      path.resolve(workspaceRoot, production ? options.config : 'apps/api/drizzle.sqlite.config.ts'),
+    );
   }
 
   if (options.args) {

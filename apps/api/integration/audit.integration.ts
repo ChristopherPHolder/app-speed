@@ -1,3 +1,4 @@
+const API_BASE_URL = process.env['API_BASE_URL'] ?? 'http://localhost:3000';
 import { describe, expect, it } from 'vitest';
 
 describe('Audit', () => {
@@ -14,7 +15,7 @@ describe('Audit', () => {
   }
 
   async function CompleteRequest(payload: unknown) {
-    const r = await fetch('http://localhost:3000/api/runner/complete', {
+    const r = await fetch(`${API_BASE_URL}/api/runner/complete`, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
@@ -159,8 +160,8 @@ describe('Audit', () => {
   });
 
   it('does not expose the legacy audit run endpoints', async () => {
-    expect((await fetch('http://localhost:3000/api/audit/runs')).status).toBe(404);
-    expect((await fetch('http://localhost:3000/api/audit/runs/STUB_ID')).status).toBe(404);
+    expect((await fetch(`${API_BASE_URL}/api/audit/runs`)).status).toBe(404);
+    expect((await fetch(`${API_BASE_URL}/api/audit/runs/STUB_ID`)).status).toBe(404);
   });
 
   it('should return stored lighthouse html report', async () => {
@@ -200,9 +201,9 @@ const MOCK_AUDIT = {
   ],
 };
 
-const AUDIT_HISTORY_ENDPOINT = 'http://localhost:3000/api/audits/history';
-const USER_FLOW_SCHEDULE_ENDPOINT = 'http://localhost:3000/api/audits/user-flow/schedule';
-const USER_FLOW_API_ENDPOINT = 'http://localhost:3000/api/audits/user-flow/';
+const AUDIT_HISTORY_ENDPOINT = `${API_BASE_URL}/api/audits/history`;
+const USER_FLOW_SCHEDULE_ENDPOINT = `${API_BASE_URL}/api/audits/user-flow/schedule`;
+const USER_FLOW_API_ENDPOINT = `${API_BASE_URL}/api/audits/user-flow/`;
 
 export async function subscribeSSE(url: string, onData: (c: string) => void) {
   const res = await fetch(url, {

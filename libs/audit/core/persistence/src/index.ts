@@ -26,3 +26,13 @@ export { RecordPersistenceLive, RecordPersistenceService } from './lib/record';
 export { RecordPersistenceError } from './lib/record/service';
 export type { RecordPersistence } from './lib/record/service';
 export { auditResultTable, auditRunTable, auditTemplateTable, schema as coreAuditSchema } from './lib/schema';
+export { productionStorage } from './lib/environment';
+export { SqliteDbClient } from './lib/sqlite-db';
+export { SqliteAuditRepoLive } from './lib/sqlite-audit-repo-live';
+export { SqliteAuditHistoryRepoLive } from './lib/sqlite-audit-history-repo-live';
+export { SqliteRecordPersistenceLive } from './lib/record/sqlite';
+export {
+  auditResultTable as sqliteAuditResultTable,
+  auditRunTable as sqliteAuditRunTable,
+  auditTemplateTable as sqliteAuditTemplateTable,
+} from './lib/sqlite-schema';
