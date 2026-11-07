@@ -145,3 +145,8 @@ opensrc/
 .vitest
 
 .data/
+
+# Local end-to-end diagnostics
+artifacts/
+apps/portal-e2e/cypress/screenshots/
+apps/portal-e2e/cypress/videos/

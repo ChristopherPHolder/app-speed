@@ -42,7 +42,11 @@ export default async function localSystemTestExecutor(
   const fixturePort = options.fixturePort ?? DEFAULT_FIXTURE_PORT;
   const timeoutMs =
     options.timeoutMs ?? (options.suite === 'e2e' ? DEFAULT_E2E_TIMEOUT_MS : DEFAULT_INTEGRATION_TIMEOUT_MS);
-  const artifactDirectory = resolve(workspaceRoot, 'artifacts/test-orchestration', options.suite);
+  const artifactDirectory = resolve(
+    workspaceRoot,
+    'artifacts/test-orchestration',
+    options.clerk ? 'clerk-e2e' : options.suite,
+  );
   const temporaryDirectory = mkdtempSync(join(tmpdir(), `app-speed-${options.suite}-`));
   const processes: ManagedProcess[] = [];
   const servers: Server[] = [];
@@ -69,15 +73,32 @@ export default async function localSystemTestExecutor(
   process.once('SIGTERM', handleTermination);
 
   mkdirSync(artifactDirectory, { recursive: true });
+  if (options.suite === 'e2e' && !options.clerk) {
+    rmSync(resolve(workspaceRoot, 'artifacts/workspace-visuals'), { recursive: true, force: true });
+  }
   for (const name of ['api.log', 'runner.log', 'portal.log', 'fixture.log']) {
     writeFileSync(join(artifactDirectory, name), '');
   }
 
   try {
+    // Desktop IDEs can export this flag; Cypress must launch Electron as an application.
+    originalEnvironment.set('ELECTRON_RUN_AS_NODE', process.env['ELECTRON_RUN_AS_NODE']);
+    delete process.env['ELECTRON_RUN_AS_NODE'];
     const ports = options.suite === 'e2e' ? [apiPort, portalPort, fixturePort] : [apiPort];
     await assertPortsAvailable(ports);
 
     setEnvironment(originalEnvironment, 'APP_ENV', 'test');
+    setEnvironment(originalEnvironment, 'WORKSPACE_TEST_PATH', join(temporaryDirectory, 'workspaces'));
+    setEnvironment(originalEnvironment, 'UPDATE_VISUAL_SNAPSHOTS', options.updateSnapshots ? 'true' : 'false');
+    if (options.clerk) {
+      if (
+        !process.env['CLERK_SECRET_KEY']?.startsWith('sk_test_') ||
+        !process.env['CLERK_PUBLISHABLE_KEY']?.startsWith('pk_test_')
+      ) {
+        throw new Error('Live Clerk E2E requires development CLERK_SECRET_KEY and CLERK_PUBLISHABLE_KEY.');
+      }
+      setEnvironment(originalEnvironment, 'CLERK_AUTHORIZED_PARTIES', `http://127.0.0.1:${portalPort}`);
+    }
     setEnvironment(originalEnvironment, 'PORT', String(apiPort));
     setEnvironment(originalEnvironment, 'API_BASE_URL', `http://127.0.0.1:${apiPort}`);
     setEnvironment(originalEnvironment, 'SQLITE_PATH', join(temporaryDirectory, 'audit.sqlite'));
@@ -88,10 +109,10 @@ export default async function localSystemTestExecutor(
     setEnvironment(originalEnvironment, 'PORTAL_BASE_URL', `http://127.0.0.1:${portalPort}`);
     setEnvironment(originalEnvironment, 'FIXTURE_BASE_URL', `https://localhost:${fixturePort}`);
 
-    await runTarget('api:build:production', context);
+    await runTarget(options.clerk ? 'api:build-clerk-e2e' : 'api:build-e2e', context);
     if (options.suite === 'e2e') {
       await runTarget('runner:build:production', context);
-      await runTarget('portal:build:production', context);
+      await runTarget(options.clerk ? 'portal:build:production' : 'portal:build:e2e', context);
     }
     await runTarget('api:migrate', context);
 
@@ -111,7 +132,7 @@ export default async function localSystemTestExecutor(
         startPortalServer({
           apiPort,
           logPath: join(artifactDirectory, 'portal.log'),
-          portalRoot: resolvePortalRoot(workspaceRoot),
+          portalRoot: options.clerk ? resolvePortalRoot(workspaceRoot) : resolve(workspaceRoot, 'dist/apps/portal-e2e'),
           port: portalPort,
         }),
       );
@@ -119,7 +140,12 @@ export default async function localSystemTestExecutor(
 
     processes.push(
       startProcess({
-        args: [resolve(workspaceRoot, 'dist/apps/api/main.js')],
+        args: [
+          resolve(
+            workspaceRoot,
+            options.clerk ? 'dist/apps/api-e2e/main.clerk-e2e.js' : 'dist/apps/api-e2e/main.e2e.js',
+          ),
+        ],
         command: process.execPath,
         cwd: workspaceRoot,
         env: process.env,

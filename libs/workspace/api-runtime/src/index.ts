@@ -46,4 +46,4 @@ export const WorkspaceGroupLive = HttpApiBuilder.group(WorkspaceApi, 'workspaces
     ),
 );
 
-export { WorkspaceStoreLive } from './store';
+export { WorkspaceStore, WorkspaceStoreLive, makeWorkspaceSql, runWorkspaceTransaction } from './store';

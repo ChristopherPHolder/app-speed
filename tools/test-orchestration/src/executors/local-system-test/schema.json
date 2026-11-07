@@ -28,6 +28,14 @@
     "fixturePort": {
       "type": "number",
       "default": 4443
+    },
+    "clerk": {
+      "type": "boolean",
+      "default": false
+    },
+    "updateSnapshots": {
+      "type": "boolean",
+      "default": false
     }
   },
   "required": ["suite", "testTarget"]

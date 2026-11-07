@@ -190,13 +190,14 @@ jobs:
           pnpm exec puppeteer browsers install chrome
       - name: Run E2E Affected
         run: pnpm exec nx affected --target=e2e --parallel=1
-      - name: Upload E2E Diagnostics
-        if: failure()
+      - name: Upload E2E Screenshots and Diagnostics
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: e2e-diagnostics
           path: |
             artifacts/test-orchestration/e2e/
+            artifacts/workspace-visuals/
             dist/cypress/apps/portal-e2e/screenshots/
             dist/cypress/apps/portal-e2e/videos/
           if-no-files-found: ignore
