@@ -1,17 +1,20 @@
 @use 'theme';
 
+@include theme.core;
+
+html {
+  color-scheme: light;
+  @include theme.azure;
+}
+
 body {
   height: 100%;
   margin: 0;
   font-family: Roboto, 'Helvetica Neue', sans-serif;
+  background: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
 }
 
-@include theme.core;
-
-html {
-  @include theme.all-component-theme;
-}
-
-html:has(.mobile-navigation[open]) {
+html:has(.mobile-drawer-open) {
   overflow: hidden;
 }

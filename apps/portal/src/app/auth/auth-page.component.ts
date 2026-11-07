@@ -313,7 +313,7 @@ export class AuthPageComponent implements OnDestroy {
         if (this.callback) {
           await this.auth.completeRedirect();
         } else if (await this.auth.hasSession()) {
-          await this.router.navigateByUrl('/audits/user-flow');
+          await this.router.navigateByUrl('/workspaces');
         } else if (this.signingUp) {
           this.step.set(await this.auth.resumeSignUp());
           if (this.step() === 'code') this.startResendCooldown();
@@ -343,7 +343,7 @@ export class AuthPageComponent implements OnDestroy {
     void this.perform(async () => {
       const complete = await this.auth.verifyEmailCode(this.model().code, this.signingUp);
       if (complete) {
-        await this.router.navigateByUrl('/audits/user-flow');
+        await this.router.navigateByUrl('/workspaces');
       } else {
         this.step.set('details');
       }
@@ -355,7 +355,7 @@ export class AuthPageComponent implements OnDestroy {
     if (this.detailsForm().invalid()) return;
     void this.perform(async () => {
       await this.auth.completeSignUp(this.model());
-      await this.router.navigateByUrl('/audits/user-flow');
+      await this.router.navigateByUrl('/workspaces');
     });
   }
 

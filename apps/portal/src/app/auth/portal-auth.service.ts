@@ -29,6 +29,11 @@ export class PortalAuthService {
     void this.router.navigateByUrl('/sign-in');
   }
 
+  async sessionToken(): Promise<string> {
+    const { clerk } = await this.getClerk();
+    return (await clerk.session?.getToken()) ?? '';
+  }
+
   async hasSession(): Promise<boolean> {
     await this.ready;
     return this.signedIn();
@@ -114,7 +119,7 @@ export class PortalAuthService {
     await attempt.authenticateWithRedirect({
       strategy,
       redirectUrl: '/auth/callback',
-      redirectUrlComplete: '/audits/user-flow',
+      redirectUrlComplete: '/workspaces',
     });
   }
 
@@ -126,8 +131,8 @@ export class PortalAuthService {
       continueSignUpUrl: '/sign-up',
       firstFactorUrl: '/sign-in',
       secondFactorUrl: '/sign-in?verification=required',
-      signInFallbackRedirectUrl: '/audits/user-flow',
-      signUpFallbackRedirectUrl: '/audits/user-flow',
+      signInFallbackRedirectUrl: '/workspaces',
+      signUpFallbackRedirectUrl: '/workspaces',
     });
   }
 

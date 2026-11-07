@@ -1,3 +1,5 @@
+import { IdentityLive } from '@app-speed/platform/identity';
+import { WorkspaceStoreLive } from '@app-speed/workspace/api-runtime';
 import { NodeRuntime } from '@effect/platform-node';
 import { Effect, Layer, Option } from 'effect';
 import { DevTools } from 'effect/devtools';
@@ -65,6 +67,8 @@ const MainLayer = Layer.unwrap(
     const BaseLayer = Layer.mergeAll(
       DevToolsLive,
       production ? PostgresPersistence : SqlitePersistence,
+      IdentityLive,
+      WorkspaceStoreLive,
       ObservabilityLive,
       RunnerRegistryLive,
     );

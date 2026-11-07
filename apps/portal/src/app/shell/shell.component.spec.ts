@@ -1,6 +1,9 @@
+import { BreakpointObserver } from '@angular/cdk/layout';
+import { of } from 'rxjs';
 import { Component, signal } from '@angular/core';
 import { DeferBlockState, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
+import { WorkspaceState } from '../workspace/workspace-state.service';
 import { PortalAuthService } from '../auth/portal-auth.service';
 import { ShellComponent } from './shell.component';
 
@@ -10,6 +13,19 @@ import { ShellComponent } from './shell.component';
 class TestRouteComponent {}
 
 describe('ShellComponent', () => {
+  beforeEach(() =>
+    TestBed.configureTestingModule({
+      providers: [
+        {
+          provide: BreakpointObserver,
+          useValue: {
+            isMatched: () => true,
+            observe: () => of({ matches: true, breakpoints: {} }),
+          },
+        },
+      ],
+    }),
+  );
   it('provides application landmarks and primary navigation', async () => {
     await TestBed.configureTestingModule({
       imports: [ShellComponent],
@@ -52,6 +68,18 @@ describe('ShellComponent', () => {
       providers: [
         provideRouter([{ path: 'audits/history', component: TestRouteComponent }]),
         {
+          provide: WorkspaceState,
+          useValue: {
+            error: signal(''),
+            loading: signal(false),
+            saving: signal(false),
+            overview: signal(undefined),
+            workspace: signal(undefined),
+            workspaceId: signal(''),
+            refresh: vi.fn(),
+          },
+        },
+        {
           provide: PortalAuthService,
           useValue: {
             signedIn,
@@ -83,8 +111,8 @@ describe('ShellComponent', () => {
     const [accountMenu] = await fixture.getDeferBlocks();
     await accountMenu.render(DeferBlockState.Complete);
     await fixture.whenStable();
-    expect(element.querySelector('aside [aria-current="page"]')?.textContent).toContain('Audit history');
-    expect(element.querySelector('.github-link')).toBeNull();
+    expect(element.querySelector('mat-sidenav [aria-current="page"]')?.textContent).toContain('Audit history');
+    expect(element.querySelector('[aria-label="Open the app-speed repository on GitHub"]')).toBeNull();
     expect(element.querySelector('[aria-label="Open account menu"]')).not.toBeNull();
 
     accountImageUrl.set('https://example.com/profile.jpg');

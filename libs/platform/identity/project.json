@@ -1,0 +1,39 @@
+{
+  "name": "platform-identity",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/platform/identity/src",
+  "projectType": "library",
+  "tags": ["type:platform", "scope:shared", "runtime:node"],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "platform": "node",
+        "outputPath": "dist/libs/platform/identity",
+        "format": ["esm"],
+        "bundle": true,
+        "main": "libs/platform/identity/src/index.ts",
+        "tsConfig": "libs/platform/identity/tsconfig.lib.json"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "eslint libs/platform/identity/src"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit -p libs/platform/identity/tsconfig.lib.json"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run --config libs/platform/identity/vitest.config.mts"
+      }
+    }
+  }
+}
