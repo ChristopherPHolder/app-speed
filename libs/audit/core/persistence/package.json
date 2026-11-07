@@ -12,7 +12,8 @@
     "effect": "4.1.1",
     "pg": "^8.23.0",
     "vitest": "^5.0.3",
-    "vite-plugin-static-copy": "4.1.1"
+    "vite-plugin-static-copy": "4.1.1",
+    "@libsql/client": "^0.17.3"
   },
   "devDependencies": {
     "@types/pg": "^8.6.1"

@@ -20,12 +20,10 @@ import { createServer as createNetServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { extname, join, normalize, relative, resolve } from 'node:path';
 import { inspect } from 'node:util';
-import { Client } from 'pg';
 import { LocalSystemTestExecutorSchema } from './schema';
 
 type ExecutorResult = { success: boolean };
 type ManagedProcess = { name: string; child: ChildProcess };
-type TestDatabase = { adminUrl: string; databaseName: string; runtimeUrl: string };
 
 const DEFAULT_API_PORT = 3000;
 const DEFAULT_PORTAL_PORT = 4200;
@@ -44,13 +42,10 @@ export default async function localSystemTestExecutor(
   const fixturePort = options.fixturePort ?? DEFAULT_FIXTURE_PORT;
   const timeoutMs =
     options.timeoutMs ?? (options.suite === 'e2e' ? DEFAULT_E2E_TIMEOUT_MS : DEFAULT_INTEGRATION_TIMEOUT_MS);
-  const databaseVariable = options.databaseEnvironmentVariable ?? 'APP_SPEED_TEST_DATABASE_URL';
-  const baseDatabaseUrl = process.env[databaseVariable];
   const artifactDirectory = resolve(workspaceRoot, 'artifacts/test-orchestration', options.suite);
   const temporaryDirectory = mkdtempSync(join(tmpdir(), `app-speed-${options.suite}-`));
   const processes: ManagedProcess[] = [];
   const servers: Server[] = [];
-  let database: TestDatabase | undefined;
   const originalEnvironment = new Map<string, string | undefined>();
   let cleanupPromise: Promise<void> | undefined;
 
@@ -59,11 +54,6 @@ export default async function localSystemTestExecutor(
       await Promise.all(servers.map(closeServer));
       for (const processHandle of processes.reverse()) {
         await stopProcess(processHandle);
-      }
-      if (database) {
-        await dropTestDatabase(database).catch((error) => {
-          logger.warn(`Failed to remove test database ${database?.databaseName}: ${String(error)}`);
-        });
       }
       restoreEnvironment(originalEnvironment);
       rmSync(temporaryDirectory, { recursive: true, force: true });
@@ -83,22 +73,14 @@ export default async function localSystemTestExecutor(
     writeFileSync(join(artifactDirectory, name), '');
   }
 
-  if (!baseDatabaseUrl) {
-    logger.error(
-      `${databaseVariable} is required. Set it to a PostgreSQL admin connection URL, for example ` +
-        `'postgres://postgres:postgres@localhost:5432/postgres'.`,
-    );
-    rmSync(temporaryDirectory, { recursive: true, force: true });
-    return { success: false };
-  }
-
   try {
     const ports = options.suite === 'e2e' ? [apiPort, portalPort, fixturePort] : [apiPort];
     await assertPortsAvailable(ports);
 
-    database = await createTestDatabase(baseDatabaseUrl, options.suite);
-    setEnvironment(originalEnvironment, 'DATABASE_URL', database.runtimeUrl);
-    setEnvironment(originalEnvironment, 'DATABASE_MIGRATION_URL', database.runtimeUrl);
+    setEnvironment(originalEnvironment, 'APP_ENV', 'test');
+    setEnvironment(originalEnvironment, 'PORT', String(apiPort));
+    setEnvironment(originalEnvironment, 'API_BASE_URL', `http://127.0.0.1:${apiPort}`);
+    setEnvironment(originalEnvironment, 'SQLITE_PATH', join(temporaryDirectory, 'audit.sqlite'));
     setEnvironment(originalEnvironment, 'RUNNER_MANAGER_MODE', options.suite === 'e2e' ? 'local' : 'manual');
     setEnvironment(originalEnvironment, 'RUNNER_HEADLESS', 'true');
     setEnvironment(originalEnvironment, 'RUNNER_API_BASE_URL', `http://127.0.0.1:${apiPort}/api`);
@@ -152,7 +134,7 @@ export default async function localSystemTestExecutor(
       await waitForHttps(`https://localhost:${fixturePort}`, READINESS_TIMEOUT_MS);
     }
 
-    logger.info(`Running ${options.testTarget} with isolated database ${database.databaseName}`);
+    logger.info(`Running ${options.testTarget} with isolated SQLite database`);
     const browserPath: string | undefined =
       options.suite === 'e2e' ? await (await import('puppeteer')).executablePath() : undefined;
     const targetOverrides = browserPath ? { browser: browserPath } : {};
@@ -206,35 +188,6 @@ async function assertPortsAvailable(ports: readonly number[]): Promise<void> {
       });
       server.listen(port, '127.0.0.1', () => server.close(() => resolvePromise()));
     });
-  }
-}
-
-async function createTestDatabase(baseUrl: string, suite: string): Promise<TestDatabase> {
-  const parsedUrl = new URL(baseUrl);
-  const databaseName = `app_speed_${suite}_${Date.now()}_${process.pid}`.replace(/[^a-zA-Z0-9_]/g, '_').slice(0, 63);
-  const admin = new Client({ connectionString: baseUrl });
-  await admin.connect();
-  try {
-    await admin.query(`CREATE DATABASE "${databaseName}"`);
-  } finally {
-    await admin.end();
-  }
-
-  parsedUrl.pathname = `/${databaseName}`;
-  return { adminUrl: baseUrl, databaseName, runtimeUrl: parsedUrl.toString() };
-}
-
-async function dropTestDatabase(database: TestDatabase): Promise<void> {
-  const admin = new Client({ connectionString: database.adminUrl });
-  await admin.connect();
-  try {
-    await admin.query(
-      'SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = $1 AND pid <> pg_backend_pid()',
-      [database.databaseName],
-    );
-    await admin.query(`DROP DATABASE IF EXISTS "${database.databaseName}"`);
-  } finally {
-    await admin.end();
   }
 }
 

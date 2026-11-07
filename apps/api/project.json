@@ -21,7 +21,7 @@
         "outputPath": "dist/apps/api",
         "format": ["esm"],
         "bundle": true,
-        "external": ["@aws-sdk/client-ec2", "@aws-sdk/client-s3"],
+        "external": ["@aws-sdk/client-ec2", "@aws-sdk/client-s3", "@libsql/client"],
         "main": "apps/api/src/main.ts",
         "tsConfig": "apps/api/tsconfig.app.json",
         "assets": ["apps/api/src/assets"],
@@ -162,9 +162,20 @@
         "timeoutMs": 900000
       },
       "configurations": {
-        "development": {},
+        "development": {
+          "additionalRunArgs": [
+            "-e APP_ENV=development",
+            "-e SQLITE_PATH=/data/app-speed.sqlite",
+            "-v app-speed-api-development:/data",
+            "-e RUNNER_MANAGER_MODE=manual"
+          ],
+          "containerName": "app-speed-api-development",
+          "hostPort": 3001,
+          "pruneDockerBeforePull": false
+        },
         "production": {
           "additionalRunArgs": [
+            "-e APP_ENV=production",
             "-e RECORD_PERSISTENCE_MODE=s3",
             "-e RECORD_PERSISTENCE_BUCKET=app-speed-audit-results-prod",
             "-e AWS_REGION=eu-central-1",

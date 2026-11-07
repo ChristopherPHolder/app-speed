@@ -8,7 +8,7 @@ pnpm exec nx run portal-e2e:e2e
 ```
 
 `api:integration` starts a production API build against an isolated migrated database. It drives real HTTP and
-PostgreSQL boundaries in `RUNNER_MANAGER_MODE=manual`, so it does not execute queued audits.
+SQLite boundaries in `RUNNER_MANAGER_MODE=manual`, so it does not execute queued audits.
 
 `portal-e2e:e2e` builds the production API, portal, and runner, then starts the complete local stack. Its single
 Cypress journey submits an audit in the real Angular UI, follows SSE progress, lets the local runner execute
@@ -17,14 +17,9 @@ from history. No response is stubbed or changed.
 
 ## Prerequisite
 
-Provide a PostgreSQL connection whose user can create and drop temporary databases:
-
-```shell
-export APP_SPEED_TEST_DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/postgres
-```
-
-PostgreSQL is the only local infrastructure prerequisite. Each target creates a uniquely named database, invokes
-the existing `api:migrate` Nx target, terminates remaining connections, and drops the database during teardown.
+No external database or storage credentials are needed. Each target sets `APP_ENV=test`, creates an isolated
+SQLite file in a temporary directory, runs `api:migrate`, and removes the file during teardown. External
+`DATABASE_URL` and `RECORD_PERSISTENCE_MODE` values are ignored by the test API.
 
 The browser target uses fixed loopback ports:
 
@@ -61,9 +56,6 @@ retention.
 
 ## Troubleshooting
 
-- `APP_SPEED_TEST_DATABASE_URL is required`: export the connection variable before invoking Nx.
-- `permission denied to create database`: use a local PostgreSQL role with `CREATEDB` and permission to terminate
-  connections to databases it owns.
 - `Port ... is already in use`: stop the named local service; the target deliberately does not reuse existing
   processes.
 - Browser artifacts missing: run `pnpm exec cypress install` and `pnpm exec puppeteer browsers install chrome`.

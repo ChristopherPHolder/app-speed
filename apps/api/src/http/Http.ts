@@ -1,7 +1,7 @@
 import { HttpRouter } from 'effect/http';
 import { HttpApiBuilder, HttpApiSwagger } from 'effect/http-api';
 import { NodeHttpServer } from '@effect/platform-node';
-import { Layer } from 'effect';
+import { Config, Effect, Layer } from 'effect';
 import { createServer } from 'node:http';
 
 import { AuditGroupLive, HealthGroupLive, RunnerGroupLive } from '@app-speed/audit/core/api-runtime';
@@ -16,5 +16,11 @@ const ApiLive = HttpApiBuilder.layer(Api).pipe(
 const RoutesLive = Layer.mergeAll(ApiLive, HttpApiSwagger.layer(Api), HttpRouter.cors());
 
 export const HttpLive = HttpRouter.serve(RoutesLive).pipe(
-  Layer.provide(NodeHttpServer.layer(createServer, { port: 3000 })),
+  Layer.provide(
+    Layer.unwrap(
+      Effect.map(Config.Int('PORT').pipe(Config.withDefault(3000)), (port) =>
+        NodeHttpServer.layer(createServer, { port }),
+      ),
+    ),
+  ),
 );
