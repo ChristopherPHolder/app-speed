@@ -45,6 +45,16 @@ export function snapshot(viewport: string, name: string) {
       doc.head.append(style);
     }
   });
+  // CSS can finish before Material's animation-completion callbacks remove overlays.
+  // Require dialogs to reach their open state, and closing menus to detach, before capture.
+  cy.get('body').then((body) => {
+    if (body.find('mat-dialog-container').length) {
+      cy.get('mat-dialog-container')
+        .should('have.class', 'mdc-dialog--open')
+        .and('not.have.class', 'mdc-dialog--opening');
+    }
+  });
+  cy.get('.mat-menu-panel-exit-animation, .mat-menu-panel-animating, .mdc-dialog--closing').should('not.exist');
   cy.window().then((win) =>
     expect(win.document.documentElement.scrollWidth, 'no horizontal overflow').to.be.at.most(win.innerWidth),
   );

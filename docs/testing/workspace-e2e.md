@@ -12,7 +12,7 @@ PGlite is a real embedded Postgres implementation, but does not replace a multi-
 
 ## Visual comparisons
 
-Screenshots are taken only after fonts and loading indicators settle, with animations and caret rendering disabled. Test builds bundle fonts. Every capture asserts there is no horizontal overflow. Invitation expiry text is blacked out because it changes daily.
+Screenshots are taken only after fonts, loading indicators, and Material overlay lifecycle states settle (dialogs fully open and closing menus detached), with animations and caret rendering disabled. Test builds bundle fonts. Every capture asserts there is no horizontal overflow. Invitation expiry text is blacked out because it changes daily.
 
 Normal runs compare with committed PNG baselines in `docs/screenshots/workspace-journeys/baselines/<platform>` (`darwin` or `linux`). Baselines from another operating system are never used as a fallback. Missing baselines, changed dimensions, or a pixel difference above 0.5% fail the run. Pixelmatch excludes antialiasing differences and uses a per-pixel threshold of 0.1. Unit tests verify that visual regressions fail and write a diff.
 
