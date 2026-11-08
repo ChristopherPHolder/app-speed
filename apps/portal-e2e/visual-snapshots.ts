@@ -32,9 +32,15 @@ export function registerVisualSnapshots(on: Cypress.PluginEvents, config: Cypres
   });
 }
 
-export function compareVisualSnapshot(root: string, name: string, screenshotPath: string, update = false): void {
+export function compareVisualSnapshot(
+  root: string,
+  name: string,
+  screenshotPath: string,
+  update = false,
+  platform: NodeJS.Platform = process.platform,
+): void {
   if (!/^(desktop|mobile)\/[a-z0-9-]+$/.test(name)) throw new Error('Invalid visual snapshot name');
-  const baseline = resolve(root, 'docs/screenshots/workspace-journeys/baselines', `${name}.png`);
+  const baseline = resolve(root, 'docs/screenshots/workspace-journeys/baselines', platform, `${name}.png`);
   const actual = resolve(root, 'artifacts/workspace-visuals/actual', `${name}.png`);
   const diffPath = resolve(root, 'artifacts/workspace-visuals/diff', `${name}.png`);
   mkdirSync(dirname(actual), { recursive: true });
@@ -46,7 +52,7 @@ export function compareVisualSnapshot(root: string, name: string, screenshotPath
   }
   if (!existsSync(baseline))
     throw new Error(
-      `Missing visual baseline ${name}. Run the explicit update-snapshots configuration and review the result.`,
+      `Missing ${platform} visual baseline ${name}. Run the explicit update-snapshots configuration and review the result.`,
     );
   const expected = PNG.sync.read(readFileSync(baseline));
   const received = PNG.sync.read(readFileSync(actual));

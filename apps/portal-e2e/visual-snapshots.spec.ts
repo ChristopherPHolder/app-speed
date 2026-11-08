@@ -16,7 +16,7 @@ beforeEach(() => {
 });
 afterEach(() => rmSync(root, { recursive: true, force: true }));
 it('fails on an unreviewed baseline instead of silently accepting it', () => {
-  expect(() => compareVisualSnapshot(root, 'desktop/screen', capture)).toThrow('Missing visual baseline');
+  expect(() => compareVisualSnapshot(root, 'desktop/screen', capture)).toThrow('visual baseline');
 });
 it('accepts an identical image but fails a color regression and writes a diff', () => {
   compareVisualSnapshot(root, 'desktop/screen', capture, true);
@@ -34,4 +34,13 @@ it('fails a layout-size regression', () => {
 });
 it('rejects snapshot names outside the gallery', () => {
   expect(() => compareVisualSnapshot(root, '../screen', capture, true)).toThrow('Invalid visual snapshot name');
+});
+
+it('never compares Linux captures against a macOS baseline', () => {
+  compareVisualSnapshot(root, 'desktop/screen', capture, true, 'darwin');
+  expect(() => compareVisualSnapshot(root, 'desktop/screen', capture, false, 'linux')).toThrow(
+    'Missing linux visual baseline',
+  );
+  compareVisualSnapshot(root, 'desktop/screen', capture, true, 'linux');
+  expect(() => compareVisualSnapshot(root, 'desktop/screen', capture, false, 'linux')).not.toThrow();
 });

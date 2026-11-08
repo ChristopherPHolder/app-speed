@@ -6,7 +6,12 @@ env:
 
 on:
   pull_request: {}
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      capture_visual_baselines:
+        description: Capture Linux visual baselines for review (does not compare snapshots)
+        type: boolean
+        default: false
   push:
     branches:
       - main
@@ -160,7 +165,7 @@ jobs:
           retention-days: 7
 
   e2e:
-    name: E2E Affected
+    name: ${{ github.event_name == 'workflow_dispatch' && inputs.capture_visual_baselines && 'Capture Visual Baselines' || 'E2E Affected' }}
     needs: setup
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -185,11 +190,20 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
       - name: Install Browser Artifacts
-        run: |
-          pnpm exec cypress install
-          pnpm exec puppeteer browsers install chrome
+        run: pnpm exec nx run-many -t install-browser,install-cypress -p test-orchestration,portal-e2e
       - name: Run E2E Affected
+        if: github.event_name != 'workflow_dispatch' || !inputs.capture_visual_baselines
         run: pnpm exec nx affected --target=e2e --parallel=1
+      - name: Capture Linux Baselines
+        if: github.event_name == 'workflow_dispatch' && inputs.capture_visual_baselines
+        run: pnpm exec nx run portal-e2e:e2e --configuration=update-snapshots
+      - name: Upload Linux Baselines for Review
+        if: github.event_name == 'workflow_dispatch' && inputs.capture_visual_baselines && success()
+        uses: actions/upload-artifact@v6
+        with:
+          name: linux-visual-baselines
+          path: docs/screenshots/workspace-journeys/baselines/linux/
+          if-no-files-found: error
       - name: Upload E2E Screenshots and Diagnostics
         if: always()
         uses: actions/upload-artifact@v6
