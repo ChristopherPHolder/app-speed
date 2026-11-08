@@ -2,7 +2,7 @@
 
 These are real browser → API → database journeys using isolated PGlite storage and fixed identities compiled only into test application builds. Workspace API responses are not intercepted. Live Clerk authentication is tested separately.
 
-The committed baselines are compared on every normal E2E run using a separate set for each operating system. The gallery below shows macOS (`darwin`); Linux CI uses `baselines/linux`. Native font rendering differs between platforms even with the same bundled fonts and Chrome version. Desktop is 1440 × 1000; mobile is 390 × 844. Screenshots capture the full page. Invitation expiry text is blacked out because it changes with the run date. Fonts are bundled into the test build.
+The committed baselines are compared on every normal E2E run using a separate set for each operating system. The gallery below shows macOS (`darwin`); Linux CI uses `baselines/linux`; [browse the Linux gallery](linux.md). Native font rendering differs between platforms even with the same bundled fonts and Chrome version. Desktop is 1440 × 1000; mobile is 390 × 844. Screenshots capture the full page. Invitation expiry text is blacked out because it changes with the run date. Fonts are bundled into the test build.
 
 Review changes before updating baselines with `pnpm exec nx run portal-e2e:e2e --configuration=update-snapshots`. A missing baseline fails comparison; normal CI never creates or updates baselines.
 

@@ -1,0 +1,8 @@
+{
+  "sourceCommit": "160af7000847c16f72db48a6f1944e0014355d36",
+  "runUrl": "https://github.com/ChristopherPHolder/app-speed/actions/runs/42486415919",
+  "platform": "linux",
+  "browser": "Puppeteer-pinned Chrome for Testing 152",
+  "images": 57,
+  "browserTestsPassed": 11
+}
