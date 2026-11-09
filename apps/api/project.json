@@ -3,7 +3,12 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/api/src",
   "projectType": "application",
-  "tags": ["type:app", "scope:api", "runtime:node", "app:api"],
+  "tags": [
+    "type:app",
+    "scope:api",
+    "runtime:node",
+    "app:api"
+  ],
   "targets": {
     "typecheck": {
       "executor": "nx:run-commands",
@@ -13,18 +18,28 @@
     },
     "build": {
       "executor": "@nx/esbuild:esbuild",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "defaultConfiguration": "production",
       "options": {
         "platform": "node",
         "target": "node24",
         "outputPath": "dist/apps/api",
-        "format": ["esm"],
+        "format": [
+          "esm"
+        ],
         "bundle": true,
-        "external": ["@aws-sdk/client-ec2", "@aws-sdk/client-s3", "@libsql/client"],
+        "external": [
+          "@aws-sdk/client-ec2",
+          "@aws-sdk/client-s3",
+          "@libsql/client"
+        ],
         "main": "apps/api/src/main.ts",
         "tsConfig": "apps/api/tsconfig.app.json",
-        "assets": ["apps/api/src/assets"],
+        "assets": [
+          "apps/api/src/assets"
+        ],
         "generatePackageJson": true,
         "esbuildOptions": {
           "sourcemap": true,
@@ -46,7 +61,9 @@
       }
     },
     "prune-lockfile": {
-      "dependsOn": ["build"],
+      "dependsOn": [
+        "build"
+      ],
       "cache": true,
       "executor": "@nx/js:prune-lockfile",
       "outputs": [
@@ -70,23 +87,32 @@
       }
     },
     "copy-workspace-modules": {
-      "dependsOn": ["build"],
+      "dependsOn": [
+        "build"
+      ],
       "cache": true,
-      "outputs": ["{workspaceRoot}/dist/apps/api/workspace_modules"],
+      "outputs": [
+        "{workspaceRoot}/dist/apps/api/workspace_modules"
+      ],
       "executor": "@nx/js:copy-workspace-modules",
       "options": {
         "buildTarget": "build"
       }
     },
     "prune": {
-      "dependsOn": ["prune-lockfile", "copy-workspace-modules"],
+      "dependsOn": [
+        "prune-lockfile",
+        "copy-workspace-modules"
+      ],
       "executor": "nx:noop"
     },
     "serve": {
       "continuous": true,
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
-      "dependsOn": ["build"],
+      "dependsOn": [
+        "build"
+      ],
       "options": {
         "buildTarget": "api:build",
         "runBuildTargetDependencies": false
@@ -104,7 +130,11 @@
     "integration": {
       "executor": "@app-speed/test-orchestration:local-system-test",
       "cache": false,
-      "inputs": ["default", "^production", "{workspaceRoot}/tools/test-orchestration/**/*"],
+      "inputs": [
+        "default",
+        "^production",
+        "{workspaceRoot}/tools/test-orchestration/**/*"
+      ],
       "options": {
         "suite": "integration",
         "testTarget": "api:integration-tests",
@@ -114,7 +144,9 @@
     "integration-tests": {
       "executor": "nx:run-commands",
       "cache": false,
-      "outputs": ["{workspaceRoot}/coverage/apps/api"],
+      "outputs": [
+        "{workspaceRoot}/coverage/apps/api"
+      ],
       "options": {
         "command": "vitest run --config vitest.config.integration.mts",
         "cwd": "apps/api"
@@ -122,7 +154,10 @@
     },
     "effect:diagnostics": {
       "options": {
-        "args": ["--tsconfig", "{projectRoot}/tsconfig.app.json"]
+        "args": [
+          "--tsconfig",
+          "{projectRoot}/tsconfig.app.json"
+        ]
       }
     },
     "migrate": {
@@ -152,7 +187,9 @@
       "options": {
         "region": "eu-central-1",
         "documentName": "AWS-RunShellScript",
-        "instanceIds": ["i-016827500a47a80ef"],
+        "instanceIds": [
+          "i-016827500a47a80ef"
+        ],
         "containerName": "app-speed-api",
         "hostPort": 3000,
         "containerPort": 3000,
@@ -167,7 +204,11 @@
             "-e APP_ENV=development",
             "-e SQLITE_PATH=/data/app-speed.sqlite",
             "-v app-speed-api-development:/data",
-            "-e RUNNER_MANAGER_MODE=manual"
+            "-e RUNNER_MANAGER_MODE=manual",
+            "-e DATABASE_URL",
+            "-e CLERK_SECRET_KEY",
+            "-e CLERK_PUBLISHABLE_KEY",
+            "-e CLERK_AUTHORIZED_PARTIES"
           ],
           "containerName": "app-speed-api-development",
           "hostPort": 3001,
@@ -179,8 +220,92 @@
             "-e RECORD_PERSISTENCE_MODE=s3",
             "-e RECORD_PERSISTENCE_BUCKET=app-speed-audit-results-prod",
             "-e AWS_REGION=eu-central-1",
-            "-e DATABASE_URL"
+            "-e DATABASE_URL",
+            "-e CLERK_SECRET_KEY",
+            "-e CLERK_PUBLISHABLE_KEY",
+            "-e CLERK_AUTHORIZED_PARTIES"
           ]
+        }
+      },
+      "dependsOn": [
+        "auth-preflight"
+      ]
+    },
+    "build-e2e": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "platform": "node",
+        "target": "node24",
+        "outputPath": "dist/apps/api-e2e",
+        "format": [
+          "esm"
+        ],
+        "bundle": true,
+        "external": [
+          "@aws-sdk/client-ec2",
+          "@aws-sdk/client-s3",
+          "@libsql/client"
+        ],
+        "main": "apps/api/src/main.e2e.ts",
+        "tsConfig": "apps/api/tsconfig.app.json",
+        "assets": [],
+        "generatePackageJson": false,
+        "esbuildOptions": {
+          "sourcemap": true,
+          "outExtension": {
+            ".js": ".js"
+          }
+        }
+      }
+    },
+    "build-clerk-e2e": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "platform": "node",
+        "target": "node24",
+        "outputPath": "dist/apps/api-clerk-e2e",
+        "format": [
+          "esm"
+        ],
+        "bundle": true,
+        "external": [
+          "@aws-sdk/client-ec2",
+          "@aws-sdk/client-s3",
+          "@libsql/client"
+        ],
+        "main": "apps/api/src/main.clerk-e2e.ts",
+        "tsConfig": "apps/api/tsconfig.app.json",
+        "assets": [],
+        "generatePackageJson": false,
+        "esbuildOptions": {
+          "sourcemap": true,
+          "outExtension": {
+            ".js": ".js"
+          }
+        }
+      }
+    },
+    "auth-preflight": {
+      "executor": "@app-speed/aws-deploy:auth-preflight",
+      "cache": false,
+      "defaultConfiguration": "development",
+      "options": {
+        "application": "api"
+      },
+      "configurations": {
+        "production": {
+          "environment": "production",
+          "portalOrigin": "https://appspeed.dev"
+        },
+        "development": {
+          "environment": "development",
+          "portalOrigin": "https://dev.appspeed.dev"
         }
       }
     }

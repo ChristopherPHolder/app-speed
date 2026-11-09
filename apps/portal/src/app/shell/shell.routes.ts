@@ -1,4 +1,6 @@
-import { Route } from '@angular/router';
+import { inject } from '@angular/core';
+import { PortalAuthService } from '../auth/portal-auth.service';
+import { Route, Router } from '@angular/router';
 import { LandingPageComponent } from '../landing/landing-page.component';
 import { ShellComponent } from './shell.component';
 
@@ -22,6 +24,22 @@ export const shellRoutes: Route[] = [
     path: '',
     component: ShellComponent,
     children: [
+      {
+        path: 'public',
+        loadComponent: () => import('../workspace/public-view.component').then((m) => m.PublicViewComponent),
+        title: 'Public View | App Speed',
+      },
+      {
+        path: 'workspaces',
+        canActivate: [
+          async () => {
+            const auth = inject(PortalAuthService);
+            const router = inject(Router);
+            return (await auth.hasSession()) || router.parseUrl('/sign-in');
+          },
+        ],
+        loadChildren: () => import('../workspace/workspace.routes').then((m) => m.workspaceRoutes),
+      },
       {
         path: 'sign-in',
         loadComponent: () => import('../auth/auth-page.component').then((m) => m.AuthPageComponent),

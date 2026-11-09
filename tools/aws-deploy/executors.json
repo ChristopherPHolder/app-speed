@@ -14,6 +14,11 @@
       "implementation": "./src/executors/ec2-ssm-cycle/executor",
       "schema": "./src/executors/ec2-ssm-cycle/schema.json",
       "description": "Start EC2, execute SSM document, then stop EC2"
+    },
+    "auth-preflight": {
+      "implementation": "./src/executors/auth-preflight/executor",
+      "schema": "./src/executors/auth-preflight/schema.json",
+      "description": "Validate Clerk and workspace configuration before deployment"
     }
   }
 }

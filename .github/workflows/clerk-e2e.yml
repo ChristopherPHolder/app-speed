@@ -1,0 +1,36 @@
+name: Live Clerk E2E
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  clerk-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CLERK_SECRET_KEY: ${{ secrets.CLERK_E2E_SECRET_KEY }}
+      CLERK_PUBLISHABLE_KEY: ${{ vars.CLERK_E2E_PUBLISHABLE_KEY }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+        with:
+          version: '10.11.0'
+          run_install: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Install browser
+        run: pnpm exec nx run-many -t install-browser,install-cypress -p test-orchestration,portal-e2e
+      - name: Verify live authentication
+        run: pnpm exec nx run portal-e2e:e2e-clerk
+      - name: Upload live authentication evidence
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: clerk-e2e-evidence
+          path: |
+            artifacts/test-orchestration/clerk-e2e/
+            dist/cypress/apps/portal-e2e/clerk-screenshots/
+            dist/cypress/apps/portal-e2e/clerk-videos/

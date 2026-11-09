@@ -109,6 +109,15 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Validate Authentication Configuration
+        env:
+          DEPLOY_ENV: ${{ needs.determine-deploy-scope.outputs.deploy_env }}
+          DATABASE_URL: ${{ secrets[needs.determine-deploy-scope.outputs.deploy_env == 'production' && 'DATABASE_URL' || 'DATABASE_DEVELOPMENT_URL'] }}
+          CLERK_SECRET_KEY: ${{ secrets[needs.determine-deploy-scope.outputs.deploy_env == 'production' && 'CLERK_SECRET_KEY' || 'CLERK_DEVELOPMENT_SECRET_KEY'] }}
+          CLERK_PUBLISHABLE_KEY: ${{ vars[needs.determine-deploy-scope.outputs.deploy_env == 'production' && 'CLERK_PUBLISHABLE_KEY' || 'CLERK_DEVELOPMENT_PUBLISHABLE_KEY'] }}
+          CLERK_AUTHORIZED_PARTIES: ${{ needs.determine-deploy-scope.outputs.deploy_env == 'production' && 'https://appspeed.dev' || 'https://dev.appspeed.dev' }}
+        run: pnpm exec nx run api:auth-preflight --configuration="$DEPLOY_ENV"
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -120,19 +129,23 @@ jobs:
         id: ecr-login
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Run Audit Database Migrations
-        if: ${{ needs.determine-deploy-scope.outputs.deploy_env == 'production' }}
+      - name: Run Application Database Migrations
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ secrets[needs.determine-deploy-scope.outputs.deploy_env == 'production' && 'DATABASE_URL' || 'DATABASE_DEVELOPMENT_URL'] }}
+          # Workspaces use Postgres in both environments. This selects the Postgres
+          # migrations; development audit records still use SQLite at runtime.
           APP_ENV: production
-          DATABASE_MIGRATION_URL: ${{ secrets.DATABASE_MIGRATION_URL }}
+          DATABASE_MIGRATION_URL: ${{ secrets[needs.determine-deploy-scope.outputs.deploy_env == 'production' && 'DATABASE_MIGRATION_URL' || 'DATABASE_DEVELOPMENT_MIGRATION_URL'] }}
         run: pnpm exec nx run api:migrate
 
       - name: Publish and Deploy API
         env:
           ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
           DEPLOY_ENV: ${{ needs.determine-deploy-scope.outputs.deploy_env }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ secrets[needs.determine-deploy-scope.outputs.deploy_env == 'production' && 'DATABASE_URL' || 'DATABASE_DEVELOPMENT_URL'] }}
+          CLERK_SECRET_KEY: ${{ secrets[needs.determine-deploy-scope.outputs.deploy_env == 'production' && 'CLERK_SECRET_KEY' || 'CLERK_DEVELOPMENT_SECRET_KEY'] }}
+          CLERK_PUBLISHABLE_KEY: ${{ vars[needs.determine-deploy-scope.outputs.deploy_env == 'production' && 'CLERK_PUBLISHABLE_KEY' || 'CLERK_DEVELOPMENT_PUBLISHABLE_KEY'] }}
+          CLERK_AUTHORIZED_PARTIES: ${{ needs.determine-deploy-scope.outputs.deploy_env == 'production' && 'https://appspeed.dev' || 'https://dev.appspeed.dev' }}
         run: |
           if [ "$DEPLOY_ENV" = "production" ]; then
             IMAGE_REF="${ECR_REGISTRY}/app-speed/api:${GITHUB_SHA::12}"

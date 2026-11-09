@@ -29,56 +29,14 @@ export class PortalAuthService {
     void this.router.navigateByUrl('/sign-in');
   }
 
+  async sessionToken(): Promise<string> {
+    const { clerk } = await this.getClerk();
+    return (await clerk.session?.getToken()) ?? '';
+  }
+
   async hasSession(): Promise<boolean> {
     await this.ready;
     return this.signedIn();
-  }
-
-  async sendEmailCode(email: string, signingUp: boolean): Promise<void> {
-    const { client } = await this.getClerk();
-    if (signingUp) {
-      const signUp = await client.signUp.create({ emailAddress: email });
-      this.requiredFields.set(signUp.missingFields.filter((field) => field !== 'email_address'));
-      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
-    } else {
-      const signIn = await client.signIn.create({ identifier: email });
-      const factor = signIn.supportedFirstFactors?.find((item) => item.strategy === 'email_code');
-      if (!factor || factor.strategy !== 'email_code') {
-        return Promise.reject(new Error('Email-code sign-in is unavailable for this account. Try Google or GitHub.'));
-      }
-      await signIn.prepareFirstFactor({ strategy: 'email_code', emailAddressId: factor.emailAddressId });
-    }
-  }
-
-  async resendEmailCode(signingUp: boolean): Promise<void> {
-    const { client } = await this.getClerk();
-    if (signingUp) {
-      await client.signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
-    } else {
-      const factor = client.signIn.supportedFirstFactors?.find((item) => item.strategy === 'email_code');
-      if (!factor || factor.strategy !== 'email_code') {
-        return Promise.reject(new Error('The email-code attempt has expired. Please start again.'));
-      }
-      await client.signIn.prepareFirstFactor({ strategy: 'email_code', emailAddressId: factor.emailAddressId });
-    }
-  }
-
-  async verifyEmailCode(code: string, signingUp: boolean): Promise<boolean> {
-    const { clerk, client } = await this.getClerk();
-    const attempt = signingUp
-      ? await client.signUp.attemptEmailAddressVerification({ code })
-      : await client.signIn.attemptFirstFactor({ strategy: 'email_code', code });
-    if (attempt.status === 'complete' && attempt.createdSessionId) {
-      await clerk.setActive({ session: attempt.createdSessionId });
-      return true;
-    }
-    if (signingUp && client.signUp.status === 'missing_requirements') {
-      this.requiredFields.set(client.signUp.missingFields);
-      return false;
-    }
-    return Promise.reject(
-      new Error('This account requires another verification method. Use Google or GitHub to continue.'),
-    );
   }
 
   async completeSignUp(details: { username: string; firstName: string; lastName: string }): Promise<void> {
@@ -96,15 +54,10 @@ export class PortalAuthService {
     return Promise.reject(new Error('Your account still needs additional information. Check the fields below.'));
   }
 
-  async resumeSignUp(): Promise<'email' | 'code' | 'details'> {
+  async resumeSignUp(): Promise<'providers' | 'details'> {
     const { client } = await this.getClerk();
-    const signUp = client.signUp;
-    if (signUp.status !== 'missing_requirements') return 'email';
-    this.requiredFields.set(signUp.missingFields);
-    if (signUp.unverifiedFields.includes('email_address')) {
-      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
-      return 'code';
-    }
+    if (client.signUp.status !== 'missing_requirements') return 'providers';
+    this.requiredFields.set([...client.signUp.missingFields, ...client.signUp.unverifiedFields]);
     return 'details';
   }
 
@@ -114,7 +67,7 @@ export class PortalAuthService {
     await attempt.authenticateWithRedirect({
       strategy,
       redirectUrl: '/auth/callback',
-      redirectUrlComplete: '/audits/user-flow',
+      redirectUrlComplete: '/workspaces',
     });
   }
 
@@ -126,8 +79,8 @@ export class PortalAuthService {
       continueSignUpUrl: '/sign-up',
       firstFactorUrl: '/sign-in',
       secondFactorUrl: '/sign-in?verification=required',
-      signInFallbackRedirectUrl: '/audits/user-flow',
-      signUpFallbackRedirectUrl: '/audits/user-flow',
+      signInFallbackRedirectUrl: '/workspaces',
+      signUpFallbackRedirectUrl: '/workspaces',
     });
   }
 
@@ -162,6 +115,8 @@ export class PortalAuthService {
       const clerk = new Clerk(key);
       await clerk.load({ signInUrl: '/sign-in', signUpUrl: '/sign-up' });
       if (this.destroyRef.destroyed) return;
+      // Clerk's browser integrations and official test commands use this SDK handle.
+      Object.assign(window, { Clerk: clerk });
 
       const updateSession = () => {
         this.sessionActive.set(clerk.isSignedIn === true);
