@@ -13,7 +13,7 @@ import { filter, map, take } from 'rxjs';
 import { ConsentBannerComponent } from './analytics/consent-banner.component';
 
 /** Cancellations that hand off to a replacement navigation, so the app is not ready yet. */
-const followedByAnotherNavigation = new Set<NavigationCancellationCode>([
+const followedByAnotherNavigation: ReadonlySet<NavigationCancellationCode | undefined> = new Set([
   NavigationCancellationCode.Redirect,
   NavigationCancellationCode.SupersededByNewNavigation,
 ]);
