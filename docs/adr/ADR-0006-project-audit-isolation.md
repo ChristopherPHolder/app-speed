@@ -66,3 +66,7 @@ Dispatch a fresh deployment from an explicit ref with:
 ```shell
 pnpm exec nx run aws-deploy:workflow-dispatch --workflow=deploy-api.yml --ref=<git-ref> --environment=production
 ```
+
+Runner deployment cleanup stops an instance only when that deployment started it. A previously running worker
+remains under the API lifecycle's control. The runner workflow step allows 55 minutes for the executor's bounded
+30-minute startup, 10-minute SSM command, and 10-minute stop phases, so Actions does not kill cleanup prematurely.

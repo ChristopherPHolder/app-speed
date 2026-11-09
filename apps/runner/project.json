@@ -69,7 +69,7 @@
         "documentName": "AWS-RunShellScript",
         "containerName": "app-speed-runner",
         "stopAfterCompletion": true,
-        "stopOnlyIfStarted": false,
+        "stopOnlyIfStarted": true,
         "expectBootstrapShutdown": false,
         "pruneDockerBeforePull": true,
         "pollIntervalMs": 5000,

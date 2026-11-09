@@ -139,7 +139,8 @@ jobs:
           pnpm exec nx release publish --group=runner --yes --outputStyle=static
 
       - name: Deploy Runner
-        timeout-minutes: 10
+        # Allow the executor's 30m startup + 10m command + 10m cleanup limits.
+        timeout-minutes: 55
         env:
           DEPLOY_ENV: ${{ needs.determine-deploy-scope.outputs.deploy_env }}
           RUNNER_API_TOKEN: ${{ secrets[needs.determine-deploy-scope.outputs.deploy_env == 'production' && 'RUNNER_API_TOKEN' || 'RUNNER_DEVELOPMENT_API_TOKEN'] }}
