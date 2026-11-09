@@ -5,6 +5,7 @@ interface WorkflowDispatchOptions {
   workflow: string;
   ref: string;
   environment: 'development' | 'production';
+  inspect?: boolean;
 }
 
 export default async function workflowDispatch(
@@ -12,12 +13,22 @@ export default async function workflowDispatch(
   context: Pick<ExecutorContext, 'root'>,
 ) {
   if (
-    !['deploy-api.yml', 'deploy-runner.yml', 'runner-status.yml'].includes(options.workflow) ||
+    !['deploy-api.yml', 'deploy-runner.yml'].includes(options.workflow) ||
     !options.ref ||
+    (options.inspect && options.workflow !== 'deploy-runner.yml') ||
     !['development', 'production'].includes(options.environment)
   )
     throw new Error('Select a deployment workflow, Git ref, and environment.');
-  const args = ['workflow', 'run', options.workflow, '--ref', options.ref, '-f', `environment=${options.environment}`];
+  const args = [
+    'workflow',
+    'run',
+    options.workflow,
+    '--ref',
+    options.ref,
+    '-f',
+    `environment=${options.environment}`,
+    ...(options.inspect ? ['-f', 'operation=inspect'] : []),
+  ];
   return await new Promise<{ success: boolean }>((resolve) => {
     const child = spawn('gh', args, { cwd: context.root, stdio: 'inherit' });
     child.on('error', () => resolve({ success: false }));
