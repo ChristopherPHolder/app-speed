@@ -4,114 +4,97 @@
     <img src="apps/portal/src/assets/logo.svg" alt="AppSpeed logo" width="400" />
 </p>
 
-## Current Architecture
+AppSpeed is a web performance toolkit for running repeatable Lighthouse user-flow audits, reviewing audit
+history, and turning Chrome traces into screenshots and filmstrips. The Angular portal, Effect-based API,
+and browser runner live together in this Nx monorepo.
 
-- `apps/portal`: thin Angular application shell and route composition.
-- `apps/api`: Effect-based API control plane.
-- `apps/runner`: thin runner entrypoint and deployment target.
-- `libs/audit/**`: audit domain code shared across portal, API, runner, contracts, model, and persistence.
-- `libs/platform/**`: cross-cutting platform services such as observability.
-- `libs/ui/**`: reusable web UI primitives.
+[**Try AppSpeed →**](https://appspeed.dev) · [Run locally](#run-locally) · [Repository layout](#repository-layout) ·
+[Contribute](CONTRIBUTING.md) · [Report a bug](https://github.com/ChristopherPHolder/app-speed/issues)
 
-## Integration and browser tests
+## What you can do
 
-The API integration suite and full local browser journey are independently runnable Nx targets. See
-[docs/testing/integration-and-e2e.md](docs/testing/integration-and-e2e.md) for prerequisites, artifacts, and
-troubleshooting.
+- Build user-flow audits from browser steps and follow their progress through to Lighthouse results and reports.
+- Review scheduled, running, and completed audits in history.
+- Extract screenshots and create filmstrips from Chrome traces locally in the browser.
+- Sign in to organize audits into projects within workspaces, with membership and project access controls.
 
-## Effect diagnostics (per Nx project)
+Public View provides audit and trace tools without signing in. Project-owned audits require access to their project.
 
-Effect diagnostics run through the official `@effect/tsgo` Oxlint integration. `@nx/oxlint` infers the
-`effect:diagnostics` target for projects with a `.oxlintrc.json`. ESLint continues to run through `lint`.
+## Run locally
 
-`pnpm install` patches Oxlint and its type-aware engine through the `prepare` script. The pinned Oxlint,
-`oxlint-tsgolint`, and `@effect/tsgo` versions must remain compatible; update them together using the
-[Effect compatibility table](https://github.com/Effect-TS/tsgo#supported-package-versions).
-Only Oxlint is patched; Angular keeps using TypeScript 6. The shared TypeScript config uses relative
-path aliases without `baseUrl` and enables `esModuleInterop` so both compilers can read it.
+Use Node.js 24 (CI pins `24.14.0`), pnpm `10.11.0` as specified in `package.json`, and Git.
+Run these commands from the repository root.
 
-The shared `oxlint.effect.json` enables the recommended Effect rules and disables Oxlint’s default
-correctness category so this target stays focused on Effect. Errors fail the target; warnings are reported
-without failing it. Use `--deny-warnings` to also fail on warnings. Nx caches results including dependency
-sources and all three integration packages.
+1. Install dependencies:
 
-Run diagnostics for a single library:
+   ```bash
+   pnpm install
+   ```
 
-```bash
-pnpm exec nx run <project-name>:effect:diagnostics
-```
+   The install step also configures Git hooks, patches Oxlint for Effect diagnostics, and clones the Effect
+   source into the ignored `.repos/effect` directory. The first install needs network access.
 
-Example:
+2. Create an ignored root `.env` with these local settings:
 
-```bash
-pnpm exec nx run platform-observability:effect:diagnostics
-```
+   ```dotenv
+   APP_ENV=development
+   RUNNER_MANAGER_MODE=local
+   RUNNER_HEADLESS=true
+   ```
 
-Emit JSON (the previous custom `--outputFile` and `--severity` flags have been removed):
+3. Start the portal:
 
-```bash
-pnpm exec nx run platform-observability:effect:diagnostics --format=json
-```
+   ```bash
+   pnpm exec nx serve portal
+   ```
 
-Run diagnostics for multiple libraries:
+Open <http://localhost:4200>. The portal target also starts the API on port `3000` and proxies API requests to it.
+The API starts a local runner when an audit is submitted. No separate runner command is needed.
 
-```bash
-pnpm exec nx run-many -t effect:diagnostics --projects=platform-observability,audit-core-persistence,audit-core-runner --parallel=3
-```
+To try it, choose **Run a user-flow audit**, define the browser steps for a page you want to measure, and submit
+the audit. Follow its progress to the results, then reopen it from **View audit history**.
 
-## Angular Publishable Libraries
+Local data is stored in `.data/app-speed.sqlite`, with automatic schema initialization. This setup needs no
+external database, S3 bucket, AWS credentials, or Clerk keys. If Chrome is missing, run
+`pnpm exec puppeteer browsers install chrome`.
 
-For publishable Angular libraries with secondary entry points, keep the root package name, `tsconfig.base.json` aliases, and consumer imports in the same canonical form.
+For sign-in and workspace management, follow the
+[authentication and workspace setup](docs/development/authentication-and-workspaces.md).
+For storage options and remote runners, see the [API configuration](apps/api/README.md) and
+[runner configuration](apps/runner/README.md).
 
-Reference:
+## Repository layout
 
-- [docs/conventions/angular-secondary-entry-points.md](docs/conventions/angular-secondary-entry-points.md)
+| Path                 | Responsibility                                                             |
+| -------------------- | -------------------------------------------------------------------------- |
+| `apps/portal`        | Angular application shell and routes                                       |
+| `apps/api`           | API composition and audit scheduling                                       |
+| `apps/runner`        | Browser runner entry point                                                 |
+| `apps/design-system` | UI component Storybook                                                     |
+| `libs/audit`         | Audit contracts, domain logic, persistence, execution, and portal features |
+| `libs/workspace`     | Workspace and project domain logic and API runtime                         |
+| `libs/platform`      | Shared identity and observability services                                 |
+| `libs/convenience`   | Trace tools and feature catalog                                            |
+| `libs/ui`            | Shared Angular UI components and theme                                     |
+| `tools`              | Nx executors for deployment, database tooling, and system tests            |
+| `docs`               | Architecture decisions, feature guides, and operational documentation      |
 
-### Portal sign-in
+Applications compose features; audit behavior belongs in `libs/audit`. See the
+[domain-first architecture decision](docs/adr/ADR-0004-domain-first-audit-architecture.md) for boundaries.
 
-Export `CLERK_PUBLISHABLE_KEY` with your Clerk development instance's publishable key before running
-`pnpm exec nx serve portal`. Enable sign-up in that instance to test account creation. The portal only needs the
-publishable key; never supply a Clerk secret key to the browser build.
+## Contributing
 
-The portal deployment workflow reads the GitHub Actions repository variable `CLERK_PUBLISHABLE_KEY` for production
-and `CLERK_DEVELOPMENT_PUBLISHABLE_KEY` for development. Configure each Clerk instance for its portal domain.
-Without a key, guests can still run audits, browse audit history, and use trace tools.
+Bug reports, documentation improvements, and code contributions are welcome. Read
+[CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow, coding conventions, checks, and pull request guidance.
+Use [GitHub Issues](https://github.com/ChristopherPHolder/app-speed/issues) to report bugs or discuss feature ideas.
 
-### Workspace and project management
+## Further reading
 
-After sign-in, `/workspaces` opens the last selected workspace and project, or defaults to Public View.
-Public View is available to everyone and links to the existing public audit and trace tools. Signed-in users can
-create a workspace or review invitations from Public View or the workspace switcher.
-A new workspace needs only a name; a project with the same name is created automatically and opens immediately. Switch workspaces from the navigation drawer.
-Workspace admins can upload, replace, or remove a workspace logo under Settings → General. The switcher shows
-the workspace initial until a logo is added. Workspace settings also contain membership and invitation controls,
-and project settings contain access grants.
-Workspace admins manage projects and grant individual members access; admin access covers all workspace projects.
-Invitations are visible in the recipient's account after signing in with their verified primary email. They expire
-in seven days. This slice does not send invitation emails.
-
-Set both `CLERK_SECRET_KEY` and `CLERK_PUBLISHABLE_KEY` in the API environment, using the same Clerk application
-as the portal. Both keys are available in [Clerk's API keys page](https://dashboard.clerk.com/~/api-keys). Set `CLERK_AUTHORIZED_PARTIES` to
-a comma-separated list of permitted portal origins (for example, `http://localhost:4200` in development). Keep the
-secret in the ignored root `.env`, `apps/api/.env.local`, or your deployment's secret store. Nx loads the root
-`.env` for local tasks; only the publishable key is included in the browser build. The secret is used by the server. Without both keys, workspace management is unavailable while public tools
-remain available.
-
-Apply the additive account/workspace/project migration against the intended database with
-`pnpm exec nx run api:migrate`, then restart the API with `pnpm exec nx serve api`. The API also needs its existing
-`DATABASE_URL` configuration. Applying a migration does not assign existing guest audits to projects.
-
-Run management checks with:
-
-```bash
-pnpm exec nx run-many -t build,test,lint,typecheck -p api,portal,platform-identity,workspace-domain,workspace-api-runtime
-```
-
-The workspace database tests apply the generated SQL to embedded Postgres through PGlite, without production
-credentials. They cover invitation recipients and expiry, role isolation, project access, membership removal,
-last-admin protection, and cascading deletion. Live multi-connection Postgres concurrency and signed-in browser
-verification are separate checks.
-
-See [CONTEXT.md](CONTEXT.md) and [ADR-0005](docs/adr/ADR-0005-workspaces-and-projects.md) for scope and permission
-rules. Existing audit tools are still separate from projects; project audit ownership and Cron Audits follow in
-later slices of [#222](https://github.com/ChristopherPHolder/app-speed/issues/222).
+- [Domain model and current scope](CONTEXT.md)
+- [Audit architecture and execution lifecycle](docs/audit-feature.md)
+- [Workspace browser tests](docs/testing/workspace-e2e.md)
+- [Integration and end-to-end tests](docs/testing/integration-and-e2e.md)
+- [Effect diagnostics](docs/development/effect-diagnostics.md)
+- [Angular secondary entry point conventions](docs/conventions/angular-secondary-entry-points.md)
+- [Production authentication setup](docs/deployment/initial-auth-production.md)
+- [Backend observability](docs/observability-backend.md)
