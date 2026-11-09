@@ -79,6 +79,7 @@
       "configurations": {
         "development": {
           "additionalRunArgs": [
+            "-e RUNNER_API_TOKEN",
             "-e RUNNER_API_BASE_URL=https://dev.appspeed.dev/api",
             "-e RUNNER_ID=ec2-i-049287bf43503d01e",
             "-e AWS_REGION=eu-central-1",
@@ -87,6 +88,7 @@
         },
         "production": {
           "additionalRunArgs": [
+            "-e RUNNER_API_TOKEN",
             "-e RUNNER_API_BASE_URL=https://appspeed.dev/api",
             "-e RUNNER_ID=ec2-i-049287bf43503d01e",
             "-e AWS_REGION=eu-central-1",

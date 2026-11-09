@@ -43,6 +43,7 @@ const updateAuditDetailsEffect = createEffect(
       tap(({ audit }) => {
         void router.navigate([], {
           queryParams: { ['audit-details']: JSON.stringify(audit) },
+          queryParamsHandling: 'merge',
           replaceUrl: true,
         });
       }),
@@ -70,7 +71,9 @@ const navigateToScheduledAuditEffect = createEffect(
   (actions$ = inject(Actions), router = inject(Router)) =>
     actions$.pipe(
       ofType(submitAuditRequestSuccess),
-      tap(({ requestId }) => void router.navigate(['/audits/user-flow', requestId])),
+      tap(
+        ({ requestId }) => void router.navigate(['/audits/user-flow', requestId], { queryParamsHandling: 'preserve' }),
+      ),
     ),
   { functional: true, dispatch: false },
 );

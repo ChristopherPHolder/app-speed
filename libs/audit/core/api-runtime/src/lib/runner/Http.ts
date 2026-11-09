@@ -1,3 +1,6 @@
+import { timingSafeEqual } from 'node:crypto';
+import { HttpServerRequest } from 'effect/http';
+import { runnerApiToken } from './runner-token';
 import { HttpApiBuilder, HttpApiError } from 'effect/http-api';
 import { Effect, Match } from 'effect';
 import { CoreApi } from '@app-speed/audit/core/api-contract';
@@ -26,6 +29,15 @@ const shutdownResponse = (shouldTerminate: boolean): { readonly ok: true; readon
 export const RunnerGroupLive = HttpApiBuilder.group(CoreApi, 'runner', (handlers) =>
   Effect.gen(function* () {
     yield* Effect.logDebug('RunnerGroupLive');
+    const token = yield* runnerApiToken;
+    const authenticate = Effect.gen(function* () {
+      const request = yield* HttpServerRequest.HttpServerRequest;
+      const supplied = Buffer.from(request.headers['authorization'] ?? '');
+      const expected = Buffer.from(`Bearer ${token}`);
+      if (!token || supplied.length !== expected.length || !timingSafeEqual(supplied, expected))
+        return yield* new HttpApiError.Forbidden();
+    });
+    const authorize = <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.andThen(authenticate, effect);
     const repo = yield* AuditRepo;
     const runnerLifecycle = yield* RunnerLifecycle;
     const runnerRegistry = yield* RunnerRegistry;
@@ -54,6 +66,7 @@ export const RunnerGroupLive = HttpApiBuilder.group(CoreApi, 'runner', (handlers
             });
             return response;
           }).pipe(
+            authorize,
             Effect.withSpan('api.runner.claim'),
             Effect.catchTag('QueryError', () => new HttpApiError.BadRequest()),
             Effect.catchTag('SchemaError', () => new HttpApiError.BadRequest()),
@@ -88,7 +101,7 @@ export const RunnerGroupLive = HttpApiBuilder.group(CoreApi, 'runner', (handlers
             yield* runnerRegistry.recordCompletion(request.payload.runnerId);
 
             return okResponse;
-          }).pipe(Effect.withSpan('api.runner.complete')),
+          }).pipe(authorize, Effect.withSpan('api.runner.complete')),
         ),
       )
       .handle(
@@ -110,6 +123,7 @@ export const RunnerGroupLive = HttpApiBuilder.group(CoreApi, 'runner', (handlers
                 }),
               ),
               Effect.as(okResponse),
+              authorize,
               Effect.withSpan('api.runner.heartbeat'),
             ),
         ),
@@ -128,7 +142,7 @@ export const RunnerGroupLive = HttpApiBuilder.group(CoreApi, 'runner', (handlers
             );
             const decision = yield* runnerLifecycle.requestInactivationIfQueueEmpty('runner-shutdown');
             return shutdownResponse(decision.shouldTerminate);
-          }).pipe(Effect.withSpan('api.runner.shutdown')),
+          }).pipe(authorize, Effect.withSpan('api.runner.shutdown')),
         ),
       );
   }),

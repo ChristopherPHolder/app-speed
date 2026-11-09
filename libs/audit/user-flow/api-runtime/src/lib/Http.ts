@@ -1,9 +1,11 @@
-import { HttpServerResponse } from 'effect/http';
+import { HttpServerRequest, HttpServerResponse } from 'effect/http';
 import { HttpApiBuilder, HttpApiError } from 'effect/http-api';
 import { Duration, Effect, Schedule, Stream } from 'effect';
 
+import { Identity } from '@app-speed/platform/identity';
+import { WorkspaceStore } from '@app-speed/workspace/api-runtime';
 import { AuditNotFoundError } from '@app-speed/audit/core/api-contract';
-import { historyHandler, RunnerLifecycle } from '@app-speed/audit/core/api-runtime';
+import { auditRequestProject, scopedHistoryHandler, RunnerLifecycle } from '@app-speed/audit/core/api-runtime';
 import { AuditRepo, type AuditRunId } from '@app-speed/audit/core/persistence';
 import { UserFlowApi } from '@app-speed/audit/user-flow/api-contract';
 import { USER_FLOW_AUDIT_KIND, USER_FLOW_AUDIT_KIND_LITERAL } from '@app-speed/audit/user-flow/domain';
@@ -39,9 +41,10 @@ const normalizeError = (error: unknown) => {
 
 const requireUserFlowRun = (id: AuditRunId) =>
   Effect.gen(function* () {
+    const projectId = yield* auditRequestProject();
     const repo = yield* AuditRepo;
     const run = yield* repo.getRunById(id);
-    if (run === null || run.kind !== USER_FLOW_AUDIT_KIND_LITERAL) {
+    if (run === null || run.kind !== USER_FLOW_AUDIT_KIND_LITERAL || run.projectId !== projectId) {
       return yield* new AuditNotFoundError({ id });
     }
     return run;
@@ -49,6 +52,8 @@ const requireUserFlowRun = (id: AuditRunId) =>
 
 export const UserFlowAuditGroupLive = HttpApiBuilder.group(UserFlowApi, 'userFlowAudit', (handlers) =>
   Effect.gen(function* () {
+    const identity = yield* Identity;
+    const workspaceStore = yield* WorkspaceStore;
     const scheduler = yield* UserFlowAuditScheduler;
     const repo = yield* AuditRepo;
     const userFlowRepo = yield* UserFlowAuditRepo;
@@ -59,7 +64,8 @@ export const UserFlowAuditGroupLive = HttpApiBuilder.group(UserFlowApi, 'userFlo
         'scheduleUserFlowAudit',
         Effect.fn('api.userFlowAudit.schedule')((request) =>
           Effect.gen(function* () {
-            const auditId = yield* scheduler.schedule(request.payload);
+            const projectId = yield* auditRequestProject();
+            const auditId = yield* scheduler.schedule(request.payload, projectId);
             const auditQueuePosition = yield* repo.getQueuePosition(auditId);
             yield* runnerLifecycle.requestActivation;
             return { auditId, auditQueuePosition: auditQueuePosition ?? 0 };
@@ -78,7 +84,7 @@ export const UserFlowAuditGroupLive = HttpApiBuilder.group(UserFlowApi, 'userFlo
             if (audit === null) {
               return yield* new AuditNotFoundError({ id: request.params.id });
             }
-            return { status: run.status, audit };
+            return { status: run.status, audit, auditQueuePosition: (yield* repo.getQueuePosition(run.id)) ?? 0 };
           }).pipe(
             Effect.catchTag('QueryError', () => new HttpApiError.BadRequest()),
             Effect.catchTag('SchemaError', () => new HttpApiError.BadRequest()),
@@ -89,6 +95,7 @@ export const UserFlowAuditGroupLive = HttpApiBuilder.group(UserFlowApi, 'userFlo
         'watchById',
         Effect.fn('api.userFlowAudit.watchById')((request) =>
           Effect.gen(function* () {
+            const httpRequest = yield* HttpServerRequest.HttpServerRequest;
             const auditId = request.params.id;
             yield* requireUserFlowRun(auditId);
             const snapshot = Effect.gen(function* () {
@@ -122,6 +129,9 @@ export const UserFlowAuditGroupLive = HttpApiBuilder.group(UserFlowApi, 'userFlo
               Stream.takeUntil((event) => event.event === 'result'),
               Stream.map(encodeSse),
               Stream.provideService(AuditRepo, repo),
+              Stream.provideService(HttpServerRequest.HttpServerRequest, httpRequest),
+              Stream.provideService(Identity, identity),
+              Stream.provideService(WorkspaceStore, workspaceStore),
             );
             return HttpServerResponse.stream(stream, {
               contentType: 'text/event-stream',
@@ -163,6 +173,6 @@ export const UserFlowAuditGroupLive = HttpApiBuilder.group(UserFlowApi, 'userFlo
           ),
         ),
       )
-      .handle('history', historyHandler(USER_FLOW_AUDIT_KIND));
+      .handle('history', scopedHistoryHandler(USER_FLOW_AUDIT_KIND));
   }),
 );

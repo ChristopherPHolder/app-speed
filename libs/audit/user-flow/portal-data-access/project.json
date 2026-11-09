@@ -5,7 +5,7 @@
   "prefix": "lib",
   "projectType": "library",
   "tags": ["type:domain", "scope:audit", "feature:audit-user-flow", "runtime:web", "layer:data-access"],
-  "implicitDependencies": ["audit-user-flow-api-contract", "audit-user-flow-domain"],
+  "implicitDependencies": ["audit-user-flow-domain"],
   "targets": {
     "build": {
       "executor": "@nx/angular:ng-packagr-lite",

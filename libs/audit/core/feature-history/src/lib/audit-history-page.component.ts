@@ -157,6 +157,6 @@ export class AuditHistoryPageComponent {
   }
 
   openRun(run: AuditRunSummary) {
-    void this.router.navigate(this.config.resultRoute(run));
+    void this.router.navigate(this.config.resultRoute(run), { queryParamsHandling: 'preserve' });
   }
 }

@@ -1,6 +1,8 @@
 # ADR-0005: Account, workspace, and project management
 
 Status: Accepted
+
+Follow-up: [ADR-0006](ADR-0006-project-audit-isolation.md) implements project audit ownership and access isolation.
 Date: 2026-11-05
 
 ## Decision

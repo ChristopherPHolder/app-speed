@@ -18,11 +18,21 @@ const AuditResultSchema = Schema.Union([AuditResultSuccessSchema, AuditResultFai
 export const resultByIdEndpoint = HttpApiEndpoint.get('resultById', '/:id/result', {
   params: { id: AuditId },
   success: AuditResultSchema,
-  error: [HttpApiError.BadRequestNoContent, HttpApiError.NotFoundNoContent, AuditNotFoundError],
+  error: [
+    HttpApiError.ForbiddenNoContent,
+    HttpApiError.BadRequestNoContent,
+    HttpApiError.NotFoundNoContent,
+    AuditNotFoundError,
+  ],
 });
 
 export const reportByIdEndpoint = HttpApiEndpoint.get('reportById', '/:id/report', {
   params: { id: AuditId },
   success: Schema.String.pipe(HttpApiSchema.asText({ contentType: 'text/html' })),
-  error: [HttpApiError.BadRequestNoContent, HttpApiError.NotFoundNoContent, AuditNotFoundError],
+  error: [
+    HttpApiError.ForbiddenNoContent,
+    HttpApiError.BadRequestNoContent,
+    HttpApiError.NotFoundNoContent,
+    AuditNotFoundError,
+  ],
 });

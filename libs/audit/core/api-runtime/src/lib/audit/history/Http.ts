@@ -1,4 +1,5 @@
 import { Effect, Schema } from 'effect';
+import { auditRequestProject } from '../scope';
 
 import type { AuditHistoryQuerySchema } from '@app-speed/audit/core/api-contract';
 import type { AuditKind } from '@app-speed/audit/core/domain';
@@ -114,7 +115,7 @@ const normalizeError = (
 };
 
 export const historyHandler = (kind: AuditKind | null) =>
-  Effect.fn('api.audit.history')((request: AuditHistoryRequest) =>
+  Effect.fn('api.audit.history')((request: AuditHistoryRequest, projectId: string | null = null) =>
     Effect.gen(function* () {
       const repo = yield* AuditHistoryRepo;
       const limit = yield* parseLimit(request.query.limit);
@@ -122,7 +123,7 @@ export const historyHandler = (kind: AuditKind | null) =>
       const cursor = yield* decodeCursor(request.query.cursor);
       const search = yield* parseSearch(request.query.search);
       const outcome = yield* parseOutcome(request.query.outcome);
-      const page = yield* repo.listRunsPage({ limit, cursor, status, kind, search, outcome });
+      const page = yield* repo.listRunsPage({ limit, cursor, status, kind, search, outcome, projectId });
 
       return {
         items: page.items.map((run) => ({
@@ -142,3 +143,9 @@ export const historyHandler = (kind: AuditKind | null) =>
       };
     }).pipe(Effect.withSpan('api.audit.history'), Effect.mapError(normalizeError)),
   );
+
+export const scopedHistoryHandler = (kind: AuditKind | null) =>
+  Effect.fn(function* (request: AuditHistoryRequest) {
+    const projectId = yield* auditRequestProject();
+    return yield* historyHandler(kind)(request, projectId);
+  });

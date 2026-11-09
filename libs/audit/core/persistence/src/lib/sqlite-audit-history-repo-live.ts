@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, lt, or, sql } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNull, lt, or, sql } from 'drizzle-orm';
 import { Effect, Layer, Schema } from 'effect';
 
 import type { AuditKind } from '@app-speed/audit/core/domain';
@@ -15,6 +15,7 @@ import { SqliteDbClient } from './sqlite-db';
 import { auditResultTable, auditRunTable, auditTemplateTable } from './sqlite-schema';
 
 const listRunsPage = Effect.fn('db.auditHistory.listPage')(function* (params: {
+  projectId?: string | null;
   search?: string | null;
   outcome?: 'SUCCESS' | 'FAILURE' | null;
   limit: number;
@@ -27,6 +28,7 @@ const listRunsPage = Effect.fn('db.auditHistory.listPage')(function* (params: {
   const limit = Math.max(1, Math.min(params.limit, 100));
   const search = params.search?.trim();
   const filters = [
+    params.projectId ? eq(auditRunTable.projectId, params.projectId) : isNull(auditRunTable.projectId),
     search
       ? or(
           sql`instr(lower(${auditTemplateTable.title}), lower(${search})) > 0`,
@@ -96,6 +98,7 @@ export const SqliteAuditHistoryRepoLive = Layer.effect(AuditHistoryRepo)(
     const auditRepo = yield* AuditRepo;
     return {
       listRunsPage: (params: {
+        projectId?: string | null;
         search?: string | null;
         outcome?: 'SUCCESS' | 'FAILURE' | null;
         limit: number;

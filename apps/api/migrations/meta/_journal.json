@@ -43,6 +43,13 @@
       "when": 1793911446955,
       "tag": "0005_workspace_logo",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794254748193,
+      "tag": "0006_project_audit_scope",
+      "breakpoints": true
     }
   ]
 }

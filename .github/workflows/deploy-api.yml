@@ -141,6 +141,7 @@ jobs:
       - name: Publish and Deploy API
         env:
           ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+          RUNNER_API_TOKEN: ${{ secrets[needs.determine-deploy-scope.outputs.deploy_env == 'production' && 'RUNNER_API_TOKEN' || 'RUNNER_DEVELOPMENT_API_TOKEN'] }}
           DEPLOY_ENV: ${{ needs.determine-deploy-scope.outputs.deploy_env }}
           DATABASE_URL: ${{ secrets[needs.determine-deploy-scope.outputs.deploy_env == 'production' && 'DATABASE_URL' || 'DATABASE_DEVELOPMENT_URL'] }}
           CLERK_SECRET_KEY: ${{ secrets[needs.determine-deploy-scope.outputs.deploy_env == 'production' && 'CLERK_SECRET_KEY' || 'CLERK_DEVELOPMENT_SECRET_KEY'] }}

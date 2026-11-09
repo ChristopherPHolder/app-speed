@@ -76,6 +76,8 @@ describe('ShellComponent', () => {
             overview: signal(undefined),
             workspace: signal(undefined),
             workspaceId: signal(''),
+            project: signal(undefined),
+            projectId: signal(''),
             refresh: vi.fn(),
           },
         },

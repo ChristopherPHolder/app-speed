@@ -70,6 +70,7 @@ import { WorkspaceSwitcherComponent } from './workspace-switcher.component';
         <a
           mat-list-item
           [routerLink]="tool.path"
+          [queryParams]="tool.path.startsWith('/audits') && state.project() ? { projectId: state.projectId() } : {}"
           routerLinkActive
           #link="routerLinkActive"
           [routerLinkActiveOptions]="{ exact: tool.exact }"

@@ -1,4 +1,4 @@
-import { HttpApiEndpoint } from 'effect/http-api';
+import { HttpApiEndpoint, HttpApiError } from 'effect/http-api';
 import { Schema } from 'effect';
 
 import { AuditKindSchema } from '@app-speed/audit/core/domain';
@@ -42,5 +42,10 @@ export const AuditHistoryPageSchema = Schema.Struct({
 export const historyEndpoint = HttpApiEndpoint.get('history', '/history', {
   query: AuditHistoryQuerySchema,
   success: AuditHistoryPageSchema,
-  error: [AuditHistoryInvalidQueryError, AuditHistoryInvalidCursorError, AuditHistoryInternalError],
+  error: [
+    HttpApiError.ForbiddenNoContent,
+    AuditHistoryInvalidQueryError,
+    AuditHistoryInvalidCursorError,
+    AuditHistoryInternalError,
+  ],
 });

@@ -10,9 +10,7 @@ import type { AuditDetails } from '../audit-details';
 import { AuditBuilderComponent } from '../components/audit-builder.component';
 
 type AuditLoadState =
-  | { status: 'loading' }
-  | { status: 'loaded'; audit: AuditDetails }
-  | { status: 'failed'; message: string };
+  { status: 'loading' } | { status: 'loaded'; audit: AuditDetails } | { status: 'failed'; message: string };
 
 const INITIAL_AUDIT_LOAD_STATE: AuditLoadState = { status: 'loading' };
 
@@ -81,6 +79,7 @@ export class AuditResultPageComponent {
   forkAudit(audit: AuditDetails): void {
     void this.router.navigate(['/audits/user-flow'], {
       queryParams: { ['audit-details']: JSON.stringify(audit) },
+      queryParamsHandling: 'merge',
     });
   }
 }

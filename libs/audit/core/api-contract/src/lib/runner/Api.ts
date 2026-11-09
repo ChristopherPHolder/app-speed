@@ -66,28 +66,28 @@ export class RunnerApiGroup extends HttpApiGroup.make('runner')
     HttpApiEndpoint.post('claim', '/claim', {
       payload: RunnerClaimRequestSchema,
       success: RunnerClaimResponseSchema,
-      error: HttpApiError.BadRequestNoContent,
+      error: [HttpApiError.BadRequestNoContent, HttpApiError.ForbiddenNoContent],
     }),
   )
   .add(
     HttpApiEndpoint.post('complete', '/complete', {
       payload: RunnerCompleteRequestSchema,
       success: Schema.Struct({ ok: Schema.Literal(true) }),
-      error: HttpApiError.BadRequestNoContent,
+      error: [HttpApiError.BadRequestNoContent, HttpApiError.ForbiddenNoContent],
     }),
   )
   .add(
     HttpApiEndpoint.post('heartbeat', '/heartbeat', {
       payload: RunnerHeartbeatRequestSchema,
       success: Schema.Struct({ ok: Schema.Literal(true) }),
-      error: HttpApiError.BadRequestNoContent,
+      error: [HttpApiError.BadRequestNoContent, HttpApiError.ForbiddenNoContent],
     }),
   )
   .add(
     HttpApiEndpoint.post('shutdown', '/shutdown', {
       payload: RunnerShutdownRequestSchema,
       success: RunnerShutdownResponseSchema,
-      error: HttpApiError.BadRequestNoContent,
+      error: [HttpApiError.BadRequestNoContent, HttpApiError.ForbiddenNoContent],
     }),
   )
   .prefix('/runner') {}

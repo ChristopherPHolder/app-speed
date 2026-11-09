@@ -151,8 +151,13 @@ type WorkspaceView = 'projects' | 'project' | 'general' | 'members' | 'access';
                 ><mat-card-content>
                   <mat-icon class="empty-icon" aria-hidden="true">speed</mat-icon>
                   <h2>Project overview</h2>
-                  <p>Project audits will appear here when available. You can run a manual audit from Audit tools.</p>
-                  <a matButton routerLink="/audits/user-flow">Open audit tools</a>
+                  <p>Audits run here are private to this project and its authorized members.</p>
+                  <a matButton routerLink="/audits/user-flow" [queryParams]="{ projectId: state.projectId() }"
+                    >Run audit</a
+                  >
+                  <a matButton routerLink="/audits/history" [queryParams]="{ projectId: state.projectId() }"
+                    >Audit history</a
+                  >
                 </mat-card-content></mat-card
               >
             }

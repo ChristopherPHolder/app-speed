@@ -80,7 +80,7 @@ describe('AuditHistoryPageComponent', () => {
       durationMs: 1200,
     });
 
-    expect(navigate).toHaveBeenCalledWith(['/audits/user-flow', 'complete-audit']);
+    expect(navigate).toHaveBeenCalledWith(['/audits/user-flow', 'complete-audit'], { queryParamsHandling: 'preserve' });
 
     component.openRun({
       kind: 'user-flow',
@@ -95,7 +95,7 @@ describe('AuditHistoryPageComponent', () => {
       durationMs: null,
     });
 
-    expect(navigate).toHaveBeenCalledWith(['/audits/user-flow', 'running-audit']);
+    expect(navigate).toHaveBeenCalledWith(['/audits/user-flow', 'running-audit'], { queryParamsHandling: 'preserve' });
   });
 
   it('preserves status filtering and cursor pagination for the configured endpoint', () => {

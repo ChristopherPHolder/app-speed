@@ -104,6 +104,7 @@ export default async function localSystemTestExecutor(
     setEnvironment(originalEnvironment, 'SQLITE_PATH', join(temporaryDirectory, 'audit.sqlite'));
     setEnvironment(originalEnvironment, 'RUNNER_MANAGER_MODE', options.suite === 'e2e' ? 'local' : 'manual');
     setEnvironment(originalEnvironment, 'RUNNER_HEADLESS', 'true');
+    setEnvironment(originalEnvironment, 'RUNNER_API_TOKEN', 'local-system-test-runner-token');
     setEnvironment(originalEnvironment, 'RUNNER_API_BASE_URL', `http://127.0.0.1:${apiPort}/api`);
     setEnvironment(originalEnvironment, 'RUNNER_LOG_FILE', join(artifactDirectory, 'runner.log'));
     setEnvironment(originalEnvironment, 'PORTAL_BASE_URL', `http://127.0.0.1:${portalPort}`);

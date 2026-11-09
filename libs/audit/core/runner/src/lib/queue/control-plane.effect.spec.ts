@@ -22,8 +22,9 @@ vi.mock('@aws-sdk/client-ec2', () => ({
 const provideHttpClient = (payload: { ok: true; shouldTerminate: boolean }) =>
   Effect.provideService(
     HttpClient.HttpClient,
-    HttpClient.make((request) =>
-      Effect.succeed(
+    HttpClient.make((request) => {
+      expect(request.headers['authorization']).toBe('Bearer test-runner-token');
+      return Effect.succeed(
         HttpClientResponse.fromWeb(
           request,
           new Response(JSON.stringify(payload), {
@@ -33,8 +34,8 @@ const provideHttpClient = (payload: { ok: true; shouldTerminate: boolean }) =>
             },
           }),
         ),
-      ),
-    ),
+      );
+    }),
   );
 
 describe('requestRunnerTermination', () => {
@@ -43,6 +44,7 @@ describe('requestRunnerTermination', () => {
     stopInstanceMock.mockReset();
     stopInstanceMock.mockResolvedValue({});
     process.env['RUNNER_API_BASE_URL'] = 'http://runner.test/api';
+    process.env['RUNNER_API_TOKEN'] = 'test-runner-token';
     process.env['RUNNER_ID'] = 'ec2-i-0123456789abcdef0';
     process.env['AWS_REGION'] = 'eu-central-1';
   });
@@ -50,6 +52,7 @@ describe('requestRunnerTermination', () => {
   afterEach(() => {
     delete process.env['RUNNER_API_BASE_URL'];
     delete process.env['RUNNER_ID'];
+    delete process.env['RUNNER_API_TOKEN'];
     delete process.env['AWS_REGION'];
   });
 

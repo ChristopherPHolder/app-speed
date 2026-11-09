@@ -19,6 +19,8 @@ export const auditRunTable = sqliteTable(
   'audit_runs',
   {
     id: text('id').primaryKey(),
+    // Retained after project deletion: an orphaned private run must never become public.
+    projectId: text('project_id'),
     templateId: text('template_id')
       .notNull()
       .references(() => auditTemplateTable.id, { onDelete: 'restrict', onUpdate: 'cascade' }),
@@ -29,7 +31,10 @@ export const auditRunTable = sqliteTable(
     completedAt: integer('completed_at', { mode: 'timestamp_ms' }),
     durationMs: integer('duration_ms'),
   },
-  (table) => [index('audit_runs_scheduled_queue_idx').on(table.status, table.createdAt, table.id)],
+  (table) => [
+    index('audit_runs_scheduled_queue_idx').on(table.status, table.createdAt, table.id),
+    index('audit_runs_project_history_idx').on(table.projectId, table.createdAt, table.id),
+  ],
 );
 
 export const auditResultTable = sqliteTable(

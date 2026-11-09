@@ -19,8 +19,9 @@ export const findUserFlowAuditByIdEndpoint = HttpApiEndpoint.get('findUserFlowAu
   success: Schema.Struct({
     status: AuditRunStatusSchema,
     audit: UserFlowAuditDefinitionSchema,
+    auditQueuePosition: Schema.Number,
   }),
-  error: [HttpApiError.BadRequestNoContent, AuditNotFoundError],
+  error: [HttpApiError.BadRequestNoContent, HttpApiError.ForbiddenNoContent, AuditNotFoundError],
 });
 
 export const scheduleUserFlowAuditEndpoint = HttpApiEndpoint.post('scheduleUserFlowAudit', '/schedule', {
@@ -29,7 +30,7 @@ export const scheduleUserFlowAuditEndpoint = HttpApiEndpoint.post('scheduleUserF
     auditId: Schema.String,
     auditQueuePosition: Schema.Number.check(Schema.isInt(), Schema.isGreaterThanOrEqualTo(0)),
   }),
-  error: HttpApiError.BadRequestNoContent,
+  error: [HttpApiError.BadRequestNoContent, HttpApiError.ForbiddenNoContent],
 });
 
 export class UserFlowAuditApiGroup extends HttpApiGroup.make('userFlowAudit')

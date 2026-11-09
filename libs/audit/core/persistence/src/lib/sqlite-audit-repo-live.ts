@@ -35,6 +35,7 @@ const claimNextRun = Effect.fn('db.auditRun.claimNext')(function* () {
           .select({
             id: auditRunTable.id,
             templateId: auditRunTable.templateId,
+            projectId: auditRunTable.projectId,
             status: auditRunTable.status,
             createdAt: auditRunTable.createdAt,
             updatedAt: auditRunTable.updatedAt,
@@ -114,6 +115,7 @@ const getRunById = Effect.fn('db.auditRun.getById')(function* (id: AuditRunId) {
           .select({
             id: auditRunTable.id,
             templateId: auditRunTable.templateId,
+            projectId: auditRunTable.projectId,
             status: auditRunTable.status,
             createdAt: auditRunTable.createdAt,
             updatedAt: auditRunTable.updatedAt,

@@ -18,6 +18,7 @@ The CLI attempts to follow SOLID principles and Object-Oriented Programing.
 
 ## Configuration
 
+- `RUNNER_API_TOKEN` (required for remote/manual runners; must match the API; local API-spawned runners receive an ephemeral token)
 - `RUNNER_API_BASE_URL` (default `http://localhost:3000/api`)
 - `RUNNER_ID` (default `local-<pid>`)
 - `RUNNER_HEADLESS` (default `false`)
@@ -52,5 +53,5 @@ The abstraction build apone each other and are assembel in the middleware to the
 ## Hardware requirements
 
 To reduce variability in the results of the audits its important to follow the hardware recommendations outlined in
-lighthouse is docs on [Variability](https://github.com/GoogleChrome/lighthouse/blob/main/docs/variability.md) and 
+lighthouse is docs on [Variability](https://github.com/GoogleChrome/lighthouse/blob/main/docs/variability.md) and
 [Strategies for Dealing With Variance](https://github.com/GoogleChrome/lighthouse/blob/main/docs/variability.md#strategies-for-dealing-with-variance)

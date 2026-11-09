@@ -69,17 +69,19 @@ describe('ec2-ssm-cycle executor', () => {
   });
 
   it('runs the runner container with a restart policy so it comes back after EC2 restarts', async () => {
+    vi.stubEnv('RUNNER_API_TOKEN', "test-token-with-quote-'");
     const result = await executor({
       region: 'eu-central-1',
       instanceId: 'i-123',
       imageRef: '123456789012.dkr.ecr.eu-central-1.amazonaws.com/app-speed/runner:test',
       containerName: 'app-speed-runner',
-      additionalRunArgs: ['-e RUNNER_API_BASE_URL=https://dev.appspeed.dev/api'],
+      additionalRunArgs: ['-e RUNNER_API_BASE_URL=https://dev.appspeed.dev/api', '-e RUNNER_API_TOKEN'],
       pruneDockerBeforePull: true,
       stopAfterCompletion: true,
       stopOnlyIfStarted: true,
     });
 
+    vi.unstubAllEnvs();
     expect(result.success).toBe(true);
     expect(startInstanceIfNeeded).toHaveBeenCalledTimes(1);
     expect(waitForSsmCommandCompletion).toHaveBeenCalledTimes(1);
@@ -90,6 +92,7 @@ describe('ec2-ssm-cycle executor', () => {
     const commands = parameters?.commands ?? [];
     expect(commands).toEqual(
       expect.arrayContaining([
+        expect.stringContaining('RUNNER_API_TOKEN=test-token-with-quote-'),
         expect.stringContaining('timeout --foreground 120s docker system prune -af'),
         expect.stringContaining('timeout --foreground 120s docker builder prune -af'),
         expect.stringContaining(
