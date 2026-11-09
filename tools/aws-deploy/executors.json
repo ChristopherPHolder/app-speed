@@ -24,6 +24,11 @@
       "implementation": "./src/executors/workflow-rerun/executor",
       "schema": "./src/executors/workflow-rerun/schema.json",
       "description": "Retry a GitHub Actions workflow through Nx"
+    },
+    "workflow-dispatch": {
+      "implementation": "./src/executors/workflow-dispatch/executor",
+      "schema": "./src/executors/workflow-dispatch/schema.json",
+      "description": "Dispatch an API or runner deployment workflow through Nx"
     }
   }
 }

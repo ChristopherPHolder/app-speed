@@ -149,10 +149,11 @@ jobs:
           CLERK_PUBLISHABLE_KEY: ${{ vars[needs.determine-deploy-scope.outputs.deploy_env == 'production' && 'CLERK_PUBLISHABLE_KEY' || 'CLERK_DEVELOPMENT_PUBLISHABLE_KEY'] }}
           CLERK_AUTHORIZED_PARTIES: ${{ needs.determine-deploy-scope.outputs.deploy_env == 'production' && 'https://appspeed.dev' || 'https://dev.appspeed.dev' }}
         run: |
+          RUN_SUFFIX="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           if [ "$DEPLOY_ENV" = "production" ]; then
-            IMAGE_REF="${ECR_REGISTRY}/app-speed/api:${GITHUB_SHA::12}"
+            IMAGE_REF="${ECR_REGISTRY}/app-speed/api:${GITHUB_SHA::12}-${RUN_SUFFIX}"
           else
-            IMAGE_REF="${ECR_REGISTRY}/app-speed/api:dev-${GITHUB_SHA::12}"
+            IMAGE_REF="${ECR_REGISTRY}/app-speed/api:dev-${GITHUB_SHA::12}-${RUN_SUFFIX}"
           fi
 
           NX_DOCKER_IMAGE_REF="${IMAGE_REF}" pnpm exec nx release version --group=api

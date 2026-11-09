@@ -14,6 +14,10 @@
     "workflow-rerun": {
       "executor": "@app-speed/aws-deploy:workflow-rerun",
       "cache": false
+    },
+    "workflow-dispatch": {
+      "executor": "@app-speed/aws-deploy:workflow-dispatch",
+      "cache": false
     }
   }
 }

@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "version": 2,
+  "title": "Dispatch a deployment workflow",
+  "type": "object",
+  "properties": {
+    "workflow": { "type": "string", "enum": ["deploy-api.yml", "deploy-runner.yml"] },
+    "ref": { "type": "string", "minLength": 1 },
+    "environment": { "type": "string", "enum": ["development", "production"] }
+  },
+  "required": ["workflow", "ref", "environment"]
+}

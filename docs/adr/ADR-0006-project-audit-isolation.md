@@ -59,3 +59,10 @@ pnpm exec nx run aws-deploy:workflow-rerun --runId=<runner-workflow-run-id> --fa
 Retry both API and runner after provisioning a previously missing credential. A successful API container deployment
 alone does not prove worker authentication is configured. The API authentication preflight requires a nonempty
 runner credential before migrations or publishing, and Docker environment passthrough rejects blank values.
+
+API and runner image tags include the workflow run ID and attempt so retries do not overwrite immutable ECR tags.
+Dispatch a fresh deployment from an explicit ref with:
+
+```shell
+pnpm exec nx run aws-deploy:workflow-dispatch --workflow=deploy-api.yml --ref=<git-ref> --environment=production
+```
