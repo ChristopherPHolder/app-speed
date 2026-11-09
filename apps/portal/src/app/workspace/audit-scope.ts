@@ -1,4 +1,4 @@
-import { inject } from '@angular/core';
+import { inject, Injector } from '@angular/core';
 import { HttpInterceptorFn } from '@angular/common/http';
 import {
   ActivatedRouteSnapshot,
@@ -9,11 +9,13 @@ import {
 } from '@angular/router';
 import { filter, from, switchMap, takeUntil } from 'rxjs';
 import { PortalAuthService } from '../auth/portal-auth.service';
-import { WorkspaceState } from './workspace-state.service';
 
 export const selectAuditContext: CanActivateChildFn = async (route) => {
-  const state = inject(WorkspaceState);
+  const injector = inject(Injector);
   const router = inject(Router);
+  // Workspace schemas and their Effect runtime stay outside the public initial bundle.
+  const { WorkspaceState } = await import('./workspace-state.service');
+  const state = injector.get(WorkspaceState);
   const projectId = route.queryParamMap.get('projectId');
   if (!projectId) {
     state.selectPublicView();
