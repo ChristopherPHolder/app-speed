@@ -70,3 +70,7 @@ pnpm exec nx run aws-deploy:workflow-dispatch --workflow=deploy-api.yml --ref=<g
 Runner deployment cleanup stops an instance only when that deployment started it. A previously running worker
 remains under the API lifecycle's control. The runner workflow step allows 55 minutes for the executor's bounded
 30-minute startup, 10-minute SSM command, and 10-minute stop phases, so Actions does not kill cleanup prematurely.
+
+An empty queue at API startup does not itself authorize stopping an externally started worker. Lifecycle
+reconciliation consumes explicit idle/shutdown requests once. Newly discovered workers retain the existing idle
+grace period, preventing the API from powering off an instance just as deployment sends its SSM command.

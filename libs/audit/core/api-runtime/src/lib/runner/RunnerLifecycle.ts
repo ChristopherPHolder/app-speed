@@ -19,6 +19,8 @@ export class RunnerLifecycle extends Context.Service<
   }
 >()('RunnerLifecycle') {}
 
+type RunnerIntent = { desiredState: RunnerDesiredState; shutdownRequested: boolean };
+
 const describeDesiredState = (state: RunnerDesiredState) => ({ 'runner.desired_state': state });
 
 export const RunnerLifecycleLive = Layer.effect(RunnerLifecycle)(
@@ -35,11 +37,15 @@ export const RunnerLifecycleLive = Layer.effect(RunnerLifecycle)(
           Effect.logError(`Failed to determine initial runner desired state: ${String(error)}`).pipe(Effect.as(false)),
         ),
       );
-    const desiredStateRef = yield* Ref.make<RunnerDesiredState>(hasQueuedWorkAtStartup ? 'ACTIVE' : 'INACTIVE');
+    // Empty at API startup is not a shutdown request for a worker started by deployment.
+    const intentRef = yield* Ref.make<RunnerIntent>({
+      desiredState: hasQueuedWorkAtStartup ? 'ACTIVE' : 'INACTIVE',
+      shutdownRequested: false,
+    });
 
     const reconcileOnce = reconcileSemaphore.withPermits(1)(
       Effect.gen(function* () {
-        const desiredState = yield* Ref.get(desiredStateRef);
+        const { desiredState } = yield* Ref.get(intentRef);
         const activeRunners = yield* runnerManager.listActiveRunners;
         const activeRunnerIds = activeRunners.map((runner) => String(runner.id));
         const nowMs = yield* Clock.currentTimeMillis;
@@ -59,9 +65,9 @@ export const RunnerLifecycleLive = Layer.effect(RunnerLifecycle)(
           return;
         }
 
-        if (activeRunnerIds.length === 0) {
-          return;
-        }
+        // Consume the explicit intent once; future externally started workers retain their idle grace period.
+        const intent = yield* Ref.getAndUpdate(intentRef, (state) => ({ ...state, shutdownRequested: false }));
+        if (!intent.shutdownRequested || intent.desiredState !== 'INACTIVE' || activeRunnerIds.length === 0) return;
 
         for (const runnerId of activeRunnerIds) {
           yield* Effect.logInfo(`Runner lifecycle requesting termination for ${runnerId}`);
@@ -76,7 +82,7 @@ export const RunnerLifecycleLive = Layer.effect(RunnerLifecycle)(
     const triggerReconcile = Effect.forkDetach(reconcileOnce).pipe(Effect.asVoid);
 
     const setDesiredState = (state: RunnerDesiredState) =>
-      Ref.set(desiredStateRef, state).pipe(
+      Ref.set(intentRef, { desiredState: state, shutdownRequested: state === 'INACTIVE' }).pipe(
         Effect.tap(() => Effect.annotateCurrentSpan(describeDesiredState(state))),
         Effect.andThen(triggerReconcile),
       );

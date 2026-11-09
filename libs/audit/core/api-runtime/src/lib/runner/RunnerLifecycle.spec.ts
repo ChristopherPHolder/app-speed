@@ -1,5 +1,5 @@
 import { AuditRepo } from '@app-speed/audit/core/persistence';
-import { Deferred, Effect, Layer, Ref, Schema } from 'effect';
+import { ConfigProvider, Deferred, Effect, Layer, Ref, Schema } from 'effect';
 import { describe, expect, it } from 'vitest';
 
 import { RunnerLifecycle, RunnerLifecycleLive } from './RunnerLifecycle.js';
@@ -136,6 +136,55 @@ describe('RunnerLifecycle', () => {
             const startCount = yield* Ref.get(startCountRef);
             expect(startCount).toBe(1);
           }).pipe(Effect.provide(testLayer));
+        }),
+      ),
+    );
+  });
+  it('preserves externally started runners until shutdown is explicitly requested', async () => {
+    await Effect.runPromise(
+      Effect.scoped(
+        Effect.gen(function* () {
+          let observations = 0;
+          let stops = 0;
+          const secondObservation = yield* Deferred.make<void>();
+          const afterShutdown = yield* Deferred.make<void>();
+          const stopped = yield* Deferred.make<void>();
+          const manager = {
+            ensureRunnerActive: Effect.void,
+            listActiveRunners: Effect.gen(function* () {
+              observations++;
+              if (observations === 2) yield* Deferred.succeed(secondObservation, void 0);
+              if (observations > 3 && stops > 0) yield* Deferred.succeed(afterShutdown, void 0);
+              return [{ id: testRunnerId, lastHeartbeatAt: new Date() }];
+            }),
+            terminateRunner: () =>
+              Effect.sync(() => {
+                stops++;
+              }).pipe(Effect.andThen(Deferred.succeed(stopped, void 0)), Effect.asVoid),
+          };
+          const layer = RunnerLifecycleLive.pipe(
+            Layer.provide(
+              Layer.mergeAll(
+                Layer.succeed(AuditRepo)(makeAuditRepoStub(() => false)),
+                Layer.succeed(RunnerManager)(manager),
+                Layer.succeed(RunnerRegistry)(runnerRegistryStub),
+                Layer.succeed(
+                  ConfigProvider.ConfigProvider,
+                  ConfigProvider.fromUnknown({ RUNNER_RECONCILE_INTERVAL_MS: '1' }),
+                ),
+              ),
+            ),
+          );
+          yield* Effect.gen(function* () {
+            const lifecycle = yield* RunnerLifecycle;
+            yield* Deferred.await(secondObservation);
+            expect(stops).toBe(0);
+            expect((yield* lifecycle.requestInactivationIfQueueEmpty('idle-reaper')).shouldTerminate).toBe(true);
+            yield* Deferred.await(stopped);
+            yield* Deferred.await(afterShutdown);
+            // A completed shutdown intent must not terminate a subsequently discovered worker either.
+            expect(stops).toBe(1);
+          }).pipe(Effect.provide(layer));
         }),
       ),
     );
