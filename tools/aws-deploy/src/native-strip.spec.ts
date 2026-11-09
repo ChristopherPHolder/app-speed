@@ -3,6 +3,9 @@ import { spawnSync } from 'node:child_process';
 import { describe, expect, it } from 'vitest';
 
 const executorUrls = [
+  new URL('./executors/ec2-status/executor.ts', import.meta.url).href,
+  new URL('./executors/workflow-dispatch/executor.ts', import.meta.url).href,
+  new URL('./executors/workflow-rerun/executor.ts', import.meta.url).href,
   new URL('./executors/auth-preflight/executor.ts', import.meta.url).href,
   new URL('./executors/ec2-ssm-cycle/executor.ts', import.meta.url).href,
   new URL('./executors/s3-upload/executor.ts', import.meta.url).href,

@@ -101,4 +101,17 @@ describe('ec2-ssm-cycle executor', () => {
       ]),
     );
   });
+  it('leaves an already-running instance under API lifecycle control', async () => {
+    startInstanceIfNeededMock.mockReturnValue(Effect.succeed({ startedByExecutor: false }));
+    const result = await executor({
+      region: 'eu-central-1',
+      instanceId: 'i-123',
+      imageRef: 'registry.example.com/runner:test',
+      stopAfterCompletion: true,
+      stopOnlyIfStarted: true,
+    });
+    expect(result.success).toBe(true);
+    expect(waitForSsmCommandCompletion).toHaveBeenCalledTimes(1);
+    expect(stopInstance).not.toHaveBeenCalled();
+  });
 });

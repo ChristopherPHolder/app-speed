@@ -6,6 +6,12 @@ on:
       - main
   workflow_dispatch:
     inputs:
+      operation:
+        description: Deploy the runner or inspect its EC2 state without changes
+        required: true
+        type: choice
+        options: [deploy, inspect]
+        default: deploy
       environment:
         description: Deployment environment
         required: true
@@ -21,6 +27,7 @@ env:
 
 jobs:
   determine-deploy-scope:
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.operation != 'inspect' }}
     name: Determine Runner Deploy Scope
     runs-on: ubuntu-latest
     outputs:
@@ -139,7 +146,8 @@ jobs:
           pnpm exec nx release publish --group=runner --yes --outputStyle=static
 
       - name: Deploy Runner
-        timeout-minutes: 10
+        # Allow the executor's 30m startup + 10m command + 10m cleanup limits.
+        timeout-minutes: 55
         env:
           DEPLOY_ENV: ${{ needs.determine-deploy-scope.outputs.deploy_env }}
           RUNNER_API_TOKEN: ${{ secrets[needs.determine-deploy-scope.outputs.deploy_env == 'production' && 'RUNNER_API_TOKEN' || 'RUNNER_DEVELOPMENT_API_TOKEN'] }}
@@ -149,3 +157,28 @@ jobs:
             --configuration="${DEPLOY_ENV}" \
             --outputStyle=stream \
             --verbose
+
+  inspect:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.operation == 'inspect' }}
+    name: Inspect Runner Status
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+        with:
+          version: '10.11.0'
+          run_install: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24.14.0'
+          cache: pnpm
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
+      - name: Inspect runner EC2 state and health
+        run: pnpm exec nx run runner:status

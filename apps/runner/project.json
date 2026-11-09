@@ -69,7 +69,7 @@
         "documentName": "AWS-RunShellScript",
         "containerName": "app-speed-runner",
         "stopAfterCompletion": true,
-        "stopOnlyIfStarted": false,
+        "stopOnlyIfStarted": true,
         "expectBootstrapShutdown": false,
         "pruneDockerBeforePull": true,
         "pollIntervalMs": 5000,
@@ -95,6 +95,14 @@
             "-e RUNNER_HEADLESS=true"
           ]
         }
+      }
+    },
+    "status": {
+      "executor": "@app-speed/aws-deploy:ec2-status",
+      "cache": false,
+      "options": {
+        "region": "eu-central-1",
+        "instanceId": "i-049287bf43503d01e"
       }
     }
   }
