@@ -23,6 +23,7 @@ export type AuditTemplateRecord = typeof AuditTemplateRecordSchema.Type;
 const AuditRunRecordSchema = Schema.Struct({
   id: AuditRunIdSchema,
   templateId: AuditTemplateIdSchema,
+  projectId: Schema.NullOr(Schema.String),
   kind: AuditKindSchema,
   status: AuditStatusSchema,
   createdAt: Schema.Date,
@@ -76,6 +77,7 @@ export const decodeAuditTemplateRecord = (template: {
 }) => Schema.decodeUnknownEffect(AuditTemplateRecordSchema, { errors: 'all' })(template);
 
 export const decodeAuditRunRecord = (run: {
+  projectId?: string | null;
   id: string;
   templateId: string;
   status: AuditStatus;
@@ -89,6 +91,7 @@ export const decodeAuditRunRecord = (run: {
   Schema.decodeUnknownEffect(AuditRunRecordSchema, { errors: 'all' })({
     id: run.id,
     templateId: run.templateId,
+    projectId: run.projectId ?? null,
     kind: run.kind,
     status: run.status,
     createdAt: run.createdAt,

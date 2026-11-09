@@ -114,7 +114,18 @@ const resolveCommands = (options: Ec2SsmCycleExecutorSchema, region: string): st
   }
 
   const containerName = options.containerName?.trim() || DEFAULT_CONTAINER_NAME;
-  const additionalRunArgs = (options.additionalRunArgs ?? []).map((arg) => arg.trim()).filter(Boolean);
+  const additionalRunArgs = (options.additionalRunArgs ?? [])
+    .map((arg) => arg.trim())
+    .filter(Boolean)
+    .map((arg) => {
+      const match = /^-e\s+([A-Za-z_][A-Za-z0-9_]*)$/.exec(arg);
+      if (!match) return arg;
+      const key = match[1];
+      const value = env[key];
+      if (!value)
+        throw new Ec2SsmCycleError({ message: `Missing environment variable ${key} required by Docker run argument` });
+      return `-e ${shellQuote(`${key}=${value}`)}`;
+    });
   const pruneDockerBeforePull = options.pruneDockerBeforePull === true;
 
   return buildDefaultCommands(

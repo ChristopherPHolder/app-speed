@@ -32,8 +32,7 @@ Chris's account
 
 Switching the active workspace changes the membership, projects, and data in use. A selected project must belong to
 the selected workspace, and the account must have access to it. A workspace or project identifier selected in the
-browser is navigation context, not proof of authorization. Management APIs verify identity, membership, and project access on the server. Future audit APIs must enforce the
-same boundary.
+browser is navigation context, not proof of authorization. Management APIs verify identity, membership, and project access on the server. Audit APIs enforce the same boundary for project-owned runs.
 
 **Public View** is the default portal context. It is available to guests and signed-in accounts, and does not
 have workspace membership, settings, or projects. It contains the existing public audit and trace tools.
@@ -51,8 +50,10 @@ See [the auth release guide](docs/deployment/initial-auth-production.md) for pro
 
 Workspace/project creation and switching, membership roles, invitations, and project access are now implemented
 as a management slice. See [ADR-0005](docs/adr/ADR-0005-workspaces-and-projects.md) for its policies and storage.
-Audits are not yet assigned to projects; existing audit history is not private account or project history.
-Persisted audit ownership, claiming, sharing, and Cron Audits remain later stages. Avoid showing example workspaces
+New audits run inside a project belong to that project and require current project access for history, definitions,
+results, reports, and progress. Public View contains only unowned audits, including existing historical runs.
+See [ADR-0006](docs/adr/ADR-0006-project-audit-isolation.md) for scope propagation and deletion retention.
+Claiming, sharing, and Cron Audits remain later stages. Avoid showing example workspaces
 or projects as if they were persisted, authorized data.
 
 ## Related issue and terminology changes
@@ -80,5 +81,4 @@ behavior belongs under `libs/audit/**`. Reusable identity integration belongs un
 ADR-0005 extends the domain boundaries for workspace/project management.
 
 The multi-tenant authorization non-goal in [the audit feature guide](docs/audit-feature.md) describes the existing
-audit implementation. Workspace/project management now enforces authorization on the server. Applying that boundary to audit
-resources remains a planned expansion.
+audit implementation. Workspace/project management now enforces authorization on the server. Project-owned audit resources now enforce the same boundary; see ADR-0006.

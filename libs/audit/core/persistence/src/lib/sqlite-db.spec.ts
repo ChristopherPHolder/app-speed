@@ -15,7 +15,7 @@ describe('SQLite database boundaries', () => {
     const path = join(directory, 'audit.sqlite');
     const client = createClient({ url: `file:${path}` });
     try {
-      await client.execute('PRAGMA user_version = 2');
+      await client.execute('PRAGMA user_version = 3');
       const exit = await Effect.runPromiseExit(
         Effect.scoped(
           Effect.gen(function* () {
@@ -27,6 +27,31 @@ describe('SQLite database boundaries', () => {
         ),
       );
       expect(exit._tag).toBe('Failure');
+      expect((await client.execute('PRAGMA user_version')).rows[0]?.['user_version']).toBe(3);
+    } finally {
+      client.close();
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it('upgrades version-one history without assigning its public runs to a project', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'sqlite-upgrade-'));
+    const path = join(directory, 'audit.sqlite');
+    const client = createClient({ url: `file:${path}` });
+    try {
+      await client.executeMultiple(`CREATE TABLE audit_runs(id TEXT PRIMARY KEY,created_at INTEGER);
+        INSERT INTO audit_runs VALUES ('existing-public',1); PRAGMA user_version=1;`);
+      await Effect.runPromise(
+        Effect.gen(function* () {
+          const db = yield* SqliteDbClient;
+          expect(yield* db.run((current) => current.all(sql`SELECT id,project_id FROM audit_runs`))).toEqual([
+            { id: 'existing-public', project_id: null },
+          ]);
+        }).pipe(
+          Effect.provide(SqliteDbClient.live),
+          Effect.provideService(ConfigProvider.ConfigProvider, providePath(path)),
+        ),
+      );
       expect((await client.execute('PRAGMA user_version')).rows[0]?.['user_version']).toBe(2);
     } finally {
       client.close();

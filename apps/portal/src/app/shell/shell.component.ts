@@ -9,6 +9,7 @@ import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } fro
 import { filter, map } from 'rxjs';
 import { AccountMenuComponent } from '../auth/account-menu.component';
 import { PortalAuthService } from '../auth/portal-auth.service';
+import { WorkspaceState } from '../workspace/workspace-state.service';
 import { WorkspaceNavigationComponent } from '../workspace/workspace-navigation.component';
 
 const desktopQuery = '(width >= 960px)';
@@ -60,6 +61,11 @@ const desktopQuery = '(width >= 960px)';
               <a
                 mat-button
                 [routerLink]="item.route"
+                [queryParams]="
+                  item.route.startsWith('/audits') && workspaceState.project()
+                    ? { projectId: workspaceState.projectId() }
+                    : {}
+                "
                 routerLinkActive="active-navigation-item"
                 [routerLinkActiveOptions]="{ exact: item.exact }"
                 ariaCurrentWhenActive="page"
@@ -109,6 +115,11 @@ const desktopQuery = '(width >= 960px)';
                     <a
                       mat-button
                       [routerLink]="item.route"
+                      [queryParams]="
+                        item.route.startsWith('/audits') && workspaceState.project()
+                          ? { projectId: workspaceState.projectId() }
+                          : {}
+                      "
                       routerLinkActive="active-navigation-item"
                       [routerLinkActiveOptions]="{ exact: item.exact }"
                       ariaCurrentWhenActive="page"
@@ -310,6 +321,7 @@ const desktopQuery = '(width >= 960px)';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShellComponent {
+  protected readonly workspaceState = inject(WorkspaceState);
   protected readonly auth = inject(PortalAuthService);
   private readonly router = inject(Router);
   private readonly breakpoint = inject(BreakpointObserver);

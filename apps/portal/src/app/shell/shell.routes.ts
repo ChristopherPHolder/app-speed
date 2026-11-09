@@ -1,3 +1,4 @@
+import { selectAuditContext } from '../workspace/audit-scope';
 import { inject } from '@angular/core';
 import { PortalAuthService } from '../auth/portal-auth.service';
 import { Route, Router } from '@angular/router';
@@ -59,6 +60,8 @@ export const shellRoutes: Route[] = [
       },
       {
         path: 'audits',
+        canActivateChild: [selectAuditContext],
+        runGuardsAndResolvers: 'paramsOrQueryParamsChange',
         children: [
           {
             path: 'history',

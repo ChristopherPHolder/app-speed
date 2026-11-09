@@ -19,6 +19,7 @@ describe('Audit', () => {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
+        Authorization: `Bearer ${process.env['RUNNER_API_TOKEN']}`,
         accept: 'application/json',
       },
       body: JSON.stringify(payload),

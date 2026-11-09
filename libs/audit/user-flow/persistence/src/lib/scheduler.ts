@@ -16,11 +16,14 @@ import { userFlowAuditTemplateTable } from './schema';
 export class UserFlowAuditScheduler extends Context.Service<
   UserFlowAuditScheduler,
   {
-    schedule: (definition: UserFlowAuditDefinition) => Effect.Effect<AuditRunId, QueryError>;
+    schedule: (definition: UserFlowAuditDefinition, projectId?: string | null) => Effect.Effect<AuditRunId, QueryError>;
   }
 >()('UserFlowAuditScheduler') {}
 
-const schedule = Effect.fn('db.userFlowAudit.schedule')(function* (definition: UserFlowAuditDefinition) {
+const schedule = Effect.fn('db.userFlowAudit.schedule')(function* (
+  definition: UserFlowAuditDefinition,
+  projectId: string | null = null,
+) {
   const db = yield* DbClient;
   const now = new Date(yield* Clock.currentTimeMillis);
   const templateId = randomUUID() as AuditTemplateId;
@@ -51,6 +54,7 @@ const schedule = Effect.fn('db.userFlowAudit.schedule')(function* (definition: U
         id: runId,
         templateId,
         status: 'SCHEDULED',
+        projectId,
         createdAt: now,
         updatedAt: now,
       });
@@ -64,7 +68,7 @@ export const UserFlowAuditSchedulerLive = Layer.effect(UserFlowAuditScheduler)(
   Effect.gen(function* () {
     const db = yield* DbClient;
     return {
-      schedule: (definition) => schedule(definition).pipe(Effect.provideService(DbClient, db)),
+      schedule: (definition, projectId) => schedule(definition, projectId).pipe(Effect.provideService(DbClient, db)),
     };
   }),
 );

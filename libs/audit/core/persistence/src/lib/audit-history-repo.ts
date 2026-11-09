@@ -8,6 +8,7 @@ export class AuditHistoryRepo extends Context.Service<
   AuditHistoryRepo,
   {
     listRunsPage: (params: {
+      projectId?: string | null;
       search?: string | null;
       outcome?: 'SUCCESS' | 'FAILURE' | null;
       limit: number;

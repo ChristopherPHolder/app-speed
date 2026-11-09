@@ -1,5 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { Router } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
 import { AuditProgressService } from './audit-progress.service';
 
@@ -103,7 +104,7 @@ describe('AuditProgressService', () => {
     service.watchAudit('audit-b');
     const auditBSource = MockEventSource.instances[1];
     auditBSource.dispatchEvent(new MessageEvent('status', { data: JSON.stringify({ status: 'IN_PROGRESS' }) }));
-    auditAResultRequest.flush({ status: 'SUCCESS', result: {} });
+    expect(auditAResultRequest.cancelled).toBe(true);
 
     expect(stages.at(-1)).toBe('running');
     expect(resultKeys).toEqual([]);
@@ -111,5 +112,31 @@ describe('AuditProgressService', () => {
 
     stageSubscription.unsubscribe();
     keySubscription.unsubscribe();
+  });
+  it('polls project progress through HTTP and cancels pending reads on navigation', async () => {
+    const router = TestBed.inject(Router);
+    vi.spyOn(router, 'url', 'get').mockReturnValue('/audits/user-flow/private?projectId=project-a');
+    const service = TestBed.inject(AuditProgressService);
+    const http = TestBed.inject(HttpTestingController);
+    service.watchAudit('private');
+    const privateRequest = await vi.waitFor(() => http.expectOne('/api/audits/user-flow/private'));
+    expect(MockEventSource.instances).toHaveLength(0);
+    // A new audit must cancel the old request rather than display a late response from it.
+    service.watchAudit('next');
+    expect(privateRequest.cancelled).toBe(true);
+    await vi.waitFor(() => {
+      const requests = http.match('/api/audits/user-flow/next');
+      expect(requests).toHaveLength(1);
+      requests[0].flush({ status: 'COMPLETE', auditQueuePosition: 0 });
+    });
+    const result = http.expectOne('/api/audits/user-flow/next/result');
+    result.flush({ status: 'SUCCESS', result: {} });
+    let stage = '';
+    const subscription = service.stageName$.subscribe((value) => {
+      stage = value;
+    });
+    expect(stage).toBe('done');
+    subscription.unsubscribe();
+    vi.restoreAllMocks();
   });
 });

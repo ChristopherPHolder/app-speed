@@ -21,6 +21,8 @@ export const auditRunTable = pgTable(
   'audit_runs',
   {
     id: uuid('id').primaryKey().defaultRandom(),
+    // Retained after project deletion: an orphaned private run must never become public.
+    projectId: text('project_id'),
     templateId: uuid('template_id')
       .notNull()
       .references(() => auditTemplateTable.id, { onDelete: 'restrict', onUpdate: 'cascade' }),
@@ -31,7 +33,10 @@ export const auditRunTable = pgTable(
     completedAt: timestamp('completed_at', { withTimezone: true }),
     durationMs: integer('duration_ms'),
   },
-  (table) => [index('audit_runs_scheduled_queue_idx').on(table.status, table.createdAt, table.id)],
+  (table) => [
+    index('audit_runs_scheduled_queue_idx').on(table.status, table.createdAt, table.id),
+    index('audit_runs_project_history_idx').on(table.projectId, table.createdAt, table.id),
+  ],
 );
 
 export const auditResultTable = pgTable(

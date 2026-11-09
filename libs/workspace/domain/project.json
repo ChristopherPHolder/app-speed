@@ -3,7 +3,7 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/workspace/domain/src",
   "projectType": "library",
-  "tags": ["type:domain", "scope:shared", "runtime:agnostic"],
+  "tags": ["type:domain", "scope:shared", "runtime:agnostic", "layer:model"],
   "targets": {
     "build": {
       "executor": "@nx/esbuild:esbuild",

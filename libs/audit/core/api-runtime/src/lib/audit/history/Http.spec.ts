@@ -14,6 +14,7 @@ it.effect('normalizes search and passes outcome to the paginated repository', ()
           cursor: null,
           status: null,
           kind: 'user-flow',
+          projectId: null,
         });
         return Effect.succeed({ items: [], nextCursor: null });
       },

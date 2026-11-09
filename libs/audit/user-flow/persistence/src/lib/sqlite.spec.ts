@@ -46,6 +46,21 @@ describe('SQLite persistence', () => {
           const repo = yield* AuditRepo;
           const userFlow = yield* UserFlowAuditRepo;
           const first = yield* scheduler.schedule(definition);
+          const privateRun = yield* scheduler.schedule({ ...definition, title: 'Private' }, 'project-a');
+          const otherRun = yield* scheduler.schedule({ ...definition, title: 'Other' }, 'project-b');
+          const history = yield* AuditHistoryRepo;
+          const filters = { limit: 100, cursor: null, status: null, kind: null };
+          expect((yield* history.listRunsPage(filters)).items.map((run) => run.id)).toEqual([first]);
+          expect(
+            (yield* history.listRunsPage({ ...filters, projectId: 'project-a' })).items.map((run) => run.id),
+          ).toEqual([privateRun]);
+          expect(
+            (yield* history.listRunsPage({ ...filters, projectId: 'project-b' })).items.map((run) => run.id),
+          ).toEqual([otherRun]);
+          expect((yield* repo.getRunById(privateRun))?.projectId).toBe('project-a');
+          // Finish scoped fixtures so the queue assertions below still exercise public runs.
+          yield* repo.completeFailure(privateRun, { message: 'fixture' }, 0);
+          yield* repo.completeFailure(otherRun, { message: 'fixture' }, 0);
           const second = yield* scheduler.schedule({ ...definition, title: 'Second' });
           expect(yield* repo.getQueuePosition(second)).toBe(1);
           expect((yield* repo.claimNextRun())?.id).toBe(first);

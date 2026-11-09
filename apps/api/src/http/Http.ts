@@ -1,4 +1,4 @@
-import { HttpRouter } from 'effect/http';
+import { HttpRouter, HttpServerResponse } from 'effect/http';
 import { HttpApiBuilder, HttpApiSwagger } from 'effect/http-api';
 import { NodeHttpServer } from '@effect/platform-node';
 import { Config, Effect, Layer } from 'effect';
@@ -11,8 +11,13 @@ import { WorkspaceGroupLive } from '@app-speed/workspace/api-runtime';
 
 import { Api } from './Api.js';
 
+const NoStore = HttpRouter.middleware((httpEffect) =>
+  Effect.map(httpEffect, (response) => HttpServerResponse.setHeader(response, 'Cache-Control', 'no-store')),
+);
+
 const ApiLive = HttpApiBuilder.layer(Api).pipe(
   Layer.provide([WorkspaceGroupLive, HealthGroupLive, AuditGroupLive, RunnerGroupLive, UserFlowAuditGroupLive]),
+  Layer.provide(NoStore.layer),
 );
 
 const RoutesLive = Layer.mergeAll(ApiLive, HttpApiSwagger.layer(Api), HttpRouter.cors());

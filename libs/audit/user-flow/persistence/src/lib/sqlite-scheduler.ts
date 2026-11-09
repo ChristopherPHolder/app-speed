@@ -14,7 +14,10 @@ import { userFlowAuditTemplateTable } from './sqlite-schema';
 
 import { UserFlowAuditScheduler } from './scheduler';
 
-const schedule = Effect.fn('db.userFlowAudit.schedule')(function* (definition: UserFlowAuditDefinition) {
+const schedule = Effect.fn('db.userFlowAudit.schedule')(function* (
+  definition: UserFlowAuditDefinition,
+  projectId: string | null = null,
+) {
   const db = yield* SqliteDbClient;
   const now = new Date(yield* Clock.currentTimeMillis);
   const templateId = randomUUID() as AuditTemplateId;
@@ -45,6 +48,7 @@ const schedule = Effect.fn('db.userFlowAudit.schedule')(function* (definition: U
         id: runId,
         templateId,
         status: 'SCHEDULED',
+        projectId,
         createdAt: now,
         updatedAt: now,
       });
@@ -58,7 +62,8 @@ export const SqliteUserFlowAuditSchedulerLive = Layer.effect(UserFlowAuditSchedu
   Effect.gen(function* () {
     const db = yield* SqliteDbClient;
     return {
-      schedule: (definition) => schedule(definition).pipe(Effect.provideService(SqliteDbClient, db)),
+      schedule: (definition, projectId) =>
+        schedule(definition, projectId).pipe(Effect.provideService(SqliteDbClient, db)),
     };
   }),
 );

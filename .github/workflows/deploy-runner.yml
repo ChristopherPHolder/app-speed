@@ -125,6 +125,7 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
           DEPLOY_ENV: ${{ needs.determine-deploy-scope.outputs.deploy_env }}
+          RUNNER_API_TOKEN: ${{ secrets[needs.determine-deploy-scope.outputs.deploy_env == 'production' && 'RUNNER_API_TOKEN' || 'RUNNER_DEVELOPMENT_API_TOKEN'] }}
         run: |
           RUN_SUFFIX="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           if [ "$DEPLOY_ENV" = "production" ]; then
@@ -141,6 +142,7 @@ jobs:
         timeout-minutes: 10
         env:
           DEPLOY_ENV: ${{ needs.determine-deploy-scope.outputs.deploy_env }}
+          RUNNER_API_TOKEN: ${{ secrets[needs.determine-deploy-scope.outputs.deploy_env == 'production' && 'RUNNER_API_TOKEN' || 'RUNNER_DEVELOPMENT_API_TOKEN'] }}
           IMAGE_REF: ${{ steps.publish-runner.outputs.image_ref }}
         run: |
           RUNNER_IMAGE_REF="${IMAGE_REF}" pnpm exec nx run runner:deploy \
