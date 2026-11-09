@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "version": 2,
+  "title": "Inspect EC2 instance status",
+  "type": "object",
+  "properties": {
+    "region": { "type": "string", "minLength": 1 },
+    "instanceId": { "type": "string", "pattern": "^i-[a-z0-9]+$" }
+  },
+  "required": ["region", "instanceId"]
+}

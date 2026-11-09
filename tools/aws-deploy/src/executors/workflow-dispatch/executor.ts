@@ -12,7 +12,7 @@ export default async function workflowDispatch(
   context: Pick<ExecutorContext, 'root'>,
 ) {
   if (
-    !['deploy-api.yml', 'deploy-runner.yml'].includes(options.workflow) ||
+    !['deploy-api.yml', 'deploy-runner.yml', 'runner-status.yml'].includes(options.workflow) ||
     !options.ref ||
     !['development', 'production'].includes(options.environment)
   )

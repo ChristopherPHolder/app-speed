@@ -4,7 +4,7 @@
   "title": "Dispatch a deployment workflow",
   "type": "object",
   "properties": {
-    "workflow": { "type": "string", "enum": ["deploy-api.yml", "deploy-runner.yml"] },
+    "workflow": { "type": "string", "enum": ["deploy-api.yml", "deploy-runner.yml", "runner-status.yml"] },
     "ref": { "type": "string", "minLength": 1 },
     "environment": { "type": "string", "enum": ["development", "production"] }
   },
