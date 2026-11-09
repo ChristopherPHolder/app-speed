@@ -14,6 +14,7 @@ const runExecutor = async (options: AuthPreflightExecutorSchema): Promise<{ succ
     throw new Error(`CLERK_PUBLISHABLE_KEY must belong to a Clerk ${options.environment} instance.`);
 
   if (options.application === 'api') {
+    requireValue(process.env, 'RUNNER_API_TOKEN');
     const secret = requireValue(process.env, 'CLERK_SECRET_KEY');
     if (!secret.startsWith(production ? 'sk_live_' : 'sk_test_'))
       throw new Error(`CLERK_SECRET_KEY must belong to a Clerk ${options.environment} instance.`);

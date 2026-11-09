@@ -48,3 +48,14 @@ existing audit runs stay public. Configure GitHub secrets `RUNNER_API_TOKEN` (pr
 `RUNNER_DEVELOPMENT_API_TOKEN` (development) with separate random credentials. The existing Nx deploy targets
 pass each environment's credential to both API and runner. Deploy both images together: old runners do not send
 the new bearer header, and will receive 403 responses from the updated API. No secret values belong in source.
+
+Production recovery retries must also use Nx targets:
+
+```shell
+pnpm exec nx run aws-deploy:workflow-rerun --runId=<api-workflow-run-id>
+pnpm exec nx run aws-deploy:workflow-rerun --runId=<runner-workflow-run-id> --failedOnly
+```
+
+Retry both API and runner after provisioning a previously missing credential. A successful API container deployment
+alone does not prove worker authentication is configured. The API authentication preflight requires a nonempty
+runner credential before migrations or publishing, and Docker environment passthrough rejects blank values.

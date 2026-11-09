@@ -48,7 +48,7 @@ const resolveAdditionalRunArgs = (additionalRunArgs: string[]): string[] =>
 
     const envName = match[1];
     const value = env[envName];
-    if (value === undefined) {
+    if (!value?.trim()) {
       fail(`Missing environment variable ${envName} required by Docker run arg "${arg}"`);
     }
 

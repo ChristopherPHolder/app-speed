@@ -8,6 +8,7 @@ const options = {
 } satisfies Parameters<typeof runExecutor>[0];
 
 const configure = () => {
+  vi.stubEnv('RUNNER_API_TOKEN', 'test-runner-credential');
   vi.stubEnv('CLERK_SECRET_KEY', 'sk_live_example');
   vi.stubEnv('CLERK_PUBLISHABLE_KEY', 'pk_live_example');
   vi.stubEnv('CLERK_AUTHORIZED_PARTIES', 'https://appspeed.dev');
@@ -22,14 +23,17 @@ describe('authentication deployment preflight', () => {
     expect(await runExecutor(options)).toEqual({ success: true });
   });
 
-  it.each(['CLERK_SECRET_KEY', 'CLERK_PUBLISHABLE_KEY', 'CLERK_AUTHORIZED_PARTIES', 'DATABASE_URL'])(
-    'rejects missing %s before deployment',
-    async (name) => {
-      configure();
-      vi.stubEnv(name, '');
-      await expect(runExecutor(options)).rejects.toThrow(name);
-    },
-  );
+  it.each([
+    'CLERK_SECRET_KEY',
+    'CLERK_PUBLISHABLE_KEY',
+    'CLERK_AUTHORIZED_PARTIES',
+    'DATABASE_URL',
+    'RUNNER_API_TOKEN',
+  ])('rejects missing %s before deployment', async (name) => {
+    configure();
+    vi.stubEnv(name, '');
+    await expect(runExecutor(options)).rejects.toThrow(name);
+  });
 
   it.each([
     ['CLERK_SECRET_KEY', 'sk_test_example'],

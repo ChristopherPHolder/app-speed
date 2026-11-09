@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "version": 2,
+  "title": "Retry a GitHub Actions workflow",
+  "type": "object",
+  "properties": {
+    "runId": { "type": "integer", "minimum": 1 },
+    "failedOnly": { "type": "boolean", "default": false }
+  },
+  "required": ["runId"]
+}

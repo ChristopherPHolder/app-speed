@@ -19,6 +19,11 @@
       "implementation": "./src/executors/auth-preflight/executor",
       "schema": "./src/executors/auth-preflight/schema.json",
       "description": "Validate Clerk and workspace configuration before deployment"
+    },
+    "workflow-rerun": {
+      "implementation": "./src/executors/workflow-rerun/executor",
+      "schema": "./src/executors/workflow-rerun/schema.json",
+      "description": "Retry a GitHub Actions workflow through Nx"
     }
   }
 }
