@@ -2,7 +2,7 @@
 
 These are real browser → API → database journeys using isolated PGlite storage and fixed identities compiled only into test application builds. Workspace mutations reach the real API. The recovery journey injects one failed overview request to verify safe retry. Live Clerk authentication is tested separately.
 
-These 57 Linux baselines were captured by the passing [GitHub Actions run 42486415919](https://github.com/ChristopherPHolder/app-speed/actions/runs/42486415919) from source commit `160af7000847c16f72db48a6f1944e0014355d36`. All 11 browser tests passed. Capture names and image widths were validated against the macOS journey set; key desktop/mobile screens were visually reviewed. Normal Linux PR checks compare against these images without updating them.
+The set contains 59 Linux baselines. The original 57 were captured by [run 42486415919](https://github.com/ChristopherPHolder/app-speed/actions/runs/42486415919) from source commit `160af7000847c16f72db48a6f1944e0014355d36`. The desktop/mobile social sign-in and saved-workspace recovery images were reviewed and updated from [run 42666471952](https://github.com/ChristopherPHolder/app-speed/actions/runs/42666471952), source commit `d59d01c5e0690e1356723591430772fad5ecba93`; all 13 browser tests passed. All 59 capture names and widths match the macOS journey set. Unrelated baselines were retained. Normal Linux PR checks compare against these images without updating them.
 
 Review changes before updating baselines with `pnpm exec nx run portal-e2e:e2e --configuration=update-snapshots`. A missing baseline fails comparison; normal CI never creates or updates baselines.
 

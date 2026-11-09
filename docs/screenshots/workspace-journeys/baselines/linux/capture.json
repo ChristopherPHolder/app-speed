@@ -1,8 +1,26 @@
 {
-  "sourceCommit": "160af7000847c16f72db48a6f1944e0014355d36",
-  "runUrl": "https://github.com/ChristopherPHolder/app-speed/actions/runs/42486415919",
   "platform": "linux",
   "browser": "Puppeteer-pinned Chrome for Testing 152",
-  "images": 57,
-  "browserTestsPassed": 11
+  "images": 59,
+  "initialCapture": {
+    "sourceCommit": "160af7000847c16f72db48a6f1944e0014355d36",
+    "runUrl": "https://github.com/ChristopherPHolder/app-speed/actions/runs/42486415919",
+    "platform": "linux",
+    "browser": "Puppeteer-pinned Chrome for Testing 152",
+    "images": 57,
+    "browserTestsPassed": 11
+  },
+  "updates": [
+    {
+      "sourceCommit": "d59d01c5e0690e1356723591430772fad5ecba93",
+      "runUrl": "https://github.com/ChristopherPHolder/app-speed/actions/runs/42666471952",
+      "browserTestsPassed": 13,
+      "files": [
+        "desktop/02-sign-in.png",
+        "desktop/30-saved-workspace-recovery.png",
+        "mobile/02-sign-in.png",
+        "mobile/30-saved-workspace-recovery.png"
+      ]
+    }
+  ]
 }
