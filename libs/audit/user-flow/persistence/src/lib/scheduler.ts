@@ -5,6 +5,7 @@ import {
   auditRunTable,
   auditTemplateTable,
   DbClient,
+  type AuditOrigin,
   type AuditRunId,
   type AuditTemplateId,
   QueryError,
@@ -16,13 +17,18 @@ import { userFlowAuditTemplateTable } from './schema';
 export class UserFlowAuditScheduler extends Context.Service<
   UserFlowAuditScheduler,
   {
-    schedule: (definition: UserFlowAuditDefinition, projectId?: string | null) => Effect.Effect<AuditRunId, QueryError>;
+    schedule: (
+      definition: UserFlowAuditDefinition,
+      projectId?: string | null,
+      origin?: AuditOrigin,
+    ) => Effect.Effect<AuditRunId, QueryError>;
   }
 >()('UserFlowAuditScheduler') {}
 
 const schedule = Effect.fn('db.userFlowAudit.schedule')(function* (
   definition: UserFlowAuditDefinition,
   projectId: string | null = null,
+  origin: AuditOrigin = { source: 'portal' },
 ) {
   const db = yield* DbClient;
   const now = new Date(yield* Clock.currentTimeMillis);
@@ -35,6 +41,8 @@ const schedule = Effect.fn('db.userFlowAudit.schedule')(function* (
     'audit.device': definition.device,
     'audit.template_id': templateId,
     'audit.id': runId,
+    'audit.source': origin.source,
+    ...(origin.source === 'mcp' ? { 'audit.client_id': origin.clientId } : {}),
   });
 
   yield* db.run((client) =>
@@ -55,6 +63,9 @@ const schedule = Effect.fn('db.userFlowAudit.schedule')(function* (
         templateId,
         status: 'SCHEDULED',
         projectId,
+        source: origin.source,
+        clientId: origin.source === 'mcp' ? origin.clientId : null,
+        clientName: origin.source === 'mcp' ? origin.clientName : null,
         createdAt: now,
         updatedAt: now,
       });
@@ -68,7 +79,8 @@ export const UserFlowAuditSchedulerLive = Layer.effect(UserFlowAuditScheduler)(
   Effect.gen(function* () {
     const db = yield* DbClient;
     return {
-      schedule: (definition, projectId) => schedule(definition, projectId).pipe(Effect.provideService(DbClient, db)),
+      schedule: (definition, projectId, origin) =>
+        schedule(definition, projectId, origin).pipe(Effect.provideService(DbClient, db)),
     };
   }),
 );

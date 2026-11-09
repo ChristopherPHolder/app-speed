@@ -1,5 +1,6 @@
 export { AuditGroupLive } from './lib/audit/Http';
-export { auditRequestProject } from './lib/audit/scope';
+export { auditRequestProject, authorizedAuditProject } from './lib/audit/scope';
+export { AuditMcpLive, AuditMcpToolkit, PortalLinks, PortalLinksLive, mcpAuditProject } from './lib/audit/mcp';
 export { historyHandler, scopedHistoryHandler } from './lib/audit/history/Http';
 export { HealthGroupLive } from './lib/health/Http';
 export { RunnerGroupLive } from './lib/runner/Http';

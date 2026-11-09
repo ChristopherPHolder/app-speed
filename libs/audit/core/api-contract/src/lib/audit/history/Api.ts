@@ -24,6 +24,9 @@ export const AuditHistoryItemSchema = Schema.Struct({
   kind: AuditKindSchema,
   auditId: AuditId,
   title: Schema.String,
+  /** `mcp` when an AI client (Claude, ChatGPT, …) scheduled the audit for the account. */
+  source: Schema.Literals(['portal', 'mcp']),
+  clientName: Schema.NullOr(Schema.String),
   status: AuditRunStatusSchema,
   resultStatus: Schema.NullOr(AuditResultStatusSchema),
   queuePosition: Schema.NullOr(Schema.Number.check(Schema.isInt(), Schema.isGreaterThanOrEqualTo(0))),

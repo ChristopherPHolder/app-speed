@@ -53,6 +53,8 @@ const listRunsPage = Effect.fn('db.auditHistory.listPage')(function* (params: {
         id: auditRunTable.id,
         kind: auditTemplateTable.kind,
         title: auditTemplateTable.title,
+        source: auditRunTable.source,
+        clientName: auditRunTable.clientName,
         status: auditRunTable.status,
         resultStatus: auditResultTable.status,
         createdAt: auditRunTable.createdAt,

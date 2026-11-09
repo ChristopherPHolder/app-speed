@@ -9,6 +9,12 @@ export const AuditRunIdSchema = Schema.NonEmptyString.pipe(Schema.brand('AuditRu
 export type AuditRunId = typeof AuditRunIdSchema.Type;
 
 export const AuditStatusSchema = Schema.Literals(['SCHEDULED', 'IN_PROGRESS', 'COMPLETE']);
+
+/** Where an audit was requested from. `mcp` runs were scheduled by an AI client acting for the account. */
+export const AuditSourceSchema = Schema.Literals(['portal', 'mcp']);
+export type AuditSource = typeof AuditSourceSchema.Type;
+export type AuditOrigin =
+  { readonly source: 'portal' } | { readonly source: 'mcp'; readonly clientId: string; readonly clientName: string };
 export type AuditStatus = typeof AuditStatusSchema.Type;
 
 const AuditTemplateRecordSchema = Schema.Struct({
@@ -24,6 +30,8 @@ const AuditRunRecordSchema = Schema.Struct({
   id: AuditRunIdSchema,
   templateId: AuditTemplateIdSchema,
   projectId: Schema.NullOr(Schema.String),
+  source: AuditSourceSchema,
+  clientName: Schema.NullOr(Schema.String),
   kind: AuditKindSchema,
   status: AuditStatusSchema,
   createdAt: Schema.Date,
@@ -52,6 +60,8 @@ const AuditRunSummaryRecordSchema = Schema.Struct({
   id: AuditRunIdSchema,
   kind: AuditKindSchema,
   title: Schema.NonEmptyString,
+  source: AuditSourceSchema,
+  clientName: Schema.NullOr(Schema.String),
   status: AuditStatusSchema,
   resultStatus: Schema.NullOr(AuditResultStatusSchema),
   queuePosition: Schema.NullOr(NonNegativeIntSchema),
@@ -78,6 +88,8 @@ export const decodeAuditTemplateRecord = (template: {
 
 export const decodeAuditRunRecord = (run: {
   projectId?: string | null;
+  source?: string | null;
+  clientName?: string | null;
   id: string;
   templateId: string;
   status: AuditStatus;
@@ -92,6 +104,8 @@ export const decodeAuditRunRecord = (run: {
     id: run.id,
     templateId: run.templateId,
     projectId: run.projectId ?? null,
+    source: run.source ?? 'portal',
+    clientName: run.clientName ?? null,
     kind: run.kind,
     status: run.status,
     createdAt: run.createdAt,
@@ -120,6 +134,8 @@ export const decodeAuditRunSummaryRecord = (run: {
   id: string;
   kind: string;
   title: string;
+  source?: string | null;
+  clientName?: string | null;
   status: AuditStatus;
   resultStatus: AuditResultStatus | null;
   queuePosition: number | null;
@@ -132,6 +148,8 @@ export const decodeAuditRunSummaryRecord = (run: {
     id: run.id,
     kind: run.kind,
     title: run.title,
+    source: run.source ?? 'portal',
+    clientName: run.clientName ?? null,
     status: run.status,
     resultStatus: run.resultStatus,
     queuePosition: run.queuePosition,

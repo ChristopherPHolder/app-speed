@@ -80,3 +80,13 @@ export const Error: Story = {
     errorMessage: 'Unable to load audit history. Please try again.',
   },
 };
+
+export const ScheduledByAiClients: Story = {
+  args: {
+    runs: [
+      { ...sampleRuns[0], source: 'mcp', clientName: 'Claude' },
+      { ...sampleRuns[1], source: 'mcp', clientName: 'ChatGPT' },
+      { ...sampleRuns[2], source: 'portal', clientName: null },
+    ],
+  },
+};

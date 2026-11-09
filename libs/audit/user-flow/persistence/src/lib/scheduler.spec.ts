@@ -49,7 +49,11 @@ describe('UserFlowAuditScheduler', () => {
     const auditId = await Effect.runPromise(
       Effect.gen(function* () {
         const scheduler = yield* UserFlowAuditScheduler;
-        return yield* scheduler.schedule(definition, 'project-a');
+        return yield* scheduler.schedule(definition, 'project-a', {
+          source: 'mcp',
+          clientId: 'https://claude.ai/oauth/mcp-oauth-client-metadata',
+          clientName: 'Claude',
+        });
       }).pipe(Effect.provide(UserFlowAuditSchedulerLive), Effect.provide(DbClientTest)),
     );
 
@@ -58,6 +62,12 @@ describe('UserFlowAuditScheduler', () => {
     expect(inserts.map(({ table }) => table)).toEqual(['audit_templates', 'user_flow_audit_templates', 'audit_runs']);
     expect(inserts[0].values).toMatchObject({ kind: 'user-flow' });
     expect(inserts[1].values).toMatchObject({ definition });
-    expect(inserts[2].values).toMatchObject({ status: 'SCHEDULED', projectId: 'project-a' });
+    expect(inserts[2].values).toMatchObject({
+      status: 'SCHEDULED',
+      projectId: 'project-a',
+      source: 'mcp',
+      clientId: 'https://claude.ai/oauth/mcp-oauth-client-metadata',
+      clientName: 'Claude',
+    });
   });
 });

@@ -5,6 +5,9 @@ export interface AuditRunSummary {
   kind: string;
   auditId: string;
   title: string;
+  /** `mcp` when an AI client scheduled the audit; absent from older API responses. */
+  source?: 'portal' | 'mcp';
+  clientName?: string | null;
   status: AuditRunStatus;
   resultStatus: AuditResultStatus | null;
   queuePosition: number | null;

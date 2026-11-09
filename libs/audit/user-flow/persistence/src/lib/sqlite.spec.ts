@@ -47,7 +47,11 @@ describe('SQLite persistence', () => {
           const userFlow = yield* UserFlowAuditRepo;
           const first = yield* scheduler.schedule(definition);
           const privateRun = yield* scheduler.schedule({ ...definition, title: 'Private' }, 'project-a');
-          const otherRun = yield* scheduler.schedule({ ...definition, title: 'Other' }, 'project-b');
+          const otherRun = yield* scheduler.schedule({ ...definition, title: 'Other' }, 'project-b', {
+            source: 'mcp',
+            clientId: 'https://chatgpt.com/oauth/client.json',
+            clientName: 'ChatGPT',
+          });
           const history = yield* AuditHistoryRepo;
           const filters = { limit: 100, cursor: null, status: null, kind: null };
           expect((yield* history.listRunsPage(filters)).items.map((run) => run.id)).toEqual([first]);
@@ -58,6 +62,12 @@ describe('SQLite persistence', () => {
             (yield* history.listRunsPage({ ...filters, projectId: 'project-b' })).items.map((run) => run.id),
           ).toEqual([otherRun]);
           expect((yield* repo.getRunById(privateRun))?.projectId).toBe('project-a');
+          expect(yield* repo.getRunById(privateRun)).toMatchObject({ source: 'portal', clientName: null });
+          expect(yield* repo.getRunById(otherRun)).toMatchObject({ source: 'mcp', clientName: 'ChatGPT' });
+          expect((yield* history.listRunsPage({ ...filters, projectId: 'project-b' })).items[0]).toMatchObject({
+            source: 'mcp',
+            clientName: 'ChatGPT',
+          });
           // Finish scoped fixtures so the queue assertions below still exercise public runs.
           yield* repo.completeFailure(privateRun, { message: 'fixture' }, 0);
           yield* repo.completeFailure(otherRun, { message: 'fixture' }, 0);

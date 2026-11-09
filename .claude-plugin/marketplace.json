@@ -1,0 +1,17 @@
+{
+  "name": "app-speed",
+  "owner": {
+    "name": "Christopher Holder"
+  },
+  "metadata": {
+    "description": "Plugins for App Speed, the Lighthouse user-flow performance auditing platform."
+  },
+  "plugins": [
+    {
+      "name": "app-speed",
+      "source": "./plugins/app-speed",
+      "description": "Schedule and analyze Lighthouse user-flow audits and manage App Speed workspaces from Claude Code.",
+      "category": "development"
+    }
+  ]
+}

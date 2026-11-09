@@ -7,6 +7,20 @@ import { Config, Context, Effect, Layer, Schedule } from 'effect';
 import { QueryError } from './db';
 import { schema } from './sqlite-schema';
 
+const schemaVersion = 3;
+/** Statements that upgrade a database from the indexed version to the next one. */
+const upgrades: Record<number, ReadonlyArray<string>> = {
+  1: [
+    'ALTER TABLE audit_runs ADD COLUMN project_id TEXT',
+    'CREATE INDEX audit_runs_project_history_idx ON audit_runs(project_id, created_at, id)',
+  ],
+  2: [
+    "ALTER TABLE audit_runs ADD COLUMN source TEXT NOT NULL DEFAULT 'portal' CHECK(source IN ('portal','mcp'))",
+    'ALTER TABLE audit_runs ADD COLUMN client_id TEXT',
+    'ALTER TABLE audit_runs ADD COLUMN client_name TEXT',
+  ],
+};
+
 export class SqliteDbClient extends Context.Service<
   SqliteDbClient,
   {
@@ -36,20 +50,17 @@ export class SqliteDbClient extends Context.Service<
           await client.execute('PRAGMA busy_timeout = 5000');
           const version = await client.execute('PRAGMA user_version');
           const currentVersion = Number(version.rows[0]?.['user_version'] ?? 0);
-          if (currentVersion > 2) throw new Error(`Unsupported SQLite schema version ${currentVersion}`);
-          if (currentVersion === 2) return;
-          if (currentVersion === 1) {
+          if (currentVersion > schemaVersion) throw new Error(`Unsupported SQLite schema version ${currentVersion}`);
+          if (currentVersion === schemaVersion) return;
+          if (currentVersion >= 1) {
             const transaction = await client.transaction('write');
             try {
               // Another API/runner process may have upgraded while this connection waited for the lock.
               const version = await transaction.execute('PRAGMA user_version');
-              if (Number(version.rows[0]?.['user_version']) === 1) {
-                await transaction.execute('ALTER TABLE audit_runs ADD COLUMN project_id TEXT');
-                await transaction.execute(
-                  'CREATE INDEX audit_runs_project_history_idx ON audit_runs(project_id, created_at, id)',
-                );
-                await transaction.execute('PRAGMA user_version = 2');
+              for (let current = Number(version.rows[0]?.['user_version']); current < schemaVersion; current++) {
+                for (const statement of upgrades[current] ?? []) await transaction.execute(statement);
               }
+              await transaction.execute(`PRAGMA user_version = ${schemaVersion}`);
               await transaction.commit();
             } catch (cause) {
               await transaction.rollback();
@@ -68,7 +79,8 @@ export class SqliteDbClient extends Context.Service<
             id TEXT PRIMARY KEY NOT NULL, template_id TEXT NOT NULL REFERENCES audit_templates(id) ON UPDATE CASCADE,
             status TEXT NOT NULL DEFAULT 'SCHEDULED' CHECK(status IN ('SCHEDULED','IN_PROGRESS','COMPLETE')),
             created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, started_at INTEGER, completed_at INTEGER,
-            duration_ms INTEGER, project_id TEXT);
+            duration_ms INTEGER, project_id TEXT,
+            source TEXT NOT NULL DEFAULT 'portal' CHECK(source IN ('portal','mcp')), client_id TEXT, client_name TEXT);
           CREATE INDEX IF NOT EXISTS audit_runs_project_history_idx ON audit_runs(project_id, created_at, id);
           CREATE INDEX IF NOT EXISTS audit_runs_scheduled_queue_idx ON audit_runs(status, created_at, id);
           CREATE TABLE IF NOT EXISTS audit_results (
@@ -81,7 +93,7 @@ export class SqliteDbClient extends Context.Service<
             result_id TEXT PRIMARY KEY NOT NULL REFERENCES audit_results(id) ON DELETE CASCADE ON UPDATE CASCADE,
             flow_result_record_key TEXT NOT NULL, report_html_record_key TEXT NOT NULL);
           CREATE TABLE IF NOT EXISTS records (key TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL);
-          PRAGMA user_version = 2;
+          PRAGMA user_version = ${schemaVersion};
           COMMIT;
         `);
         },

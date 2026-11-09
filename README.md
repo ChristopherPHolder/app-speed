@@ -17,6 +17,8 @@ and browser runner live together in this Nx monorepo.
 - Review scheduled, running, and completed audits in history.
 - Extract screenshots and create filmstrips from Chrome traces locally in the browser.
 - Sign in to organize audits into projects within workspaces, with membership and project access controls.
+- Connect Claude or ChatGPT to schedule audits and manage workspaces from chat through the
+  [MCP connector](docs/deployment/mcp-connector.md).
 
 Public View provides audit and trace tools without signing in. Project-owned audits require access to their project.
 
@@ -73,7 +75,7 @@ For storage options and remote runners, see the [API configuration](apps/api/REA
 | `apps/design-system` | UI component Storybook                                                     |
 | `libs/audit`         | Audit contracts, domain logic, persistence, execution, and portal features |
 | `libs/workspace`     | Workspace and project domain logic and API runtime                         |
-| `libs/platform`      | Shared identity and observability services                                 |
+| `libs/platform`      | Shared identity, MCP transport, and observability services                 |
 | `libs/convenience`   | Trace tools and feature catalog                                            |
 | `libs/ui`            | Shared Angular UI components and theme                                     |
 | `tools`              | Nx executors for deployment, database tooling, and system tests            |
@@ -97,4 +99,5 @@ Use [GitHub Issues](https://github.com/ChristopherPHolder/app-speed/issues) to r
 - [Effect diagnostics](docs/development/effect-diagnostics.md)
 - [Angular secondary entry point conventions](docs/conventions/angular-secondary-entry-points.md)
 - [Production authentication setup](docs/deployment/initial-auth-production.md)
+- [MCP connector for Claude and ChatGPT](docs/deployment/mcp-connector.md)
 - [Backend observability](docs/observability-backend.md)

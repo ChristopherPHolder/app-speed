@@ -1,5 +1,6 @@
 import { index, integer, text, sqliteTable, uniqueIndex } from 'drizzle-orm/sqlite-core';
 import type { AuditKind } from '@app-speed/audit/core/domain';
+import type { AuditSource } from './audit-record';
 
 export const auditStatusValues = ['SCHEDULED', 'IN_PROGRESS', 'COMPLETE'] as const;
 export type AuditStatus = (typeof auditStatusValues)[number];
@@ -21,6 +22,9 @@ export const auditRunTable = sqliteTable(
     id: text('id').primaryKey(),
     // Retained after project deletion: an orphaned private run must never become public.
     projectId: text('project_id'),
+    source: text('source').$type<AuditSource>().notNull().default('portal'),
+    clientId: text('client_id'),
+    clientName: text('client_name'),
     templateId: text('template_id')
       .notNull()
       .references(() => auditTemplateTable.id, { onDelete: 'restrict', onUpdate: 'cascade' }),

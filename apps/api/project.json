@@ -181,6 +181,8 @@
         "production": {
           "additionalRunArgs": [
             "-e APP_ENV=production",
+            "-e MCP_RESOURCE_URL=https://appspeed.dev/mcp",
+            "-e PORTAL_URL=https://appspeed.dev",
             "-e RUNNER_API_TOKEN",
             "-e RECORD_PERSISTENCE_MODE=s3",
             "-e RECORD_PERSISTENCE_BUCKET=app-speed-audit-results-prod",

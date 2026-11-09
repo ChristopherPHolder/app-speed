@@ -146,6 +146,7 @@ describe('project audit isolation over HTTP', () => {
                 ? Effect.succeed({ id, email: `${id}@example.com`, name: id, imageUrl: '' })
                 : Effect.fail(new SignInRequired({ message: 'Sign in required' }));
             },
+            authenticateAgent: () => Effect.fail(new SignInRequired({ message: 'Not used by the HTTP API' })),
           }),
         ),
         Layer.provide(
