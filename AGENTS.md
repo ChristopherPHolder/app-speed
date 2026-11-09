@@ -33,6 +33,16 @@
 - When scaffolding Angular code, prefer workspace-consistent generators and keep outputs inside the owning Nx project boundary.
 - For Angular secondary entry points and public APIs, export only symbols consumed outside the defining file or entry point; keep helper/base types file-local when only used to build exported aliases.
 
+## Learning more about Effect
+
+This repository uses the Effect Typescript library.
+
+Before writing any Effect code, first read `node_modules/effect/AGENTS.md`
+**completely**, and follow the links in the file when required.
+
+If you need to learn more about particular Effect apis and concepts that the
+guide doesn't cover, search through the source code in `node_modules/effect/src`.
+
 ## Testing Guidelines
 - Unit tests use Vitest (Nx + Vite setup).
 - E2E tests are set up with Cypress (run via Nx targets).
