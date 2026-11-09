@@ -41,6 +41,12 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Validate Authentication Configuration
+        env:
+          DEPLOY_ENV: ${{ github.event_name == 'push' && 'production' || inputs.environment }}
+          CLERK_PUBLISHABLE_KEY: ${{ vars[(github.event_name == 'push' || inputs.environment == 'production') && 'CLERK_PUBLISHABLE_KEY' || 'CLERK_DEVELOPMENT_PUBLISHABLE_KEY'] }}
+        run: pnpm exec nx run portal:auth-preflight --configuration="$DEPLOY_ENV"
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:

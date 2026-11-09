@@ -18,11 +18,12 @@ export class WorkspaceState {
   readonly saving = signal(false);
   readonly error = signal('');
   readonly notice = signal('');
+  readonly refreshRequired = signal(false);
   readonly workspace = computed(() => this.overview()?.workspaces.find((item) => item.id === this.workspaceId()));
   readonly project = computed(() => this.workspace()?.projects.find((item) => item.id === this.projectId()));
   private readonly recentProjects = signal<Readonly<Record<string, string>>>({});
   private generation = 0;
-  private pending: Promise<void> | undefined;
+  private pending: Promise<boolean> | undefined;
 
   constructor() {
     effect(() => {
@@ -34,11 +35,12 @@ export class WorkspaceState {
         this.recentProjects.set({});
         this.error.set('');
         this.notice.set('');
+        this.refreshRequired.set(false);
       }
     });
   }
 
-  refresh(): Promise<void> {
+  refresh(): Promise<boolean> {
     if (this.pending) return this.pending;
     this.pending = this.load().finally(() => {
       this.pending = undefined;
@@ -46,7 +48,7 @@ export class WorkspaceState {
     return this.pending;
   }
 
-  private async load(): Promise<void> {
+  private async load(): Promise<boolean> {
     const generation = this.generation;
     this.loading.set(true);
     this.error.set('');
@@ -54,7 +56,7 @@ export class WorkspaceState {
       const headers = await this.headers();
       const response = await firstValueFrom(this.http.get<unknown>('/api/workspaces', { headers }));
       const overview = await Schema.decodeUnknownPromise(WorkspaceOverviewSchema)(response);
-      if (generation !== this.generation) return;
+      if (generation !== this.generation) return false;
       const preference = this.readPreference(overview.account.id);
       if (this.overview()?.account.id !== overview.account.id) {
         this.recentProjects.set(
@@ -71,8 +73,16 @@ export class WorkspaceState {
         workspace?.projects.find((item) => item.id === projectId)?.id ?? workspace?.projects[0]?.id ?? '',
       );
       this.savePreference();
+      this.refreshRequired.set(false);
+      return true;
     } catch (error) {
-      if (generation === this.generation) this.error.set(this.message(error));
+      if (generation === this.generation)
+        this.error.set(
+          this.refreshRequired()
+            ? 'Your changes were saved, but the updated workspace could not be loaded. Try again to reload it.'
+            : this.message(error),
+        );
+      return false;
     } finally {
       this.loading.set(false);
     }
@@ -110,7 +120,7 @@ export class WorkspaceState {
   }
 
   async act(action: WorkspaceAction): Promise<boolean> {
-    if (this.saving() || this.loading()) return false;
+    if (this.saving() || this.loading() || this.refreshRequired()) return false;
     const generation = this.generation;
     this.saving.set(true);
     this.error.set('');
@@ -125,7 +135,8 @@ export class WorkspaceState {
         this.projectId.set('');
       }
       if (action.action === 'createProject') this.projectId.set(result.id);
-      await this.refresh();
+      this.refreshRequired.set(true);
+      if (!(await this.refresh())) return false;
       if (generation !== this.generation) return false;
       this.notice.set(
         action.action === 'inviteMember'

@@ -1,6 +1,6 @@
 # Linux CI workspace and project journeys
 
-These are real browser → API → database journeys using isolated PGlite storage and fixed identities compiled only into test application builds. Workspace API responses are not intercepted. Live Clerk authentication is tested separately.
+These are real browser → API → database journeys using isolated PGlite storage and fixed identities compiled only into test application builds. Workspace mutations reach the real API. The recovery journey injects one failed overview request to verify safe retry. Live Clerk authentication is tested separately.
 
 These 57 Linux baselines were captured by the passing [GitHub Actions run 42486415919](https://github.com/ChristopherPHolder/app-speed/actions/runs/42486415919) from source commit `160af7000847c16f72db48a6f1944e0014355d36`. All 11 browser tests passed. Capture names and image widths were validated against the macOS journey set; key desktop/mobile screens were visually reviewed. Normal Linux PR checks compare against these images without updating them.
 
@@ -179,3 +179,9 @@ CI uploads `e2e-diagnostics` on success and failure. Download it and open `artif
 ## Mobile navigation
 
 ![Mobile navigation](baselines/linux/mobile/12-mobile-navigation.png)
+
+## Saved workspace recovery
+
+| Desktop | Mobile |
+| --- | --- |
+| ![Saved workspace recovery desktop](baselines/linux/desktop/30-saved-workspace-recovery.png) | ![Saved workspace recovery mobile](baselines/linux/mobile/30-saved-workspace-recovery.png) |

@@ -60,11 +60,11 @@ import { WorkspaceState } from './workspace-state.service';
           }
           @if (state.error()) {
             <p class="error" role="alert">{{ state.error() }}</p>
-            <button matButton type="button" (click)="state.refresh()" [disabled]="state.loading() || state.saving()">
+            <button matButton type="button" (click)="retry()" [disabled]="state.loading() || state.saving()">
               Try again
             </button>
           }
-          @if (state.overview(); as overview) {
+          @if (!pendingWorkspace() && state.overview(); as overview) {
             @if (step() === 'choose') {
               @if (overview.invitations.length) {
                 <h2>Invitations</h2>
@@ -214,6 +214,7 @@ export class WorkspaceOnboardingComponent {
   private readonly router = inject(Router);
   protected readonly step = signal<'choose' | 'workspace'>('choose');
   private readonly name = signal({ name: '' });
+  protected readonly pendingWorkspace = signal('');
   protected readonly nameForm = form(this.name, (fields) => {
     required(fields.name);
     maxLength(fields.name, 100);
@@ -236,12 +237,27 @@ export class WorkspaceOnboardingComponent {
     event.preventDefault();
     if (this.nameForm().invalid()) return;
     const name = this.name().name.trim();
-    if (this.step() === 'workspace' && (await this.state.act({ action: 'createWorkspace', name }))) {
-      await this.router.navigate(['/workspaces', this.state.workspaceId(), 'projects', this.state.projectId()]);
+    if (this.step() === 'workspace') {
+      if (await this.state.act({ action: 'createWorkspace', name })) await this.openWorkspace();
+      else if (this.state.refreshRequired()) this.pendingWorkspace.set(this.state.workspaceId());
     }
   }
   protected async accept(invitationId: string): Promise<void> {
     if (await this.state.act({ action: 'acceptInvitation', invitationId }))
       await this.router.navigate(['/workspaces', this.state.workspaceId()]);
+    else if (this.state.refreshRequired()) this.pendingWorkspace.set(this.state.workspaceId());
+  }
+  protected async retry(): Promise<void> {
+    if ((await this.state.refresh()) && this.pendingWorkspace()) {
+      this.state.selectWorkspace(this.pendingWorkspace());
+      await this.openWorkspace();
+    }
+  }
+  private async openWorkspace(): Promise<void> {
+    const workspaceId = this.state.workspaceId();
+    const projectId = this.state.projectId();
+    await this.router.navigate(
+      projectId ? ['/workspaces', workspaceId, 'projects', projectId] : ['/workspaces', workspaceId],
+    );
   }
 }

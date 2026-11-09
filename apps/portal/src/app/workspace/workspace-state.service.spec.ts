@@ -135,4 +135,24 @@ describe('workspace selection and authenticated requests', () => {
     expect(state.notice()).toBe('');
     expect(state.saving()).toBe(false);
   });
+
+  it('keeps a saved creation pending when its reload fails and blocks duplicate mutations until recovery', async () => {
+    await load();
+    const action = { action: 'createWorkspace', name: 'Holder' } satisfies Parameters<WorkspaceState['act']>[0];
+    const pending = state.act(action);
+    await Promise.resolve();
+    await Promise.resolve();
+    http.expectOne('/api/workspaces/actions').flush({ id: 'holder' });
+    await vi.waitFor(() => http.expectOne('/api/workspaces').flush({}, { status: 503, statusText: 'Unavailable' }));
+    expect(await pending).toBe(false);
+    expect(state.refreshRequired()).toBe(true);
+    expect(state.error()).toContain('Your changes were saved');
+    expect(state.notice()).toBe('');
+    expect(await state.act(action)).toBe(false);
+    http.expectNone('/api/workspaces/actions');
+    await load();
+    expect(state.refreshRequired()).toBe(false);
+    expect(state.workspaceId()).toBe('holder');
+    expect(state.projectId()).toBe('personal');
+  });
 });

@@ -1,6 +1,6 @@
 # Workspace and project journeys
 
-These are real browser → API → database journeys using isolated PGlite storage and fixed identities compiled only into test application builds. Workspace API responses are not intercepted. Live Clerk authentication is tested separately.
+These are real browser → API → database journeys using isolated PGlite storage and fixed identities compiled only into test application builds. Workspace mutations reach the real API. The recovery journey injects one failed overview request to verify safe retry. Live Clerk authentication is tested separately.
 
 The committed baselines are compared on every normal E2E run using a separate set for each operating system. The gallery below shows macOS (`darwin`); Linux CI uses `baselines/linux`; [browse the Linux gallery](linux.md). Native font rendering differs between platforms even with the same bundled fonts and Chrome version. Desktop is 1440 × 1000; mobile is 390 × 844. Screenshots capture the full page. Invitation expiry text is blacked out because it changes with the run date. Fonts are bundled into the test build.
 
@@ -179,3 +179,9 @@ CI uploads `e2e-diagnostics` on success and failure. Download it and open `artif
 ## Mobile navigation
 
 ![Mobile navigation](baselines/darwin/mobile/12-mobile-navigation.png)
+
+## Saved workspace recovery
+
+| Desktop | Mobile |
+| --- | --- |
+| ![Saved workspace recovery desktop](baselines/darwin/desktop/30-saved-workspace-recovery.png) | ![Saved workspace recovery mobile](baselines/darwin/mobile/30-saved-workspace-recovery.png) |

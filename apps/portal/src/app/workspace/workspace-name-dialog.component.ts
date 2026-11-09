@@ -51,7 +51,13 @@ export interface WorkspaceNameDialogData {
       <mat-dialog-actions align="end">
         <button matButton mat-dialog-close type="button" [disabled]="state.saving()">Cancel</button>
         <button matButton="filled" type="submit" [disabled]="nameForm().invalid() || state.saving() || state.loading()">
-          {{ data.target.action === 'createProject' ? 'Create project' : 'Save' }}
+          {{
+            state.refreshRequired()
+              ? 'Reload saved changes'
+              : data.target.action === 'createProject'
+                ? 'Create project'
+                : 'Save'
+          }}
         </button>
       </mat-dialog-actions>
     </form>
@@ -83,7 +89,10 @@ export class WorkspaceNameDialogComponent {
     if (this.nameForm().invalid() || this.state.saving()) return;
     this.dialog.disableClose = true;
     try {
-      if (await this.state.act({ ...this.data.target, name: this.name().name.trim() })) this.dialog.close(true);
+      const saved = this.state.refreshRequired()
+        ? await this.state.refresh()
+        : await this.state.act({ ...this.data.target, name: this.name().name.trim() });
+      if (saved) this.dialog.close(true);
       else this.error.set(this.state.error());
     } finally {
       this.dialog.disableClose = false;

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "version": 2,
+  "title": "Authentication deployment preflight",
+  "type": "object",
+  "properties": {
+    "application": { "type": "string", "enum": ["api", "portal"] },
+    "environment": { "type": "string", "enum": ["development", "production"] },
+    "portalOrigin": { "type": "string" }
+  },
+  "required": ["application", "environment", "portalOrigin"],
+  "additionalProperties": false
+}

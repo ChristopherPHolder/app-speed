@@ -45,7 +45,9 @@ Creating a workspace also creates its first project with the same name, then ope
 
 [Issue #233](https://github.com/ChristopherPHolder/app-speed/issues/233) introduces the account sign-in experience
 and authenticated layout. The current portal integrates Clerk, custom Angular Material authentication pages, an
-account menu, and responsive navigation. Guests retain the existing audit and trace workflows.
+account menu, and responsive navigation. The first production release offers Google and GitHub through Clerk,
+with optional profile completion after social sign-up. Email-code and password forms are not offered.
+See [the auth release guide](docs/deployment/initial-auth-production.md) for production configuration and verification. Guests retain the existing audit and trace workflows.
 
 Workspace/project creation and switching, membership roles, invitations, and project access are now implemented
 as a management slice. See [ADR-0005](docs/adr/ADR-0005-workspaces-and-projects.md) for its policies and storage.

@@ -1,4 +1,4 @@
-import { Config, Context, Effect, Layer, Schema } from 'effect';
+import { Config, Context, Effect, Layer, Option, Redacted, Schema } from 'effect';
 import { Pool } from 'pg';
 import { WorkspaceConflict, WorkspaceForbidden, WorkspaceUnavailable } from '@app-speed/workspace/domain';
 
@@ -48,9 +48,17 @@ export const runWorkspaceTransaction = <A>(
 
 export const WorkspaceStoreLive = Layer.effect(WorkspaceStore)(
   Effect.gen(function* () {
-    const connectionString = yield* Config.String('DATABASE_URL');
+    const connectionString = yield* Config.option(Config.Redacted('DATABASE_URL'));
+    if (Option.isNone(connectionString) || !Redacted.value(connectionString.value).trim()) {
+      return WorkspaceStore.of({
+        transaction: () =>
+          Effect.fail(new WorkspaceUnavailable({ message: 'Workspace storage is not configured on the server.' })),
+      });
+    }
     const pool = yield* Effect.acquireRelease(
-      Effect.sync(() => new Pool({ connectionString, connectionTimeoutMillis: 5000 })),
+      Effect.sync(
+        () => new Pool({ connectionString: Redacted.value(connectionString.value), connectionTimeoutMillis: 5000 }),
+      ),
       (value) => Effect.promise(() => value.end()),
     );
     return {

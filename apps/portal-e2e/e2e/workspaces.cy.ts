@@ -57,6 +57,28 @@ for (const viewport of ['desktop', 'mobile']) {
       cy.get('[aria-label="Workspace projects"]').should('not.contain.text', 'Shop');
     });
 
+    it('recovers a saved workspace after a failed reload without creating it twice', () => {
+      visitAs('/workspaces/join');
+      cy.contains('button', 'Create workspace').click();
+      cy.get('input[autocomplete="off"]').type('Holder');
+      cy.intercept('POST', '/api/workspaces/actions').as('createWorkspace');
+      cy.intercept({ method: 'GET', pathname: '/api/workspaces', times: 1 }, { statusCode: 503, body: {} });
+      cy.contains('button', 'Create workspace').click();
+      cy.wait('@createWorkspace').its('response.statusCode').should('eq', 200);
+      cy.contains('[role="alert"]', 'Your changes were saved').should('be.visible');
+      cy.location('pathname').should('eq', '/workspaces/join');
+      cy.get('app-workspace-onboarding form').should('not.exist');
+      snapshot(viewport, '30-saved-workspace-recovery');
+      cy.contains('button', 'Try again').click();
+      cy.contains('h1', /^Holder$/).should('be.visible');
+      cy.location('pathname').should('match', /\/projects\/[^/]+$/);
+      cy.get('@createWorkspace.all').should('have.length', 1);
+      overview().then(({ workspaces }) => {
+        expect(workspaces.map((workspace) => workspace.name)).to.deep.equal(['Holder']);
+        expect(workspaces[0].projects.map((project) => project.name)).to.deep.equal(['Holder']);
+      });
+    });
+
     it('switches workspaces, restores each last project, and keeps Public View outside the workspace', () => {
       action({ action: 'createWorkspace', name: 'Holder' }).then(({ id }) => {
         action({ action: 'createProject', workspaceId: id, name: 'Storefront' }).then((project) => {

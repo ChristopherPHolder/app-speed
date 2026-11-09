@@ -80,6 +80,11 @@ type WorkspaceView = 'projects' | 'project' | 'general' | 'members' | 'access';
         }
         @if (state.error()) {
           <p role="alert" class="error">{{ state.error() }}</p>
+          @if (state.refreshRequired()) {
+            <button matButton type="button" [disabled]="state.loading() || state.saving()" (click)="state.refresh()">
+              Reload saved changes
+            </button>
+          }
         }
         @if (state.notice()) {
           <p role="status" class="notice">{{ state.notice() }}</p>
@@ -606,7 +611,7 @@ export class WorkspacePageComponent {
     maxLength(fields.email, 254);
   });
   protected busy(): boolean {
-    return this.state.loading() || this.state.saving();
+    return this.state.loading() || this.state.saving() || this.state.refreshRequired();
   }
   protected createProject(): void {
     void this.editName({

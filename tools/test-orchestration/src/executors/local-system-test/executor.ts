@@ -143,7 +143,7 @@ export default async function localSystemTestExecutor(
         args: [
           resolve(
             workspaceRoot,
-            options.clerk ? 'dist/apps/api-e2e/main.clerk-e2e.js' : 'dist/apps/api-e2e/main.e2e.js',
+            options.clerk ? 'dist/apps/api-clerk-e2e/main.clerk-e2e.js' : 'dist/apps/api-e2e/main.e2e.js',
           ),
         ],
         command: process.execPath,

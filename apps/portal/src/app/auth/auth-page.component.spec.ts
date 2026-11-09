@@ -10,8 +10,6 @@ describe('Material authentication page', () => {
     availability: signal('ready'),
     hasSession: vi.fn(),
     signUpFields: signal<ReadonlyArray<string>>([]),
-    sendEmailCode: vi.fn(),
-    verifyEmailCode: vi.fn(),
     signInWithProvider: vi.fn(),
     resumeSignUp: vi.fn(),
     completeRedirect: vi.fn(),
@@ -23,8 +21,8 @@ describe('Material authentication page', () => {
     vi.resetAllMocks();
     auth.signUpFields.set([]);
     auth.hasSession.mockResolvedValue(false);
-    auth.resumeSignUp.mockResolvedValue('email');
-    auth.errorMessage.mockResolvedValue('Incorrect code. Please try again.');
+    auth.resumeSignUp.mockResolvedValue('providers');
+    auth.errorMessage.mockResolvedValue('Sign-in was cancelled. Please try again.');
     TestBed.configureTestingModule({
       imports: [AuthPageComponent],
       providers: [
@@ -39,44 +37,32 @@ describe('Material authentication page', () => {
     });
   });
 
-  it('renders provider choices and advances email-code sign-in while allowing an invalid-code retry', async () => {
+  it.each([
+    ['Google', 'oauth_google'],
+    ['GitHub', 'oauth_github'],
+  ])('starts %s sign-in and lets the user retry a provider failure', async (label, strategy) => {
     const fixture = TestBed.createComponent(AuthPageComponent);
     fixture.detectChanges();
     await fixture.whenStable();
     await new Promise<void>((resolve) => setTimeout(resolve, 0));
     fixture.detectChanges();
     const element: HTMLElement = fixture.nativeElement;
-    const google = Array.from(element.querySelectorAll('button')).find((button) =>
-      button.textContent?.includes('Google'),
+    expect(element.querySelector('input[type="email"]')).toBeNull();
+    expect(element.textContent).not.toContain('Send verification code');
+    const provider = Array.from(element.querySelectorAll('button')).find((button) =>
+      button.textContent?.includes(label),
     );
-    expect(google?.disabled).toBe(false);
-    google?.click();
+    expect(provider?.disabled).toBe(false);
+    auth.signInWithProvider.mockRejectedValueOnce(new Error('Cancelled'));
+    provider?.click();
     await fixture.whenStable();
-    expect(auth.signInWithProvider).toHaveBeenCalledWith('oauth_google', false);
-
-    const email = element.querySelector<HTMLInputElement>('input[type="email"]');
-    if (!email) throw new Error('Email field missing');
-    email.value = 'test@example.com';
-    email.dispatchEvent(new Event('input', { bubbles: true }));
     fixture.detectChanges();
-    element.querySelector('form')?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    expect(auth.signInWithProvider).toHaveBeenCalledWith(strategy, false);
+    expect(element.querySelector('[role="alert"]')?.textContent).toContain('Sign-in was cancelled');
+    expect(provider?.disabled).toBe(false);
+    provider?.click();
     await fixture.whenStable();
-
-    expect(auth.sendEmailCode).toHaveBeenCalledWith('test@example.com', false);
-    expect(element.querySelector('h1')?.textContent).toContain('Check your email');
-    const code = element.querySelector<HTMLInputElement>('input[autocomplete="one-time-code"]');
-    if (!code) throw new Error('Verification field missing');
-    expect(document.activeElement).toBe(code);
-    code.value = '111111';
-    code.dispatchEvent(new Event('input', { bubbles: true }));
-    fixture.detectChanges();
-    auth.verifyEmailCode.mockRejectedValueOnce(new Error('Incorrect code'));
-    element.querySelector('form')?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-    await fixture.whenStable();
-
-    expect(auth.verifyEmailCode).toHaveBeenCalledWith('111111', false);
-    expect(element.querySelector('[role="alert"]')?.textContent).toContain('Incorrect code');
-    expect(element.querySelector('input[autocomplete="one-time-code"]')).not.toBeNull();
+    expect(auth.signInWithProvider).toHaveBeenCalledTimes(2);
     fixture.destroy();
   });
 

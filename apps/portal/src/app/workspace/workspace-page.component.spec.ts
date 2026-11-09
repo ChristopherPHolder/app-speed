@@ -150,6 +150,29 @@ describe('workspace onboarding and navigation', () => {
     expect(harness.routeNativeElement?.textContent).not.toContain('Create project');
   });
 
+  it('reloads a saved workspace after a transient failure without submitting a duplicate creation', async () => {
+    const harness = await open('/workspaces/join', overview([]));
+    const element = harness.routeNativeElement;
+    if (!element) throw new Error('Onboarding view missing');
+    button(element, 'Create workspace').click();
+    harness.detectChanges();
+    submit(element, 'Holder');
+    await settle();
+    http.expectOne('/api/workspaces/actions').flush({ id: 'holder' });
+    await vi.waitFor(() => http.expectOne('/api/workspaces').flush({}, { status: 503, statusText: 'Unavailable' }));
+    await settle();
+    harness.detectChanges();
+    expect(router.url).toBe('/workspaces/join');
+    expect(element.textContent).toContain('Your changes were saved');
+    expect(element.querySelector('form')).toBeNull();
+    button(element, 'Try again').click();
+    const created = { ...holder, projects: [{ id: 'initial', name: 'Holder', memberIds: [] }] };
+    await vi.waitFor(() => http.expectOne('/api/workspaces').flush(overview([created])));
+    await harness.fixture.whenStable();
+    http.expectNone('/api/workspaces/actions');
+    await vi.waitFor(() => expect(router.url).toBe('/workspaces/holder/projects/initial'));
+  });
+
   it('restores the last project and blocks direct access to another workspace or its settings', async () => {
     localStorage.setItem(
       'app-speed.context.user_chris',

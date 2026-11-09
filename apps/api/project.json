@@ -204,7 +204,11 @@
             "-e APP_ENV=development",
             "-e SQLITE_PATH=/data/app-speed.sqlite",
             "-v app-speed-api-development:/data",
-            "-e RUNNER_MANAGER_MODE=manual"
+            "-e RUNNER_MANAGER_MODE=manual",
+            "-e DATABASE_URL",
+            "-e CLERK_SECRET_KEY",
+            "-e CLERK_PUBLISHABLE_KEY",
+            "-e CLERK_AUTHORIZED_PARTIES"
           ],
           "containerName": "app-speed-api-development",
           "hostPort": 3001,
@@ -216,10 +220,16 @@
             "-e RECORD_PERSISTENCE_MODE=s3",
             "-e RECORD_PERSISTENCE_BUCKET=app-speed-audit-results-prod",
             "-e AWS_REGION=eu-central-1",
-            "-e DATABASE_URL"
+            "-e DATABASE_URL",
+            "-e CLERK_SECRET_KEY",
+            "-e CLERK_PUBLISHABLE_KEY",
+            "-e CLERK_AUTHORIZED_PARTIES"
           ]
         }
-      }
+      },
+      "dependsOn": [
+        "auth-preflight"
+      ]
     },
     "build-e2e": {
       "executor": "@nx/esbuild:esbuild",
@@ -259,7 +269,7 @@
       "options": {
         "platform": "node",
         "target": "node24",
-        "outputPath": "dist/apps/api-e2e",
+        "outputPath": "dist/apps/api-clerk-e2e",
         "format": [
           "esm"
         ],
@@ -278,6 +288,24 @@
           "outExtension": {
             ".js": ".js"
           }
+        }
+      }
+    },
+    "auth-preflight": {
+      "executor": "@app-speed/aws-deploy:auth-preflight",
+      "cache": false,
+      "defaultConfiguration": "development",
+      "options": {
+        "application": "api"
+      },
+      "configurations": {
+        "production": {
+          "environment": "production",
+          "portalOrigin": "https://appspeed.dev"
+        },
+        "development": {
+          "environment": "development",
+          "portalOrigin": "https://dev.appspeed.dev"
         }
       }
     }

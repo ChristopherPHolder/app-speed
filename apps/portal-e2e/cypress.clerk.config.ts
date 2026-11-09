@@ -22,7 +22,6 @@ export default defineConfig({
         return account;
       };
       on('task', {
-        newClerkTestAccount: newAccount,
         async createClerkTestUser() {
           const { email, username } = newAccount();
           const user = await clerk.users

@@ -135,7 +135,8 @@
     "deploy": {
       "executor": "@app-speed/aws-deploy:s3-upload",
       "dependsOn": [
-        "build"
+        "build",
+        "auth-preflight"
       ],
       "defaultConfiguration": "development",
       "options": {
@@ -147,6 +148,24 @@
         },
         "development": {
           "bucket": "s3://dev.appspeed.dev"
+        }
+      }
+    },
+    "auth-preflight": {
+      "executor": "@app-speed/aws-deploy:auth-preflight",
+      "cache": false,
+      "defaultConfiguration": "development",
+      "options": {
+        "application": "portal"
+      },
+      "configurations": {
+        "production": {
+          "environment": "production",
+          "portalOrigin": "https://appspeed.dev"
+        },
+        "development": {
+          "environment": "development",
+          "portalOrigin": "https://dev.appspeed.dev"
         }
       }
     }

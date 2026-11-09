@@ -28,9 +28,6 @@ function testAuth() {
       await router.navigateByUrl('/');
     },
     errorMessage: async (error: unknown) => (error instanceof Error ? error.message : 'Sign-in failed.'),
-    sendEmailCode: unavailable,
-    resendEmailCode: unavailable,
-    verifyEmailCode: unavailable,
     completeSignUp: unavailable,
     resumeSignUp: unavailable,
     signInWithProvider: unavailable,
