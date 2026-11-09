@@ -5,13 +5,13 @@
       "source": "Effect-TS/skills",
       "sourceType": "github",
       "skillPath": "skills/effect-ts/SKILL.md",
-      "computedHash": "16dc62c9087d4b74035d4071fe931ff43c4218acb414407a17066045a80762fa"
+      "computedHash": "cb225ba5dda169883dfee680fba6c570c89245ba19242a9bc5c3f2ac8218a55f"
     },
     "effect-v3-to-v4": {
       "source": "Effect-TS/skills",
       "sourceType": "github",
       "skillPath": "skills/effect-v3-to-v4/SKILL.md",
-      "computedHash": "6b16daab60925a09aa1c4d678cd4a74724410d0ca11d2019ed17d20843a870da"
+      "computedHash": "0f4d927beabf2d53d07de7c7fd42e68d4100ead4129ed06e13b92986ff55713f"
     }
   }
 }
