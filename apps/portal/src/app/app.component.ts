@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, ViewEncapsulation } from '@
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
   NavigationCancel,
+  NavigationCancellationCode,
   NavigationEnd,
   NavigationError,
   NavigationSkipped,
@@ -10,6 +11,12 @@ import {
 } from '@angular/router';
 import { filter, map, take } from 'rxjs';
 import { ConsentBannerComponent } from './analytics/consent-banner.component';
+
+/** Cancellations that hand off to a replacement navigation, so the app is not ready yet. */
+const followedByAnotherNavigation = new Set<NavigationCancellationCode>([
+  NavigationCancellationCode.Redirect,
+  NavigationCancellationCode.SupersededByNewNavigation,
+]);
 
 @Component({
   imports: [RouterOutlet, ConsentBannerComponent],
@@ -35,7 +42,7 @@ export class AppComponent {
       filter(
         (event) =>
           event instanceof NavigationEnd ||
-          event instanceof NavigationCancel ||
+          (event instanceof NavigationCancel && !followedByAnotherNavigation.has(event.code)) ||
           event instanceof NavigationError ||
           event instanceof NavigationSkipped,
       ),
