@@ -1,5 +1,6 @@
 import { createClerkClient, type ClerkClient } from '@clerk/backend';
-import { Config, Context, Effect, Layer, Option, Redacted, Schema } from 'effect';
+import { Config, Context, Effect, Layer, Option, Redacted, Result, Schema } from 'effect';
+import { Base64 } from 'effect/encoding';
 
 export class SignInRequired extends Schema.TaggedError<SignInRequired>()(
   'SignInRequired',
@@ -48,39 +49,34 @@ export class Identity extends Context.Service<
  * Derives the Clerk Frontend API origin, which is the OAuth authorization server, from a publishable key
  * (`pk_<env>_<base64("<frontend-api-host>$")>`).
  */
-export const clerkFrontendApiUrl = (publishableKey: string): string | undefined => {
+export const clerkFrontendApiUrl = (publishableKey: string): Option.Option<string> => {
   const [, , encoded] = publishableKey.trim().split('_');
-  if (!encoded) return undefined;
-  try {
-    const host = Buffer.from(encoded, 'base64').toString('utf8');
-    if (!host.endsWith('$')) return undefined;
-    const origin = new URL(`https://${host.slice(0, -1)}`);
-    return origin.origin;
-  } catch {
-    return undefined;
-  }
+  if (!encoded) return Option.none();
+  return Result.getSuccess(Base64.decodeString(encoded)).pipe(
+    Option.filter((host) => host.endsWith('$') && URL.canParse(`https://${host.slice(0, -1)}`)),
+    Option.map((host) => new URL(`https://${host.slice(0, -1)}`).origin),
+  );
 };
 
-const loadAccount = (clerk: ClerkClient, userId: string) =>
-  Effect.gen(function* () {
-    const user = yield* Effect.tryPromise({
-      try: () => clerk.users.getUser(userId),
-      catch: () => new IdentityUnavailable({ message: 'Your account could not be loaded. Please try again.' }),
-    });
-    const email = user.emailAddresses.find(
-      (item) => item.id === user.primaryEmailAddressId && item.verification?.status === 'verified',
-    );
-    if (!email)
-      return yield* new SignInRequired({
-        message: 'Verify your primary email address before managing workspaces.',
-      });
-    return {
-      id: user.id,
-      email: email.emailAddress.toLowerCase(),
-      name: [user.firstName, user.lastName].filter(Boolean).join(' ') || user.username || email.emailAddress,
-      imageUrl: user.hasImage ? user.imageUrl : '',
-    } satisfies AccountIdentity;
+const loadAccount = Effect.fn('loadAccount')(function* (clerk: ClerkClient, userId: string) {
+  const user = yield* Effect.tryPromise({
+    try: () => clerk.users.getUser(userId),
+    catch: () => new IdentityUnavailable({ message: 'Your account could not be loaded. Please try again.' }),
   });
+  const email = user.emailAddresses.find(
+    (item) => item.id === user.primaryEmailAddressId && item.verification?.status === 'verified',
+  );
+  if (!email)
+    return yield* new SignInRequired({
+      message: 'Verify your primary email address before managing workspaces.',
+    });
+  return {
+    id: user.id,
+    email: email.emailAddress.toLowerCase(),
+    name: [user.firstName, user.lastName].filter(Boolean).join(' ') || user.username || email.emailAddress,
+    imageUrl: user.hasImage ? user.imageUrl : '',
+  } satisfies AccountIdentity;
+});
 
 export const IdentityLive = Layer.effect(Identity)(
   Effect.gen(function* () {
@@ -95,7 +91,7 @@ export const IdentityLive = Layer.effect(Identity)(
       Option.isSome(secret) && publishableKey.trim()
         ? createClerkClient({ secretKey: Redacted.value(secret.value), publishableKey: publishableKey.trim() })
         : undefined;
-    return {
+    return Identity.of({
       authenticate: Effect.fn('identity.authenticate')(function* (authorization: string | undefined) {
         if (!authorization?.startsWith('Bearer '))
           return yield* new SignInRequired({ message: 'Sign in to manage workspaces.' });
@@ -142,6 +138,6 @@ export const IdentityLive = Layer.effect(Identity)(
           scopes: auth.scopes,
         } satisfies AgentIdentity;
       }),
-    };
+    });
   }),
 );

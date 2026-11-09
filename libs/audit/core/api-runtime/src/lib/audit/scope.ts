@@ -4,17 +4,17 @@ import { HttpApiError } from 'effect/http-api';
 import { Identity } from '@app-speed/platform/identity';
 import { WorkspaceStore } from '@app-speed/workspace/api-runtime';
 
-const projectIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const isProjectId = Schema.is(Schema.String.check(Schema.isUUID()));
 
 /**
  * Resolves whether `accountId` may use `projectId`: current workspace membership plus either the admin role or an
  * explicit project grant. Returns `null` when access is denied, the project is unknown or the ID is malformed.
  */
-export const authorizedAuditProject = Effect.fn('audit.authorizedProject')(function* (
+export const authorizedAuditProject = Effect.fn('authorizedAuditProject')(function* (
   accountId: string,
   projectId: string,
 ) {
-  if (!projectIdPattern.test(projectId)) return null;
+  if (!isProjectId(projectId)) return null;
   const store = yield* WorkspaceStore;
   const rows = yield* store.transaction((sql) =>
     sql(
@@ -33,7 +33,7 @@ export const auditRequestProject = Effect.fn('audit.authorizeProject')(function*
   const request = yield* HttpServerRequest.HttpServerRequest;
   const projectId = request.headers['x-project-id'];
   if (projectId === undefined) return null;
-  if (!projectIdPattern.test(projectId)) return yield* new HttpApiError.Forbidden();
+  if (!isProjectId(projectId)) return yield* new HttpApiError.Forbidden();
   const identity = yield* Identity;
   const account = yield* identity
     .authenticate(request.headers['authorization'])

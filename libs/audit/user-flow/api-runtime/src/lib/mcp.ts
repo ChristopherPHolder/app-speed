@@ -1,6 +1,6 @@
-import { Effect, Layer, Schema } from 'effect';
+import { Effect, Layer, Option, Predicate, Schema } from 'effect';
 import { McpServer, Tool, Toolkit } from 'effect/ai';
-import { mcpAuditProject, PortalLinks, PortalLinksLive, RunnerLifecycle } from '@app-speed/audit/core/api-runtime';
+import { mcpAuditProject, PortalLinks, RunnerLifecycle } from '@app-speed/audit/core/api-runtime';
 import { AuditRepo, AuditRunIdSchema } from '@app-speed/audit/core/persistence';
 import { UserFlowAuditDefinitionSchema, USER_FLOW_AUDIT_KIND_LITERAL } from '@app-speed/audit/user-flow/domain';
 import { UserFlowAuditRepo, UserFlowAuditScheduler } from '@app-speed/audit/user-flow/persistence';
@@ -29,92 +29,111 @@ const metricKeys = [
 const Metric = Schema.Struct({
   id: Schema.String,
   title: Schema.String,
-  value: Schema.NullOr(Schema.Number),
+  value: Schema.NullOr(Schema.Finite),
   displayValue: Schema.NullOr(Schema.String),
-  score: Schema.NullOr(Schema.Number),
+  score: Schema.NullOr(Schema.Finite),
 });
 const Opportunity = Schema.Struct({
   id: Schema.String,
   title: Schema.String,
   displayValue: Schema.NullOr(Schema.String),
-  score: Schema.NullOr(Schema.Number),
-  savingsMs: Schema.NullOr(Schema.Number),
+  score: Schema.NullOr(Schema.Finite),
+  savingsMs: Schema.NullOr(Schema.Finite),
 });
 const StepSummary = Schema.Struct({
   name: Schema.String,
   gatherMode: Schema.NullOr(Schema.String),
   url: Schema.NullOr(Schema.String),
   /** Category scores from 0 to 100. Categories that do not apply to the gather mode are null. */
-  scores: Schema.Record(Schema.String, Schema.NullOr(Schema.Number)),
+  scores: Schema.Record(Schema.String, Schema.NullOr(Schema.Finite)),
   metrics: Schema.Array(Metric),
   opportunities: Schema.Array(Opportunity),
 });
 export const UserFlowResultSummarySchema = Schema.Struct({ steps: Schema.Array(StepSummary) });
 export type UserFlowResultSummary = typeof UserFlowResultSummarySchema.Type;
 
-type JsonRecord = Readonly<Record<string, unknown>>;
-const record = (value: unknown): JsonRecord =>
-  value !== null && typeof value === 'object' && !Array.isArray(value) ? (value as JsonRecord) : {};
-const text = (value: unknown) => (typeof value === 'string' ? value : null);
-const number = (value: unknown) => (typeof value === 'number' && Number.isFinite(value) ? value : null);
+// The subset of a Lighthouse flow result the summary reads. Unknown fields are ignored; missing ones stay optional.
+const LighthouseAudit = Schema.Struct({
+  title: Schema.optional(Schema.String),
+  score: Schema.optional(Schema.NullOr(Schema.Finite)),
+  numericValue: Schema.optional(Schema.Finite),
+  displayValue: Schema.optional(Schema.String),
+  details: Schema.optional(
+    Schema.Struct({ type: Schema.optional(Schema.String), overallSavingsMs: Schema.optional(Schema.Finite) }),
+  ),
+  metricSavings: Schema.optional(Schema.Struct({ LCP: Schema.optional(Schema.Finite) })),
+});
+const LighthouseFlowResult = Schema.Struct({
+  steps: Schema.Array(
+    Schema.Struct({
+      name: Schema.optional(Schema.String),
+      lhr: Schema.Struct({
+        gatherMode: Schema.optional(Schema.String),
+        finalDisplayedUrl: Schema.optional(Schema.String),
+        finalUrl: Schema.optional(Schema.String),
+        categories: Schema.optional(
+          Schema.Record(Schema.String, Schema.Struct({ score: Schema.optional(Schema.NullOr(Schema.Finite)) })),
+        ),
+        audits: Schema.optional(Schema.Record(Schema.String, LighthouseAudit)),
+      }),
+    }),
+  ),
+});
+const decodeFlowResult = Schema.decodeUnknownEffect(LighthouseFlowResult);
 
 /**
  * Condenses a Lighthouse flow result (several MB of JSON) to what an agent needs to reason about performance:
  * category scores, core metrics and the largest opportunities per step. The HTML report link has the rest.
  */
-export const summarizeFlowResult = (flowResult: unknown): UserFlowResultSummary => {
-  const steps = record(flowResult)['steps'];
+export const summarizeFlowResult = Effect.fn('summarizeFlowResult')(function* (flowResult: unknown) {
+  const { steps } = yield* decodeFlowResult(flowResult);
   return {
-    steps: (Array.isArray(steps) ? steps : []).map((step, index) => {
-      const lhr = record(record(step)['lhr']);
-      const audits = record(lhr['audits']);
-      const categories = record(lhr['categories']);
+    steps: steps.map((step, index) => {
+      const audits = step.lhr.audits ?? {};
+      const categories = step.lhr.categories ?? {};
       const scores = Object.fromEntries(
         categoryKeys.map((key) => {
-          const score = number(record(categories[key])['score']);
-          return [key, score === null ? null : Math.round(score * 100)];
+          const score = categories[key]?.score;
+          return [key, score === undefined || score === null ? null : Math.round(score * 100)];
         }),
       );
       const metrics = metricKeys.flatMap((id) => {
-        const audit = record(audits[id]);
-        if (Object.keys(audit).length === 0) return [];
+        const audit = audits[id];
+        if (!audit) return [];
         return [
           {
             id,
-            title: text(audit['title']) ?? id,
-            value: number(audit['numericValue']),
-            displayValue: text(audit['displayValue']),
-            score: number(audit['score']),
+            title: audit.title ?? id,
+            value: audit.numericValue ?? null,
+            displayValue: audit.displayValue ?? null,
+            score: audit.score ?? null,
           },
         ];
       });
       const opportunities = Object.entries(audits)
-        .map(([id, value]) => ({ id, audit: record(value) }))
-        .filter(({ audit }) => {
-          const score = number(audit['score']);
-          return record(audit['details'])['type'] === 'opportunity' && score !== null && score < 0.9;
-        })
-        .map(({ id, audit }) => ({
+        .filter(
+          ([, audit]) => audit.details?.type === 'opportunity' && Predicate.isNumber(audit.score) && audit.score < 0.9,
+        )
+        .map(([id, audit]) => ({
           id,
-          title: text(audit['title']) ?? id,
-          displayValue: text(audit['displayValue']),
-          score: number(audit['score']),
-          savingsMs:
-            number(record(audit['metricSavings'])['LCP']) ?? number(record(audit['details'])['overallSavingsMs']),
+          title: audit.title ?? id,
+          displayValue: audit.displayValue ?? null,
+          score: audit.score ?? null,
+          savingsMs: audit.metricSavings?.LCP ?? audit.details?.overallSavingsMs ?? null,
         }))
         .sort((a, b) => (b.savingsMs ?? 0) - (a.savingsMs ?? 0))
         .slice(0, 5);
       return {
-        name: text(record(step)['name']) ?? `Step ${index + 1}`,
-        gatherMode: text(lhr['gatherMode']),
-        url: text(lhr['finalDisplayedUrl']) ?? text(lhr['finalUrl']),
+        name: step.name ?? `Step ${index + 1}`,
+        gatherMode: step.lhr.gatherMode ?? null,
+        url: step.lhr.finalDisplayedUrl ?? step.lhr.finalUrl ?? null,
         scores,
         metrics,
         opportunities,
-      };
+      } satisfies UserFlowResultSummary['steps'][number];
     }),
   };
-};
+});
 
 export const ScheduleUserFlowAudit = Tool.make('schedule_user_flow_audit', {
   description: [
@@ -130,7 +149,7 @@ export const ScheduleUserFlowAudit = Tool.make('schedule_user_flow_audit', {
   parameters: Schema.Struct({ projectId: ProjectIdParameter, audit: UserFlowAuditDefinitionSchema }),
   success: Schema.Struct({
     auditId: Schema.String,
-    queuePosition: Schema.Number,
+    queuePosition: Schema.Finite,
     projectId: Schema.NullOr(Schema.String),
     url: Schema.String,
   }),
@@ -150,7 +169,7 @@ export const GetUserFlowAudit = Tool.make('get_user_flow_audit', {
   success: Schema.Struct({
     auditId: Schema.String,
     status: RunStatus,
-    queuePosition: Schema.Number,
+    queuePosition: Schema.Finite,
     audit: UserFlowAuditDefinitionSchema,
     url: Schema.String,
   }),
@@ -191,11 +210,15 @@ export const GetUserFlowAuditResult = Tool.make('get_user_flow_audit_result', {
 
 export const UserFlowMcpToolkit = Toolkit.make(ScheduleUserFlowAudit, GetUserFlowAudit, GetUserFlowAuditResult);
 
+const StoredError = Schema.Struct({ name: Schema.optional(Schema.String), message: Schema.optional(Schema.String) });
 const describeError = (error: unknown) => {
-  const value = record(error);
+  const decoded = Schema.decodeUnknownOption(StoredError)(error);
   return {
-    name: text(value['name']) ?? 'Error',
-    message: text(value['message']) ?? (typeof error === 'string' ? error : 'The audit failed.'),
+    name: Option.flatMapNullishOr(decoded, (value) => value.name).pipe(Option.getOrElse(() => 'Error')),
+    message: Option.flatMapNullishOr(decoded, (value) => value.message).pipe(
+      Option.orElse(() => Option.liftPredicate(error, Predicate.isString)),
+      Option.getOrElse(() => 'The audit failed.'),
+    ),
   };
 };
 
@@ -212,11 +235,11 @@ export const UserFlowMcpToolsLive = UserFlowMcpToolkit.toLayer(
     const runnerLifecycle = yield* RunnerLifecycle;
     const links = yield* PortalLinks;
 
-    const requireRun = Effect.fn('mcp.userFlow.requireRun')(function* (auditId: string, projectId: string | null) {
+    const requireRun = Effect.fn('requireRun')(function* (auditId: string, projectId: string | null) {
       const notFound = new McpToolError({
         message: `User-flow audit ${auditId} was not found in this scope. Audits in a project require its projectId.`,
       });
-      const id = yield* Schema.decodeUnknownEffect(AuditRunIdSchema)(auditId).pipe(Effect.mapError(() => notFound));
+      const id = yield* Schema.decodeEffect(AuditRunIdSchema)(auditId).pipe(Effect.mapError(() => notFound));
       const run = yield* repo.getRunById(id).pipe(Effect.mapError(unavailable));
       if (run === null || run.kind !== USER_FLOW_AUDIT_KIND_LITERAL || run.projectId !== projectId)
         return yield* notFound;
@@ -224,54 +247,55 @@ export const UserFlowMcpToolsLive = UserFlowMcpToolkit.toLayer(
     });
 
     return UserFlowMcpToolkit.of({
-      schedule_user_flow_audit: (params) =>
-        Effect.gen(function* () {
-          const projectId = yield* mcpAuditProject(params.projectId);
-          const client = yield* currentMcpClient;
-          const auditId = yield* scheduler
-            .schedule(params.audit, projectId, {
-              source: 'mcp',
-              clientId: client.clientId,
-              clientName: client.clientName,
-            })
-            .pipe(Effect.mapError(() => new McpToolError({ message: 'The audit could not be scheduled.' })));
-          const queuePosition = yield* repo.getQueuePosition(auditId).pipe(Effect.mapError(unavailable));
-          yield* runnerLifecycle.requestActivation;
-          return {
-            auditId,
-            queuePosition: queuePosition ?? 0,
-            projectId,
-            url: links.audit(USER_FLOW_AUDIT_KIND_LITERAL, auditId, projectId),
-          };
-        }).pipe(Effect.provide(services)),
-      get_user_flow_audit: (params) =>
-        Effect.gen(function* () {
-          const projectId = yield* mcpAuditProject(params.projectId);
-          const run = yield* requireRun(params.auditId, projectId);
-          const audit = yield* userFlowRepo.getDefinition(run.templateId).pipe(Effect.mapError(unavailable));
-          if (audit === null) return yield* unavailable();
-          return {
-            auditId: run.id,
-            status: run.status,
-            queuePosition: (yield* repo.getQueuePosition(run.id).pipe(Effect.mapError(unavailable))) ?? 0,
-            audit,
-            url: links.audit(USER_FLOW_AUDIT_KIND_LITERAL, run.id, projectId),
-          };
-        }).pipe(Effect.provide(services)),
-      get_user_flow_audit_result: (params) =>
-        Effect.gen(function* () {
-          const projectId = yield* mcpAuditProject(params.projectId);
-          const run = yield* requireRun(params.auditId, projectId);
-          const url = links.audit(USER_FLOW_AUDIT_KIND_LITERAL, run.id, projectId);
-          const result = yield* userFlowRepo.getResultByRunId(run.id).pipe(Effect.mapError(unavailable));
-          if (result === null)
-            return yield* new McpToolError({
-              message: `Audit ${run.id} is ${run.status.toLowerCase().replace('_', ' ')}; poll get_audit_status until COMPLETE.`,
-            });
-          return result.status === 'SUCCESS'
-            ? { status: 'SUCCESS' as const, ...summarizeFlowResult(result.flowResult), url }
-            : { status: 'FAILURE' as const, error: describeError(result.error), url };
-        }).pipe(Effect.provide(services)),
+      schedule_user_flow_audit: Effect.fn('UserFlowMcpToolkit.schedule_user_flow_audit')(function* (params) {
+        const projectId = yield* mcpAuditProject(params.projectId);
+        const client = yield* currentMcpClient;
+        const auditId = yield* scheduler
+          .schedule(params.audit, projectId, {
+            source: 'mcp',
+            clientId: client.clientId,
+            clientName: client.clientName,
+          })
+          .pipe(Effect.mapError(() => new McpToolError({ message: 'The audit could not be scheduled.' })));
+        const queuePosition = yield* repo.getQueuePosition(auditId).pipe(Effect.mapError(unavailable));
+        yield* runnerLifecycle.requestActivation;
+        return {
+          auditId,
+          queuePosition: queuePosition ?? 0,
+          projectId,
+          url: links.audit(USER_FLOW_AUDIT_KIND_LITERAL, auditId, projectId),
+        };
+      }, Effect.provide(services)),
+      get_user_flow_audit: Effect.fn('UserFlowMcpToolkit.get_user_flow_audit')(function* (params) {
+        const projectId = yield* mcpAuditProject(params.projectId);
+        const run = yield* requireRun(params.auditId, projectId);
+        const audit = yield* userFlowRepo.getDefinition(run.templateId).pipe(Effect.mapError(unavailable));
+        if (audit === null) return yield* unavailable();
+        return {
+          auditId: run.id,
+          status: run.status,
+          queuePosition: (yield* repo.getQueuePosition(run.id).pipe(Effect.mapError(unavailable))) ?? 0,
+          audit,
+          url: links.audit(USER_FLOW_AUDIT_KIND_LITERAL, run.id, projectId),
+        };
+      }, Effect.provide(services)),
+      get_user_flow_audit_result: Effect.fn('UserFlowMcpToolkit.get_user_flow_audit_result')(function* (params) {
+        const projectId = yield* mcpAuditProject(params.projectId);
+        const run = yield* requireRun(params.auditId, projectId);
+        const url = links.audit(USER_FLOW_AUDIT_KIND_LITERAL, run.id, projectId);
+        const result = yield* userFlowRepo.getResultByRunId(run.id).pipe(Effect.mapError(unavailable));
+        if (result === null)
+          return yield* new McpToolError({
+            message: `Audit ${run.id} is ${run.status.toLowerCase().replace('_', ' ')}; poll get_audit_status until COMPLETE.`,
+          });
+        if (result.status === 'FAILURE') return { status: 'FAILURE' as const, error: describeError(result.error), url };
+        const summary = yield* summarizeFlowResult(result.flowResult).pipe(
+          Effect.mapError(
+            () => new McpToolError({ message: `The result could not be summarized. Open the full report: ${url}` }),
+          ),
+        );
+        return { status: 'SUCCESS' as const, ...summary, url };
+      }, Effect.provide(services)),
     });
   }),
 );
@@ -279,5 +303,5 @@ export const UserFlowMcpToolsLive = UserFlowMcpToolkit.toLayer(
 /** User-flow audit tools. Requires the audit repositories, scheduler, runner lifecycle and `WorkspaceStore`. */
 export const UserFlowMcpLive = McpServer.toolkit(UserFlowMcpToolkit).pipe(
   Layer.provide(UserFlowMcpToolsLive),
-  Layer.provide(PortalLinksLive),
+  Layer.provide(PortalLinks.layer),
 );

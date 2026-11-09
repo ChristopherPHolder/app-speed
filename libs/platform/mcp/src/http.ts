@@ -1,11 +1,20 @@
-import { Config, Effect, Layer, Option } from 'effect';
+import { Config, Effect, Layer, Option, Schema } from 'effect';
 import { McpProtocol, McpServer } from 'effect/ai';
 import { HttpRouter, HttpServerRequest, HttpServerResponse } from 'effect/http';
-import { clerkFrontendApiUrl, Identity } from '@app-speed/platform/identity';
+import {
+  clerkFrontendApiUrl,
+  Identity,
+  type IdentityUnavailable,
+  type SignInRequired,
+} from '@app-speed/platform/identity';
 
 import { McpCaller } from './caller';
 
 const scopes = ['profile', 'email'] as const;
+
+export class McpConfigurationError extends Schema.TaggedError<McpConfigurationError>()('McpConfigurationError', {
+  message: Schema.String,
+}) {}
 
 export interface McpHttpOptions<RA, RE, RR> {
   readonly name: string;
@@ -38,6 +47,28 @@ const challenge = (metadataUrl: string, error?: { code: string; description: str
     ...(error ? [`error="${error.code}"`, `error_description="${error.description.replaceAll('"', "'")}"`] : []),
   ].join(', ');
 
+/** Maps an authentication failure to an OAuth error response; configuration problems are not client errors. */
+const rejection =
+  (metadataUrl: string, authorization: string | undefined) => (error: SignInRequired | IdentityUnavailable) =>
+    error._tag === 'IdentityUnavailable'
+      ? HttpServerResponse.jsonUnsafe(
+          { error: 'temporarily_unavailable', error_description: error.message },
+          { status: 503, headers: { 'Cache-Control': 'no-store' } },
+        )
+      : HttpServerResponse.jsonUnsafe(
+          { error: 'invalid_token', error_description: error.message },
+          {
+            status: 401,
+            headers: {
+              'Cache-Control': 'no-store',
+              'WWW-Authenticate': challenge(
+                metadataUrl,
+                authorization ? { code: 'invalid_token', description: error.message } : undefined,
+              ),
+            },
+          },
+        );
+
 /**
  * Serves a Streamable HTTP MCP endpoint protected by Clerk OAuth access tokens.
  *
@@ -48,62 +79,48 @@ const challenge = (metadataUrl: string, error?: { code: string; description: str
 export const McpHttpLive = <RA, RE, RR>(options: McpHttpOptions<RA, RE, RR>) =>
   Layer.unwrap(
     Effect.gen(function* () {
-      const configured = yield* Config.option(Config.String('MCP_RESOURCE_URL'));
+      const configured = yield* Config.option(Config.URL('MCP_RESOURCE_URL'));
       if (Option.isNone(configured)) return Layer.empty;
-      const resourceUrl = new URL(configured.value);
+      const resourceUrl = configured.value;
       // Clients compare resource identifiers exactly; a trailing slash would be a different audience.
       const resource = resourceUrl.href.replace(/\/$/, '');
       const path: `/${string}` = `/${resourceUrl.pathname.replace(/^\/|\/$/g, '')}`;
       const publishableKey = yield* Config.String('CLERK_PUBLISHABLE_KEY').pipe(Config.withDefault(''));
-      const authorizationServer = yield* Config.String('MCP_AUTHORIZATION_SERVER').pipe(
-        Config.option,
-        Effect.map(Option.orElse(() => Option.fromNullishOr(clerkFrontendApiUrl(publishableKey)))),
+      const override = yield* Config.option(Config.URL('MCP_AUTHORIZATION_SERVER'));
+      const authorizationServer = Option.orElse(
+        Option.map(override, (url) => url.origin),
+        () => clerkFrontendApiUrl(publishableKey),
       );
       if (Option.isNone(authorizationServer))
-        return yield* Effect.die(
-          new Error('MCP_RESOURCE_URL requires CLERK_PUBLISHABLE_KEY or MCP_AUTHORIZATION_SERVER to be configured.'),
-        );
+        return yield* new McpConfigurationError({
+          message: 'MCP_RESOURCE_URL requires CLERK_PUBLISHABLE_KEY or MCP_AUTHORIZATION_SERVER to be configured.',
+        });
       const metadataPath: `/${string}` = `/.well-known/oauth-protected-resource${path === '/' ? '' : path}`;
       const metadataUrl = `${resourceUrl.origin}${metadataPath}`;
-      const metadata = mcpResourceMetadata({
-        resource,
-        authorizationServer: authorizationServer.value,
-        name: options.title ?? options.name,
-        websiteUrl: options.websiteUrl,
-      });
-      const metadataResponse = HttpServerResponse.jsonUnsafe(metadata, {
-        headers: { 'Cache-Control': 'public, max-age=3600', 'Access-Control-Allow-Origin': '*' },
-      });
+      const metadataResponse = HttpServerResponse.jsonUnsafe(
+        mcpResourceMetadata({
+          resource,
+          authorizationServer: authorizationServer.value,
+          name: options.title ?? options.name,
+          websiteUrl: options.websiteUrl,
+        }),
+        { headers: { 'Cache-Control': 'public, max-age=3600', 'Access-Control-Allow-Origin': '*' } },
+      );
 
       const Authentication = HttpRouter.middleware<{ provides: McpCaller }>()(
         Effect.gen(function* () {
           const identity = yield* Identity;
-          return (httpEffect) =>
-            Effect.gen(function* () {
-              const request = yield* HttpServerRequest.HttpServerRequest;
-              const authorization = request.headers['authorization'];
-              const result = yield* Effect.result(identity.authenticateAgent(authorization, resource));
-              if (result._tag === 'Success') return yield* Effect.provideService(httpEffect, McpCaller, result.success);
-              const error = result.failure;
-              if (error._tag === 'IdentityUnavailable')
-                return HttpServerResponse.jsonUnsafe(
-                  { error: 'temporarily_unavailable', error_description: error.message },
-                  { status: 503, headers: { 'Cache-Control': 'no-store' } },
-                );
-              return HttpServerResponse.jsonUnsafe(
-                { error: 'invalid_token', error_description: error.message },
-                {
-                  status: 401,
-                  headers: {
-                    'Cache-Control': 'no-store',
-                    'WWW-Authenticate': challenge(
-                      metadataUrl,
-                      authorization ? { code: 'invalid_token', description: error.message } : undefined,
-                    ),
-                  },
-                },
-              );
-            });
+          return Effect.fnUntraced(function* <E, R>(
+            httpEffect: Effect.Effect<HttpServerResponse.HttpServerResponse, E, R>,
+          ) {
+            const authorization = (yield* HttpServerRequest.HttpServerRequest).headers['authorization'];
+            return yield* identity.authenticateAgent(authorization, resource).pipe(
+              Effect.matchEffect({
+                onFailure: (error) => Effect.succeed(rejection(metadataUrl, authorization)(error)),
+                onSuccess: (agent) => Effect.provideService(httpEffect, McpCaller, agent),
+              }),
+            );
+          });
         }),
       );
 

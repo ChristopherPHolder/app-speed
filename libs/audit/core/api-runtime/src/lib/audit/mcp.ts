@@ -1,4 +1,4 @@
-import { Config, Context, Effect, Layer, Schema } from 'effect';
+import { Config, Context, DateTime, Effect, Layer, Schema } from 'effect';
 import { McpServer, Tool, Toolkit } from 'effect/ai';
 import { AuditHistoryItemSchema, AuditHistoryPageSchema } from '@app-speed/audit/core/api-contract';
 import { AuditHistoryRepo, AuditRepo, AuditRunIdSchema } from '@app-speed/audit/core/persistence';
@@ -17,35 +17,36 @@ const ProjectIdParameter = Schema.optional(
 const RunStatus = Schema.Literals(['SCHEDULED', 'IN_PROGRESS', 'COMPLETE']);
 const ResultStatus = Schema.Literals(['SUCCESS', 'FAILURE']);
 
-/** Where audit links in tool results point. Configure with `PORTAL_URL`. */
+/** Where audit links in tool results point. Configure the portal origin with `PORTAL_URL`. */
 export class PortalLinks extends Context.Service<
   PortalLinks,
   {
     readonly audit: (kind: string, auditId: string, projectId: string | null) => string;
     readonly history: (projectId: string | null) => string;
   }
->()('PortalLinks') {}
-
-export const PortalLinksLive = Layer.effect(PortalLinks)(
-  Effect.gen(function* () {
-    const origin = new URL(yield* Config.String('PORTAL_URL').pipe(Config.withDefault('https://appspeed.dev'))).origin;
-    const scoped = (path: string, projectId: string | null) => {
-      const url = new URL(path, origin);
-      if (projectId) url.searchParams.set('projectId', projectId);
-      return url.href;
-    };
-    return {
-      audit: (kind, auditId, projectId) => scoped(`/audits/${kind}/${encodeURIComponent(auditId)}`, projectId),
-      history: (projectId) => scoped('/audits/history', projectId),
-    };
-  }),
-);
+>()('@app-speed/audit/core/api-runtime/PortalLinks') {
+  static readonly layer = Layer.effect(
+    PortalLinks,
+    Effect.gen(function* () {
+      const portal = yield* Config.URL('PORTAL_URL').pipe(Config.withDefault(new URL('https://appspeed.dev')));
+      const scoped = (path: string, projectId: string | null) => {
+        const url = new URL(path, portal.origin);
+        if (projectId) url.searchParams.set('projectId', projectId);
+        return url.href;
+      };
+      return PortalLinks.of({
+        audit: (kind, auditId, projectId) => scoped(`/audits/${kind}/${encodeURIComponent(auditId)}`, projectId),
+        history: (projectId) => scoped('/audits/history', projectId),
+      });
+    }),
+  );
+}
 
 /**
  * Resolves an optional project for the calling account. `null` is Public View. A project ID is never proof of access:
  * membership and project grants are checked on every call.
  */
-export const mcpAuditProject = Effect.fn('mcp.audit.project')(function* (projectId: string | undefined) {
+export const mcpAuditProject = Effect.fn('mcpAuditProject')(function* (projectId: string | undefined) {
   if (projectId === undefined) return null;
   const { account } = yield* McpCaller;
   const project = yield* authorizedAuditProject(account.id, projectId).pipe(
@@ -63,14 +64,14 @@ const AuditSummary = Schema.Struct({
   kind: Schema.String,
   status: RunStatus,
   resultStatus: Schema.NullOr(ResultStatus),
-  queuePosition: Schema.NullOr(Schema.Number),
+  queuePosition: Schema.NullOr(Schema.Finite),
   projectId: Schema.NullOr(Schema.String),
   source: Schema.Literals(['portal', 'mcp']),
   clientName: Schema.NullOr(Schema.String),
   createdAt: Schema.String,
   startedAt: Schema.NullOr(Schema.String),
   completedAt: Schema.NullOr(Schema.String),
-  durationMs: Schema.NullOr(Schema.Number),
+  durationMs: Schema.NullOr(Schema.Finite),
   url: Schema.String,
 });
 
@@ -83,7 +84,7 @@ export const ListAudits = Tool.make('list_audits', {
     search: Schema.optional(Schema.String.annotate({ description: 'Matches audit titles or IDs.' })),
     status: Schema.optional(Schema.Array(RunStatus)),
     outcome: Schema.optional(ResultStatus),
-    limit: Schema.optional(Schema.Number.check(Schema.isInt(), Schema.isBetween({ minimum: 1, maximum: 100 }))),
+    limit: Schema.optional(Schema.Finite.check(Schema.isInt(), Schema.isBetween({ minimum: 1, maximum: 100 }))),
     cursor: Schema.optional(Schema.String.annotate({ description: 'nextCursor from a previous page.' })),
   }),
   success: Schema.Struct({
@@ -122,65 +123,65 @@ const notFound = (auditId: string) =>
     message: `Audit ${auditId} was not found in this scope. Audits in a project require that project's projectId.`,
   });
 
+const isoString = (date: Date) => DateTime.formatIso(DateTime.fromDateUnsafe(date));
+const unavailable = () => new McpToolError({ message: 'The audit could not be loaded. Please try again.' });
+
 export const AuditMcpToolsLive = AuditMcpToolkit.toLayer(
   Effect.gen(function* () {
     const services = yield* Effect.context<AuditRepo | AuditHistoryRepo | WorkspaceStore | PortalLinks>();
     const links = yield* PortalLinks;
     const repo = yield* AuditRepo;
     return AuditMcpToolkit.of({
-      list_audits: (params) =>
-        Effect.gen(function* () {
-          const projectId = yield* mcpAuditProject(params.projectId);
-          const page = yield* historyHandler(null)(
-            {
-              query: {
-                search: params.search,
-                outcome: params.outcome,
-                limit: params.limit === undefined ? undefined : String(params.limit),
-                cursor: params.cursor,
-                status: params.status && params.status.length > 0 ? params.status.join(',') : undefined,
-              },
+      list_audits: Effect.fn('AuditMcpToolkit.list_audits')(function* (params) {
+        const projectId = yield* mcpAuditProject(params.projectId);
+        const page = yield* historyHandler(null)(
+          {
+            query: {
+              search: params.search,
+              outcome: params.outcome,
+              limit: params.limit === undefined ? undefined : String(params.limit),
+              cursor: params.cursor,
+              status: params.status && params.status.length > 0 ? params.status.join(',') : undefined,
             },
-            projectId,
-          ).pipe(Effect.mapError(toolError));
-          return {
-            ...page,
-            items: page.items.map((item) => ({ ...item, url: links.audit(item.kind, item.auditId, projectId) })),
-            historyUrl: links.history(projectId),
-          };
-        }).pipe(Effect.provide(services)),
-      get_audit_status: (params) =>
-        Effect.gen(function* () {
-          const projectId = yield* mcpAuditProject(params.projectId);
-          const id = yield* Schema.decodeUnknownEffect(AuditRunIdSchema)(params.auditId).pipe(
-            Effect.mapError(() => notFound(params.auditId)),
-          );
-          const unavailable = () => new McpToolError({ message: 'The audit could not be loaded. Please try again.' });
-          const run = yield* repo.getRunById(id).pipe(Effect.mapError(unavailable));
-          // An audit ID alone never grants access: the stored owner must match the requested scope exactly.
-          if (run === null || run.projectId !== projectId) return yield* notFound(params.auditId);
-          const result =
-            run.status === 'COMPLETE' ? yield* repo.getResultByRunId(id).pipe(Effect.mapError(unavailable)) : null;
-          const queuePosition =
-            run.status === 'SCHEDULED'
-              ? ((yield* repo.getQueuePosition(id).pipe(Effect.mapError(unavailable))) ?? 0)
-              : null;
-          return {
-            auditId: run.id,
-            kind: run.kind,
-            status: run.status,
-            resultStatus: result?.status ?? null,
-            queuePosition,
-            projectId,
-            source: run.source,
-            clientName: run.clientName,
-            createdAt: run.createdAt.toISOString(),
-            startedAt: run.startedAt?.toISOString() ?? null,
-            completedAt: run.completedAt?.toISOString() ?? null,
-            durationMs: run.durationMs,
-            url: links.audit(run.kind, run.id, projectId),
-          };
-        }).pipe(Effect.provide(services)),
+          },
+          projectId,
+        ).pipe(Effect.mapError(toolError));
+        return {
+          ...page,
+          items: page.items.map((item) => ({ ...item, url: links.audit(item.kind, item.auditId, projectId) })),
+          historyUrl: links.history(projectId),
+        };
+      }, Effect.provide(services)),
+      get_audit_status: Effect.fn('AuditMcpToolkit.get_audit_status')(function* (params) {
+        const projectId = yield* mcpAuditProject(params.projectId);
+        const id = yield* Schema.decodeEffect(AuditRunIdSchema)(params.auditId).pipe(
+          Effect.mapError(() => notFound(params.auditId)),
+        );
+        const run = yield* repo.getRunById(id).pipe(Effect.mapError(unavailable));
+        // An audit ID alone never grants access: the stored owner must match the requested scope exactly.
+        if (run === null || run.projectId !== projectId) return yield* notFound(params.auditId);
+        const result =
+          run.status === 'COMPLETE' ? yield* repo.getResultByRunId(id).pipe(Effect.mapError(unavailable)) : null;
+        const queuePosition =
+          run.status === 'SCHEDULED'
+            ? ((yield* repo.getQueuePosition(id).pipe(Effect.mapError(unavailable))) ?? 0)
+            : null;
+        return {
+          auditId: run.id,
+          kind: run.kind,
+          status: run.status,
+          resultStatus: result?.status ?? null,
+          queuePosition,
+          projectId,
+          source: run.source,
+          clientName: run.clientName,
+          createdAt: isoString(run.createdAt),
+          startedAt: run.startedAt ? isoString(run.startedAt) : null,
+          completedAt: run.completedAt ? isoString(run.completedAt) : null,
+          durationMs: run.durationMs,
+          url: links.audit(run.kind, run.id, projectId),
+        };
+      }, Effect.provide(services)),
     });
   }),
 );
@@ -188,5 +189,5 @@ export const AuditMcpToolsLive = AuditMcpToolkit.toLayer(
 /** Audit tools available to every MCP client. Requires `AuditRepo`, `AuditHistoryRepo`, `WorkspaceStore`. */
 export const AuditMcpLive = McpServer.toolkit(AuditMcpToolkit).pipe(
   Layer.provide(AuditMcpToolsLive),
-  Layer.provide(PortalLinksLive),
+  Layer.provide(PortalLinks.layer),
 );

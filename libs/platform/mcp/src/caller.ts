@@ -3,7 +3,7 @@ import { McpSchema } from 'effect/ai';
 import type { AccountIdentity, AgentIdentity } from '@app-speed/platform/identity';
 
 /** The verified account and OAuth client behind the current MCP request. Provided by the `/mcp` HTTP middleware. */
-export class McpCaller extends Context.Service<McpCaller, AgentIdentity>()('McpCaller') {}
+export class McpCaller extends Context.Service<McpCaller, AgentIdentity>()('@app-speed/platform/mcp/McpCaller') {}
 
 /**
  * A failure the model should see and can act on (missing access, invalid input, conflicts). Its message is returned

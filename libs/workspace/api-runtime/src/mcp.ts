@@ -1,4 +1,4 @@
-import { Effect, Layer, Schema } from 'effect';
+import { Effect, Layer, Predicate, Schema } from 'effect';
 import { McpServer, Tool, Toolkit } from 'effect/ai';
 import { currentMcpClient, McpCaller, McpToolError, toolError } from '@app-speed/platform/mcp';
 import {
@@ -262,31 +262,29 @@ const decodeAction = Schema.decodeUnknownEffect(WorkspaceActionSchema);
 export const WorkspaceMcpToolsLive = WorkspaceMcpToolkit.toLayer(
   Effect.gen(function* () {
     const services = yield* Effect.context<WorkspaceStore>();
-    const run = (input: Record<string, unknown> & { readonly action: WorkspaceAction['action'] }) =>
-      Effect.gen(function* () {
-        const client = yield* currentMcpClient;
-        yield* Effect.annotateCurrentSpan({
-          'workspace.action': input.action,
-          'mcp.client_id': client.clientId,
-          'mcp.client_name': client.clientName,
-        });
-        const { confirm, ...fields } = input;
-        const decoded = yield* decodeAction(fields).pipe(
-          Effect.mapError(
-            (error) => new McpToolError({ message: `Invalid ${input.action} request: ${error.message}` }),
-          ),
-        );
-        const check = confirmation({ ...decoded, confirm: typeof confirm === 'string' ? confirm : undefined });
-        if (check) yield* Effect.flatMap(loadWorkspaceOverview(client.account).pipe(Effect.mapError(toolError)), check);
-        return yield* executeWorkspaceAction(client.account, decoded).pipe(Effect.mapError(toolError));
-      }).pipe(Effect.withSpan(`mcp.workspace.${input.action}`), Effect.provide(services));
+    const run = Effect.fn('WorkspaceMcpToolkit.action')(function* (
+      input: Record<string, unknown> & { readonly action: WorkspaceAction['action'] },
+    ) {
+      const client = yield* currentMcpClient;
+      yield* Effect.annotateCurrentSpan({
+        'workspace.action': input.action,
+        'mcp.client_id': client.clientId,
+        'mcp.client_name': client.clientName,
+      });
+      const { confirm, ...fields } = input;
+      const decoded = yield* decodeAction(fields).pipe(
+        Effect.mapError((error) => new McpToolError({ message: `Invalid ${input.action} request: ${error.message}` })),
+      );
+      const check = confirmation({ ...decoded, confirm: Predicate.isString(confirm) ? confirm : undefined });
+      if (check) yield* Effect.flatMap(loadWorkspaceOverview(client.account).pipe(Effect.mapError(toolError)), check);
+      return yield* executeWorkspaceAction(client.account, decoded).pipe(Effect.mapError(toolError));
+    }, Effect.provide(services));
 
     return WorkspaceMcpToolkit.of({
-      get_workspaces: () =>
-        Effect.gen(function* () {
-          const client = yield* currentMcpClient;
-          return yield* loadWorkspaceOverview(client.account).pipe(Effect.mapError(toolError));
-        }).pipe(Effect.provide(services)),
+      get_workspaces: Effect.fn('WorkspaceMcpToolkit.get_workspaces')(function* () {
+        const client = yield* currentMcpClient;
+        return yield* loadWorkspaceOverview(client.account).pipe(Effect.mapError(toolError));
+      }, Effect.provide(services)),
       create_workspace: (p) => run({ action: 'createWorkspace', ...p }),
       rename_workspace: (p) => run({ action: 'renameWorkspace', ...p }),
       set_workspace_logo: (p) => run({ action: 'setWorkspaceLogo', ...p }),

@@ -1,5 +1,5 @@
 import { it, describe, expect } from '@effect/vitest';
-import { ConfigProvider, Effect } from 'effect';
+import { ConfigProvider, Effect, Option } from 'effect';
 import { clerkFrontendApiUrl, Identity, IdentityLive } from './index';
 
 const { clerk, createClerkClient } = vi.hoisted(() => {
@@ -189,8 +189,9 @@ describe('Clerk identity boundary', () => {
 
   it('derives the Clerk Frontend API from a publishable key', () => {
     const key = `pk_live_${Buffer.from('clerk.appspeed.dev$').toString('base64')}`;
-    expect(clerkFrontendApiUrl(key)).toBe('https://clerk.appspeed.dev');
-    expect(clerkFrontendApiUrl('test_publishable_key')).toBeUndefined();
-    expect(clerkFrontendApiUrl('')).toBeUndefined();
+    expect(clerkFrontendApiUrl(key)).toEqual(Option.some('https://clerk.appspeed.dev'));
+    expect(clerkFrontendApiUrl('test_publishable_key')).toEqual(Option.none());
+    expect(clerkFrontendApiUrl('pk_live_not base64!')).toEqual(Option.none());
+    expect(clerkFrontendApiUrl('')).toEqual(Option.none());
   });
 });

@@ -303,7 +303,7 @@ describe('App Speed MCP server', () => {
     const scheduled = await ok('admin', 'schedule_user_flow_audit', { audit: { ...definition, title: 'Public' } });
     const auditId = String(scheduled['auditId']);
     expect(await failure('admin', 'get_user_flow_audit_result', { auditId })).toMatch(/poll get_audit_status/);
-    const run = Schema.decodeUnknownSync(AuditRunIdSchema)(auditId);
+    const run = Schema.decodeSync(AuditRunIdSchema)(auditId);
     await runtime.runPromise(
       Effect.gen(function* () {
         const repo = yield* UserFlowAuditRepo;
