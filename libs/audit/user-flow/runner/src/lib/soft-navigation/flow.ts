@@ -1,4 +1,3 @@
-import { startSoftNavigationGather } from './gatherer';
 import { setTimeout as delay } from 'node:timers/promises';
 import type { Frame, Page } from 'puppeteer';
 import type { UserFlow } from 'lighthouse';
@@ -11,6 +10,8 @@ import {
   MULTIPLE_SOFT_NAVIGATION_WARNING,
   MULTIPLE_NAVIGATION_WARNING,
 } from './metrics';
+
+import { startSoftNavigationGather } from './gatherer';
 
 type Flags = Parameters<UserFlow['startNavigation']>[0];
 type Mode = 'navigation' | 'soft-navigation' | 'timespan' | 'snapshot';
@@ -37,6 +38,8 @@ export class ExperimentalUserFlow {
   private readonly controller = new AbortController();
   private nextNavigation = 0;
   private current?: Mode;
+  private pendingGather?: ReturnType<typeof startSoftNavigationGather>;
+  private disposal?: Promise<void>;
   private softGather?: Awaited<ReturnType<typeof startSoftNavigationGather>>;
   private navigated?: Promise<void>;
   private onNavigated?: (frame: Frame) => void;
@@ -57,12 +60,17 @@ export class ExperimentalUserFlow {
       return;
     }
     await this.startNavigation(flags);
-    await requestor();
-    await this.endNavigation();
+    try {
+      await requestor();
+      await this.endNavigation();
+    } finally {
+      if (this.current === 'soft-navigation') await this.releaseSoftGather();
+    }
   }
 
   async startNavigation(flags?: Flags): Promise<void> {
     if (this.current) throw new Error('A flow step is already in progress');
+    this.controller.signal.throwIfAborted();
     const mode = this.plan[this.nextNavigation++] ?? 'soft-navigation';
     if (mode === 'navigation') {
       await this.flow.startNavigation(flags);
@@ -75,12 +83,16 @@ export class ExperimentalUserFlow {
       };
       this.page.on('framenavigated', this.onNavigated);
     });
+    this.current = mode;
     try {
-      this.softGather = await startSoftNavigationGather(this.flow, flags);
-      this.current = mode;
+      this.pendingGather = startSoftNavigationGather(this.flow, flags);
+      this.softGather = await this.pendingGather;
+      this.controller.signal.throwIfAborted();
     } catch (error) {
-      this.removeListener();
+      await this.releaseSoftGather();
       throw error;
+    } finally {
+      this.pendingGather = undefined;
     }
   }
 
@@ -115,13 +127,7 @@ export class ExperimentalUserFlow {
       this.modes.push('soft-navigation');
       this.current = undefined;
     } finally {
-      try {
-        await this.softGather?.dispose();
-      } finally {
-        this.softGather = undefined;
-        this.current = undefined;
-        this.removeListener();
-      }
+      await this.releaseSoftGather();
     }
   }
 
@@ -170,11 +176,27 @@ export class ExperimentalUserFlow {
     );
     return { ...result, steps };
   }
-  dispose(): void {
+  dispose(): Promise<void> {
     this.controller.abort();
     this.removeListener();
-    void this.softGather?.dispose().catch(() => undefined);
-    this.flow.dispose();
+    return (this.disposal ??= (async () => {
+      try {
+        // Setup may still be running when replay is interrupted. Its own failure path cleans up.
+        const pending = await this.pendingGather?.catch(() => undefined);
+        await (this.softGather ?? pending)?.dispose();
+      } finally {
+        this.flow.dispose();
+      }
+    })());
+  }
+  private async releaseSoftGather(): Promise<void> {
+    try {
+      await this.softGather?.dispose();
+    } finally {
+      this.softGather = undefined;
+      this.current = undefined;
+      this.removeListener();
+    }
   }
   private removeListener(): void {
     if (this.onNavigated) this.page.off('framenavigated', this.onNavigated);

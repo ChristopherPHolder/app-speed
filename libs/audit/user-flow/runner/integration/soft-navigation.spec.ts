@@ -210,7 +210,7 @@ describe('Lighthouse navigation experiment in Chrome', () => {
       expect(timespan.audits['first-contentful-paint']).toBeUndefined();
       expect(timespan.runWarnings.join(' ')).not.toContain('A soft navigation was detected during this timespan.');
     } finally {
-      flow.dispose();
+      await flow.dispose();
       await page.close();
     }
   });
@@ -234,7 +234,47 @@ describe('Lighthouse navigation experiment in Chrome', () => {
       expect(result.steps).toHaveLength(1);
       expect(result.steps[0].lhr.audits['largest-contentful-paint'].numericValue).toBeGreaterThan(0);
     } finally {
-      flow.dispose();
+      await flow.dispose();
+      await page.close();
+    }
+  });
+
+  it('awaits disposal before another flow starts tracing on the same page', async () => {
+    const page = await browser.newPage();
+    const flow = await createFlow(page, { flags: { throttlingMethod: 'provided' } });
+    const next = await createFlow(page, { flags: { throttlingMethod: 'provided' } });
+    try {
+      await page.goto(baseUrl);
+      await flow.startNavigation();
+      await Promise.all([flow.dispose(), flow.dispose()]);
+      await next.startNavigation();
+      await page.click('#product');
+      await next.endNavigation();
+      const { lhr } = (await next.createFlowResult()).steps[0];
+      expect(lhr.audits['largest-contentful-paint'].numericValue).toBeGreaterThan(0);
+    } finally {
+      await flow.dispose();
+      await next.dispose();
+      await page.close();
+    }
+  });
+
+  it('releases tracing when the navigation callback throws', async () => {
+    const page = await browser.newPage();
+    const flow = await createFlow(page, { flags: { throttlingMethod: 'provided' } });
+    try {
+      await page.goto(baseUrl);
+      await expect(
+        flow.navigate(async () => {
+          throw new Error('Interaction failed');
+        }),
+      ).rejects.toThrow('Interaction failed');
+      await flow.navigate(async () => {
+        await page.click('#product');
+      });
+      expect((await flow.createFlowResult()).steps).toHaveLength(1);
+    } finally {
+      await flow.dispose();
       await page.close();
     }
   });
@@ -252,7 +292,7 @@ describe('Lighthouse navigation experiment in Chrome', () => {
       expect(lhr.audits['first-contentful-paint']).toBeUndefined();
       expect(lhr.audits['largest-contentful-paint'].numericValue).toBeGreaterThan(0);
     } finally {
-      flow.dispose();
+      await flow.dispose();
       await page.close();
     }
   });
@@ -272,7 +312,7 @@ describe('Lighthouse navigation experiment in Chrome', () => {
       expect(inp.scoreDisplayMode).toBe('notApplicable');
       expect(inp.numericValue).toBeUndefined();
     } finally {
-      flow.dispose();
+      await flow.dispose();
       await page.close();
     }
   });
@@ -290,7 +330,7 @@ describe('Lighthouse navigation experiment in Chrome', () => {
       expect(lhr.audits['first-contentful-paint'].numericValue).toBeGreaterThanOrEqual(800);
       expect(lhr.audits['largest-contentful-paint'].numericValue).toBeGreaterThanOrEqual(800);
     } finally {
-      flow.dispose();
+      await flow.dispose();
       await page.close();
     }
   });
@@ -310,7 +350,7 @@ describe('Lighthouse navigation experiment in Chrome', () => {
         expect(lhr.audits[id].numericValue).toBeUndefined();
       }
     } finally {
-      flow.dispose();
+      await flow.dispose();
       await page.close();
     }
   });
@@ -352,7 +392,7 @@ describe('Lighthouse navigation experiment in Chrome', () => {
         await writeFile(resolve(directory, 'timespan-warning-report.html'), report);
       }
     } finally {
-      flow.dispose();
+      await flow.dispose();
       await page.close();
     }
   });
@@ -371,7 +411,7 @@ describe('Lighthouse navigation experiment in Chrome', () => {
       const { lhr } = (await flow.createFlowResult()).steps[0];
       expect(lhr.runWarnings.join(' ')).not.toContain('A soft navigation was detected during this timespan.');
     } finally {
-      flow.dispose();
+      await flow.dispose();
       await page.close();
     }
   });
@@ -389,7 +429,7 @@ describe('Lighthouse navigation experiment in Chrome', () => {
       expect(lhr.audits['first-contentful-paint'].errorMessage).toContain('soft navigation');
       expect(lhr.audits['largest-contentful-paint'].scoreDisplayMode).toBe('error');
     } finally {
-      flow.dispose();
+      await flow.dispose();
       await page.close();
     }
   });
@@ -422,7 +462,7 @@ describe('Lighthouse navigation experiment in Chrome', () => {
         await writeFile(resolve(directory, 'multiple-navigation-result.json'), JSON.stringify(result));
       }
     } finally {
-      flow.dispose();
+      await flow.dispose();
       await page.close();
     }
   });
@@ -454,7 +494,7 @@ describe('Lighthouse navigation experiment in Chrome', () => {
         expect(warnings[0]).toContain('Record each navigation in a separate step.');
         expect(generateReport(result, 'html')).toContain('Multiple navigations were detected');
       } finally {
-        flow.dispose();
+        await flow.dispose();
         await page.close();
       }
     },
@@ -500,7 +540,7 @@ describe('failed replay partial results in Chrome', () => {
       expect(partial.steps[0].lhr.categories.performance.score).toBeTypeOf('number');
       expect(generateReport(partial, 'html')).toContain('Partial journey');
     } finally {
-      flow.dispose();
+      await flow.dispose();
       await page.close();
     }
   });

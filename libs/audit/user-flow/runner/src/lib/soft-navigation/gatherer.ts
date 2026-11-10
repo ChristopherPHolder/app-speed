@@ -49,8 +49,11 @@ export async function startSoftNavigationGather(flow: UserFlow, flags: Parameter
         try {
           await stopInstrumentation?.();
         } finally {
-          await disableAsyncStacks?.();
-          await emulation.clearThrottling(driver.defaultSession);
+          try {
+            await disableAsyncStacks?.();
+          } finally {
+            await emulation.clearThrottling(driver.defaultSession);
+          }
         }
       } finally {
         await driver.disconnect();
@@ -81,31 +84,34 @@ export async function startSoftNavigationGather(flow: UserFlow, flags: Parameter
       })());
     await collectPhaseArtifacts({ ...phaseOptions, phase: 'startInstrumentation' });
     await collectPhaseArtifacts({ ...phaseOptions, phase: 'startSensitiveInstrumentation' });
-    let ended = false;
+    let finishing: Promise<void> | undefined;
     return {
-      async end() {
-        if (ended) throw new Error('Soft navigation collection already ended');
-        ended = true;
-        const runnerOptions = { resolvedConfig, computedCache };
-        try {
-          const artifacts = await Runner.gather(async () => {
-            baseArtifacts.URL = { finalDisplayedUrl: await driver.url() };
-            await stopInstrumentation?.();
-            await disableAsyncStacks?.();
-            disableAsyncStacks = undefined;
-            await collectPhaseArtifacts({ ...phaseOptions, phase: 'getArtifact' });
-            return finalizeArtifacts(baseArtifacts, await awaitArtifacts(artifactState));
-          }, runnerOptions);
+      end() {
+        if (finishing) return Promise.reject(new Error('Soft navigation collection already ended'));
+        finishing = (async () => {
+          const runnerOptions = { resolvedConfig, computedCache };
+          const artifacts = await (async () => {
+            try {
+              return await Runner.gather(async () => {
+                baseArtifacts.URL = { finalDisplayedUrl: await driver.url() };
+                await stopInstrumentation?.();
+                await disableAsyncStacks?.();
+                disableAsyncStacks = undefined;
+                await collectPhaseArtifacts({ ...phaseOptions, phase: 'getArtifact' });
+                return finalizeArtifacts(baseArtifacts, await awaitArtifacts(artifactState));
+              }, runnerOptions);
+            } finally {
+              await cleanup();
+            }
+          })();
+          // Publish only after cleanup succeeds, so flow modes and gather steps stay aligned.
           flow._addGatherStep({ artifacts, runnerOptions }, nextFlags);
-        } finally {
-          await cleanup();
-        }
+        })();
+        return finishing;
       },
-      async dispose() {
-        if (!ended) {
-          ended = true;
-          await cleanup();
-        }
+      dispose() {
+        // A concurrent caller must await the same end/cleanup operation.
+        return (finishing ??= cleanup());
       },
     };
   } catch (error) {

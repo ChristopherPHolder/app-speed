@@ -33,5 +33,6 @@ Lighthouse's runner-options map. Exported artifacts alone are not sufficient for
 stock Lighthouse re-audit: they also require this soft-navigation audit configuration.
 
 Normal completion and failed waits release instrumentation, throttling, and the CDP
-session. Flow disposal also starts best-effort cleanup when replay is interrupted;
-the caller continues to own the page/browser lifetime.
+session. Flow disposal awaits collector setup and cleanup when replay is interrupted,
+before the caller releases the page/browser. Completed steps are registered only after
+cleanup succeeds, keeping artifact and flow-mode indexes aligned.
