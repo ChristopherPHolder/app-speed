@@ -1,3 +1,4 @@
+import { startSoftNavigationGather } from './gatherer';
 import { setTimeout as delay } from 'node:timers/promises';
 import type { Frame, Page } from 'puppeteer';
 import type { UserFlow } from 'lighthouse';
@@ -30,12 +31,13 @@ export function navigationPlan(recording: typeof PuppeteerReplayUserflowRunnerSc
   });
 }
 
-/** Local experiment boundary: stock Lighthouse gathers interaction traces; local audits measure soft paints. */
+/** Flow boundary: native document navigation and dedicated soft-navigation collection. */
 export class ExperimentalUserFlow {
   private readonly modes: Mode[] = [];
   private readonly controller = new AbortController();
   private nextNavigation = 0;
   private current?: Mode;
+  private softGather?: Awaited<ReturnType<typeof startSoftNavigationGather>>;
   private navigated?: Promise<void>;
   private onNavigated?: (frame: Frame) => void;
 
@@ -48,6 +50,7 @@ export class ExperimentalUserFlow {
   ) {}
 
   async navigate(requestor: string | (() => Promise<void>), flags?: Flags): Promise<void> {
+    if (this.current) throw new Error('A flow step is already in progress');
     if (typeof requestor === 'string') {
       await this.flow.navigate(requestor, flags);
       this.modes.push('navigation');
@@ -59,6 +62,7 @@ export class ExperimentalUserFlow {
   }
 
   async startNavigation(flags?: Flags): Promise<void> {
+    if (this.current) throw new Error('A flow step is already in progress');
     const mode = this.plan[this.nextNavigation++] ?? 'soft-navigation';
     if (mode === 'navigation') {
       await this.flow.startNavigation(flags);
@@ -72,7 +76,7 @@ export class ExperimentalUserFlow {
       this.page.on('framenavigated', this.onNavigated);
     });
     try {
-      await this.flow.startTimespan({ ...flags, disableStorageReset: true });
+      this.softGather = await startSoftNavigationGather(this.flow, flags);
       this.current = mode;
     } catch (error) {
       this.removeListener();
@@ -106,24 +110,34 @@ export class ExperimentalUserFlow {
         timeout: this.timeout,
         signal: this.controller.signal,
       });
-      await this.flow.endTimespan();
+      await this.softGather?.end();
+      this.softGather = undefined;
       this.modes.push('soft-navigation');
       this.current = undefined;
     } finally {
-      this.removeListener();
+      try {
+        await this.softGather?.dispose();
+      } finally {
+        this.softGather = undefined;
+        this.current = undefined;
+        this.removeListener();
+      }
     }
   }
 
   async startTimespan(flags?: Flags): Promise<void> {
+    if (this.current) throw new Error('A flow step is already in progress');
     await this.flow.startTimespan({ ...flags, skipAudits: [...(flags?.skipAudits ?? []), ...paintIds] });
     this.current = 'timespan';
   }
   async endTimespan(): Promise<void> {
+    if (this.current !== 'timespan') throw new Error('No timespan in progress');
     await this.flow.endTimespan();
     this.modes.push('timespan');
     this.current = undefined;
   }
   async snapshot(flags?: Flags): Promise<void> {
+    if (this.current) throw new Error('A flow step is already in progress');
     await this.flow.snapshot(flags);
     this.modes.push('snapshot');
   }
@@ -151,7 +165,7 @@ export class ExperimentalUserFlow {
           }
         }
         if (mode !== 'soft-navigation') return { ...step, lhr: { ...step.lhr, runWarnings: warnings } };
-        return { ...step, softNavigation: true, lhr: { ...step.lhr, gatherMode: 'navigation', runWarnings: warnings } };
+        return { ...step, softNavigation: true, lhr: { ...step.lhr, runWarnings: warnings } };
       }),
     );
     return { ...result, steps };
@@ -159,6 +173,7 @@ export class ExperimentalUserFlow {
   dispose(): void {
     this.controller.abort();
     this.removeListener();
+    void this.softGather?.dispose().catch(() => undefined);
     this.flow.dispose();
   }
   private removeListener(): void {
