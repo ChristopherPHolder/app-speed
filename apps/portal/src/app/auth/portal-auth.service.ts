@@ -25,8 +25,24 @@ export class PortalAuthService {
     this.ready = this.initialize(key);
   }
 
+  // Only audit routes can be resumed; never accept an external redirect destination.
+  get returnUrl(): string {
+    const value: unknown = this.router.parseUrl(this.router.url).queryParams['returnUrl'];
+    return typeof value === 'string' && /^\/audits(?:\/|$)/.test(value) && !/[\\\s]/.test(value)
+      ? value
+      : '/workspaces';
+  }
+
+  private authUrl(path: string): string {
+    return this.returnUrl === '/workspaces'
+      ? path
+      : this.router.serializeUrl(this.router.createUrlTree([path], { queryParams: { returnUrl: this.returnUrl } }));
+  }
+
   openSignIn(): void {
-    void this.router.navigateByUrl('/sign-in');
+    void this.router.navigate(['/sign-in'], {
+      queryParams: this.router.url.startsWith('/audits/') ? { returnUrl: this.router.url } : {},
+    });
   }
 
   async sessionToken(): Promise<string> {
@@ -66,21 +82,21 @@ export class PortalAuthService {
     const attempt = signingUp ? client.signUp : client.signIn;
     await attempt.authenticateWithRedirect({
       strategy,
-      redirectUrl: '/auth/callback',
-      redirectUrlComplete: '/workspaces',
+      redirectUrl: this.authUrl('/auth/callback'),
+      redirectUrlComplete: this.returnUrl,
     });
   }
 
   async completeRedirect(): Promise<void> {
     const { clerk } = await this.getClerk();
     await clerk.handleRedirectCallback({
-      signInUrl: '/sign-in',
-      signUpUrl: '/sign-up',
-      continueSignUpUrl: '/sign-up',
-      firstFactorUrl: '/sign-in',
-      secondFactorUrl: '/sign-in?verification=required',
-      signInFallbackRedirectUrl: '/workspaces',
-      signUpFallbackRedirectUrl: '/workspaces',
+      signInUrl: this.authUrl('/sign-in'),
+      signUpUrl: this.authUrl('/sign-up'),
+      continueSignUpUrl: this.authUrl('/sign-up'),
+      firstFactorUrl: this.authUrl('/sign-in'),
+      secondFactorUrl: `${this.authUrl('/sign-in')}${this.returnUrl === '/workspaces' ? '?' : '&'}verification=required`,
+      signInFallbackRedirectUrl: this.returnUrl,
+      signUpFallbackRedirectUrl: this.returnUrl,
     });
   }
 

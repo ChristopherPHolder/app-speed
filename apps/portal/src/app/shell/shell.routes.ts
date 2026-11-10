@@ -59,6 +59,12 @@ export const shellRoutes: Route[] = [
         title: 'Signing in | App Speed',
       },
       {
+        path: 'audit-unavailable',
+        loadComponent: () =>
+          import('../workspace/audit-unavailable.component').then((m) => m.AuditUnavailableComponent),
+        title: 'Audit unavailable | App Speed',
+      },
+      {
         path: 'audits',
         canActivateChild: [selectAuditContext],
         runGuardsAndResolvers: 'paramsOrQueryParamsChange',

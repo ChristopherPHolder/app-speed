@@ -97,10 +97,12 @@ import { PortalAuthService } from './portal-auth.service';
           <div id="clerk-captcha"></div>
           <p class="switch-flow">
             {{ signingUp ? 'Already have an account?' : 'New to App Speed?' }}
-            <a [routerLink]="signingUp ? '/sign-in' : '/sign-up'">{{ signingUp ? 'Sign in' : 'Create an account' }}</a>
+            <a [routerLink]="signingUp ? '/sign-in' : '/sign-up'" queryParamsHandling="preserve">{{
+              signingUp ? 'Sign in' : 'Create an account'
+            }}</a>
           </p>
         } @else if (error()) {
-          <a matButton="outlined" routerLink="/sign-in">Return to sign in</a>
+          <a matButton="outlined" routerLink="/sign-in" queryParamsHandling="preserve">Return to sign in</a>
         }
       </div>
     </section>
@@ -223,7 +225,7 @@ export class AuthPageComponent {
         if (this.callback) {
           await this.auth.completeRedirect();
         } else if (await this.auth.hasSession()) {
-          await this.router.navigateByUrl('/workspaces');
+          await this.router.navigateByUrl(this.auth.returnUrl);
         } else if (this.signingUp) {
           this.step.set(await this.auth.resumeSignUp());
         }
@@ -241,7 +243,7 @@ export class AuthPageComponent {
     if (this.detailsForm().invalid()) return;
     void this.perform(async () => {
       await this.auth.completeSignUp(this.model());
-      await this.router.navigateByUrl('/workspaces');
+      await this.router.navigateByUrl(this.auth.returnUrl);
     });
   }
 

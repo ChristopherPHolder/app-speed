@@ -10,9 +10,10 @@ import {
 import { filter, from, switchMap, takeUntil } from 'rxjs';
 import { PortalAuthService } from '../auth/portal-auth.service';
 
-export const selectAuditContext: CanActivateChildFn = async (route) => {
+export const selectAuditContext: CanActivateChildFn = async (route, navigation) => {
   const injector = inject(Injector);
   const router = inject(Router);
+  const auth = inject(PortalAuthService);
   // Workspace schemas and their Effect runtime stay outside the public initial bundle.
   const { WorkspaceState } = await import('./workspace-state.service');
   const state = injector.get(WorkspaceState);
@@ -21,9 +22,12 @@ export const selectAuditContext: CanActivateChildFn = async (route) => {
     state.selectPublicView();
     return true;
   }
-  if (!state.overview() && !(await state.refresh())) return router.parseUrl('/workspaces');
+  if (!(await auth.hasSession())) {
+    return router.createUrlTree(['/sign-in'], { queryParams: { returnUrl: navigation.url } });
+  }
+  if (!state.overview() && !(await state.refresh())) return router.parseUrl('/audit-unavailable');
   const workspace = state.overview()?.workspaces.find((item) => item.projects.some((p) => p.id === projectId));
-  if (!workspace) return router.parseUrl('/workspaces');
+  if (!workspace) return router.parseUrl('/audit-unavailable');
   state.selectWorkspace(workspace.id);
   state.selectProject(projectId);
   return true;
