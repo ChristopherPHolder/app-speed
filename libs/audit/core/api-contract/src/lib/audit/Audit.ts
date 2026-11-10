@@ -1,4 +1,5 @@
 import { Schema } from 'effect';
+import { ReplayDiagnosticsSchema } from '@app-speed/audit/core/domain';
 
 // Keep the same brand label as persistence to stay type-compatible across layers.
 export const AuditId = Schema.NonEmptyString.pipe(Schema.brand('AuditRunId'));
@@ -11,6 +12,8 @@ export const AuditErrorSchema = Schema.Struct({
   name: Schema.String,
   message: Schema.String,
   stack: Schema.String,
+  diagnostics: Schema.optional(ReplayDiagnosticsSchema),
+  partialResult: Schema.optional(Schema.Unknown),
 });
 
 export class AuditNotFoundError extends Schema.TaggedError<AuditNotFoundError>()(

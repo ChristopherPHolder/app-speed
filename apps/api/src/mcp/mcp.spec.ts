@@ -10,6 +10,7 @@ import { WorkspaceStore, makeWorkspaceSql, runWorkspaceTransaction } from '@app-
 import { RunnerLifecycle } from '@app-speed/audit/core/api-runtime';
 import {
   AuditRunIdSchema,
+  AuditRepo,
   SqliteDbClient,
   SqliteAuditRepoLive,
   SqliteAuditHistoryRepoLive,
@@ -297,6 +298,63 @@ describe('App Speed MCP server', () => {
     expect(await failure('member', 'get_audit_status', { auditId })).toMatch(/not found in this scope/);
     expect(await failure('admin', 'get_user_flow_audit', { auditId, projectId: projectB })).toMatch(/not found/);
     expect((await ok('member', 'list_audits'))['items']).toEqual([]);
+  });
+
+  it('returns failed step diagnostics and completed measurements through persisted MCP results', async () => {
+    const scheduled = await ok('admin', 'schedule_user_flow_audit', { audit: definition });
+    const auditId = String(scheduled['auditId']);
+    const diagnostics = {
+      stepIndex: 1,
+      stepOrdinal: 2,
+      lastSuccessfulStepIndex: 0,
+      steps: [
+        { stepIndex: 0, stepOrdinal: 1, stepType: 'navigate', timeoutMs: 10000, status: 'completed' },
+        {
+          stepIndex: 1,
+          stepOrdinal: 2,
+          stepType: 'click',
+          timeoutMs: 10000,
+          status: 'failed',
+          selectors: [['#missing']],
+        },
+        { stepIndex: 2, stepOrdinal: 3, stepType: 'change', timeoutMs: 10000, status: 'skipped' },
+      ],
+      evidence: 'Step execution log only.',
+    };
+    await runtime.runPromise(
+      Effect.gen(function* () {
+        const repo = yield* AuditRepo;
+        yield* repo.completeFailure(
+          yield* Schema.decodeEffect(AuditRunIdSchema)(auditId),
+          {
+            name: 'ReplayExecutionError',
+            message: 'Replay step timed out after 10000ms.',
+            diagnostics,
+            partialResult: {
+              name: 'Journey',
+              steps: [
+                {
+                  name: 'Home',
+                  lhr: {
+                    gatherMode: 'navigation',
+                    finalDisplayedUrl: 'https://example.com/',
+                    categories: { performance: { score: 0.93 } },
+                    audits: {},
+                  },
+                },
+              ],
+            },
+          },
+          10000,
+        );
+      }),
+    );
+    const result = await ok('admin', 'get_user_flow_audit_result', { auditId });
+    expect(result).toMatchObject({
+      status: 'FAILURE',
+      error: { name: 'ReplayExecutionError', diagnostics },
+      partialResult: { steps: [{ name: 'Home', scores: { performance: 93 } }] },
+    });
   });
 
   it('summarizes completed results for the agent', async () => {

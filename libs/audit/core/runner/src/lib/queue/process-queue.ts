@@ -8,12 +8,18 @@ import {
 } from './control-plane.effect';
 import { AuditExecutor } from '../audit/audit-executor';
 
-const toErrorPayload = (cause: Cause.Cause<unknown>) => {
+export const toErrorPayload = (cause: Cause.Cause<unknown>) => {
   const failure = Cause.findErrorOption(cause);
   if (Option.isSome(failure)) {
     const error = failure.value;
     if (error instanceof Error) {
-      return { name: error.name, message: error.message, stack: error.stack ?? '' };
+      return {
+        name: error.name,
+        message: error.message,
+        stack: error.stack ?? '',
+        ...('diagnostics' in error ? { diagnostics: error.diagnostics } : {}),
+        ...('partialResult' in error ? { partialResult: error.partialResult } : {}),
+      };
     }
     if (typeof error === 'string') {
       return { name: 'Error', message: error, stack: '' };
@@ -24,6 +30,8 @@ const toErrorPayload = (cause: Cause.Cause<unknown>) => {
         name: typeof record['name'] === 'string' ? record['name'] : 'Error',
         message: typeof record['message'] === 'string' ? record['message'] : Cause.pretty(cause),
         stack: typeof record['stack'] === 'string' ? record['stack'] : '',
+        ...(record['diagnostics'] ? { diagnostics: record['diagnostics'] } : {}),
+        ...(record['partialResult'] ? { partialResult: record['partialResult'] } : {}),
       };
     }
   }

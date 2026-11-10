@@ -11,7 +11,7 @@ import { AuditViewerContainer } from './audit-viewer.container';
   imports: [AuditLifecycleStatusComponent, AuditViewerContainer],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    @if (stage() === 'done') {
+    @if (stage() === 'done' || stage() === 'failed') {
       <viewer-container [auditId]="id()" />
     } @else {
       <ui-audit-lifecycle-status [auditId]="id()" [stage]="stage()" [queuePosition]="queuePosition()" />

@@ -8,7 +8,8 @@ import { startFlow as startLighthouseFlow, generateReport, defaultConfig } from 
 import type { Page } from 'puppeteer';
 import { ExperimentalUserFlow } from '../src/lib/soft-navigation/flow';
 import { experimentalNavigationConfig } from '../src/lib/soft-navigation/audits';
-import { Schema } from 'effect';
+import { Effect, Result, Schema } from 'effect';
+import { runPuppeteerReplay } from '@app-speed/audit/core/runner';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { UserflowRunnerStepSchema } from '@app-speed/audit/user-flow/domain';
 import { UserFlowRunnerExtension } from '../src/lib/audit/runner-extension';
@@ -410,4 +411,49 @@ describe('Lighthouse navigation experiment in Chrome', () => {
       }
     },
   );
+});
+
+describe('failed replay partial results in Chrome', () => {
+  it('retains completed navigation, timespan and snapshot results when a later click times out', async () => {
+    const page = await browser.newPage();
+    const flow = await createFlow(
+      page,
+      {
+        name: 'Partial journey',
+        flags: { formFactor: 'desktop', screenEmulation: { disabled: true }, throttlingMethod: 'provided' },
+      },
+      ['navigation'],
+    );
+    try {
+      const steps = [
+        { type: 'customStep', name: 'startNavigation', parameters: { name: 'Home' } },
+        { type: 'navigate', url: baseUrl },
+        { type: 'customStep', name: 'endNavigation' },
+        { type: 'customStep', name: 'startTimespan', parameters: { name: 'Reading' } },
+        { type: 'customStep', name: 'endTimespan' },
+        { type: 'customStep', name: 'snapshot', parameters: { name: 'Ready' } },
+        { type: 'customStep', name: 'startTimespan', parameters: { name: 'Unfinished' } },
+        { type: 'click', selectors: [['#missing']], offsetX: 1, offsetY: 1, timeout: 100 },
+        { type: 'customStep', name: 'endTimespan' },
+      ];
+      const replay = await Effect.runPromise(
+        runPuppeteerReplay({ title: 'Partial journey', steps }, new UserFlowRunnerExtension(browser, page, flow)).pipe(
+          Effect.result,
+        ),
+      );
+      expect(Result.isFailure(replay)).toBe(true);
+      if (Result.isFailure(replay))
+        expect(replay.failure.diagnostics).toMatchObject({
+          stepIndex: 7,
+          lastSuccessfulStepIndex: 6,
+        });
+      const partial = await flow.createFlowResult();
+      expect(partial.steps.map((step) => step.name)).toEqual(['Home', 'Reading', 'Ready']);
+      expect(partial.steps[0].lhr.categories.performance.score).toBeTypeOf('number');
+      expect(generateReport(partial, 'html')).toContain('Partial journey');
+    } finally {
+      flow.dispose();
+      await page.close();
+    }
+  });
 });
