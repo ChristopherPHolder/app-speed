@@ -9,7 +9,7 @@
     "@app-speed/convenience/trace/portal-data-access": "0.0.1",
     "@app-speed/convenience/trace/domain": "0.0.1",
     "@app-speed/convenience/trace/portal-ui": "0.0.1",
-    "effect": "4.1.1",
+    "effect": "4.1.3",
     "vitest": "^5.0.3"
   },
   "sideEffects": false
