@@ -1,4 +1,4 @@
-import { Config, Effect, Layer, Option, Schema } from 'effect';
+import { Config, Effect, Layer, Option } from 'effect';
 import { McpProtocol, McpServer } from 'effect/ai';
 import { HttpRouter, HttpServerRequest, HttpServerResponse } from 'effect/http';
 import {
@@ -11,10 +11,6 @@ import {
 import { McpCaller } from './caller';
 
 const scopes = ['profile', 'email'] as const;
-
-export class McpConfigurationError extends Schema.TaggedError<McpConfigurationError>()('McpConfigurationError', {
-  message: Schema.String,
-}) {}
 
 export interface McpHttpOptions<RA, RE, RR> {
   readonly name: string;
@@ -91,10 +87,13 @@ export const McpHttpLive = <RA, RE, RR>(options: McpHttpOptions<RA, RE, RR>) =>
         Option.map(override, (url) => url.origin),
         () => clerkFrontendApiUrl(publishableKey),
       );
-      if (Option.isNone(authorizationServer))
-        return yield* new McpConfigurationError({
-          message: 'MCP_RESOURCE_URL requires CLERK_PUBLISHABLE_KEY or MCP_AUTHORIZATION_SERVER to be configured.',
-        });
+      if (Option.isNone(authorizationServer)) {
+        // A misconfigured connector must not take the rest of the API down with it.
+        yield* Effect.logError(
+          'MCP endpoint disabled: MCP_RESOURCE_URL requires a valid CLERK_PUBLISHABLE_KEY or MCP_AUTHORIZATION_SERVER.',
+        );
+        return Layer.empty;
+      }
       const metadataPath: `/${string}` = `/.well-known/oauth-protected-resource${path === '/' ? '' : path}`;
       const metadataUrl = `${resourceUrl.origin}${metadataPath}`;
       const metadataResponse = HttpServerResponse.jsonUnsafe(

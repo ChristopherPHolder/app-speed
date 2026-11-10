@@ -52,7 +52,9 @@ export class Identity extends Context.Service<
 export const clerkFrontendApiUrl = (publishableKey: string): Option.Option<string> => {
   const [, , encoded] = publishableKey.trim().split('_');
   if (!encoded) return Option.none();
-  return Result.getSuccess(Base64.decodeString(encoded)).pipe(
+  // Clerk encodes the host without base64 padding.
+  const padded = encoded.padEnd(Math.ceil(encoded.length / 4) * 4, '=');
+  return Result.getSuccess(Base64.decodeString(padded)).pipe(
     Option.filter((host) => host.endsWith('$') && URL.canParse(`https://${host.slice(0, -1)}`)),
     Option.map((host) => new URL(`https://${host.slice(0, -1)}`).origin),
   );
