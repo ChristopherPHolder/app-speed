@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { PortalAuthService } from './portal-auth.service';
 
 const sdk = vi.hoisted(() => ({
@@ -89,6 +89,35 @@ describe('PortalAuthService custom authentication', () => {
       expect(sdk.handleRedirectCallback).toHaveBeenCalledWith(
         expect.objectContaining({ signInUrl: '/sign-in', signUpUrl: '/sign-up', continueSignUpUrl: '/sign-up' }),
       );
+    },
+  );
+  it('preserves a copied audit URL through OAuth and profile completion routes', async () => {
+    const router = TestBed.inject(Router);
+    const target = '/audits/user-flow/run-123?projectId=project-a';
+    vi.spyOn(router, 'url', 'get').mockReturnValue(
+      router.serializeUrl(router.createUrlTree(['/sign-in'], { queryParams: { returnUrl: target } })),
+    );
+    const auth = TestBed.inject(PortalAuthService);
+    await auth.signInWithProvider('oauth_google', false);
+    expect(sdk.client.signIn.authenticateWithRedirect).toHaveBeenCalledWith(
+      expect.objectContaining({ redirectUrlComplete: target }),
+    );
+    await auth.completeRedirect();
+    expect(sdk.handleRedirectCallback).toHaveBeenCalledWith(
+      expect.objectContaining({
+        signInFallbackRedirectUrl: target,
+        signUpFallbackRedirectUrl: target,
+      }),
+    );
+  });
+  it.each(['https://example.com', '//example.com', '/sign-in', '/audits/\\example.com'])(
+    'rejects unsafe or unrelated return destination %s',
+    (returnUrl) => {
+      const router = TestBed.inject(Router);
+      vi.spyOn(router, 'url', 'get').mockReturnValue(
+        router.serializeUrl(router.createUrlTree(['/sign-in'], { queryParams: { returnUrl } })),
+      );
+      expect(TestBed.inject(PortalAuthService).returnUrl).toBe('/workspaces');
     },
   );
 });

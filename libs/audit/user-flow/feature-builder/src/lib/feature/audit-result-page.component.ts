@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { catchError, map, of, startWith, switchMap } from 'rxjs';
 
 import { UserFlowAuditPageComponent } from '@app-speed/audit/user-flow/feature-viewer';
@@ -16,9 +16,10 @@ const INITIAL_AUDIT_LOAD_STATE: AuditLoadState = { status: 'loading' };
 
 @Component({
   selector: 'user-flow-audit-result-page',
-  imports: [AuditBuilderComponent, UserFlowAuditPageComponent],
+  imports: [AuditBuilderComponent, UserFlowAuditPageComponent, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
+    <a routerLink="/audits/user-flow/history" queryParamsHandling="preserve">Back to audit history</a>
     @switch (auditLoadState().status) {
       @case ('loaded') {
         @if (loadedAudit(); as audit) {
@@ -36,7 +37,9 @@ const INITIAL_AUDIT_LOAD_STATE: AuditLoadState = { status: 'loading' };
       }
     }
 
-    <user-flow-audit-page [id]="id()" />
+    @if (loadedAudit()) {
+      <user-flow-audit-page [id]="id()" />
+    }
   `,
 })
 export class AuditResultPageComponent {
@@ -58,7 +61,12 @@ export class AuditResultPageComponent {
     switchMap((auditId) =>
       this.api.findAudit(auditId).pipe(
         map(({ audit }): AuditLoadState => ({ status: 'loaded', audit })),
-        catchError(() => of<AuditLoadState>({ status: 'failed', message: 'Unable to load this audit.' })),
+        catchError(() =>
+          of<AuditLoadState>({
+            status: 'failed',
+            message: 'Unable to load this audit. It may not exist, or you may not have access.',
+          }),
+        ),
         startWith(INITIAL_AUDIT_LOAD_STATE),
       ),
     ),

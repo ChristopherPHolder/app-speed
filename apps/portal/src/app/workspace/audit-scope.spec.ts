@@ -21,7 +21,10 @@ describe('audit request scope', () => {
         provideRouter([]),
         provideHttpClient(withInterceptors([auditScopeInterceptor])),
         provideHttpClientTesting(),
-        { provide: PortalAuthService, useValue: { sessionToken: async () => 'verified-session' } },
+        {
+          provide: PortalAuthService,
+          useValue: { sessionToken: async () => 'verified-session', hasSession: async () => true },
+        },
       ],
     }),
   );
@@ -74,8 +77,22 @@ describe('audit request scope', () => {
     expect(await run('project-a')).toBe(true);
     expect(state.selectWorkspace).toHaveBeenCalledWith('workspace-a');
     expect(state.selectProject).toHaveBeenCalledWith('project-a');
-    expect(String(await run('unknown'))).toBe('/workspaces');
+    expect(String(await run('unknown'))).toBe('/audit-unavailable');
     expect(await run()).toBe(true);
     expect(state.selectPublicView).toHaveBeenCalled();
+  });
+  it('sends guests to sign-in with the complete audit URL preserved', async () => {
+    TestBed.overrideProvider(PortalAuthService, { useValue: { hasSession: async () => false } });
+    TestBed.overrideProvider(WorkspaceState, {
+      useValue: { overview: signal(undefined), refresh: vi.fn().mockResolvedValue(false) },
+    });
+    const router = TestBed.inject(Router);
+    const target = '/audits/user-flow/run-123?projectId=project-a';
+    const result = await TestBed.runInInjectionContext(() =>
+      selectAuditContext(snapshot('project-a'), { ...router.routerState.snapshot, url: target }),
+    );
+    expect(router.serializeUrl(result as import('@angular/router').UrlTree)).toBe(
+      router.serializeUrl(router.createUrlTree(['/sign-in'], { queryParams: { returnUrl: target } })),
+    );
   });
 });

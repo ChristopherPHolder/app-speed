@@ -7,6 +7,7 @@ import { signal } from '@angular/core';
 
 describe('Material authentication page', () => {
   const auth = {
+    returnUrl: '/workspaces',
     availability: signal('ready'),
     hasSession: vi.fn(),
     signUpFields: signal<ReadonlyArray<string>>([]),
@@ -19,6 +20,7 @@ describe('Material authentication page', () => {
 
   beforeEach(() => {
     vi.resetAllMocks();
+    auth.returnUrl = '/workspaces';
     auth.signUpFields.set([]);
     auth.hasSession.mockResolvedValue(false);
     auth.resumeSignUp.mockResolvedValue('providers');
@@ -117,5 +119,16 @@ describe('Material authentication page', () => {
     const harness = await RouterTestingHarness.create('/auth/callback');
     expect(auth.completeRedirect).toHaveBeenCalledOnce();
     expect(harness.routeNativeElement?.querySelector('form')).toBeNull();
+  });
+  it('resumes the audit instead of opening workspaces when already authenticated', async () => {
+    auth.hasSession.mockResolvedValue(true);
+    auth.returnUrl = '/audits/user-flow/run-123?projectId=project-a';
+    TestBed.inject(Router).resetConfig([
+      { path: 'sign-in', component: AuthPageComponent },
+      { path: 'audits/user-flow/:id', children: [] },
+    ]);
+    const harness = await RouterTestingHarness.create('/sign-in');
+    await harness.fixture.whenStable();
+    await vi.waitFor(() => expect(TestBed.inject(Router).url).toBe(auth.returnUrl));
   });
 });
