@@ -317,7 +317,19 @@ describe('App Speed MCP server', () => {
                   lhr: {
                     gatherMode: 'navigation',
                     finalDisplayedUrl: 'https://example.com/',
-                    categories: { performance: { score: 0.42 }, accessibility: { score: 1 } },
+                    categories: {
+                      performance: {
+                        score: 0.42,
+                        auditRefs: [
+                          { id: 'largest-contentful-paint', group: 'metrics' },
+                          { id: 'render-blocking-insight', group: 'insights' },
+                          { id: 'image-delivery-insight', group: 'insights' },
+                          { id: 'cache-insight', group: 'insights' },
+                          { id: 'bootup-time', group: 'diagnostics' },
+                        ],
+                      },
+                      accessibility: { score: 1 },
+                    },
                     audits: {
                       'largest-contentful-paint': {
                         title: 'Largest Contentful Paint',
@@ -332,6 +344,37 @@ describe('App Speed MCP server', () => {
                         details: { type: 'opportunity', overallSavingsMs: 900 },
                       },
                       'uses-text-compression': { title: 'Compression', score: 1, details: { type: 'opportunity' } },
+                      // Lighthouse 13 insight and diagnostic audits: table details scored by metric savings.
+                      'render-blocking-insight': {
+                        title: 'Render blocking requests',
+                        score: 0,
+                        scoreDisplayMode: 'metricSavings',
+                        displayValue: 'Est savings of 1,350 ms',
+                        details: { type: 'table', headings: [], items: [] },
+                        metricSavings: { FCP: 1350, LCP: 1200 },
+                      },
+                      'image-delivery-insight': {
+                        title: 'Improve image delivery',
+                        score: 0.5,
+                        scoreDisplayMode: 'metricSavings',
+                        details: { type: 'table', headings: [], items: [] },
+                        metricSavings: { LCP: 0, FCP: 0 },
+                      },
+                      'cache-insight': {
+                        title: 'Use efficient cache lifetimes',
+                        score: 1,
+                        scoreDisplayMode: 'metricSavings',
+                        details: { type: 'table', headings: [], items: [] },
+                        metricSavings: { LCP: 0, FCP: 0 },
+                      },
+                      'bootup-time': {
+                        title: 'Reduce JavaScript execution time',
+                        score: 0,
+                        scoreDisplayMode: 'metricSavings',
+                        displayValue: '2.1 s',
+                        details: { type: 'table', headings: [], items: [] },
+                        metricSavings: { TBT: 640 },
+                      },
                     },
                   },
                 },
@@ -363,11 +406,36 @@ describe('App Speed MCP server', () => {
           ],
           opportunities: [
             {
+              id: 'render-blocking-insight',
+              title: 'Render blocking requests',
+              displayValue: 'Est savings of 1,350 ms',
+              score: 0,
+              savingsMs: 1350,
+              metricSavings: { FCP: 1350, LCP: 1200 },
+            },
+            {
               id: 'render-blocking-resources',
               title: 'Eliminate render-blocking resources',
               displayValue: 'Potential savings of 900 ms',
               score: 0.2,
               savingsMs: 900,
+              metricSavings: {},
+            },
+            {
+              id: 'bootup-time',
+              title: 'Reduce JavaScript execution time',
+              displayValue: '2.1 s',
+              score: 0,
+              savingsMs: 640,
+              metricSavings: { TBT: 640 },
+            },
+            {
+              id: 'image-delivery-insight',
+              title: 'Improve image delivery',
+              displayValue: null,
+              score: 0.5,
+              savingsMs: 0,
+              metricSavings: { LCP: 0, FCP: 0 },
             },
           ],
         },

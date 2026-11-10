@@ -33,12 +33,23 @@ const Metric = Schema.Struct({
   displayValue: Schema.NullOr(Schema.String),
   score: Schema.NullOr(Schema.Finite),
 });
+const timeSavingMetrics = ['LCP', 'FCP', 'TBT', 'INP'] as const;
+const MetricSavings = Schema.Struct({
+  LCP: Schema.optional(Schema.Finite),
+  FCP: Schema.optional(Schema.Finite),
+  TBT: Schema.optional(Schema.Finite),
+  INP: Schema.optional(Schema.Finite),
+  CLS: Schema.optional(Schema.Finite),
+});
 const Opportunity = Schema.Struct({
   id: Schema.String,
   title: Schema.String,
   displayValue: Schema.NullOr(Schema.String),
   score: Schema.NullOr(Schema.Finite),
+  /** Largest estimated time saving across LCP, FCP, TBT and INP, in milliseconds. */
   savingsMs: Schema.NullOr(Schema.Finite),
+  /** Estimated savings per metric as reported by Lighthouse (milliseconds, unitless for CLS). */
+  metricSavings: MetricSavings,
 });
 const StepSummary = Schema.Struct({
   name: Schema.String,
@@ -61,7 +72,7 @@ const LighthouseAudit = Schema.Struct({
   details: Schema.optional(
     Schema.Struct({ type: Schema.optional(Schema.String), overallSavingsMs: Schema.optional(Schema.Finite) }),
   ),
-  metricSavings: Schema.optional(Schema.Struct({ LCP: Schema.optional(Schema.Finite) })),
+  metricSavings: Schema.optional(MetricSavings),
 });
 const LighthouseFlowResult = Schema.Struct({
   steps: Schema.Array(
@@ -72,7 +83,15 @@ const LighthouseFlowResult = Schema.Struct({
         finalDisplayedUrl: Schema.optional(Schema.String),
         finalUrl: Schema.optional(Schema.String),
         categories: Schema.optional(
-          Schema.Record(Schema.String, Schema.Struct({ score: Schema.optional(Schema.NullOr(Schema.Finite)) })),
+          Schema.Record(
+            Schema.String,
+            Schema.Struct({
+              score: Schema.optional(Schema.NullOr(Schema.Finite)),
+              auditRefs: Schema.optional(
+                Schema.Array(Schema.Struct({ id: Schema.String, group: Schema.optional(Schema.String) })),
+              ),
+            }),
+          ),
         ),
         audits: Schema.optional(Schema.Record(Schema.String, LighthouseAudit)),
       }),
@@ -110,18 +129,32 @@ export const summarizeFlowResult = Effect.fn('summarizeFlowResult')(function* (f
           },
         ];
       });
+      // Lighthouse 13 reports recommendations as insight and diagnostic audits scored by metric savings; older
+      // results use `opportunity` details instead.
+      const recommended = new Set(
+        (categories['performance']?.auditRefs ?? [])
+          .filter((ref) => ref.group === 'insights' || ref.group === 'diagnostics')
+          .map((ref) => ref.id),
+      );
       const opportunities = Object.entries(audits)
         .filter(
-          ([, audit]) => audit.details?.type === 'opportunity' && Predicate.isNumber(audit.score) && audit.score < 0.9,
+          ([id, audit]) =>
+            (recommended.has(id) || audit.details?.type === 'opportunity') &&
+            Predicate.isNumber(audit.score) &&
+            audit.score < 0.9,
         )
-        .map(([id, audit]) => ({
-          id,
-          title: audit.title ?? id,
-          displayValue: audit.displayValue ?? null,
-          score: audit.score ?? null,
-          savingsMs: audit.metricSavings?.LCP ?? audit.details?.overallSavingsMs ?? null,
-        }))
-        .sort((a, b) => (b.savingsMs ?? 0) - (a.savingsMs ?? 0))
+        .map(([id, audit]) => {
+          const timeSavings = timeSavingMetrics.flatMap((metric) => audit.metricSavings?.[metric] ?? []);
+          return {
+            id,
+            title: audit.title ?? id,
+            displayValue: audit.displayValue ?? null,
+            score: audit.score ?? null,
+            savingsMs: audit.details?.overallSavingsMs ?? (timeSavings.length > 0 ? Math.max(...timeSavings) : null),
+            metricSavings: audit.metricSavings ?? {},
+          };
+        })
+        .sort((a, b) => (b.savingsMs ?? 0) - (a.savingsMs ?? 0) || (a.score ?? 1) - (b.score ?? 1))
         .slice(0, 5);
       return {
         name: step.name ?? `Step ${index + 1}`,
@@ -185,7 +218,7 @@ export const GetUserFlowAudit = Tool.make('get_user_flow_audit', {
 export const GetUserFlowAuditResult = Tool.make('get_user_flow_audit_result', {
   description:
     'Summarizes a completed user-flow audit per step: Lighthouse category scores (0-100), core metrics and the ' +
-    'largest opportunities. Returns the error for failed runs. Includes a link to the full HTML report.',
+    'top recommendations (Lighthouse insights with estimated savings). Returns the error for failed runs. Includes a link to the full HTML report.',
   parameters: Schema.Struct({ auditId: Schema.String, projectId: ProjectIdParameter }),
   success: Schema.Union([
     Schema.Struct({
