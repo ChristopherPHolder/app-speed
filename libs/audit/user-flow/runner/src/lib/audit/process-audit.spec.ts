@@ -24,7 +24,7 @@ const report: UserFlowExecutionResult = {
 const replayFailure = new Error('net::ERR_NAME_NOT_RESOLVED');
 const setupFailure = new Error('flow setup failed');
 
-type Scenario = 'success' | 'replay failure' | 'pending navigation' | 'setup failure';
+type Scenario = 'success' | 'replay failure' | 'pending navigation' | 'setup failure' | 'replay and result failure';
 
 class DriverState extends Context.Service<
   DriverState,
@@ -58,10 +58,14 @@ const driverLayer = (scenario: Scenario) =>
             replay: () =>
               Effect.gen(function* () {
                 yield* Deferred.succeed(state.navigationStarted, undefined);
-                if (scenario === 'replay failure') return yield* Effect.fail(replayFailure);
+                if (scenario === 'replay failure' || scenario === 'replay and result failure')
+                  return yield* Effect.fail(replayFailure);
                 if (scenario === 'pending navigation') return yield* Effect.never;
               }),
-            result: record('report generated').pipe(Effect.as(report)),
+            result:
+              scenario === 'replay and result failure'
+                ? Effect.die('report unavailable')
+                : record('report generated').pipe(Effect.as(report)),
             dispose: record('flow disposed'),
           };
         }),
@@ -88,12 +92,36 @@ describe('executeUserFlowAudit resource lifetime', () => {
   });
 
   layer(driverLayer('replay failure'))('failed navigation', (it) => {
-    it.effect('preserves the original replay error and releases resources in order', () =>
+    it.effect('preserves completed results on replay failure before releasing resources', () =>
       Effect.gen(function* () {
         const state = yield* DriverState;
         const result = yield* executeUserFlowAudit(claim).pipe(Effect.result);
 
-        assert.isTrue(Result.isFailure(result) && result.failure === replayFailure);
+        assert.isTrue(Result.isFailure(result));
+        if (Result.isFailure(result))
+          assert.deepEqual(result.failure, {
+            name: 'Error',
+            message: replayFailure.message,
+            partialResult: report.flowResult,
+          });
+        assert.deepEqual(yield* Ref.get(state.events), [
+          'browser opened',
+          'report generated',
+          'flow disposed',
+          'browser closed',
+        ]);
+      }),
+    );
+  });
+
+  layer(driverLayer('replay and result failure'))('failed partial recovery', (it) => {
+    it.effect('keeps the replay failure when Lighthouse cannot produce a partial report', () =>
+      Effect.gen(function* () {
+        const state = yield* DriverState;
+        const result = yield* executeUserFlowAudit(claim).pipe(Effect.result);
+        assert.isTrue(Result.isFailure(result));
+        if (Result.isFailure(result))
+          assert.deepEqual(result.failure, { name: 'Error', message: replayFailure.message });
         assert.deepEqual(yield* Ref.get(state.events), ['browser opened', 'flow disposed', 'browser closed']);
       }),
     );

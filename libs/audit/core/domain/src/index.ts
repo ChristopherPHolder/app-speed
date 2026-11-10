@@ -2,13 +2,7 @@ export { AuditDefinitionBaseSchema, AuditTimeoutSchema } from './lib/audit-defin
 export type { AuditDefinitionBase } from './lib/audit-definition.schema';
 export { AuditKindSchema } from './lib/audit-kind';
 export type { AuditKind } from './lib/audit-kind';
-export type {
-  AssertNever,
-  EnumLiteral,
-  MapEnumLiteral,
-  MapLiteralStep,
-  StrictExtract,
-} from './lib/type-utils';
+export type { AssertNever, EnumLiteral, MapEnumLiteral, MapLiteralStep, StrictExtract } from './lib/type-utils';
 export {
   AuditCustomStepBaseSchema,
   AuditStepSchema,
@@ -77,3 +71,4 @@ export {
   PUPPETEER_REPLAY_ASSERTED_EVENT_TYPE,
   PuppeteerReplayAssociatedEventTypeSchema,
 } from './lib/puppeteer-replay/puppeteer-replay-asserted-event-type';
+export { ReplayDiagnosticsSchema } from './lib/replay-diagnostics';

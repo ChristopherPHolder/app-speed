@@ -21,3 +21,4 @@ export {
   UserflowStepTypeWithStepFlagsLiteral,
   UserflowStepTypeWithoutStepFlagsLiteral,
 } from './lib/lighthouse-userflow/lighthouse-userflow-step';
+export { UserFlowFailureSchema } from './lib/runtime/failure';

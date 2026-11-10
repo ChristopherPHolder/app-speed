@@ -40,7 +40,11 @@ export class UserFlowDriver extends Context.Service<
       return {
         replay: (recording, timeout) => {
           experiment = new ExperimentalUserFlow(page, flow, navigationPlan(recording), timeout);
-          return runPuppeteerReplay(recording, new UserFlowRunnerExtension(browser, page, experiment, { timeout }));
+          return runPuppeteerReplay(
+            recording,
+            new UserFlowRunnerExtension(browser, page, experiment, { timeout }),
+            timeout,
+          );
         },
         result: Effect.gen(function* () {
           const flowResult = yield* Effect.promise(() =>

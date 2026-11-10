@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, input, model } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { combineLatest, distinctUntilChanged, filter, map, Observable, shareReplay, switchMap } from 'rxjs';
-import type { UserFlowResult } from '@app-speed/audit/user-flow/domain';
+import type { UserFlowFailureSchema, UserFlowResult } from '@app-speed/audit/user-flow/domain';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ViewerStepDetailComponent } from '../steps/viewer-step-details.component';
 import { calculateCategoryFraction, shouldDisplayAsFraction } from '../lighthouse-report-utils';
@@ -12,6 +12,37 @@ import { ActivatedRoute, Router } from '@angular/router';
 @Component({
   selector: 'viewer-container',
   template: `
+    @if (failure(); as error) {
+      <section role="alert" class="failure-state">
+        <h2>
+          Replay failed
+          @if (error.diagnostics; as diagnostic) {
+            at step {{ diagnostic.stepOrdinal }}
+          }
+        </h2>
+        <p>{{ error.message }}</p>
+        @if (error.diagnostics; as diagnostic) {
+          <ol>
+            @for (step of diagnostic.steps; track step.stepIndex) {
+              <li [style.font-weight]="step.status === 'failed' ? 'bold' : 'normal'">
+                {{ step.status }}: {{ step.stepType }} {{ step.stepName }}
+                @if (step.status === 'failed') {
+                  <p>Target: {{ step.targetUrl || 'current page' }} · Timeout: {{ step.timeoutMs }}ms</p>
+                  @for (selectors of step.selectors; track $index) {
+                    <code>{{ selectors.join(' → ') }}</code>
+                  }
+                }
+              </li>
+            }
+          </ol>
+          <p>{{ diagnostic.evidence }}</p>
+        }
+        <p>Check that the target exists, update its selector, or increase the step timeout and run the audit again.</p>
+        @if (results()?.steps?.length) {
+          <p>Completed measurements are available below.</p>
+        }
+      </section>
+    }
     @if (loading()) {
       <div class="loading-state" data-testid="audit-results-loading" role="status" aria-live="polite">
         <mat-spinner diameter="32" />
@@ -29,6 +60,12 @@ import { ActivatedRoute, Router } from '@angular/router';
   styles: `
     :host {
       display: block;
+    }
+
+    .failure-state {
+      border-left: 4px solid #b3261e;
+      padding: 16px;
+      margin: 16px 0;
     }
 
     .loading-state {
@@ -52,20 +89,24 @@ export class AuditViewerContainer {
   readonly #route = inject(ActivatedRoute);
   readonly #router = inject(Router);
 
-  flowResult$: Observable<UserFlowResult> = toObservable(this.auditId).pipe(
-    switchMap((auditId) => {
-      return this.#api
-        .get<{ status: 'SUCCESS' | 'FAILURE'; result: UserFlowResult }>(`/api/audits/user-flow/${auditId}/result`)
-        .pipe(
-          filter((response) => response.status === 'SUCCESS'),
-          map((response) => response.result),
-        );
-    }),
+  private readonly response$ = toObservable(this.auditId).pipe(
+    switchMap((auditId) =>
+      this.#api.get<{
+        status: 'SUCCESS' | 'FAILURE';
+        result?: UserFlowResult;
+        error?: typeof UserFlowFailureSchema.Type;
+      }>(`/api/audits/user-flow/${auditId}/result`),
+    ),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
-
-  results = toSignal(this.flowResult$.pipe(filter(Boolean)));
-  loading = computed(() => !this.results());
+  private readonly response = toSignal(this.response$);
+  readonly failure = computed(() => this.response()?.error);
+  flowResult$: Observable<UserFlowResult> = this.response$.pipe(
+    map((response) => response.result ?? (response.error?.partialResult as UserFlowResult | undefined)),
+    filter((result): result is UserFlowResult => !!result),
+  );
+  results = toSignal(this.flowResult$);
+  loading = computed(() => !this.response());
   auditSummary = computed<AuditSummary | undefined>(() => {
     const results = this.results();
     if (!results) {

@@ -2,7 +2,11 @@ import { Effect, Layer, Option, Predicate, Schema } from 'effect';
 import { McpServer, Tool, Toolkit } from 'effect/ai';
 import { mcpAuditProject, PortalLinks, RunnerLifecycle } from '@app-speed/audit/core/api-runtime';
 import { AuditRepo, AuditRunIdSchema } from '@app-speed/audit/core/persistence';
-import { UserFlowAuditDefinitionSchema, USER_FLOW_AUDIT_KIND_LITERAL } from '@app-speed/audit/user-flow/domain';
+import {
+  UserFlowFailureSchema,
+  UserFlowAuditDefinitionSchema,
+  USER_FLOW_AUDIT_KIND_LITERAL,
+} from '@app-speed/audit/user-flow/domain';
 import { UserFlowAuditRepo, UserFlowAuditScheduler } from '@app-speed/audit/user-flow/persistence';
 import { currentMcpClient, McpCaller, McpToolError } from '@app-speed/platform/mcp';
 import { WorkspaceStore } from '@app-speed/workspace/api-runtime';
@@ -228,7 +232,8 @@ export const GetUserFlowAuditResult = Tool.make('get_user_flow_audit_result', {
     }),
     Schema.Struct({
       status: Schema.Literal('FAILURE'),
-      error: Schema.Struct({ name: Schema.String, message: Schema.String }),
+      error: UserFlowFailureSchema,
+      partialResult: Schema.optional(UserFlowResultSummarySchema),
       url: Schema.String,
     }),
   ]),
@@ -321,7 +326,19 @@ export const UserFlowMcpToolsLive = UserFlowMcpToolkit.toLayer(
           return yield* new McpToolError({
             message: `Audit ${run.id} is ${run.status.toLowerCase().replace('_', ' ')}; poll get_audit_status until COMPLETE.`,
           });
-        if (result.status === 'FAILURE') return { status: 'FAILURE' as const, error: describeError(result.error), url };
+        if (result.status === 'FAILURE') {
+          const error = {
+            ...describeError(result.error),
+            ...Schema.decodeUnknownSync(UserFlowFailureSchema)({
+              ...(result.error && typeof result.error === 'object' ? result.error : {}),
+              ...describeError(result.error),
+            }),
+          };
+          const partialResult = error.partialResult
+            ? yield* summarizeFlowResult(error.partialResult).pipe(Effect.catch(() => Effect.succeed(undefined)))
+            : undefined;
+          return { status: 'FAILURE' as const, error: { ...error, partialResult: undefined }, partialResult, url };
+        }
         const summary = yield* summarizeFlowResult(result.flowResult).pipe(
           Effect.mapError(
             () => new McpToolError({ message: `The result could not be summarized. Open the full report: ${url}` }),

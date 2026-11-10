@@ -92,6 +92,47 @@ describe('AuditViewerContainer', () => {
     expect(fixture.nativeElement.textContent).toContain('Home page');
   });
 
+  it('highlights a failed step and keeps completed measurements visible', async () => {
+    await fixture.whenStable();
+    http.expectOne('/api/audits/user-flow/run-123/result').flush({
+      status: 'FAILURE',
+      error: {
+        name: 'ReplayExecutionError',
+        message: 'Replay step timed out.',
+        partialResult: successfulResult,
+        diagnostics: {
+          stepIndex: 1,
+          stepOrdinal: 2,
+          lastSuccessfulStepIndex: 0,
+          evidence: 'Step execution log only.',
+          steps: [
+            { stepIndex: 0, stepType: 'navigate', status: 'completed' },
+            { stepIndex: 1, stepType: 'click', status: 'failed', selectors: [['#missing']], timeoutMs: 10000 },
+            { stepIndex: 2, stepType: 'change', status: 'skipped' },
+          ],
+        },
+      },
+    });
+    await fixture.whenStable();
+    const alert = fixture.nativeElement.querySelector('[role="alert"]');
+    expect(alert.textContent).toContain('at step 2');
+    expect(alert.textContent).toContain('#missing');
+    expect(alert.textContent).toContain('skipped: change');
+    expect(fixture.nativeElement.textContent).toContain('Home page');
+    expect(fixture.nativeElement.querySelector('mat-spinner')).toBeNull();
+  });
+
+  it('renders historical failures without partial measurements', async () => {
+    await fixture.whenStable();
+    http.expectOne('/api/audits/user-flow/run-123/result').flush({
+      status: 'FAILURE',
+      error: { name: 'Error', message: 'Navigation failed' },
+    });
+    await fixture.whenStable();
+    expect(fixture.nativeElement.querySelector('[role="alert"]').textContent).toContain('Navigation failed');
+    expect(fixture.nativeElement.querySelector('mat-spinner')).toBeNull();
+  });
+
   it('selects the step encoded in the URL fragment once results load', async () => {
     fragment$.next('step-2');
     await fixture.whenStable();

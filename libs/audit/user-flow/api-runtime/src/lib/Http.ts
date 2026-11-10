@@ -1,6 +1,6 @@
 import { HttpServerRequest, HttpServerResponse } from 'effect/http';
 import { HttpApiBuilder, HttpApiError } from 'effect/http-api';
-import { Duration, Effect, Schedule, Stream } from 'effect';
+import { Duration, Effect, Schedule, Stream, Schema } from 'effect';
 
 import { Identity } from '@app-speed/platform/identity';
 import { WorkspaceStore } from '@app-speed/workspace/api-runtime';
@@ -8,7 +8,11 @@ import { AuditNotFoundError } from '@app-speed/audit/core/api-contract';
 import { auditRequestProject, scopedHistoryHandler, RunnerLifecycle } from '@app-speed/audit/core/api-runtime';
 import { AuditRepo, type AuditRunId } from '@app-speed/audit/core/persistence';
 import { UserFlowApi } from '@app-speed/audit/user-flow/api-contract';
-import { USER_FLOW_AUDIT_KIND, USER_FLOW_AUDIT_KIND_LITERAL } from '@app-speed/audit/user-flow/domain';
+import {
+  UserFlowFailureSchema,
+  USER_FLOW_AUDIT_KIND,
+  USER_FLOW_AUDIT_KIND_LITERAL,
+} from '@app-speed/audit/user-flow/domain';
 import { UserFlowAuditRepo, UserFlowAuditScheduler } from '@app-speed/audit/user-flow/persistence';
 
 type AuditSnapshot = {
@@ -31,9 +35,12 @@ const normalizeError = (error: unknown) => {
   if (error && typeof error === 'object') {
     const record = error as Record<string, unknown>;
     return {
-      name: typeof record['name'] === 'string' ? record['name'] : 'Error',
-      message: typeof record['message'] === 'string' ? record['message'] : 'Unknown error',
       stack: typeof record['stack'] === 'string' ? record['stack'] : '',
+      ...Schema.decodeUnknownSync(UserFlowFailureSchema)({
+        ...record,
+        name: typeof record['name'] === 'string' ? record['name'] : 'Error',
+        message: typeof record['message'] === 'string' ? record['message'] : 'Unknown error',
+      }),
     };
   }
   return { name: 'Error', message: typeof error === 'string' ? error : 'Unknown error', stack: '' };
