@@ -2,7 +2,7 @@
   "name": "@app-speed/db-tools",
   "version": "0.0.1",
   "dependencies": {
-    "@nx/devkit": "24.0.3"
+    "@nx/devkit": "24.0.6"
   },
   "type": "commonjs",
   "main": "./src/index.js",
