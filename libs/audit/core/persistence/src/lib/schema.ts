@@ -1,5 +1,6 @@
 import { index, integer, jsonb, pgEnum, pgTable, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
 import type { AuditKind } from '@app-speed/audit/core/domain';
+import type { AuditSource } from './audit-record';
 
 export const auditStatusValues = ['SCHEDULED', 'IN_PROGRESS', 'COMPLETE'] as const;
 export type AuditStatus = (typeof auditStatusValues)[number];
@@ -23,6 +24,10 @@ export const auditRunTable = pgTable(
     id: uuid('id').primaryKey().defaultRandom(),
     // Retained after project deletion: an orphaned private run must never become public.
     projectId: text('project_id'),
+    source: text('source').$type<AuditSource>().notNull().default('portal'),
+    // OAuth client id and display name of the AI client that scheduled an `mcp` run.
+    clientId: text('client_id'),
+    clientName: text('client_name'),
     templateId: uuid('template_id')
       .notNull()
       .references(() => auditTemplateTable.id, { onDelete: 'restrict', onUpdate: 'cascade' }),

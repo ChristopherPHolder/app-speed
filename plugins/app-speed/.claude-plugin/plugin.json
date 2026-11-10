@@ -1,0 +1,11 @@
+{
+  "name": "app-speed",
+  "version": "1.0.0",
+  "description": "Schedule and analyze Lighthouse user-flow audits and manage App Speed workspaces and projects.",
+  "author": {
+    "name": "Christopher Holder"
+  },
+  "homepage": "https://appspeed.dev",
+  "repository": "https://github.com/ChristopherPHolder/app-speed",
+  "keywords": ["performance", "lighthouse", "web-vitals", "audit", "mcp"]
+}

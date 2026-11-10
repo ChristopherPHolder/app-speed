@@ -5,6 +5,7 @@ import {
   sqliteAuditRunTable as auditRunTable,
   sqliteAuditTemplateTable as auditTemplateTable,
   SqliteDbClient,
+  type AuditOrigin,
   type AuditRunId,
   type AuditTemplateId,
 } from '@app-speed/audit/core/persistence';
@@ -17,6 +18,7 @@ import { UserFlowAuditScheduler } from './scheduler';
 const schedule = Effect.fn('db.userFlowAudit.schedule')(function* (
   definition: UserFlowAuditDefinition,
   projectId: string | null = null,
+  origin: AuditOrigin = { source: 'portal' },
 ) {
   const db = yield* SqliteDbClient;
   const now = new Date(yield* Clock.currentTimeMillis);
@@ -29,6 +31,8 @@ const schedule = Effect.fn('db.userFlowAudit.schedule')(function* (
     'audit.device': definition.device,
     'audit.template_id': templateId,
     'audit.id': runId,
+    'audit.source': origin.source,
+    ...(origin.source === 'mcp' ? { 'audit.client_id': origin.clientId } : {}),
   });
 
   yield* db.run((client) =>
@@ -49,6 +53,9 @@ const schedule = Effect.fn('db.userFlowAudit.schedule')(function* (
         templateId,
         status: 'SCHEDULED',
         projectId,
+        source: origin.source,
+        clientId: origin.source === 'mcp' ? origin.clientId : null,
+        clientName: origin.source === 'mcp' ? origin.clientName : null,
         createdAt: now,
         updatedAt: now,
       });
@@ -62,8 +69,8 @@ export const SqliteUserFlowAuditSchedulerLive = Layer.effect(UserFlowAuditSchedu
   Effect.gen(function* () {
     const db = yield* SqliteDbClient;
     return {
-      schedule: (definition, projectId) =>
-        schedule(definition, projectId).pipe(Effect.provideService(SqliteDbClient, db)),
+      schedule: (definition, projectId, origin) =>
+        schedule(definition, projectId, origin).pipe(Effect.provideService(SqliteDbClient, db)),
     };
   }),
 );

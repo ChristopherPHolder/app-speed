@@ -130,6 +130,8 @@ export const historyHandler = (kind: AuditKind | null) =>
           kind: run.kind,
           auditId: run.id,
           title: run.title,
+          source: run.source,
+          clientName: run.clientName,
           status: run.status,
           resultStatus: run.resultStatus,
           queuePosition: run.queuePosition,

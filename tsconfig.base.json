@@ -44,7 +44,8 @@
       "@app-speed/convenience/trace/feature-tools": ["./libs/convenience/trace/feature-tools/src/index.ts"],
       "@app-speed/workspace/domain": ["./libs/workspace/domain/src/index.ts"],
       "@app-speed/workspace/api-runtime": ["./libs/workspace/api-runtime/src/index.ts"],
-      "@app-speed/platform/identity": ["./libs/platform/identity/src/index.ts"]
+      "@app-speed/platform/identity": ["./libs/platform/identity/src/index.ts"],
+      "@app-speed/platform/mcp": ["./libs/platform/mcp/src/index.ts"]
     },
     "plugins": [
       {

@@ -47,3 +47,4 @@ export const WorkspaceGroupLive = HttpApiBuilder.group(WorkspaceApi, 'workspaces
 );
 
 export { WorkspaceStore, WorkspaceStoreLive, makeWorkspaceSql, runWorkspaceTransaction } from './store';
+export { WorkspaceMcpLive, WorkspaceMcpToolkit } from './mcp';

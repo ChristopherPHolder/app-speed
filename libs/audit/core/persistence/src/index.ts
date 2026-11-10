@@ -5,6 +5,7 @@ export { AuditHistoryRepo } from './lib/audit-history-repo';
 export { AuditHistoryRepoLive } from './lib/audit-history-repo-live';
 export {
   AuditRunListCursorSchema,
+  AuditSourceSchema,
   AuditStatusSchema,
   decodeAuditResultRecord,
   decodeAuditRunRecord,
@@ -12,6 +13,8 @@ export {
   AuditTemplateIdSchema,
 } from './lib/audit-record';
 export type {
+  AuditOrigin,
+  AuditSource,
   AuditResultRecord,
   AuditResultStatus,
   AuditRunListCursor,

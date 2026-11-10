@@ -51,6 +51,7 @@ describe('workspace management with Postgres', () => {
                 : authorization === 'Bearer outsider'
                   ? Effect.succeed(outsider)
                   : Effect.fail(new SignInRequired({ message: 'Sign in required.' })),
+            authenticateAgent: () => Effect.fail(new SignInRequired({ message: 'Not used by the HTTP API.' })),
           }),
         ),
         Layer.provide(NodeHttpServer.layerHttpServices),

@@ -76,4 +76,21 @@ describe('AuditHistoryTableComponent', () => {
     expect(element.querySelector('td.duration')?.textContent).toBe('1m 16s');
     expect(element.querySelector('.queue')).toBeNull();
   });
+
+  it('marks audits scheduled by an AI client', async () => {
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelector('.source-badge')).toBeNull();
+    host.runs.set([
+      { ...host.runs()[0], source: 'mcp', clientName: 'ChatGPT' },
+      { ...host.runs()[0], auditId: 'audit-2', source: 'mcp', clientName: null },
+      { ...host.runs()[0], auditId: 'audit-3', source: 'portal', clientName: null },
+    ]);
+    fixture.changeDetectorRef.markForCheck();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(Array.from(element.querySelectorAll('.source-badge'), (badge) => badge.textContent?.trim())).toEqual([
+      'via ChatGPT',
+      'via MCP client',
+    ]);
+  });
 });

@@ -131,6 +131,15 @@
                     </button>
                     <div class="metadata aligned-row secondary-text">
                       <span class="kind-label">{{ run.kind === 'user-flow' ? 'User flow' : run.kind }}</span>
+                      @if (run.source === 'mcp') {
+                        <span aria-hidden="true">·</span>
+                        <span
+                          class="source-badge inline-row"
+                          [title]="'Scheduled from ' + (run.clientName || 'an MCP client')"
+                        >
+                          via {{ run.clientName || 'MCP client' }}
+                        </span>
+                      }
                       <span aria-hidden="true">·</span>
                       <button
                         type="button"

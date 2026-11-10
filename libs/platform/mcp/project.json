@@ -1,0 +1,39 @@
+{
+  "name": "platform-mcp",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/platform/mcp/src",
+  "projectType": "library",
+  "tags": ["type:platform", "scope:shared", "runtime:node"],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "platform": "node",
+        "outputPath": "dist/libs/platform/mcp",
+        "format": ["esm"],
+        "bundle": true,
+        "main": "libs/platform/mcp/src/index.ts",
+        "tsConfig": "libs/platform/mcp/tsconfig.lib.json"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "eslint libs/platform/mcp/src"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit -p libs/platform/mcp/tsconfig.lib.json"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run --config libs/platform/mcp/vitest.config.mts"
+      }
+    }
+  }
+}

@@ -1,6 +1,6 @@
 import { it, describe, expect } from '@effect/vitest';
-import { ConfigProvider, Effect } from 'effect';
-import { Identity, IdentityLive } from './index';
+import { ConfigProvider, Effect, Option } from 'effect';
+import { clerkFrontendApiUrl, Identity, IdentityLive } from './index';
 
 const { clerk, createClerkClient } = vi.hoisted(() => {
   const clerk = { authenticateRequest: vi.fn(), users: { getUser: vi.fn() } };
@@ -8,10 +8,13 @@ const { clerk, createClerkClient } = vi.hoisted(() => {
 });
 vi.mock('@clerk/backend', () => ({ createClerkClient }));
 
-const authenticate = (authorization: string | undefined, configured = true, publishableKey = 'test_publishable_key') =>
+const withIdentity = <A, E>(
+  use: (identity: Identity['Service']) => Effect.Effect<A, E>,
+  configured = true,
+  publishableKey = 'test_publishable_key',
+) =>
   Effect.gen(function* () {
-    const identity = yield* Identity;
-    return yield* identity.authenticate(authorization);
+    return yield* use(yield* Identity);
   }).pipe(
     Effect.provide(IdentityLive),
     Effect.provideService(
@@ -27,6 +30,11 @@ const authenticate = (authorization: string | undefined, configured = true, publ
       }),
     ),
   );
+const authenticate = (authorization: string | undefined, configured = true, publishableKey = 'test_publishable_key') =>
+  withIdentity((identity) => identity.authenticate(authorization), configured, publishableKey);
+const resource = 'https://appspeed.dev/mcp';
+const authenticateAgent = (authorization: string | undefined, configured = true) =>
+  withIdentity((identity) => identity.authenticateAgent(authorization, resource), configured);
 
 describe('Clerk identity boundary', () => {
   beforeEach(() => {
@@ -114,5 +122,76 @@ describe('Clerk identity boundary', () => {
       Effect.flip,
       Effect.map((error) => expect(error._tag).toBe('SignInRequired')),
     );
+  });
+
+  describe('OAuth agent tokens', () => {
+    beforeEach(() => {
+      clerk.authenticateRequest.mockResolvedValue({
+        toAuth: () => ({
+          tokenType: 'oauth_token',
+          isAuthenticated: true,
+          userId: 'user_chris',
+          clientId: 'https://claude.ai/oauth/mcp-oauth-client-metadata',
+          scopes: ['profile', 'email'],
+        }),
+      });
+    });
+    it.effect('accepts only OAuth tokens issued for the MCP resource', () =>
+      authenticateAgent('Bearer oauth').pipe(
+        Effect.map((agent) => {
+          expect(agent).toEqual({
+            account: expect.objectContaining({ id: 'user_chris', email: 'chris@example.com' }),
+            clientId: 'https://claude.ai/oauth/mcp-oauth-client-metadata',
+            scopes: ['profile', 'email'],
+          });
+          expect(clerk.authenticateRequest).toHaveBeenCalledWith(expect.any(Request), {
+            acceptsToken: 'oauth_token',
+            audience: resource,
+          });
+        }),
+      ),
+    );
+    it.effect('rejects missing credentials without calling Clerk', () =>
+      authenticateAgent(undefined).pipe(
+        Effect.flip,
+        Effect.map((error) => {
+          expect(error._tag).toBe('SignInRequired');
+          expect(clerk.authenticateRequest).not.toHaveBeenCalled();
+        }),
+      ),
+    );
+    it.effect('rejects unauthenticated, wrong-audience or non-OAuth tokens', () => {
+      clerk.authenticateRequest.mockResolvedValueOnce({
+        toAuth: () => ({ tokenType: 'oauth_token', isAuthenticated: false, userId: null, clientId: null }),
+      });
+      return authenticateAgent('Bearer expired').pipe(
+        Effect.flip,
+        Effect.map((error) => {
+          expect(error._tag).toBe('SignInRequired');
+          expect(clerk.users.getUser).not.toHaveBeenCalled();
+        }),
+      );
+    });
+    it.effect('treats verification failures as sign-in required', () => {
+      clerk.authenticateRequest.mockRejectedValueOnce(new Error('aud mismatch'));
+      return authenticateAgent('Bearer other-audience').pipe(
+        Effect.flip,
+        Effect.map((error) => expect(error._tag).toBe('SignInRequired')),
+      );
+    });
+    it.effect('reports missing Clerk configuration', () =>
+      authenticateAgent('Bearer oauth', false).pipe(
+        Effect.flip,
+        Effect.map((error) => expect(error._tag).toBe('IdentityUnavailable')),
+      ),
+    );
+  });
+
+  it('derives the Clerk Frontend API from a publishable key', () => {
+    const key = `pk_live_${Buffer.from('clerk.appspeed.dev$').toString('base64')}`;
+    expect(clerkFrontendApiUrl(key)).toEqual(Option.some('https://clerk.appspeed.dev'));
+    expect(clerkFrontendApiUrl('test_publishable_key')).toEqual(Option.none());
+    expect(clerkFrontendApiUrl('pk_live_not base64!')).toEqual(Option.none());
+    expect(clerkFrontendApiUrl('')).toEqual(Option.none());
   });
 });

@@ -171,6 +171,15 @@ td:first-child {
   gap: 8px;
   margin-top: 5px;
 }
+.source-badge {
+  border-radius: 6px;
+  padding: 1px 7px;
+  background: #eef3fd;
+  color: #245bc1;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
 .copy-id {
   padding: 0;
   gap: 5px;

@@ -56,6 +56,15 @@ See [ADR-0006](docs/adr/ADR-0006-project-audit-isolation.md) for scope propagati
 Claiming, sharing, and Cron Audits remain later stages. Avoid showing example workspaces
 or projects as if they were persisted, authorized data.
 
+## AI clients (MCP)
+
+An account can connect AI clients such as Claude or ChatGPT to App Speed through the MCP server at
+`https://appspeed.dev/mcp` ([issue #244](https://github.com/ChristopherPHolder/app-speed/issues/244)). The client
+acts as that account through a Clerk OAuth token. It has exactly the account's workspace roles and project
+access, checked on every call, and Public View when no project is given. An **MCP client** is not an account and
+has no permissions of its own. Audits it schedules record the client (for example "via ChatGPT") for
+attribution. See [ADR-0007](docs/adr/ADR-0007-mcp-server.md).
+
 ## Related issue and terminology changes
 
 [Issue #222](https://github.com/ChristopherPHolder/app-speed/issues/222) is the broader ownership and recurring-audit

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "app-speed": {
+      "type": "http",
+      "url": "https://appspeed.dev/mcp"
+    }
+  }
+}
