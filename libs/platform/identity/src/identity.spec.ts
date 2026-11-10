@@ -188,8 +188,12 @@ describe('Clerk identity boundary', () => {
   });
 
   it('derives the Clerk Frontend API from a publishable key', () => {
-    const key = `pk_live_${Buffer.from('clerk.appspeed.dev$').toString('base64')}`;
+    const key = `pk_live_${Buffer.from('clerk.appspeed.dev$').toString('base64').replace(/=+$/, '')}`;
     expect(clerkFrontendApiUrl(key)).toEqual(Option.some('https://clerk.appspeed.dev'));
+    expect(clerkFrontendApiUrl('pk_live_Y2xlcmsuZXhhbXBsZS5jb20k')).toEqual(Option.some('https://clerk.example.com'));
+    expect(clerkFrontendApiUrl(`pk_live_${Buffer.from('clerk.appspeed.dev$').toString('base64')}`)).toEqual(
+      Option.some('https://clerk.appspeed.dev'),
+    );
     expect(clerkFrontendApiUrl('test_publishable_key')).toEqual(Option.none());
     expect(clerkFrontendApiUrl('pk_live_not base64!')).toEqual(Option.none());
     expect(clerkFrontendApiUrl('')).toEqual(Option.none());

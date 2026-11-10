@@ -25,7 +25,7 @@ const Registrations = McpServer.toolkit(Tools).pipe(
 );
 
 const resource = 'https://appspeed.dev/mcp';
-const key = `pk_live_${Buffer.from('clerk.appspeed.dev$').toString('base64')}`;
+const key = `pk_live_${Buffer.from('clerk.appspeed.dev$').toString('base64').replace(/=+$/, '')}`;
 
 const makeApp = (env: Record<string, string>, unavailable = false) =>
   HttpRouter.toWebHandler(
@@ -157,6 +157,15 @@ describe('MCP HTTP endpoint', () => {
       isError: true,
       content: [{ type: 'text', text: 'You do not have access to this project.' }],
     });
+  });
+
+  it('disables the endpoint instead of failing when no authorization server can be derived', async () => {
+    const misconfigured = makeApp({ MCP_RESOURCE_URL: resource, CLERK_PUBLISHABLE_KEY: 'pk_live_not base64!' });
+    try {
+      expect((await misconfigured.handler(new Request(resource, { method: 'POST' }))).status).toBe(404);
+    } finally {
+      await misconfigured.dispose();
+    }
   });
 
   it('is disabled until a resource URL is configured', async () => {

@@ -171,7 +171,7 @@ describe('App Speed MCP server', () => {
       ConfigProvider.fromUnknown({
         SQLITE_PATH: join(directory, 'audits.sqlite'),
         MCP_RESOURCE_URL: resource,
-        CLERK_PUBLISHABLE_KEY: `pk_live_${Buffer.from('clerk.appspeed.dev$').toString('base64')}`,
+        CLERK_PUBLISHABLE_KEY: `pk_live_${Buffer.from('clerk.appspeed.dev$').toString('base64').replace(/=+$/, '')}`,
         PORTAL_URL: 'https://appspeed.dev',
       }),
     );
