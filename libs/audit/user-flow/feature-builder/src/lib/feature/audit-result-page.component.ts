@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
+import { MatButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import { catchError, map, of, startWith, switchMap } from 'rxjs';
 
 import { UserFlowAuditPageComponent } from '@app-speed/audit/user-flow/feature-viewer';
@@ -16,10 +18,27 @@ const INITIAL_AUDIT_LOAD_STATE: AuditLoadState = { status: 'loading' };
 
 @Component({
   selector: 'user-flow-audit-result-page',
-  imports: [AuditBuilderComponent, UserFlowAuditPageComponent, RouterLink],
+  imports: [AuditBuilderComponent, UserFlowAuditPageComponent, RouterLink, MatButton, MatIcon],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  styles: `
+    .audit-navigation {
+      box-sizing: border-box;
+      max-width: 960px;
+      margin: 16px auto 0;
+      padding-inline: 20px;
+    }
+
+    .audit-navigation a {
+      min-height: 48px;
+    }
+  `,
   template: `
-    <a routerLink="/audits/user-flow/history" queryParamsHandling="preserve">Back to audit history</a>
+    <nav class="audit-navigation" aria-label="Audit navigation">
+      <a matButton="outlined" routerLink="/audits/user-flow/history" queryParamsHandling="preserve">
+        <mat-icon aria-hidden="true">arrow_back</mat-icon>
+        Audit history
+      </a>
+    </nav>
     @switch (auditLoadState().status) {
       @case ('loaded') {
         @if (loadedAudit(); as audit) {
