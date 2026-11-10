@@ -16,10 +16,9 @@ const safeUrl = (value: string) => {
     return '[redacted URL]';
   }
 };
-const safeSelector = (value: string) =>
-  /^(text|aria|xpath)\//.test(value)
-    ? '[redacted text selector]'
-    : value.replace(/\[[^\]]*=[^\]]*\]/g, '[redacted-attribute]');
+// Only retain simple CSS identifiers/combinators. Attribute values, functional pseudo
+// selectors, quoting and escapes require parsing; redact the entire selector instead.
+const safeSelector = (value: string) => (/^[a-zA-Z0-9_\s.#>+~*:-]+$/.test(value) ? value : '[redacted selector]');
 
 export const runPuppeteerReplay = Effect.fn('runner.replay.execute')((
   recording: unknown,

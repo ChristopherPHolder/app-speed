@@ -17,6 +17,7 @@ as successful results. Historical errors without diagnostics or partial results 
 continues to apply to all result reads. The standalone HTML report endpoint remains available for successful runs.
 
 Diagnostics omit change values, cookie parameters, key contents, expressions and raw exception text. URLs exclude
-credentials, query strings and fragments. Text/ARIA/XPath selectors and attribute selector values are redacted.
+credentials, query strings and fragments. Only simple CSS identifiers/combinators are retained; selectors containing attributes, text, functional pseudo
+selectors, quoting, escapes or unsupported syntax are redacted in full.
 Failure screenshots and raw browser logs are omitted because they can expose page/form data; `diagnostics.evidence`
 makes this explicit. Completed Lighthouse results retain the existing result content and access policy.

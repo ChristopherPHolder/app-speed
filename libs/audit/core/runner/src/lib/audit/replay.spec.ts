@@ -42,6 +42,31 @@ describe('replay failure diagnostics', () => {
   });
 
   it.each([
+    '[value="prefix]private-value"]',
+    "[value='prefix]private-value']",
+    '[value="prefix\\"private-value"]',
+    '::-p-text(private-value)',
+    'button::-p-aria(private-value)',
+    '::-p-xpath(//input[@value="private-value"])',
+    'text/private-value',
+    '[value=private-value]',
+    '#safe, ::-p-text(private-value)',
+  ])('redacts the complete sensitive selector %s', async (selector) => {
+    const extension = new PuppeteerRunnerExtension({} as never, {} as never);
+    vi.spyOn(extension, 'runStep').mockRejectedValue(new Error('Timed out after waiting 100ms'));
+    const result = await Effect.runPromise(
+      runPuppeteerReplay(
+        { title: 'Private selector', steps: [{ type: 'waitForElement', selectors: [[selector]], timeout: 100 }] },
+        extension,
+      ).pipe(Effect.result),
+    );
+    expect(Result.isFailure(result)).toBe(true);
+    if (!Result.isFailure(result)) return;
+    expect(result.failure.diagnostics?.steps[0].selectors).toEqual([['[redacted selector]']]);
+    expect(JSON.stringify(result.failure)).not.toContain('private-value');
+  });
+
+  it.each([
     ['Timed out after waiting 15000ms', 1, 'timed out'],
     ['Element not found: secret', 1, 'Check the target'],
     ['net::ERR_NAME_NOT_RESOLVED https://user:secret@example.com', 0, 'ERR_NAME_NOT_RESOLVED'],
