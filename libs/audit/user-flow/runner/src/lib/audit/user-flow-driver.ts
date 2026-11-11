@@ -53,7 +53,7 @@ export class UserFlowDriver extends Context.Service<
           const reportHtml = yield* Effect.sync(() => generateReport(flowResult, 'html'));
           return { flowResult, reportHtml };
         }),
-        dispose: Effect.sync(() => (experiment ? experiment.dispose() : flow.dispose())),
+        dispose: Effect.promise(async () => (experiment ? await experiment.dispose() : flow.dispose())),
       };
     }),
   });
