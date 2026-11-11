@@ -1,7 +1,6 @@
 import type { UserFlow } from 'lighthouse';
 import { Driver } from 'lighthouse/core/gather/driver.js';
 import { Runner } from 'lighthouse/core/runner.js';
-import { initializeConfig } from 'lighthouse/core/config/config.js';
 import { getBaseArtifacts, finalizeArtifacts } from 'lighthouse/core/gather/base-artifacts.js';
 import {
   getEmptyArtifactState,
@@ -12,6 +11,8 @@ import {
 import { enableAsyncStacks, prepareTargetForTimespanMode } from 'lighthouse/core/gather/driver/prepare.js';
 import * as emulation from 'lighthouse/core/lib/emulation.js';
 
+import { softNavigationConfig } from './config';
+
 /**
  * Lighthouse's internal integration boundary. Collect an existing document's transition,
  * retaining navigation identity from collection through reporting. No document load is awaited.
@@ -19,25 +20,7 @@ import * as emulation from 'lighthouse/core/lib/emulation.js';
 export async function startSoftNavigationGather(flow: UserFlow, flags: Parameters<UserFlow['startNavigation']>[0]) {
   const nextFlags = flow._getNextFlags({ ...flags, disableStorageReset: true });
   // Select audits/artifacts that can operate without a new document. Preserve caller exclusions.
-  const { resolvedConfig } = await initializeConfig('timespan', flow._options?.config, nextFlags);
-  resolvedConfig.audits = (resolvedConfig.audits ?? []).map((definition) => {
-    const Original = definition.implementation;
-    return {
-      ...definition,
-      implementation: class extends Original {
-        static override get meta() {
-          return { ...Original.meta, supportedModes: ['navigation' as const] };
-        }
-        static override audit(
-          artifacts: Parameters<typeof Original.audit>[0],
-          context: Parameters<typeof Original.audit>[1],
-        ) {
-          // Stock interval audits must not look for a document navigationStart or simulate a page load.
-          return Original.audit({ ...artifacts, GatherContext: { gatherMode: 'timespan' } }, context);
-        }
-      },
-    };
-  });
+  const resolvedConfig = await softNavigationConfig(flow._options?.config, nextFlags);
   const driver = new Driver(flow._page);
   const computedCache = new Map();
   let disableAsyncStacks: (() => Promise<void>) | undefined;
