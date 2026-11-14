@@ -32,30 +32,32 @@ import { StepFieldsComponent } from './step-fields.component';
           }
         </mat-panel-title>
       </mat-expansion-panel-header>
-      <mat-form-field appearance="outline">
-        <mat-label>Step type</mat-label>
-        <mat-select [formControl]="control.selectionControl">
-          @for (optionGroup of stepTypeOptions; track optionGroup.label) {
-            <mat-optgroup>
-              <span class="option-group-label">
-                <mat-icon [svgIcon]="optionGroup.icon" aria-hidden="true" />
-                <span>{{ optionGroup.label }}</span>
-              </span>
-              @for (option of optionGroup.options; track option) {
-                <mat-option [value]="option">{{ getStepPresentation(option).label }}</mat-option>
-              }
-            </mat-optgroup>
-          }
-        </mat-select>
-      </mat-form-field>
-      @if (control.hasSpec) {
-        <builder-step-fields
-          [variantId]="control.selectionControl.value"
-          [fields]="control.spec.fields"
-          [control]="control"
-          [stepForm]="control"
-        />
-      }
+      <div class="step-body">
+        <mat-form-field appearance="outline" class="step-type">
+          <mat-label>Step type</mat-label>
+          <mat-select [formControl]="control.selectionControl">
+            @for (optionGroup of stepTypeOptions; track optionGroup.label) {
+              <mat-optgroup>
+                <span class="option-group-label">
+                  <mat-icon [svgIcon]="optionGroup.icon" aria-hidden="true" />
+                  <span>{{ optionGroup.label }}</span>
+                </span>
+                @for (option of optionGroup.options; track option) {
+                  <mat-option [value]="option">{{ getStepPresentation(option).label }}</mat-option>
+                }
+              </mat-optgroup>
+            }
+          </mat-select>
+        </mat-form-field>
+        @if (control.hasSpec) {
+          <builder-step-fields
+            [variantId]="control.selectionControl.value"
+            [fields]="control.spec.fields"
+            [control]="control"
+            [stepForm]="control"
+          />
+        }
+      </div>
     </mat-expansion-panel>
     <!-- Step actions sit beside the panel header, not inside it, so they don't toggle the panel. -->
     <div class="step-actions"><ng-content /></div>
@@ -94,6 +96,19 @@ import { StepFieldsComponent } from './step-fields.component';
     mat-panel-title {
       /* Leave room for the step actions that overlay the header. */
       margin-inline-end: var(--ui-space-12);
+    }
+
+    .step-body {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--ui-space-4);
+      /* The floating label of the first field sits on its outline and needs room under the header. */
+      padding-top: var(--ui-space-1);
+    }
+
+    .step-type {
+      justify-self: start;
+      width: min(100%, 320px);
     }
 
     .step-actions {
