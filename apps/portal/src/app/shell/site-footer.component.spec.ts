@@ -39,6 +39,7 @@ describe('SiteFooterComponent', () => {
       (item) => item.textContent?.trim() === 'Cookie settings',
     );
     expect(button?.type).toBe('button');
+    expect(button?.classList.contains('mat-mdc-button-base')).toBe(true);
     button?.click();
     expect(consent.settingsOpen()).toBe(true);
   });

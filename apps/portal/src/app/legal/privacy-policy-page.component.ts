@@ -97,7 +97,7 @@ import { operator } from './operator';
       </p>
 
       <h2 id="cookies">Cookies and browser storage</h2>
-      <div class="table-scroll">
+      <div class="ui-prose-table">
         <table aria-labelledby="cookies">
           <thead>
             <tr>
