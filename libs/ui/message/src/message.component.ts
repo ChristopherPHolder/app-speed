@@ -83,10 +83,15 @@ export class MessageActionsDirective {}
       font: var(--mat-sys-title-small);
     }
     .actions {
+      --mat-button-text-label-text-color: var(--ui-message-content);
+      --mat-button-text-state-layer-color: var(--ui-message-content);
       display: flex;
       flex: none;
+      /* Pull the buttons into the message's padding so a one-line message keeps its height. */
+      margin-block: calc(-1 * var(--ui-space-2));
       gap: var(--ui-space-2);
       align-items: center;
+      align-self: center;
     }
     .actions:empty {
       display: none;
