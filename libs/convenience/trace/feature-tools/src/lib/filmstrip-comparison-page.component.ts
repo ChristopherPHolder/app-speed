@@ -14,6 +14,8 @@ import { MatDialog, type MatDialogRef } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
+import { PageComponent } from '@app-speed/ui/page';
+import { PageHeaderComponent, PageHeaderNavigationDirective } from '@app-speed/ui/page-header';
 import {
   defaultFilmstripComparisonLabel,
   defaultTraceFilmstripSettings,
@@ -60,19 +62,25 @@ interface ComparisonRow {
     MatIcon,
     MatProgressSpinner,
     RouterLink,
+    PageComponent,
+    PageHeaderComponent,
+    PageHeaderNavigationDirective,
     TraceDropZoneComponent,
     TraceFileDropDirective,
     TraceFileDropOverlayComponent,
     TraceFilmstripComponent,
   ],
   template: `
-    <main class="page" aria-labelledby="filmstrip-comparison-page-title">
-      <a mat-button routerLink="/convenience"><mat-icon aria-hidden="true">arrow_back</mat-icon>All tools</a>
-      <header class="page-header">
-        <p class="eyebrow">Trace tool</p>
-        <h1 id="filmstrip-comparison-page-title">Compare trace filmstrips</h1>
-        <p>Inspect two independently configured traces and download both filmstrips as one PNG.</p>
-      </header>
+    <ui-page class="page" width="full">
+      <ui-page-header
+        eyebrow="Trace tool"
+        heading="Compare trace filmstrips"
+        description="Inspect two independently configured traces and download both filmstrips as one PNG."
+      >
+        <a uiPageHeaderNavigation class="back" matButton routerLink="/convenience">
+          <mat-icon aria-hidden="true">arrow_back</mat-icon>All tools
+        </a>
+      </ui-page-header>
 
       <div class="comparison-actions">
         <p>Each trace stays in this browser and can be replaced independently.</p>
@@ -162,38 +170,25 @@ interface ComparisonRow {
           </mat-card>
         }
       </div>
-    </main>
+    </ui-page>
   `,
   styles: `
     :host {
       display: block;
     }
-    .page {
-      width: min(95vw, 1600px);
-      margin: 32px auto 64px;
+    .back {
+      margin: 0 0 var(--ui-space-4) calc(-1 * var(--ui-space-3));
     }
-    .page-header {
-      margin: 26px 0 24px;
-    }
-    .eyebrow,
     .row-identity > p {
-      margin: 0 0 6px;
-      color: var(--mat-sys-primary, #0b57d0);
-      font: var(--mat-sys-label-large, 600 0.75rem/1rem Roboto, sans-serif);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
+      margin: 0 0 var(--ui-space-1);
+      color: var(--mat-sys-primary);
+      font: var(--mat-sys-label-large);
     }
-    h1 {
-      margin: 0 0 12px;
-      font: var(--mat-sys-display-small, 700 2.5rem/1.1 Roboto, sans-serif);
-    }
-    .page-header > p:last-child,
     .comparison-actions p,
     .status p,
     .source-name {
-      color: var(--mat-sys-on-surface-variant, #444746);
+      color: var(--mat-sys-on-surface-variant);
     }
-    .page-header > p:last-child,
     .comparison-actions p,
     .status p {
       margin: 0;
@@ -267,12 +262,6 @@ interface ComparisonRow {
       white-space: nowrap;
     }
     @media (max-width: 680px) {
-      .page {
-        width: calc(100% - 28px);
-      }
-      h1 {
-        font-size: 2rem;
-      }
       .comparison-actions,
       .row-header {
         align-items: stretch;

@@ -22,7 +22,7 @@ import { MatTabLink, MatTabNav, MatTabNavPanel } from '@angular/material/tabs';
 import { Router, RouterLink } from '@angular/router';
 import type { WorkspaceAction } from '@app-speed/workspace/domain';
 import { firstValueFrom } from 'rxjs';
-import { WorkspaceConfirmDialogComponent, type WorkspaceConfirmDialogData } from './workspace-confirm-dialog.component';
+import { ConfirmDialogComponent, type ConfirmDialogData } from '@app-speed/ui/confirm-dialog';
 import { WorkspaceLogoSettingsComponent } from './workspace-logo-settings.component';
 import { WorkspaceNameDialogComponent, type WorkspaceNameDialogData } from './workspace-name-dialog.component';
 import { WorkspaceState } from './workspace-state.service';
@@ -654,10 +654,10 @@ export class WorkspacePageComponent {
       this.showInvite.set(false);
     }
   }
-  protected async confirm(action: WorkspaceAction, data: WorkspaceConfirmDialogData): Promise<void> {
+  protected async confirm(action: WorkspaceAction, data: ConfirmDialogData): Promise<void> {
     const confirmed = await firstValueFrom(
       this.dialog
-        .open<WorkspaceConfirmDialogComponent, WorkspaceConfirmDialogData, boolean>(WorkspaceConfirmDialogComponent, {
+        .open<ConfirmDialogComponent, ConfirmDialogData, boolean>(ConfirmDialogComponent, {
           data,
           width: '440px',
           maxWidth: 'calc(100vw - 32px)',
