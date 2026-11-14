@@ -153,6 +153,12 @@
         "mobile/29-member-workspace-settings.png",
         "mobile/30-saved-workspace-recovery.png"
       ]
+    },
+    {
+      "sourceCommit": "4a0c069f442e3d743fb21c0621043a80a589d7dc",
+      "runUrl": "https://github.com/ChristopherPHolder/app-speed/actions/runs/43633929136",
+      "browserTestsPassed": 13,
+      "files": ["mobile/10-delete-project-confirmation.png", "mobile/24-leave-workspace-confirmation.png"]
     }
   ]
 }
