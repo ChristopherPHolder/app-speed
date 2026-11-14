@@ -111,3 +111,29 @@ export const SurfaceRoles: Story = {
 export const StatusRoles: Story = {
   render: () => ({ props: { groups: statusGroups }, template: swatches }),
 };
+
+/** Score accents are graphics, with readable status text alongside them. */
+export const ScoreAccents: Story = {
+  render: () => ({
+    template: `
+      <div style="display: flex; flex-wrap: wrap; gap: var(--ui-space-6); padding: var(--ui-space-6);">
+        @for (band of bands; track band.name) {
+          <div [style.color]="'var(' + band.text + ')'" style="display: grid; gap: var(--ui-space-2);">
+            <svg viewBox="0 0 100 100" width="50" height="50" aria-hidden="true">
+              <circle cx="50" cy="50" r="45" fill="none" stroke-width="8" [attr.stroke]="'var(' + band.accent + ')'" />
+            </svg>
+            <span>{{ band.name }}</span>
+            <code>{{ band.accent }}</code>
+          </div>
+        }
+      </div>
+    `,
+    props: {
+      bands: [
+        { name: 'Good', accent: '--ui-score-good', text: '--ui-success' },
+        { name: 'Needs improvement', accent: '--ui-score-average', text: '--ui-warning' },
+        { name: 'Poor', accent: '--ui-score-poor', text: '--mat-sys-error' },
+      ],
+    },
+  }),
+};

@@ -46,6 +46,11 @@
 // the built-in roles do: `x` with `on-x`, `x-container` with `on-x-container`.
 // Error status uses `--mat-sys-error*`; informational status uses the primary roles.
 @mixin status-colors() {
+  // Score graphics use vivid accents; their numbers retain the accessible status text roles.
+  --ui-score-good: light-dark(#30c730, #9cd67d);
+  --ui-score-average: light-dark(#ffd300, #f7bd48);
+  --ui-score-poor: light-dark(#ff0000, #ffb4ab);
+
   --ui-success: light-dark(#386a20, #9cd67d);
   --ui-on-success: light-dark(#ffffff, #0c3900);
   --ui-success-container: light-dark(#b7f397, #205107);
