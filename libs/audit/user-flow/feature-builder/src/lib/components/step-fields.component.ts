@@ -348,7 +348,7 @@ type RecordDraft = { name: FormControl<string>; value: FormControl<string> | nul
           </section>
         }
         @default {
-          <div class="field-row">
+          <div class="field-row" [class.field-row--compact]="field.kind === 'boolean'">
             <ng-container
               [ngTemplateOutlet]="scalarControl"
               [ngTemplateOutletContext]="{ field, fieldControl, label: labelFor(field) }"
@@ -433,31 +433,44 @@ type RecordDraft = { name: FormControl<string>; value: FormControl<string> | nul
     </ng-template>
   `,
   styles: `
-    .step-fields {
+    /*
+     * Every grid here has one column that may shrink below its content. An implicit column is as wide
+     * as its widest row, which pushed the whole step past the edge of the form in compact windows.
+     */
+    .step-fields,
+    .selector-fields,
+    .selector-path,
+    .group-field,
+    .array-item,
+    .optional-fields,
+    .checkbox-field {
       display: grid;
-      gap: 16px;
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .step-fields {
+      gap: var(--ui-space-4);
     }
 
     .selector-fields,
     .selector-path {
-      display: grid;
-      gap: 8px;
+      gap: var(--ui-space-2);
     }
 
     .selector-path__title {
-      margin: 0 0 4px;
+      margin: 0 0 var(--ui-space-1);
       color: var(--mat-sys-on-surface-variant);
       font: var(--mat-sys-title-small);
     }
 
     .selector-path__hint {
-      margin: 0 0 8px;
+      margin: 0 0 var(--ui-space-2);
       color: var(--mat-sys-on-surface-variant);
       font: var(--mat-sys-body-small);
     }
 
     .selector-path--alternative {
-      padding-left: 16px;
+      padding-left: var(--ui-space-4);
       border-left: 2px solid var(--mat-sys-outline-variant);
     }
 
@@ -468,28 +481,29 @@ type RecordDraft = { name: FormControl<string>; value: FormControl<string> | nul
     .selector-segment--child::before {
       content: '';
       position: absolute;
-      left: -12px;
-      top: -20px;
-      width: 8px;
-      height: 48px;
+      left: calc(-1 * var(--ui-space-3));
+      top: calc(-1 * var(--ui-space-5));
+      width: var(--ui-space-2);
+      height: var(--ui-space-12);
       border-left: 1px solid var(--mat-sys-outline-variant);
       border-bottom: 1px solid var(--mat-sys-outline-variant);
-      border-bottom-left-radius: 4px;
+      border-bottom-left-radius: var(--mat-sys-corner-extra-small);
     }
 
     .selector-path + .selector-path {
-      margin-top: 8px;
+      margin-top: var(--ui-space-2);
     }
 
     .selector-path__add,
-    .selector-fields__add {
+    .selector-fields__add,
+    .group-field__add {
       justify-self: start;
     }
 
     .field-row {
       display: flex;
       align-items: flex-start;
-      gap: 8px;
+      gap: var(--ui-space-2);
     }
 
     .field-row__control {
@@ -497,11 +511,21 @@ type RecordDraft = { name: FormControl<string>; value: FormControl<string> | nul
       flex: 1 1 auto;
     }
 
+    /* Centre a 40dp icon button on the 56dp field beside it; a checkbox row is already 40dp tall. */
+    .field-row > button {
+      flex: none;
+      margin-top: var(--ui-space-2);
+    }
+
+    .field-row--compact > button {
+      margin-top: 0;
+    }
+
     .record-add {
       display: flex;
       flex-wrap: wrap;
       align-items: flex-start;
-      gap: 0 var(--ui-space-2);
+      gap: var(--ui-space-2);
     }
 
     .record-add__field {
@@ -515,10 +539,6 @@ type RecordDraft = { name: FormControl<string>; value: FormControl<string> | nul
       margin-top: var(--ui-space-2);
     }
 
-    .checkbox-field {
-      display: grid;
-    }
-
     .checkbox-field__hint {
       /* Line the description up with the label, past the checkbox's 40dp target. */
       margin: 0 0 0 var(--ui-space-10);
@@ -526,64 +546,67 @@ type RecordDraft = { name: FormControl<string>; value: FormControl<string> | nul
       font: var(--mat-sys-body-small);
     }
 
-    .field-row--record-add {
-      align-items: flex-end;
-    }
-
     .group-field {
-      display: grid;
-      gap: 12px;
-      padding: 12px 16px;
+      gap: var(--ui-space-3);
+      padding: var(--ui-space-3) var(--ui-space-4);
       border: 1px solid var(--mat-sys-outline-variant);
       border-radius: var(--mat-sys-corner-large);
       background: var(--mat-sys-surface-container-low);
     }
 
-    .group-field__header {
+    .group-field__header,
+    .array-item__header {
       display: flex;
       justify-content: space-between;
+      gap: var(--ui-space-2);
+    }
+
+    .group-field__header {
       align-items: flex-start;
-      gap: 12px;
     }
 
-    .group-field__add {
-      justify-self: start;
+    .array-item__header {
+      align-items: center;
     }
 
-    .group-field__header h4,
+    .group-field__header > div {
+      min-width: 0;
+      /* Line the heading up with the 40dp remove button beside it. */
+      padding-top: var(--ui-space-2);
+    }
+
+    .group-field__header h4 {
+      margin: 0;
+      font: var(--mat-sys-title-medium);
+    }
+
     .array-item__header h5 {
       margin: 0;
+      font: var(--mat-sys-title-small);
     }
 
     .group-field__header p {
-      margin: 4px 0 0;
+      margin: var(--ui-space-1) 0 0;
       color: var(--mat-sys-on-surface-variant);
+      font: var(--mat-sys-body-medium);
     }
 
     .group-field__error {
       margin: 0;
       color: var(--mat-sys-error);
+      font: var(--mat-sys-body-small);
     }
 
     .array-item {
-      display: grid;
-      gap: 12px;
-      padding: 12px;
+      gap: var(--ui-space-3);
+      padding: var(--ui-space-3);
       border: 1px solid var(--mat-sys-outline-variant);
       border-radius: var(--mat-sys-corner-medium);
       background: var(--mat-sys-surface);
     }
 
-    .array-item__header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-    }
-
     .optional-fields {
-      display: grid;
-      gap: 8px;
+      gap: var(--ui-space-2);
     }
 
     .optional-fields h4 {
@@ -595,7 +618,13 @@ type RecordDraft = { name: FormControl<string>; value: FormControl<string> | nul
     .optional-fields__actions {
       display: flex;
       flex-wrap: wrap;
-      gap: 4px 8px;
+      gap: var(--ui-space-1) var(--ui-space-2);
+    }
+
+    @media (width < 600px) {
+      .group-field {
+        padding: var(--ui-space-3);
+      }
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -139,10 +139,13 @@ import { ToTitleCasePipe } from '@app-speed/audit/core/portal-ui';
     .fields {
       display: grid;
       grid-template-columns: minmax(0, 1fr);
-      gap: 0 var(--ui-space-4);
+      gap: var(--ui-space-4);
+      margin-bottom: var(--ui-space-4);
     }
     .flow-steps {
       display: grid;
+      /* The column may shrink below its content, so a wide row can't push a step past the card. */
+      grid-template-columns: minmax(0, 1fr);
       gap: var(--ui-space-3);
     }
     .action-bar {
