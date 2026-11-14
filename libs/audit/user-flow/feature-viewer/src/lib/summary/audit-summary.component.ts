@@ -94,6 +94,11 @@ export function fitScreenshotPreview(width: number, height: number): { width: nu
     </ui-swiper>
   `,
   styles: `
+    .swiper-slide {
+      /* Keep the active outline and elevation inside Swiper's clipped viewport. */
+      padding-top: var(--ui-space-2);
+    }
+
     .screen-shot-box {
       position: relative;
       display: flex;

@@ -113,3 +113,20 @@ export const MultiStep: Story = {
     ],
   },
 };
+
+/** A full-height first slide exposes selection outlines clipped by Swiper. Check at 390px too. */
+export const PortraitFirst: Story = {
+  args: {
+    auditSummary: [MultiStep.args!.auditSummary![1], MultiStep.args!.auditSummary![0]].map((step) => ({
+      ...step,
+      shouldDisplayAsFraction: false,
+      categoryScores: [
+        { ...step.categoryScores[0], name: 'Performance', score: 60 },
+        { ...step.categoryScores[0], name: 'Accessibility', score: 97 },
+        { ...step.categoryScores[0], name: 'Best Practices', score: 77 },
+        { ...step.categoryScores[0], name: 'SEO', score: 100 },
+        { ...step.categoryScores[0], name: 'Agentic Browsing', score: 75 },
+      ],
+    })),
+  },
+};
