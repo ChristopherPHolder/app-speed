@@ -5,13 +5,31 @@ import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatSidenav, MatSidenavContainer, MatSidenavContent } from '@angular/material/sidenav';
 import { MatToolbar } from '@angular/material/toolbar';
-import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import {
+  type IsActiveMatchOptions,
+  NavigationEnd,
+  Router,
+  RouterLink,
+  RouterLinkActive,
+  RouterOutlet,
+} from '@angular/router';
+import { WINDOW_SIZE_CLASS } from '@app-speed/ui/layout';
 import { filter, map } from 'rxjs';
+import { AnalyticsConsentService } from '../analytics/analytics-consent.service';
 import { AccountMenuComponent } from '../auth/account-menu.component';
 import { PortalAuthService } from '../auth/portal-auth.service';
 import { WorkspaceNavigationComponent } from '../workspace/workspace-navigation.component';
 
-const desktopQuery = '(width >= 960px)';
+// The drawer becomes standard, and navigation moves into the app bar, from the expanded window class.
+const desktopQuery = WINDOW_SIZE_CLASS.expandedUp;
+
+/** Query parameters carry project scope and forked audits; they don't change which destination is current. */
+const activeMatch = (exact: boolean): IsActiveMatchOptions => ({
+  paths: exact ? 'exact' : 'subset',
+  queryParams: 'ignored',
+  matrixParams: 'ignored',
+  fragment: 'ignored',
+});
 
 @Component({
   selector: 'app-shell',
@@ -41,45 +59,47 @@ const desktopQuery = '(width >= 960px)';
         (openedChange)="syncMobileMenu($event)"
         [autoFocus]="!desktop()"
       >
-        @if (!desktop()) {
-          <div class="drawer-heading">
-            <img src="assets/logo-wordmark.svg" alt="App Speed" />
-            <button mat-icon-button type="button" aria-label="Close navigation menu" (click)="closeMobileMenu()">
-              <mat-icon>close</mat-icon>
-            </button>
-          </div>
-        }
-        @if (auth.signedIn()) {
-          @defer (when auth.signedIn()) {
-            <app-workspace-navigation [showAccount]="desktop()" (navigate)="closeMobileMenu()" />
+        <div class="drawer">
+          @if (!desktop()) {
+            <div class="drawer-heading">
+              <img src="assets/logo-wordmark.svg" alt="App Speed" />
+              <button mat-icon-button type="button" aria-label="Close navigation menu" (click)="closeMobileMenu()">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
           }
-        } @else {
-          <nav class="guest-drawer-links" aria-label="Mobile navigation">
-            <a mat-button routerLink="/" (click)="closeMobileMenu()"><mat-icon>home</mat-icon>Home</a>
-            @for (item of navigationItems; track item.route) {
+          @if (auth.signedIn()) {
+            @defer (when auth.signedIn()) {
+              <app-workspace-navigation [showAccount]="desktop()" (navigate)="closeMobileMenu()" />
+            }
+          } @else {
+            <nav class="guest-drawer-links" aria-label="Mobile navigation">
+              <a mat-button routerLink="/" (click)="closeMobileMenu()"><mat-icon>home</mat-icon>Home</a>
+              @for (item of navigationItems; track item.route) {
+                <a
+                  mat-button
+                  [routerLink]="item.route"
+                  routerLinkActive="active-navigation-item"
+                  [routerLinkActiveOptions]="item.match"
+                  ariaCurrentWhenActive="page"
+                  (click)="closeMobileMenu()"
+                >
+                  <mat-icon>{{ item.icon }}</mat-icon
+                  >{{ item.label }}
+                </a>
+              }
               <a
                 mat-button
-                [routerLink]="item.route"
-                routerLinkActive="active-navigation-item"
-                [routerLinkActiveOptions]="{ exact: item.exact }"
-                ariaCurrentWhenActive="page"
+                href="https://github.com/ChristopherPHolder/app-speed"
+                target="_blank"
+                rel="noopener noreferrer"
                 (click)="closeMobileMenu()"
               >
-                <mat-icon>{{ item.icon }}</mat-icon
-                >{{ item.label }}
+                <img class="github-icon" src="assets/GitHub_Invertocat_Black.svg" alt="" /> View on GitHub
               </a>
-            }
-            <a
-              mat-button
-              href="https://github.com/ChristopherPHolder/app-speed"
-              target="_blank"
-              rel="noopener noreferrer"
-              (click)="closeMobileMenu()"
-            >
-              <img class="github-icon" src="assets/GitHub_Invertocat_Black.svg" alt="" /> View on GitHub
-            </a>
-          </nav>
-        }
+            </nav>
+          }
+        </div>
       </mat-sidenav>
       <mat-sidenav-content class="shell-content" [class.workspace-shell]="auth.signedIn() && !onboarding()">
         <header class="app-header">
@@ -99,7 +119,7 @@ const desktopQuery = '(width >= 960px)';
               }
               <a class="brand" routerLink="/" aria-label="App Speed home">
                 <picture
-                  ><source media="(width < 960px)" srcset="assets/logo-wordmark.svg" />
+                  ><source media="(width < 840px)" srcset="assets/logo-wordmark.svg" />
                   <img src="assets/logo.svg" alt=""
                 /></picture>
               </a>
@@ -110,7 +130,7 @@ const desktopQuery = '(width >= 960px)';
                       mat-button
                       [routerLink]="item.route"
                       routerLinkActive="active-navigation-item"
-                      [routerLinkActiveOptions]="{ exact: item.exact }"
+                      [routerLinkActiveOptions]="item.match"
                       ariaCurrentWhenActive="page"
                       >{{ item.label }}</a
                     >
@@ -157,6 +177,7 @@ const desktopQuery = '(width >= 960px)';
             >Made with ❤️ by
             <a target="_blank" rel="noopener noreferrer" href="https://x.com/chrispholder">Chris</a></span
           >
+          <button matButton type="button" (click)="consent.settingsOpen.set(true)">Cookie settings</button>
         </footer>
       </mat-sidenav-content>
     </mat-sidenav-container>
@@ -176,6 +197,16 @@ const desktopQuery = '(width >= 960px)';
     mat-sidenav {
       width: min(280px, calc(100% - 48px));
       background: var(--mat-sys-surface-container-low);
+    }
+    /* The navigation fills what the heading leaves, so the drawer only scrolls when its content is too long. */
+    .drawer {
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+    }
+    .drawer app-workspace-navigation {
+      flex: 1 1 auto;
+      min-height: 0;
     }
     .drawer-heading {
       display: flex;
@@ -265,12 +296,16 @@ const desktopQuery = '(width >= 960px)';
       outline: none;
     }
     footer {
+      display: flex;
+      flex-wrap: wrap;
+      padding: var(--ui-space-2) var(--ui-space-4);
       border-top: 1px solid var(--mat-sys-outline-variant);
       background: var(--mat-sys-surface-container-low);
-      padding: 16px;
-      text-align: center;
       color: var(--mat-sys-on-surface-variant);
       font: var(--mat-sys-body-small);
+      align-items: center;
+      justify-content: center;
+      gap: var(--ui-space-1) var(--ui-space-4);
     }
     footer a {
       color: inherit;
@@ -288,12 +323,12 @@ const desktopQuery = '(width >= 960px)';
     .skip-link:focus {
       transform: translateY(0);
     }
-    @media (width >= 960px) {
+    @media (width >= 840px) {
       .workspace-shell .app-header {
         display: none;
       }
     }
-    @media (width < 960px) {
+    @media (width < 840px) {
       mat-toolbar {
         height: 64px;
       }
@@ -311,6 +346,7 @@ const desktopQuery = '(width >= 960px)';
 })
 export class ShellComponent {
   protected readonly auth = inject(PortalAuthService);
+  protected readonly consent = inject(AnalyticsConsentService);
   private readonly router = inject(Router);
   private readonly breakpoint = inject(BreakpointObserver);
   protected readonly desktop = toSignal(this.breakpoint.observe(desktopQuery).pipe(map((result) => result.matches)), {
@@ -329,9 +365,9 @@ export class ShellComponent {
     this.desktop() ? this.auth.signedIn() && !this.onboarding() : this.mobileMenuOpen(),
   );
   protected readonly navigationItems = [
-    { label: 'Run audit', route: '/audits/user-flow', icon: 'speed', exact: true },
-    { label: 'Audit history', route: '/audits/history', icon: 'history', exact: true },
-    { label: 'Trace tools', route: '/convenience', icon: 'construction', exact: false },
+    { label: 'Run audit', route: '/audits/user-flow', icon: 'speed', match: activeMatch(true) },
+    { label: 'Audit history', route: '/audits/history', icon: 'history', match: activeMatch(true) },
+    { label: 'Trace tools', route: '/convenience', icon: 'construction', match: activeMatch(false) },
   ];
   constructor() {
     effect(() => {

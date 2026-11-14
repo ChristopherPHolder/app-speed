@@ -6,13 +6,12 @@ import { NgScrollbarModule } from 'ngx-scrollbar';
   template: `<ng-scrollbar><ng-content /></ng-scrollbar>`,
   styles: `
     ng-scrollbar {
-      --scrollbar-track-color: rgb(0 0 0 / 5%);
-      /* TODO - extract token correctly */
-      --scrollbar-thumb-color: var(--mat-slider-ripple-color);
+      --scrollbar-track-color: var(--mat-sys-surface-container-high);
+      --scrollbar-thumb-color: var(--mat-sys-outline);
       --scrollbar-thickness: 12;
       --scrollbar-offset: 6;
-      --scrollbar-border-radius: 8px;
-      border-radius: 3px;
+      --scrollbar-border-radius: var(--mat-sys-corner-small);
+      border-radius: var(--mat-sys-corner-extra-small);
     }
   `,
   imports: [NgScrollbarModule],

@@ -4,6 +4,7 @@ import { Component, signal } from '@angular/core';
 import { DeferBlockState, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { WorkspaceState } from '../workspace/workspace-state.service';
+import { AnalyticsConsentService } from '../analytics/analytics-consent.service';
 import { PortalAuthService } from '../auth/portal-auth.service';
 import { ShellComponent } from './shell.component';
 
@@ -56,6 +57,40 @@ describe('ShellComponent', () => {
       'Trace tools',
     ]);
     expect(primaryNavigation?.querySelector('[aria-current="page"]')?.textContent).toContain('Audit history');
+  });
+
+  it('keeps a destination current when the URL carries query parameters', async () => {
+    await TestBed.configureTestingModule({
+      imports: [ShellComponent],
+      providers: [provideRouter([{ path: '**', component: TestRouteComponent }])],
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(ShellComponent);
+    await TestBed.inject(Router).navigateByUrl('/audits/user-flow?projectId=p1&audit-details=%7B%7D');
+    await fixture.whenStable();
+
+    const current = (fixture.nativeElement as HTMLElement).querySelector(
+      'nav[aria-label="Primary navigation"] [aria-current="page"]',
+    );
+    expect(current?.textContent).toContain('Run audit');
+  });
+
+  it('reopens the cookie settings from the footer', async () => {
+    await TestBed.configureTestingModule({
+      imports: [ShellComponent],
+      providers: [provideRouter([{ path: '**', component: TestRouteComponent }])],
+    }).compileComponents();
+    const consent = TestBed.inject(AnalyticsConsentService);
+    consent.settingsOpen.set(false);
+
+    const fixture = TestBed.createComponent(ShellComponent);
+    await fixture.whenStable();
+    const button = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('footer button')).find(
+      (item) => item.textContent?.trim() === 'Cookie settings',
+    );
+    (button as HTMLButtonElement).click();
+
+    expect(consent.settingsOpen()).toBe(true);
   });
 
   it('switches navigation with the Clerk session while keeping the current audit page mounted', async () => {

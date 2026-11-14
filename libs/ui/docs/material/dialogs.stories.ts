@@ -25,8 +25,8 @@ A dialog interrupts. Use one only when the person must decide or provide somethi
 - Open dialogs with \`MatDialog\`. It handles focus trapping, \`Escape\`, the scrim and returning focus.
 - The title is a short statement or question naming the action: "Delete project?".
 - The body says what will happen in one or two sentences.
-- At most two actions, text buttons, aligned to the end. Dismiss first, confirm last. The confirm label repeats the
-  verb from the title.
+- At most two actions, aligned to the end. Dismiss first as a text button, then the confirming action as a filled
+  button. The confirm label repeats the verb from the title.
 - Never open a dialog from a dialog.
 - In compact windows a dialog with a form should take the full width; keep it to one column.
 `;
@@ -39,7 +39,7 @@ A dialog interrupts. Use one only when the person must decide or provide somethi
     <mat-dialog-content>Storefront and its audit history will be removed. This can't be undone.</mat-dialog-content>
     <mat-dialog-actions align="end">
       <button matButton type="button" mat-dialog-close>Cancel</button>
-      <button matButton type="button" [mat-dialog-close]="true">Delete project</button>
+      <button matButton="filled" type="button" [mat-dialog-close]="true">Delete project</button>
     </mat-dialog-actions>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

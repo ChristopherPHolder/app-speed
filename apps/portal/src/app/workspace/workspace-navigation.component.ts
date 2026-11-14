@@ -2,10 +2,18 @@ import { ChangeDetectionStrategy, Component, afterNextRender, inject, input, out
 import { MatIcon } from '@angular/material/icon';
 import { MatDivider } from '@angular/material/divider';
 import { MatListItem, MatListItemIcon, MatListItemTitle, MatNavList } from '@angular/material/list';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { type IsActiveMatchOptions, RouterLink, RouterLinkActive } from '@angular/router';
 import { AccountMenuComponent } from '../auth/account-menu.component';
 import { WorkspaceState } from './workspace-state.service';
 import { WorkspaceSwitcherComponent } from './workspace-switcher.component';
+
+/** Query parameters carry project scope and forked audits; they don't change which destination is current. */
+const activeMatch = (exact: boolean): IsActiveMatchOptions => ({
+  paths: exact ? 'exact' : 'subset',
+  queryParams: 'ignored',
+  matrixParams: 'ignored',
+  fragment: 'ignored',
+});
 
 @Component({
   selector: 'app-workspace-navigation',
@@ -73,7 +81,7 @@ import { WorkspaceSwitcherComponent } from './workspace-switcher.component';
           [queryParams]="tool.path.startsWith('/audits') && state.project() ? { projectId: state.projectId() } : {}"
           routerLinkActive
           #link="routerLinkActive"
-          [routerLinkActiveOptions]="{ exact: tool.exact }"
+          [routerLinkActiveOptions]="tool.match"
           [activated]="link.isActive"
           ariaCurrentWhenActive="page"
           (click)="navigate.emit()"
@@ -115,9 +123,9 @@ export class WorkspaceNavigationComponent {
   readonly showAccount = input(true);
   readonly navigate = output<void>();
   protected readonly tools = [
-    { path: '/audits/user-flow', label: 'Run audit', icon: 'speed', exact: true },
-    { path: '/audits/history', label: 'Audit history', icon: 'history', exact: true },
-    { path: '/convenience', label: 'Trace tools', icon: 'construction', exact: false },
+    { path: '/audits/user-flow', label: 'Run audit', icon: 'speed', match: activeMatch(true) },
+    { path: '/audits/history', label: 'Audit history', icon: 'history', match: activeMatch(true) },
+    { path: '/convenience', label: 'Trace tools', icon: 'construction', match: activeMatch(false) },
   ];
   constructor() {
     afterNextRender(() => {

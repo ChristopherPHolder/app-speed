@@ -164,7 +164,7 @@ export default [
     files: ['**/*.ts'],
     ignores: ['**/*.spec.ts', '**/*.stories.ts'],
     rules: {
-      '@nx/workspace-no-hardcoded-colors': 'warn',
+      '@nx/workspace-no-hardcoded-colors': 'error',
     },
   },
   ...nx.configs['flat/javascript'],

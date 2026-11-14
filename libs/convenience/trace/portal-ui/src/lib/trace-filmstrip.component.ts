@@ -100,14 +100,12 @@ export interface TraceFilmstripUiFrame {
     }
     header p {
       margin: 0;
-      color: var(--mat-sys-primary, #0b57d0);
-      font: var(--mat-sys-label-large, 600 0.75rem/1rem Roboto, sans-serif);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
+      color: var(--mat-sys-primary);
+      font: var(--mat-sys-label-large);
     }
     h2 {
       margin: 2px 0 0;
-      font: var(--mat-sys-headline-small, 600 1.25rem/1.6rem Roboto, sans-serif);
+      font: var(--mat-sys-headline-small);
     }
     .identity {
       min-width: 0;
@@ -116,8 +114,8 @@ export interface TraceFilmstripUiFrame {
       display: block;
       max-width: min(48vw, 620px);
       overflow: hidden;
-      color: var(--mat-sys-on-surface-variant, #444746);
-      font: var(--mat-sys-body-small, 400 0.75rem/1rem Roboto, sans-serif);
+      color: var(--mat-sys-on-surface-variant);
+      font: var(--mat-sys-body-small);
       text-overflow: ellipsis;
       white-space: nowrap;
     }
@@ -130,11 +128,11 @@ export interface TraceFilmstripUiFrame {
     }
     .summary > * + *::before {
       margin-right: 8px;
-      color: var(--mat-sys-outline, #747775);
+      color: var(--mat-sys-outline);
       content: '·';
     }
     .summary span {
-      color: var(--mat-sys-on-surface-variant, #444746);
+      color: var(--mat-sys-on-surface-variant);
     }
     .track-shell {
       position: relative;
@@ -150,15 +148,15 @@ export interface TraceFilmstripUiFrame {
       pointer-events: none;
       content: '';
       opacity: 0;
-      transition: opacity 120ms ease;
+      transition: opacity var(--ui-motion-duration-short2) var(--ui-motion-easing-standard);
     }
     .track-shell::before {
       left: 0;
-      background: linear-gradient(to right, var(--mat-sys-surface, #ffffff), transparent);
+      background: linear-gradient(to right, var(--mat-sys-surface), transparent);
     }
     .track-shell::after {
       right: 0;
-      background: linear-gradient(to left, var(--mat-sys-surface, #ffffff), transparent);
+      background: linear-gradient(to left, var(--mat-sys-surface), transparent);
     }
     .track-shell.has-overflow-left::before,
     .track-shell.has-overflow-right::after {
@@ -176,11 +174,11 @@ export interface TraceFilmstripUiFrame {
       height: 7px;
     }
     .track::-webkit-scrollbar-track {
-      background: var(--mat-sys-surface-container-low, #f1f3f4);
+      background: var(--mat-sys-surface-container-low);
     }
     .track::-webkit-scrollbar-thumb {
-      border-radius: 999px;
-      background: var(--mat-sys-outline-variant, #c4c7c5);
+      border-radius: var(--mat-sys-corner-full);
+      background: var(--mat-sys-outline-variant);
     }
     .track button {
       position: relative;
@@ -192,22 +190,22 @@ export interface TraceFilmstripUiFrame {
       padding: 0;
       overflow: hidden;
       border: 0;
-      border-right: 1px solid var(--mat-sys-outline-variant, #c4c7c5);
+      border-right: 1px solid var(--mat-sys-outline-variant);
       border-radius: 0;
-      background: var(--mat-sys-surface, #ffffff);
-      color: var(--mat-sys-on-surface, #1f1f1f);
+      background: var(--mat-sys-surface);
+      color: var(--mat-sys-on-surface);
       cursor: pointer;
       box-shadow: none;
     }
     .track button:hover,
     .track button:focus-visible {
       z-index: 2;
-      outline: 2px solid var(--mat-sys-primary, #0b57d0);
+      outline: 2px solid var(--mat-sys-primary);
       outline-offset: -2px;
     }
     .track button.is-selected {
       z-index: 1;
-      outline: 3px solid var(--mat-sys-primary, #0b57d0);
+      outline: 3px solid var(--mat-sys-primary);
       outline-offset: -3px;
     }
     .track button.has-timestamp {
@@ -220,7 +218,7 @@ export interface TraceFilmstripUiFrame {
       height: 180px;
       max-width: none;
       aspect-ratio: auto;
-      background: var(--mat-sys-surface-container-lowest, #ffffff);
+      background: var(--mat-sys-surface-container-lowest);
       object-fit: contain;
     }
     .timestamp {
@@ -240,8 +238,8 @@ export interface TraceFilmstripUiFrame {
       gap: 6px;
       overflow: hidden;
       padding: 2px 4px;
-      color: var(--mat-sys-on-surface-variant, #444746);
-      background: var(--mat-sys-surface-container-lowest, #ffffff);
+      color: var(--mat-sys-on-surface-variant);
+      background: var(--mat-sys-surface-container-lowest);
       font:
         500 0.75rem/1rem ui-monospace,
         SFMono-Regular,
@@ -253,7 +251,7 @@ export interface TraceFilmstripUiFrame {
       text-align: center;
     }
     small {
-      color: var(--mat-sys-outline, #747775);
+      color: var(--mat-sys-outline);
       font: inherit;
     }
     @media (max-width: 680px) {
