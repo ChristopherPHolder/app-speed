@@ -34,9 +34,7 @@ from the live theme, Material documents how each Material component is used here
 components, and Patterns shows feature UI. A toolbar toggle switches the colour scheme.
 
 **Enforcement.** The workspace ESLint rule `@nx/workspace-no-hardcoded-colors` (in `tools/eslint-rules`) reports literal
-colours in Angular component styles and inline `style` attributes. It is a warning until the existing violations are
-removed ([#262](https://github.com/ChristopherPHolder/app-speed/issues/262),
-[#263](https://github.com/ChristopherPHolder/app-speed/issues/263)) and an error after. Nx module boundaries already
+colours in Angular component styles and inline `style` attributes. It is an error. Nx module boundaries already
 restrict `type:ui` libraries to depend only on other UI and platform libraries.
 
 ## Consequences
