@@ -30,6 +30,8 @@ export type TableRenderCell = {
   heading: Heading;
   value: Details.ItemValue | undefined;
   previewUrl?: string;
+  /** The parent row's URL when this sub-item's source location points into the same file. */
+  parentUrl?: string;
   className: string;
   empty: boolean;
 };
@@ -245,6 +247,7 @@ function bundleFromItem(
   ];
 
   const subHeadings = headings.map((heading) => deriveSubItemsHeading(heading));
+  const parentUrl = locateUrl(item, headings);
   if (item.subItems && subHeadings.some(Boolean)) {
     item.subItems.items.forEach((subItem, subItemIndex) => {
       rows.push(
@@ -254,6 +257,7 @@ function bundleFromItem(
           entityName: options.entityName,
           entityInfo: options.entityInfo,
           isSubItem: true,
+          parentUrl,
         }),
       );
     });
@@ -278,6 +282,7 @@ function buildRow(
     entityName?: string;
     entityInfo?: EntityInfo;
     isSubItem?: boolean;
+    parentUrl?: string;
   },
 ): TableRow {
   return {
@@ -287,7 +292,7 @@ function buildRow(
     indentLevel: options.indentLevel,
     entityName: options.entityName,
     entityInfo: options.entityInfo,
-    cells: headings.map((heading, index) => buildCell(heading, item, headings, columns[index])),
+    cells: headings.map((heading, index) => buildCell(heading, item, headings, columns[index], options.parentUrl)),
   };
 }
 
@@ -296,6 +301,7 @@ function buildCell(
   item: Details.TableItem,
   rowHeadings: Heading[],
   column: TableRenderColumn,
+  parentUrl?: string,
 ): TableRenderCell {
   const value = heading?.key ? item[heading.key] : undefined;
 
@@ -303,6 +309,7 @@ function buildCell(
     heading,
     value,
     previewUrl: resolveNodePreviewUrl(heading, value, item, rowHeadings),
+    parentUrl: isSourceLocationIn(value, parentUrl) ? parentUrl : undefined,
     className: classNames(cellClassName(heading), column.sharedClassName),
     empty: !heading || value === undefined || value === null,
   };
@@ -363,7 +370,7 @@ function getEntityGroupItems(
     const itemRecord = item as Record<string, Details.ItemValue | undefined>;
 
     for (const key of summableColumns) {
-      groupedRecord[key] = Number(groupedRecord[key] || 0) + Number(itemRecord[key] || 0);
+      groupedRecord[key] = numericValue(groupedRecord[key]) + numericValue(itemRecord[key]);
     }
 
     groupedByEntity.set(entityName, groupedItem);
@@ -376,6 +383,16 @@ function getEntityGroupItems(
   }
 
   return result;
+}
+
+/** A summable number from a plain cell value or a typed `numeric` value; anything else counts as zero. */
+function numericValue(value: Details.ItemValue | undefined): number {
+  if (typeof value === 'object' && value !== null && 'type' in value && value.type === 'numeric') {
+    return value.value;
+  }
+
+  const number = Number(value ?? 0);
+  return Number.isFinite(number) ? number : 0;
 }
 
 function compareTableItems(a: Details.TableItem, b: Details.TableItem, sortedBy: string[]): number {
@@ -453,6 +470,17 @@ function resolveNodePreviewUrl(
 
   const url = locateUrl(item, rowHeadings.filter(isHeading));
   return url && isLikelyImageUrl(url) ? url : undefined;
+}
+
+function isSourceLocationIn(value: Details.ItemValue | undefined, url: string | undefined): boolean {
+  return (
+    !!url &&
+    typeof value === 'object' &&
+    value !== null &&
+    'type' in value &&
+    value.type === 'source-location' &&
+    value.url === url
+  );
 }
 
 function isHeading(heading: Heading): heading is Details.TableColumnHeading {
