@@ -27,11 +27,10 @@ import { StepFieldsComponent } from './step-fields.component';
               <span class="step-title__text">{{ getStepPresentation(stepType).label }}</span>
             </span>
           } @else {
-            Audit Step Required!
+            Choose a step type
           }
         </mat-panel-title>
       </mat-expansion-panel-header>
-      <ng-content />
       <mat-form-field appearance="outline">
         <mat-label>Type</mat-label>
         <mat-select [formControl]="control.selectionControl">
@@ -58,6 +57,8 @@ import { StepFieldsComponent } from './step-fields.component';
         />
       }
     </mat-expansion-panel>
+    <!-- Step actions sit beside the panel header, not inside it, so they don't toggle the panel. -->
+    <div class="step-actions"><ng-content /></div>
   `,
   imports: [
     MatExpansionPanel,
@@ -74,16 +75,35 @@ import { StepFieldsComponent } from './step-fields.component';
   ],
   styles: `
     :host {
+      --step-header-height: 56px;
       display: block;
       position: relative;
     }
 
     mat-expansion-panel {
+      --mat-expansion-header-collapsed-state-height: var(--step-header-height);
+      --mat-expansion-header-expanded-state-height: var(--step-header-height);
       margin: 0;
-      background: #fff;
-      border: 1px solid #e1e5ea;
+      border: 1px solid var(--mat-sys-outline-variant);
+      border-radius: var(--mat-sys-corner-medium);
+      background: var(--mat-sys-surface);
       box-shadow: none;
-      border-radius: 10px;
+    }
+
+    mat-panel-title {
+      /* Leave room for the step actions that overlay the header. */
+      margin-inline-end: var(--ui-space-12);
+    }
+
+    .step-actions {
+      position: absolute;
+      /* Centre the 40dp icon button on the header. */
+      top: calc((var(--step-header-height) - 40px) / 2);
+      inset-inline-end: var(--ui-space-12);
+    }
+
+    .step-actions:empty {
+      display: none;
     }
 
     .step-number {
@@ -93,14 +113,13 @@ import { StepFieldsComponent } from './step-fields.component';
       flex: 0 0 auto;
       min-width: 28px;
       height: 28px;
-      padding-inline: 4px;
+      padding-inline: var(--ui-space-1);
       box-sizing: border-box;
-      margin-right: 12px;
-      border: 1px solid var(--mat-sys-outline-variant, #c4c7ce);
-      border-radius: 50%;
-      color: var(--mat-sys-on-surface-variant, #45464f);
-      font-size: 13px;
-      font-weight: 600;
+      margin-inline-end: var(--ui-space-3);
+      border: 1px solid var(--mat-sys-outline-variant);
+      border-radius: var(--mat-sys-corner-full);
+      color: var(--mat-sys-on-surface-variant);
+      font: var(--mat-sys-label-large);
       font-variant-numeric: tabular-nums;
     }
 
@@ -116,7 +135,7 @@ import { StepFieldsComponent } from './step-fields.component';
     .step-title {
       display: inline-flex;
       align-items: center;
-      gap: 12px;
+      gap: var(--ui-space-3);
       min-width: 0;
     }
 
@@ -133,7 +152,7 @@ import { StepFieldsComponent } from './step-fields.component';
     .option-group-label {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: var(--ui-space-2);
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

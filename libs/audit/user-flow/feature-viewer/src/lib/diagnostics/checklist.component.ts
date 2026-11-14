@@ -7,7 +7,11 @@ import type Details from 'lighthouse/types/lhr/audit-details';
     <ul class="checklist">
       @for (item of items(); track item.label) {
         <li class="checklist__item">
-          <span class="checklist__state" [class.checklist__state--pass]="item.value" [class.checklist__state--fail]="!item.value">
+          <span
+            class="checklist__state"
+            [class.checklist__state--pass]="item.value"
+            [class.checklist__state--fail]="!item.value"
+          >
             {{ item.value ? 'Pass' : 'Fail' }}
           </span>
           <span>{{ item.label }}</span>
@@ -33,22 +37,19 @@ import type Details from 'lighthouse/types/lhr/audit-details';
     .checklist__state {
       min-width: 3.75rem;
       padding: 4px 8px;
-      border-radius: 999px;
-      font-size: 0.75rem;
-      font-weight: 700;
+      border-radius: var(--mat-sys-corner-full);
+      font: var(--mat-sys-label-medium);
       text-align: center;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
     }
 
     .checklist__state--pass {
-      background: color-mix(in srgb, var(--mat-sys-primary) 18%, white);
-      color: color-mix(in srgb, var(--mat-sys-primary) 85%, black);
+      background: var(--ui-success-container);
+      color: var(--ui-on-success-container);
     }
 
     .checklist__state--fail {
-      background: color-mix(in srgb, var(--mat-sys-error) 16%, white);
-      color: color-mix(in srgb, var(--mat-sys-error) 80%, black);
+      background: var(--mat-sys-error-container);
+      color: var(--mat-sys-on-error-container);
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

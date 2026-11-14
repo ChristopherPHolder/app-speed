@@ -473,21 +473,19 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
 
     .selector-path__title {
       margin: 0 0 4px;
-      color: var(--mat-sys-on-surface-variant, #45464f);
-      font-size: 14px;
-      font-weight: 500;
+      color: var(--mat-sys-on-surface-variant);
+      font: var(--mat-sys-title-small);
     }
 
     .selector-path__hint {
       margin: 0 0 8px;
-      color: var(--mat-sys-on-surface-variant, #45464f);
-      font-size: 12px;
-      line-height: 1.5;
+      color: var(--mat-sys-on-surface-variant);
+      font: var(--mat-sys-body-small);
     }
 
     .selector-path--alternative {
       padding-left: 16px;
-      border-left: 2px solid var(--mat-sys-outline-variant, #d6dce3);
+      border-left: 2px solid var(--mat-sys-outline-variant);
     }
 
     .selector-segment {
@@ -501,8 +499,8 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
       top: -20px;
       width: 8px;
       height: 48px;
-      border-left: 1px solid var(--mat-sys-outline-variant, #d6dce3);
-      border-bottom: 1px solid var(--mat-sys-outline-variant, #d6dce3);
+      border-left: 1px solid var(--mat-sys-outline-variant);
+      border-bottom: 1px solid var(--mat-sys-outline-variant);
       border-bottom-left-radius: 4px;
     }
 
@@ -543,9 +541,9 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
       display: grid;
       gap: 12px;
       padding: 12px 16px;
-      border: 1px solid rgba(0, 0, 0, 0.12);
-      border-radius: 16px;
-      background: rgba(0, 0, 0, 0.02);
+      border: 1px solid var(--mat-sys-outline-variant);
+      border-radius: var(--mat-sys-corner-large);
+      background: var(--mat-sys-surface-container-low);
     }
 
     .group-field__header {
@@ -568,21 +566,21 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
 
     .group-field__header p {
       margin: 4px 0 0;
-      color: rgba(0, 0, 0, 0.65);
+      color: var(--mat-sys-on-surface-variant);
     }
 
     .group-field__error {
       margin: 0;
-      color: #b3261e;
+      color: var(--mat-sys-error);
     }
 
     .array-item {
       display: grid;
       gap: 12px;
       padding: 12px;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.92);
-      border: 1px solid rgba(0, 0, 0, 0.08);
+      border: 1px solid var(--mat-sys-outline-variant);
+      border-radius: var(--mat-sys-corner-medium);
+      background: var(--mat-sys-surface);
     }
 
     .array-item__header {
@@ -599,10 +597,8 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
 
     .optional-fields h4 {
       margin: 0;
-      color: var(--mat-sys-on-surface-variant, #45464f);
-      font-size: 14px;
-      font-weight: 500;
-      line-height: 24px;
+      color: var(--mat-sys-on-surface-variant);
+      font: var(--mat-sys-title-small);
     }
 
     .optional-fields__actions {

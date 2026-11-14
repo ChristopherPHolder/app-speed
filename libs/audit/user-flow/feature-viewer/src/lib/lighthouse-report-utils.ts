@@ -109,9 +109,7 @@ export const manualAuditsGroupTitle = (lhr: Pick<Result, 'i18n'>): string => {
   return lhr.i18n.rendererFormattedStrings['manualAuditsGroupTitle'] || MANUAL_AUDITS_GROUP_TITLE;
 };
 
-export const auditClumpId = (
-  audit: Pick<AuditResult, 'score' | 'scoreDisplayMode' | 'warnings'>,
-): AuditClumpId => {
+export const auditClumpId = (audit: Pick<AuditResult, 'score' | 'scoreDisplayMode' | 'warnings'>): AuditClumpId => {
   if (audit.scoreDisplayMode === 'manual' || audit.scoreDisplayMode === 'notApplicable') {
     return audit.scoreDisplayMode;
   }
@@ -199,7 +197,7 @@ const computeLogNormalScore = ({ median, p10 }: ScoringOptions, value: number): 
   const xLogRatio = Math.log(xRatio);
   const p10Ratio = Math.max(Number.MIN_VALUE, p10 / median);
   const p10LogRatio = -Math.log(p10Ratio);
-  const standardizedX = xLogRatio * inverseErfcOneFifth / p10LogRatio;
+  const standardizedX = (xLogRatio * inverseErfcOneFifth) / p10LogRatio;
   const complementaryPercentile = (1 - erf(standardizedX)) / 2;
 
   if (value <= p10) {
@@ -302,6 +300,8 @@ export const sortFailedPerformanceAudits = <T extends SortablePerformanceAudit>(
   });
 };
 
-export const sortAuditRefsByWeight = <T extends Pick<Result.Category['auditRefs'][number], 'weight'>>(audits: T[]): T[] => {
+export const sortAuditRefsByWeight = <T extends Pick<Result.Category['auditRefs'][number], 'weight'>>(
+  audits: T[],
+): T[] => {
   return [...audits].sort((a, b) => b.weight - a.weight);
 };

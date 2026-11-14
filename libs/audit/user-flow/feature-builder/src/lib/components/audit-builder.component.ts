@@ -24,6 +24,7 @@ import { RxIf } from '@rx-angular/template/if';
 import { DEVICE_OPTIONS } from '@app-speed/audit/core/domain';
 import { AuditDetails } from '../audit-details';
 import { MatIcon } from '@angular/material/icon';
+import { MatDivider } from '@angular/material/divider';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -32,40 +33,41 @@ import { ToTitleCasePipe } from '@app-speed/audit/core/portal-ui';
 @Component({
   selector: 'ui-audit-builder',
   template: `
-    <form class="grid-container" [formGroup]="formGroup" (ngSubmit)="submitCurrentAudit()">
-      <mat-card class="audit-card" [class.audit-card--readonly]="!modifying()" data-testid="audit-builder-card">
+    <form class="builder" [formGroup]="formGroup" (ngSubmit)="submitCurrentAudit()">
+      <mat-card
+        appearance="outlined"
+        class="audit-card"
+        [class.audit-card--readonly]="!modifying()"
+        data-testid="audit-builder-card"
+      >
         <mat-card-content>
-          <div class="row">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Audit Title</mat-label>
+          <div class="fields">
+            <mat-form-field appearance="outline" class="fields__title">
+              <mat-label>Audit title</mat-label>
               <input
                 matInput
-                placeholder="e.g. Checkout journey"
+                placeholder="Checkout journey"
                 [formControl]="formGroup.controls.title"
                 name="audit title"
               />
-              <mat-error *rxIf="formGroup.controls.title.hasError('required')"
-                >Title <strong>required</strong></mat-error
-              >
+              <mat-error *rxIf="formGroup.controls.title.hasError('required')">Enter a title for this audit.</mat-error>
             </mat-form-field>
-          </div>
-          <div class="row">
-            <mat-form-field appearance="outline" class="full-width col">
-              <mat-label>Device Type</mat-label>
+            <mat-form-field appearance="outline">
+              <mat-label>Device type</mat-label>
               <mat-select [formControl]="formGroup.controls.device">
                 @for (device of DEVICE_TYPES; track device) {
                   <mat-option [value]="device">{{ device | toTitleCase }}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
-            <mat-form-field appearance="outline" class="full-width col">
+            <mat-form-field appearance="outline">
               <mat-label>Timeout (ms)</mat-label>
               <input
                 matInput
                 type="number"
                 min="1"
                 max="99999"
-                placeholder="e.g. 30000"
+                placeholder="30000"
                 [formControl]="formGroup.controls.timeout"
               />
               <mat-error *rxIf="formGroup.controls.timeout.invalid">Enter a timeout between 1 and 99999 ms.</mat-error>
@@ -75,24 +77,22 @@ import { ToTitleCasePipe } from '@app-speed/audit/core/portal-ui';
             @for (step of formGroup.controls.steps.controls; track step) {
               <ui-audit-builder-step [stepControl]="step" [expanded]="stepExpanded()" [stepNumber]="$index + 1">
                 @if (formGroup.enabled) {
-                  <div class="toggle-menu">
-                    <button
-                      type="button"
-                      mat-icon-button
-                      class="toggle_menu"
-                      aria-label="Toggle menu"
-                      [matMenuTriggerFor]="menu"
-                    >
-                      <mat-icon>more_vert</mat-icon>
+                  <button
+                    type="button"
+                    matIconButton
+                    [attr.aria-label]="'Actions for step ' + ($index + 1)"
+                    [matMenuTriggerFor]="menu"
+                  >
+                    <mat-icon>more_vert</mat-icon>
+                  </button>
+                  <mat-menu #menu="matMenu" xPosition="before">
+                    <button type="button" mat-menu-item (click)="formGroup.addStepAt($index)">Add step before</button>
+                    <button type="button" mat-menu-item (click)="formGroup.addStepAt($index + 1)">
+                      Add step after
                     </button>
-                    <mat-menu #menu="matMenu" xPosition="before">
-                      <button type="button" mat-menu-item (click)="formGroup.removeStepAt($index)">Remove Step</button>
-                      <button type="button" mat-menu-item (click)="formGroup.addStepAt($index)">Add Step Before</button>
-                      <button type="button" mat-menu-item (click)="formGroup.addStepAt($index + 1)">
-                        Add Step After
-                      </button>
-                    </mat-menu>
-                  </div>
+                    <mat-divider />
+                    <button type="button" mat-menu-item (click)="formGroup.removeStepAt($index)">Remove step</button>
+                  </mat-menu>
                 }
               </ui-audit-builder-step>
             }
@@ -111,17 +111,82 @@ import { ToTitleCasePipe } from '@app-speed/audit/core/portal-ui';
             </p>
           </div>
           @if (primaryAction() === 'analyze') {
-            <button class="submit-btn" mat-flat-button [disabled]="!canSubmitAudit()" type="submit">
+            <button class="submit-btn" matButton="filled" [disabled]="!canSubmitAudit()" type="submit">
               {{ submittingRequest() ? 'Starting audit…' : 'Run audit' }}
             </button>
           } @else {
-            <button class="submit-btn" mat-flat-button type="button" (click)="forked.emit()">Fork</button>
+            <button class="submit-btn" matButton="filled" type="button" (click)="forked.emit()">Fork</button>
           }
         </div>
       }
     </form>
   `,
-  styleUrl: './audit-builder.styles.scss',
+  styles: `
+    :host {
+      display: block;
+      box-sizing: border-box;
+      max-width: calc(var(--ui-page-width-medium) + 2 * var(--ui-page-gutter));
+      margin: 0 auto;
+      padding: 0 var(--ui-page-gutter) var(--ui-space-6);
+    }
+    mat-card-content {
+      padding: var(--ui-space-4);
+    }
+    .audit-card--readonly {
+      background: var(--mat-sys-surface-container-low);
+    }
+    .fields {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0 var(--ui-space-4);
+    }
+    .flow-steps {
+      display: grid;
+      gap: var(--ui-space-3);
+    }
+    .action-bar {
+      position: sticky;
+      bottom: var(--ui-space-3);
+      z-index: 5;
+      display: flex;
+      flex-wrap: wrap;
+      margin-top: var(--ui-space-4);
+      padding: var(--ui-space-3) var(--ui-space-4);
+      border-radius: var(--mat-sys-corner-medium);
+      background: var(--mat-sys-surface-container);
+      box-shadow: var(--mat-sys-level2);
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--ui-space-3) var(--ui-space-5);
+    }
+    .action-bar__summary {
+      flex: 1 1 240px;
+      min-width: 0;
+      font: var(--mat-sys-title-small);
+    }
+    .action-bar__summary p {
+      margin: var(--ui-space-1) 0 0;
+      color: var(--mat-sys-on-surface-variant);
+      font: var(--mat-sys-body-medium);
+    }
+    .submit-btn {
+      flex: 1 0 auto;
+    }
+    @media (width >= 600px) {
+      mat-card-content {
+        padding: var(--ui-space-6);
+      }
+      .fields {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .fields__title {
+        grid-column: 1 / -1;
+      }
+      .submit-btn {
+        flex: none;
+      }
+    }
+  `,
   imports: [
     MatCard,
     MatCardContent,
@@ -139,6 +204,7 @@ import { ToTitleCasePipe } from '@app-speed/audit/core/portal-ui';
     ToTitleCasePipe,
     MatIcon,
     MatIconButton,
+    MatDivider,
     MatMenu,
     MatMenuItem,
     MatMenuTrigger,

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { MatTab, MatTabGroup } from '@angular/material/tabs';
-import { MatIcon } from '@angular/material/icon';
+import { MessageComponent } from '@app-speed/ui/message';
 import { FlowResult, Result } from 'lighthouse';
 import type { UserFlowResult } from '@app-speed/audit/user-flow/domain';
 import { Result as AuditResult } from 'lighthouse/types/lhr/audit-result';
@@ -52,14 +52,11 @@ type CategoryView = {
     }
 
     @if (reportWarnings().length) {
-      <aside class="run-warnings" aria-label="Lighthouse warnings">
-        <mat-icon aria-hidden="true">warning_amber</mat-icon>
-        <div>
-          @for (warning of reportWarnings(); track $index) {
-            <p>{{ warning }}</p>
-          }
-        </div>
-      </aside>
+      <ui-message class="run-warnings" tone="warning" [announce]="false" aria-label="Lighthouse warnings">
+        @for (warning of reportWarnings(); track $index) {
+          <p>{{ warning }}</p>
+        }
+      </ui-message>
     }
 
     @if (categories.length) {
@@ -90,7 +87,7 @@ type CategoryView = {
   imports: [
     MatTabGroup,
     MatTab,
-    MatIcon,
+    MessageComponent,
     ViewerStepMetricSummaryComponent,
     ViewerFilmStripComponent,
     ViewerStepDetailSectionComponent,
@@ -106,38 +103,21 @@ type CategoryView = {
       }
     }
     .pad {
-      padding: 20px;
+      padding: var(--ui-space-5);
     }
 
     .run-warnings {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      margin: 0 20px 12px;
-      padding: 10px 12px;
-      border-left: 3px solid #b76e00;
-      border-radius: 4px;
-      background: #fff4ce;
-      color: #713f00;
-      font-size: 14px;
-      line-height: 22px;
-    }
-    .run-warnings mat-icon {
-      flex-shrink: 0;
-      width: 20px;
-      height: 22px;
-      font-size: 20px;
-      line-height: 22px;
+      margin: 0 var(--ui-space-5) var(--ui-space-3);
     }
     .run-warnings p {
       margin: 0;
     }
     .run-warnings p + p {
-      margin-top: 6px;
+      margin-top: var(--ui-space-2);
     }
-    @media (max-width: 599px) {
+    @media (width < 600px) {
       .run-warnings {
-        margin-inline: 12px;
+        margin-inline: var(--ui-space-3);
       }
     }
   `,

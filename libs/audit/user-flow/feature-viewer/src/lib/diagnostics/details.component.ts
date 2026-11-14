@@ -13,13 +13,11 @@ import { ViewerDiagnosticContext } from './viewer-diagnostic.models';
   selector: 'ui-viewer-details',
   template: `
     @switch (details().type) {
-      @case ('debugdata') {
-      }
+      @case ('debugdata') {}
       @case ('criticalrequestchain') {
         <ui-viewer-network-tree [details]="$any(details())" />
       }
-      @case ('treemap-data') {
-      }
+      @case ('treemap-data') {}
       @case ('filmstrip') {
         <ui-viewer-filmstrip [details]="filmstripDetails()" />
       }
@@ -69,8 +67,7 @@ import { ViewerDiagnosticContext } from './viewer-diagnostic.models';
       @case ('network-tree') {
         <ui-viewer-network-tree [details]="$any(details())" />
       }
-      @case ('screenshot') {
-      }
+      @case ('screenshot') {}
       @default {
         <details class="detail-unknown">
           <summary>Unsupported detail type: {{ details().type }}</summary>
@@ -100,10 +97,10 @@ import { ViewerDiagnosticContext } from './viewer-diagnostic.models';
     }
 
     .detail-unknown {
-      border: 1px solid color-mix(in srgb, var(--mat-sys-outline) 60%, white);
+      border: 1px solid var(--mat-sys-outline-variant);
       border-radius: 12px;
       padding: 12px 16px;
-      background: color-mix(in srgb, var(--mat-sys-surface-variant) 24%, white);
+      background: var(--mat-sys-surface-container-low);
     }
 
     .detail-unknown pre {
@@ -131,9 +128,7 @@ export class ViewerDetailsComponent {
   readonly filmstripDetails = computed<Details.Filmstrip>(() => this.details() as Details.Filmstrip);
   readonly unknownDetailsJson = computed(() => JSON.stringify(this.details(), null, 2));
 
-  isListSection(
-    item: Details.List['items'][number],
-  ): item is Details.ListSectionItem {
+  isListSection(item: Details.List['items'][number]): item is Details.ListSectionItem {
     return item.type === 'list-section';
   }
 

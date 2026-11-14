@@ -51,7 +51,12 @@ export const WaitForExpression = createStory({ type: STEP_TYPE.WAIT_FOR_EXPRESSI
 export const Change = createStory({ type: STEP_TYPE.CHANGE, selectors: selectorPath, value: '' });
 export const Click = createStory({ type: STEP_TYPE.CLICK, offsetX: 1, offsetY: 1, selectors: selectorPath });
 export const Close = createStory({ type: STEP_TYPE.CLOSE });
-export const DoubleClick = createStory({ type: STEP_TYPE.DOUBLE_CLICK, offsetX: 1, offsetY: 1, selectors: selectorPath });
+export const DoubleClick = createStory({
+  type: STEP_TYPE.DOUBLE_CLICK,
+  offsetX: 1,
+  offsetY: 1,
+  selectors: selectorPath,
+});
 export const EmulateNetworkConditions = createStory({
   type: STEP_TYPE.EMULATE_NETWORK_CONDITIONS,
   download: 1,

@@ -14,7 +14,9 @@ type ChainEntry = { id: string; node: ChainNode };
     <section class="chain">
       <div class="chain__summary">
         <div class="chain__eyebrow">Initial navigation</div>
-        <div class="chain__metric">Maximum critical path latency: {{ formatMilliseconds(details().longestChain.duration) }}</div>
+        <div class="chain__metric">
+          Maximum critical path latency: {{ formatMilliseconds(details().longestChain.duration) }}
+        </div>
       </div>
 
       <ul class="chain__tree">
@@ -32,7 +34,9 @@ type ChainEntry = { id: string; node: ChainNode };
           </div>
 
           @if (shouldShowMetrics(entry.node)) {
-            <span class="chain__meta">- {{ formatMilliseconds(timingFor(entry.node)) }}, {{ formatBytes(transferSizeFor(entry.node)) }}</span>
+            <span class="chain__meta"
+              >- {{ formatMilliseconds(timingFor(entry.node)) }}, {{ formatBytes(transferSizeFor(entry.node)) }}</span
+            >
           }
         </div>
 
@@ -49,9 +53,9 @@ type ChainEntry = { id: string; node: ChainNode };
   styles: `
     .chain {
       padding: 16px;
-      border: 1px solid color-mix(in srgb, var(--mat-sys-outline) 60%, white);
+      border: 1px solid var(--mat-sys-outline-variant);
       border-radius: 12px;
-      background: color-mix(in srgb, var(--mat-sys-surface-variant) 32%, white);
+      background: var(--mat-sys-surface-container-low);
     }
 
     .chain__summary {
@@ -82,7 +86,7 @@ type ChainEntry = { id: string; node: ChainNode };
       margin-top: 10px;
       margin-left: 12px;
       padding-left: 16px;
-      border-left: 1px solid color-mix(in srgb, var(--mat-sys-outline) 60%, white);
+      border-left: 1px solid var(--mat-sys-outline-variant);
     }
 
     .chain__row {
@@ -93,7 +97,8 @@ type ChainEntry = { id: string; node: ChainNode };
     }
 
     .chain__row--longest {
-      color: color-mix(in srgb, var(--mat-sys-tertiary) 78%, black);
+      color: var(--mat-sys-tertiary);
+      font-weight: 500;
     }
 
     .chain__node-value {

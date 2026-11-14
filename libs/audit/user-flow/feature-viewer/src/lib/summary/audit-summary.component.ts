@@ -106,54 +106,44 @@ export function fitScreenshotPreview(width: number, height: number): { width: nu
     }
 
     .screen-shot {
-      border-radius: 8px;
-      transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease;
-      margin: auto;
+      position: relative;
+      z-index: 2;
       display: block;
       max-width: 100%;
       max-height: 100%;
-      position: relative;
-      z-index: 2;
+      margin: auto;
+      border-radius: var(--mat-sys-corner-small);
+      outline: 1px solid var(--mat-sys-outline-variant);
+      box-shadow: var(--mat-sys-level1);
       transform: scale(0.5);
+      transition:
+        transform var(--ui-motion-duration-short4) var(--ui-motion-easing-standard),
+        box-shadow var(--ui-motion-duration-short4) var(--ui-motion-easing-standard);
 
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       .swiper-slide-active & {
+        outline: 2px solid var(--mat-sys-primary);
+        outline-offset: 2px;
+        box-shadow: var(--mat-sys-level2);
         transform: scale(1);
-        border: groove blue;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       }
     }
 
     .circle {
-      transition:
-        bottom 100ms ease,
-        right 100ms ease,
-        left 100ms ease;
-      width: 16px;
-      height: 16px;
-      background-color: blue;
-      border-radius: 50%;
       position: absolute;
       z-index: 1;
+      width: 12px;
+      height: 12px;
+      border-radius: var(--mat-sys-corner-full);
+      background-color: var(--mat-sys-primary);
+      transition:
+        bottom var(--ui-motion-duration-short2) var(--ui-motion-easing-standard),
+        right var(--ui-motion-duration-short2) var(--ui-motion-easing-standard),
+        left var(--ui-motion-duration-short2) var(--ui-motion-easing-standard);
 
       &.bottom {
         bottom: calc(-12px + 125px / 2);
         left: calc(50% + 4px);
         transform: translateX(-50%);
-      }
-
-      &.left {
-        bottom: calc(50% - 4px);
-        right: calc(50% + 4px + 125px / 4);
-        transform: translate(50%, 50%);
-      }
-
-      &.right {
-        bottom: calc(50% - 4px);
-        left: calc(50% + 4px + 125px / 4);
-        transform: translate(-50%, 50%);
       }
 
       .swiper-slide-active & {
@@ -164,12 +154,12 @@ export function fitScreenshotPreview(width: number, height: number): { width: nu
     }
 
     .line {
-      height: 4px;
-      background-color: blue;
       position: absolute;
-      transform: translate(0, 50%);
       bottom: calc(50% - 4px);
       width: calc(50% - 125px / 4);
+      height: 2px;
+      background-color: var(--mat-sys-outline-variant);
+      transform: translate(0, 50%);
 
       &.right {
         left: calc(50% + 125px / 4);
@@ -194,26 +184,41 @@ export function fitScreenshotPreview(width: number, height: number): { width: nu
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 16px;
-      font-size: x-small;
-      font-weight: bold;
+      gap: var(--ui-space-4);
+      padding-top: var(--ui-space-5);
+      color: var(--mat-sys-on-surface-variant);
+      font: var(--mat-sys-label-medium);
       text-align: center;
-      padding-top: 20px;
 
-      @media only screen and (max-width: 599px) {
-        gap: 8px;
+      @media (width < 600px) {
+        gap: var(--ui-space-2);
       }
     }
 
-    .summary-title {
-      font-size: x-large;
-      text-align: center;
-      margin: 16px 0 8px 0;
+    .score-container > span {
+      display: grid;
+      justify-items: center;
+      gap: var(--ui-space-1);
     }
-    .summary-subtitle {
-      font-size: medium;
+
+    .summary-title {
+      margin: var(--ui-space-4) 0 var(--ui-space-1);
+      font: var(--mat-sys-title-large);
       text-align: center;
-      margin-bottom: 12px;
+    }
+
+    .summary-subtitle {
+      margin-bottom: var(--ui-space-3);
+      color: var(--mat-sys-on-surface-variant);
+      font: var(--mat-sys-body-medium);
+      text-align: center;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .screen-shot,
+      .circle {
+        transition: none;
+      }
     }
   `,
 })

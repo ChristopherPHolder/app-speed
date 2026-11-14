@@ -1,27 +1,23 @@
-import { Component, computed, input } from '@angular/core';
-import { MatChip, MatChipAvatar } from '@angular/material/chips';
-import { StatusBadgeComponent } from '@app-speed/ui/status-badge';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { STATUS, STATUS_ICON, type StatusOptions } from '@app-speed/ui/status-badge';
+import { StatusChipComponent, type StatusTone } from '@app-speed/ui/status-chip';
+
+const STATUS_TONE: Record<StatusOptions, StatusTone> = {
+  [STATUS.PASS]: 'success',
+  [STATUS.WARN]: 'warning',
+  [STATUS.ALERT]: 'error',
+  [STATUS.INFO]: 'neutral',
+};
 
 @Component({
   selector: 'ui-fractional-result-chip',
   template: `
-    <mat-chip [disableRipple]="true" [class]="status()">
-      <ui-status-badge [status]="status()" matChipAvatar style="display: contents;" />
+    <ui-status-chip [tone]="tone()" [icon]="icon()">
       {{ results().numPassed }} / {{ results().numPassableAudits }}
-    </mat-chip>
+    </ui-status-chip>
   `,
-  imports: [MatChip, StatusBadgeComponent, MatChipAvatar],
-  styles: `
-    .warn {
-      --mat-chip-elevated-container-color: rgba(255, 170, 51, 0.2);
-    }
-    .pass {
-      --mat-chip-elevated-container-color: rgba(20, 136, 0, 0.2);
-    }
-    .alert {
-      --mat-chip-elevated-container-color: rgba(204, 0, 0, 0.2);
-    }
-  `,
+  imports: [StatusChipComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FractionalResultChipComponent {
   results = input.required<{
@@ -30,16 +26,13 @@ export class FractionalResultChipComponent {
     numInformative: number;
     totalWeight: number;
   }>();
-  displayValue = computed(() => {
-    const { numPassed, numPassableAudits } = this.results();
-
-    return `${numPassed} / ${numPassableAudits}`;
-  });
-  status = computed(() => {
+  status = computed<StatusOptions>(() => {
     const { numPassed, numPassableAudits } = this.results();
     const score = parseInt(((numPassed / numPassableAudits || 0) * 100).toFixed(0), 10);
-    if (score > 90) return 'pass';
-    if (score > 50) return 'warn';
-    return 'alert';
+    if (score > 90) return STATUS.PASS;
+    if (score > 50) return STATUS.WARN;
+    return STATUS.ALERT;
   });
+  protected readonly tone = computed(() => STATUS_TONE[this.status()]);
+  protected readonly icon = computed(() => STATUS_ICON[this.status()]);
 }

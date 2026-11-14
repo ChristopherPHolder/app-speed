@@ -18,7 +18,8 @@
     "vitest": "^5.0.3",
     "@analogjs/vite-plugin-angular": "2.7.5",
     "@storybook/angular": "10.6.7",
-    "@app-speed/audit/core/domain": "0.0.1"
+    "@app-speed/audit/core/domain": "0.0.1",
+    "@app-speed/ui": "0.0.0"
   },
   "sideEffects": false
 }
