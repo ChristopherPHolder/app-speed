@@ -113,7 +113,7 @@ describe('AuditBuilderComponent', () => {
     builderFixture.componentRef.changeDetectorRef.markForCheck();
     builderFixture.detectChanges();
     expect(host.querySelector('ui-empty-state')?.textContent).toContain('No steps yet');
-    expect(host.querySelector('.action-bar')?.textContent).toContain('Add at least one step');
+    expect(host.querySelector('.action-bar')?.textContent).toContain('0 steps');
 
     await addStep();
     expect(steps.length).toBe(1);
@@ -191,39 +191,94 @@ describe('AuditBuilderComponent', () => {
     });
   });
 
-  it('shows readiness guidance and disables running when an incomplete step is inserted', async () => {
+  it('keeps Run audit enabled and shows what blocks the run once it is tried', async () => {
+    const submitAudit = vi.fn();
     const builderFixture = await renderBuilder({ modifying: true, primaryAction: 'analyze' });
+    builderFixture.componentInstance.submitAudit.subscribe(submitAudit);
     const host: HTMLElement = builderFixture.nativeElement;
     const form = builderFixture.componentInstance.formGroup;
     const actionText = () => host.querySelector('.action-bar')?.textContent;
+    const steps = () => Array.from(host.querySelectorAll<HTMLElement>('ui-audit-builder-step'));
+    const flagged = () => steps().map((step) => step.querySelector('.step-error') !== null);
+
+    // The default audit has no URL yet. Nothing is flagged before a run is tried.
     expect(actionText()).toContain('3 steps');
-    expect(actionText()).toContain('Complete the required fields in step 2');
+    expect(host.querySelector('.action-bar__problem')?.textContent?.trim()).toBe('');
+    expect(host.querySelector<HTMLButtonElement>('.submit-btn')?.disabled).toBe(false);
+    expect(flagged()).toEqual([false, false, false]);
+
+    submitForm(builderFixture);
+    await builderFixture.whenStable();
+    builderFixture.detectChanges();
+
+    expect(submitAudit).not.toHaveBeenCalled();
+    expect(actionText()).toContain('Fix the highlighted fields');
+    expect(flagged()).toEqual([false, true, false]);
+    expect(steps()[1].querySelector('.step-error')?.getAttribute('aria-label')).toBe('Has errors');
+    expect(document.activeElement).toBe(steps()[1].querySelector('input'));
+    expect(steps()[1].querySelector('mat-error')?.textContent?.trim()).toBe('Enter a value.');
 
     form.controls.steps.at(1).get('url')?.setValue('https://example.com');
+    builderFixture.componentRef.changeDetectorRef.markForCheck();
     builderFixture.detectChanges();
-    expect(actionText()).toContain('Ready to run your audit.');
-    expect(host.querySelector<HTMLButtonElement>('.submit-btn')?.disabled).toBe(false);
+    expect(flagged()).toEqual([false, false, false]);
+    expect(host.querySelector('.action-bar__problem')?.textContent?.trim()).toBe('');
 
-    host.querySelector<HTMLButtonElement>('[aria-label^="Actions for step"]')?.click();
+    submitForm(builderFixture);
+    expect(submitAudit).toHaveBeenCalledOnce();
+  });
+
+  it('opens a collapsed step that has something to fix', async () => {
+    const builderFixture = await renderBuilder({ modifying: true, primaryAction: 'analyze' });
+    const host: HTMLElement = builderFixture.nativeElement;
+    const panel = () => host.querySelectorAll('ui-audit-builder-step mat-expansion-panel')[1];
+
+    host.querySelectorAll<HTMLElement>('mat-expansion-panel-header')[1].click();
     builderFixture.detectChanges();
     await builderFixture.whenStable();
-    const addAfter = Array.from(document.querySelectorAll<HTMLButtonElement>('[mat-menu-item]')).find(
-      (button) => button.textContent?.trim() === 'Add step after',
+    expect(panel().classList).not.toContain('mat-expanded');
+
+    submitForm(builderFixture);
+    await builderFixture.whenStable();
+    builderFixture.detectChanges();
+
+    expect(panel().classList).toContain('mat-expanded');
+  });
+
+  it('asks for an audit step when the steps measure nothing', async () => {
+    const submitAudit = vi.fn();
+    const builderFixture = await renderBuilder({ modifying: true, primaryAction: 'analyze' });
+    builderFixture.componentInstance.submitAudit.subscribe(submitAudit);
+    const host: HTMLElement = builderFixture.nativeElement;
+    const form = builderFixture.componentInstance.formGroup;
+
+    form.controls.steps.at(1).get('url')?.setValue('https://example.com');
+    form.removeStepAt(2);
+    form.removeStepAt(0);
+    builderFixture.componentRef.changeDetectorRef.markForCheck();
+    builderFixture.detectChanges();
+    expect(form.valid).toBe(true);
+
+    submitForm(builderFixture);
+    await builderFixture.whenStable();
+    builderFixture.detectChanges();
+
+    expect(submitAudit).not.toHaveBeenCalled();
+    expect(host.querySelector('.action-bar__problem')?.textContent?.trim()).toBe('errorAdd an audit step');
+    expect(document.activeElement).toBe(host.querySelector('.steps__add'));
+  });
+
+  it('shows why a run was rejected beside the Run audit button', async () => {
+    const builderFixture = await renderBuilder({ modifying: true, primaryAction: 'analyze' });
+    const host: HTMLElement = builderFixture.nativeElement;
+    expect(host.querySelector('[data-testid="audit-inline-error"]')).toBeNull();
+
+    builderFixture.componentRef.setInput('errorMessage', 'The runner is unavailable. Try again.');
+    builderFixture.detectChanges();
+
+    expect(host.querySelector('.action-bar [data-testid="audit-inline-error"]')?.textContent).toContain(
+      'The runner is unavailable. Try again.',
     );
-    if (!addAfter) throw new Error('Missing Add step after menu action');
-    addAfter.click();
-    builderFixture.detectChanges();
-    await builderFixture.whenStable();
-    expect(actionText()).toContain('4 steps');
-    expect(actionText()).toContain('Complete the required fields in step 2');
-    expect(host.querySelector<HTMLButtonElement>('.submit-btn')?.disabled).toBe(true);
-
-    const titleInput = host.querySelector<HTMLInputElement>('input[name="audit title"]');
-    if (!titleInput) throw new Error('Missing audit title input');
-    titleInput.value = '';
-    titleInput.dispatchEvent(new Event('input', { bubbles: true }));
-    builderFixture.detectChanges();
-    expect(actionText()).toContain('Add an audit title to continue.');
   });
 
   it('does not submit after a required field becomes invalid', async () => {

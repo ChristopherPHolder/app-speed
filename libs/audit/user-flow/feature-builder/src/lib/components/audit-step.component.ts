@@ -1,9 +1,17 @@
-import { afterNextRender, ChangeDetectionStrategy, Component, DestroyRef, inject, input } from '@angular/core';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  input,
+  viewChild,
+} from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
 import { StepFormGroup } from './audit-builder-form';
 import { MatOptgroup, MatOption } from '@angular/material/core';
-import { MatFormField, MatLabel } from '@angular/material/form-field';
+import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { distinctUntilChanged, skip, startWith, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIcon } from '@angular/material/icon';
@@ -30,6 +38,9 @@ import { StepFieldsComponent } from './step-fields.component';
           } @else {
             Choose a step type
           }
+          @if (showErrors() && isInvalid()) {
+            <mat-icon class="step-error" role="img" aria-label="Has errors">error</mat-icon>
+          }
         </mat-panel-title>
       </mat-expansion-panel-header>
       <div class="step-body">
@@ -48,6 +59,7 @@ import { StepFieldsComponent } from './step-fields.component';
               </mat-optgroup>
             }
           </mat-select>
+          <mat-error>Choose a step type.</mat-error>
         </mat-form-field>
         @if (control.hasSpec) {
           <builder-step-fields
@@ -67,6 +79,7 @@ import { StepFieldsComponent } from './step-fields.component';
     MatExpansionPanelHeader,
     MatExpansionPanelTitle,
     ReactiveFormsModule,
+    MatError,
     MatFormField,
     MatLabel,
     MatSelect,
@@ -159,6 +172,12 @@ import { StepFieldsComponent } from './step-fields.component';
       min-width: 0;
     }
 
+    .step-error {
+      flex: none;
+      margin-inline-start: var(--ui-space-2);
+      color: var(--mat-sys-error);
+    }
+
     .step-source-icon {
       width: 28px;
       height: 28px;
@@ -177,11 +196,24 @@ export class AuditStepComponent {
   stepControl = input.required<StepFormGroup>();
   expanded = input(true);
   stepNumber = input<number>();
+  /** Marks the header when the step has something to fix. Off until a run was tried, so a new step isn't flagged. */
+  showErrors = input(false);
+  private readonly panel = viewChild.required(MatExpansionPanel);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly stepTypeOptions = STEP_SELECTION_OPTIONS_GROUPED;
 
   constructor() {
     afterNextRender(() => this.handleStepTypeChange());
+  }
+
+  protected isInvalid(): boolean {
+    const control = this.stepControl();
+    return control.invalid || control.selectionControl.invalid;
+  }
+
+  /** Opens the step when it has something to fix, so the field can be seen and focused. */
+  openIfInvalid(): void {
+    if (this.isInvalid()) this.panel().open();
   }
 
   protected getStepPresentation(stepType: string) {

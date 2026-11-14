@@ -1,4 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
+import { Schema } from 'effect';
 
 type StructuredErrorIssue = {
   path?: ReadonlyArray<string | number>;
@@ -26,6 +27,12 @@ const formatStructuredIssue = (issue: StructuredErrorIssue) => {
 };
 
 export const getAuditRequestErrorMessage = (error: unknown) => {
+  // The request is decoded before it is sent. The form checks the same rules, so this is a value the
+  // form let through; the schema's own message is a dump of every alternative and helps nobody.
+  if (Schema.isSchemaError(error)) {
+    return 'This audit has a value that can’t be run. Check each step, then try again.';
+  }
+
   if (error instanceof HttpErrorResponse) {
     if (typeof error.error === 'string' && error.error.length > 0) {
       return error.error;
