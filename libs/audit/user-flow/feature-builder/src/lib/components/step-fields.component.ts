@@ -2,6 +2,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { AbstractControl, FormArray, FormControl, FormGroup, FormRecord, ReactiveFormsModule } from '@angular/forms';
 import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatCheckbox } from '@angular/material/checkbox';
 import { MatError, MatFormField, MatHint, MatLabel } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
@@ -22,6 +23,7 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
     NgTemplateOutlet,
     ReactiveFormsModule,
     MatButton,
+    MatCheckbox,
     MatError,
     MatFormField,
     MatHint,
@@ -64,134 +66,6 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
 
     <ng-template #fieldTemplate let-field="field" let-fieldControl="fieldControl">
       @switch (field.kind) {
-        @case ('string') {
-          <div class="field-row">
-            <mat-form-field appearance="outline" class="field-row__control">
-              <mat-label>{{ labelFor(field) }}</mat-label>
-              <input
-                matInput
-                [formControl]="asFormControl(fieldControl)"
-                [placeholder]="placeholderFor(field)"
-                type="text"
-              />
-              @if (descriptionFor(field); as description) {
-                <mat-hint>{{ description }}</mat-hint>
-              }
-              @if (asFormControl(fieldControl).hasError('required')) {
-                <mat-error>{{ labelFor(field) }} is required</mat-error>
-              }
-              @if (asFormControl(fieldControl).hasError('pattern')) {
-                <mat-error>{{ labelFor(field) }} does not match the expected format</mat-error>
-              }
-            </mat-form-field>
-            @if (control().enabled && !field.required) {
-              <button
-                mat-icon-button
-                aria-label="Delete property from step"
-                type="button"
-                (click)="stepForm().removeOptionalField(control(), field)"
-              >
-                <mat-icon>delete</mat-icon>
-              </button>
-            }
-          </div>
-        }
-        @case ('number') {
-          <div class="field-row">
-            <mat-form-field appearance="outline" class="field-row__control">
-              <mat-label>{{ labelFor(field) }}</mat-label>
-              <input matInput [formControl]="asFormControl(fieldControl)" type="number" />
-              @if (descriptionFor(field); as description) {
-                <mat-hint>{{ description }}</mat-hint>
-              }
-              @if (asFormControl(fieldControl).hasError('required')) {
-                <mat-error>{{ labelFor(field) }} is required</mat-error>
-              }
-              @if (asFormControl(fieldControl).hasError('min')) {
-                <mat-error>{{ labelFor(field) }} must stay above the minimum value</mat-error>
-              }
-              @if (asFormControl(fieldControl).hasError('max')) {
-                <mat-error>{{ labelFor(field) }} must stay below the maximum value</mat-error>
-              }
-              @if (asFormControl(fieldControl).hasError('integer')) {
-                <mat-error>{{ labelFor(field) }} must be an integer</mat-error>
-              }
-            </mat-form-field>
-            @if (control().enabled && !field.required) {
-              <button
-                mat-icon-button
-                aria-label="Delete property from step"
-                type="button"
-                (click)="stepForm().removeOptionalField(control(), field)"
-              >
-                <mat-icon>delete</mat-icon>
-              </button>
-            }
-          </div>
-        }
-        @case ('boolean') {
-          <div class="field-row">
-            <mat-form-field appearance="outline" class="field-row__control">
-              <mat-label>{{ labelFor(field) }}</mat-label>
-              <mat-select [formControl]="asFormControl(fieldControl)">
-                <mat-option [value]="true">True</mat-option>
-                <mat-option [value]="false">False</mat-option>
-              </mat-select>
-              @if (descriptionFor(field); as description) {
-                <mat-hint>{{ description }}</mat-hint>
-              }
-            </mat-form-field>
-            @if (control().enabled && !field.required) {
-              <button
-                mat-icon-button
-                aria-label="Delete property from step"
-                type="button"
-                (click)="stepForm().removeOptionalField(control(), field)"
-              >
-                <mat-icon>delete</mat-icon>
-              </button>
-            }
-          </div>
-        }
-        @case ('enum') {
-          <div class="field-row">
-            <mat-form-field appearance="outline" class="field-row__control">
-              <mat-label>{{ labelFor(field) }}</mat-label>
-              <mat-select [formControl]="asFormControl(fieldControl)">
-                @for (option of field.options; track option) {
-                  <mat-option [value]="option">{{ option }}</mat-option>
-                }
-              </mat-select>
-              @if (descriptionFor(field); as description) {
-                <mat-hint>{{ description }}</mat-hint>
-              }
-              @if (asFormControl(fieldControl).hasError('required')) {
-                <mat-error>{{ labelFor(field) }} is required</mat-error>
-              }
-            </mat-form-field>
-            @if (control().enabled && !field.required) {
-              <button
-                mat-icon-button
-                aria-label="Delete property from step"
-                type="button"
-                (click)="stepForm().removeOptionalField(control(), field)"
-              >
-                <mat-icon>delete</mat-icon>
-              </button>
-            }
-          </div>
-        }
-        @case ('literal') {
-          <div class="field-row">
-            <mat-form-field appearance="outline" class="field-row__control">
-              <mat-label>{{ labelFor(field) }}</mat-label>
-              <input matInput [formControl]="asFormControl(fieldControl)" readonly type="text" />
-              @if (descriptionFor(field); as description) {
-                <mat-hint>{{ description }}</mat-hint>
-              }
-            </mat-form-field>
-          </div>
-        }
         @case ('group') {
           <section class="group-field">
             <div class="group-field__header">
@@ -374,14 +248,14 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
               } @else {
                 @for (itemControl of asFormArray(fieldControl).controls; track itemControl) {
                   <div class="field-row">
-                    <mat-form-field appearance="outline" class="field-row__control">
-                      <mat-label>{{ labelFor(field.element) }}</mat-label>
-                      <input
-                        matInput
-                        [formControl]="asFormControl(itemControl)"
-                        [type]="field.element.kind === 'number' ? 'number' : 'text'"
-                      />
-                    </mat-form-field>
+                    <ng-container
+                      [ngTemplateOutlet]="scalarControl"
+                      [ngTemplateOutletContext]="{
+                        field: field.element,
+                        fieldControl: itemControl,
+                        label: labelFor(field.element),
+                      }"
+                    />
                     @if (asFormArray(fieldControl).enabled) {
                       <button
                         mat-icon-button
@@ -422,14 +296,14 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
             @for (entry of recordEntries(asFormRecord(fieldControl)); track entry.key) {
               <div class="field-row field-row--record">
                 <span class="record-key">{{ entry.key }}</span>
-                <mat-form-field appearance="outline" class="field-row__control">
-                  <mat-label>{{ labelFor(field.value) }}</mat-label>
-                  <input
-                    matInput
-                    [formControl]="asFormControl(entry.control)"
-                    [type]="field.value.kind === 'number' ? 'number' : 'text'"
-                  />
-                </mat-form-field>
+                <ng-container
+                  [ngTemplateOutlet]="scalarControl"
+                  [ngTemplateOutletContext]="{
+                    field: field.value,
+                    fieldControl: entry.control,
+                    label: labelFor(field.value),
+                  }"
+                />
                 @if (asFormRecord(fieldControl).enabled) {
                   <button
                     mat-icon-button
@@ -455,6 +329,88 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
               </div>
             }
           </section>
+        }
+        @default {
+          <div class="field-row">
+            <ng-container
+              [ngTemplateOutlet]="scalarControl"
+              [ngTemplateOutletContext]="{ field, fieldControl, label: labelFor(field) }"
+            />
+            @if (control().enabled && !field.required) {
+              <button
+                mat-icon-button
+                aria-label="Delete property from step"
+                type="button"
+                (click)="stepForm().removeOptionalField(control(), field)"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            }
+          </div>
+        }
+      }
+    </ng-template>
+
+    <!-- One control per scalar type, shared by step properties, list items and key/value entries. -->
+    <ng-template #scalarControl let-field="field" let-fieldControl="fieldControl" let-label="label">
+      @let scalar = asFormControl(fieldControl);
+      @switch (field.kind) {
+        @case ('boolean') {
+          <div class="field-row__control checkbox-field">
+            <mat-checkbox [formControl]="scalar">{{ label }}</mat-checkbox>
+            @if (descriptionFor(field); as description) {
+              <p class="checkbox-field__hint">{{ description }}</p>
+            }
+          </div>
+        }
+        @case ('number') {
+          <mat-form-field appearance="outline" class="field-row__control">
+            <mat-label>{{ label }}</mat-label>
+            <input matInput [formControl]="scalar" type="number" />
+            @if (descriptionFor(field); as description) {
+              <mat-hint>{{ description }}</mat-hint>
+            }
+            @if (errorFor(scalar, label); as error) {
+              <mat-error>{{ error }}</mat-error>
+            }
+          </mat-form-field>
+        }
+        @case ('enum') {
+          <mat-form-field appearance="outline" class="field-row__control">
+            <mat-label>{{ label }}</mat-label>
+            <mat-select [formControl]="scalar">
+              @for (option of field.options; track option) {
+                <mat-option [value]="option">{{ option }}</mat-option>
+              }
+            </mat-select>
+            @if (descriptionFor(field); as description) {
+              <mat-hint>{{ description }}</mat-hint>
+            }
+            @if (errorFor(scalar, label); as error) {
+              <mat-error>{{ error }}</mat-error>
+            }
+          </mat-form-field>
+        }
+        @case ('literal') {
+          <mat-form-field appearance="outline" class="field-row__control">
+            <mat-label>{{ label }}</mat-label>
+            <input matInput [formControl]="scalar" readonly type="text" />
+            @if (descriptionFor(field); as description) {
+              <mat-hint>{{ description }}</mat-hint>
+            }
+          </mat-form-field>
+        }
+        @default {
+          <mat-form-field appearance="outline" class="field-row__control">
+            <mat-label>{{ label }}</mat-label>
+            <input matInput [formControl]="scalar" [placeholder]="placeholderFor(field)" type="text" />
+            @if (descriptionFor(field); as description) {
+              <mat-hint>{{ description }}</mat-hint>
+            }
+            @if (errorFor(scalar, label); as error) {
+              <mat-error>{{ error }}</mat-error>
+            }
+          </mat-form-field>
         }
       }
     </ng-template>
@@ -526,6 +482,17 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
 
     .field-row--record {
       align-items: center;
+    }
+
+    .checkbox-field {
+      display: grid;
+    }
+
+    .checkbox-field__hint {
+      /* Line the description up with the label, past the checkbox's 40dp target. */
+      margin: 0 0 0 var(--ui-space-10);
+      color: var(--mat-sys-on-surface-variant);
+      font: var(--mat-sys-body-small);
     }
 
     .field-row--record-add {
@@ -667,6 +634,16 @@ export class StepFieldsComponent {
 
   protected descriptionFor(field: BuilderFieldSpec): string | undefined {
     return getStepFieldPresentation(this.variantId(), field.path)?.description;
+  }
+
+  /** The message for the first failed check, or null while the control is valid. */
+  protected errorFor(control: FormControl, label: string): string | null {
+    if (control.hasError('required')) return `${label} is required`;
+    if (control.hasError('pattern')) return `${label} does not match the expected format`;
+    if (control.hasError('min')) return `${label} must stay above the minimum value`;
+    if (control.hasError('max')) return `${label} must stay below the maximum value`;
+    if (control.hasError('integer')) return `${label} must be an integer`;
+    return null;
   }
 
   protected selectorSegments(path: AbstractControl): FormArray<AbstractControl> {
