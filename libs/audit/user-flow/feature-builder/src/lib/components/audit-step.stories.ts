@@ -1,4 +1,4 @@
-import { applicationConfig, type Meta, type StoryObj } from '@storybook/angular';
+import { applicationConfig, componentWrapperDecorator, type Meta, type StoryObj } from '@storybook/angular';
 import { provideAuditBuilderIcons } from '@app-speed/audit/core/portal-ui/icons';
 import { STEP_TYPE } from '@app-speed/audit/core/domain';
 import { LIGHTHOUSE_AUDIT_STEP_TYPE } from '@app-speed/audit/user-flow/domain';
@@ -8,7 +8,13 @@ import { AuditStepComponent } from './audit-step.component';
 const meta: Meta<AuditStepComponent> = {
   title: 'Patterns/Audit Builder/Step',
   component: AuditStepComponent,
-  decorators: [applicationConfig({ providers: [provideAuditBuilderIcons()] })],
+  decorators: [
+    applicationConfig({ providers: [provideAuditBuilderIcons()] }),
+    // A step is never wider than the builder's card.
+    componentWrapperDecorator(
+      (story) => `<div style="max-width: var(--ui-page-width-medium); margin: 0 auto;">${story}</div>`,
+    ),
+  ],
   parameters: {
     layout: 'padded',
   },
@@ -22,6 +28,15 @@ const selectorPath = [{ segments: ['[data-test=target]'] }] as const;
 const createStory = (step: Step): Story => ({
   render: () => {
     return { props: { stepControl: new StepFormGroup(step) } };
+  },
+});
+
+/** The step as it looks once every field has been visited, so validation messages show. */
+const createTouchedStory = (step: Step): Story => ({
+  render: () => {
+    const stepControl = new StepFormGroup(step);
+    stepControl.markAllAsTouched();
+    return { props: { stepControl } };
   },
 });
 
@@ -77,3 +92,55 @@ export const SetViewport = createStory({
   isMobile: false,
   width: 1,
 });
+
+/** Optional properties of each type: enums, numbers, text and a list of numbers. */
+export const ClickWithOptionalProperties = createStory({
+  type: STEP_TYPE.CLICK,
+  offsetX: 1,
+  offsetY: 1,
+  selectors: selectorPath,
+  button: 'primary',
+  deviceType: 'mouse',
+  duration: 50,
+  frame: [0, 1],
+  target: 'https://example.com/popup',
+  timeout: 5000,
+});
+
+/** A list of groups. */
+export const NavigateWithAssertedEvents = createStory({
+  type: STEP_TYPE.NAVIGATE,
+  url: 'https://example.com',
+  assertedEvents: [{ type: 'navigation', title: 'Checkout', url: 'https://example.com/checkout' }],
+});
+
+/** Key/value properties, an enum and a flag. */
+export const WaitForElementWithAttributes = createStory({
+  type: STEP_TYPE.WAIT_FOR_ELEMENT,
+  count: 1,
+  selectors: selectorPath,
+  attributes: { 'aria-expanded': 'true' },
+  properties: {},
+  operator: '>=',
+  visible: true,
+});
+
+/** Long hints, which wrap in compact windows. */
+export const WaitForNetworkIdle = createStory({
+  type: STEP_TYPE.CUSTOM_STEP,
+  step: 'waitForNetworkIdle',
+  idleTime: 500,
+  timeout: 0,
+  concurrency: 0,
+});
+
+/** Optional properties that were added and left blank or given a value the schema rejects. */
+export const InvalidOptionalProperties = createTouchedStory({
+  type: STEP_TYPE.CLICK,
+  offsetX: 1,
+  offsetY: 1,
+  selectors: selectorPath,
+  button: '',
+  duration: null,
+  timeout: -5,
+} as unknown as Step);

@@ -370,7 +370,7 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
             @if (descriptionFor(field); as description) {
               <mat-hint>{{ description }}</mat-hint>
             }
-            @if (errorFor(scalar, label); as error) {
+            @if (errorFor(field, scalar); as error) {
               <mat-error>{{ error }}</mat-error>
             }
           </mat-form-field>
@@ -386,7 +386,7 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
             @if (descriptionFor(field); as description) {
               <mat-hint>{{ description }}</mat-hint>
             }
-            @if (errorFor(scalar, label); as error) {
+            @if (errorFor(field, scalar); as error) {
               <mat-error>{{ error }}</mat-error>
             }
           </mat-form-field>
@@ -407,7 +407,7 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
             @if (descriptionFor(field); as description) {
               <mat-hint>{{ description }}</mat-hint>
             }
-            @if (errorFor(scalar, label); as error) {
+            @if (errorFor(field, scalar); as error) {
               <mat-error>{{ error }}</mat-error>
             }
           </mat-form-field>
@@ -636,13 +636,21 @@ export class StepFieldsComponent {
     return getStepFieldPresentation(this.variantId(), field.path)?.description;
   }
 
-  /** The message for the first failed check, or null while the control is valid. */
-  protected errorFor(control: FormControl, label: string): string | null {
-    if (control.hasError('required')) return `${label} is required`;
-    if (control.hasError('pattern')) return `${label} does not match the expected format`;
-    if (control.hasError('min')) return `${label} must stay above the minimum value`;
-    if (control.hasError('max')) return `${label} must stay below the maximum value`;
-    if (control.hasError('integer')) return `${label} must be an integer`;
+  /** What is wrong with the value and how to fix it, or null while the control is valid. */
+  protected errorFor(field: BuilderFieldSpec, control: FormControl): string | null {
+    if (control.hasError('required')) return field.kind === 'enum' ? 'Choose an option.' : 'Enter a value.';
+    if (control.hasError('oneOf')) return 'Choose one of the listed options.';
+    if (control.hasError('pattern')) {
+      return stepFieldControlName(field) === 'url'
+        ? 'Enter an https:// URL or about:blank.'
+        : 'Use the expected format.';
+    }
+    if (control.hasError('minlength')) {
+      return `Enter at least ${control.getError('minlength').requiredLength} characters.`;
+    }
+    if (control.hasError('integer')) return 'Enter a whole number.';
+    if (control.hasError('min')) return `Enter ${control.getError('min').min} or more.`;
+    if (control.hasError('max')) return `Enter ${control.getError('max').max} or less.`;
     return null;
   }
 

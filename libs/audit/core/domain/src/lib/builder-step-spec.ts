@@ -145,19 +145,30 @@ const deriveFieldSpec = ({
 
   const alternatives = getAlternatives(resolved, definitions);
   if (alternatives.length > 0 && alternatives.every((alternative) => alternative['type'] === 'string')) {
-    return { kind: 'string', path, required, defaultValue, validation };
+    return {
+      kind: 'string',
+      path,
+      required,
+      defaultValue,
+      validation: mergeValidation(validation, deriveSharedValidationSpec(alternatives, definitions)),
+    };
   }
+  const numberAlternatives = alternatives.filter(
+    (alternative) => alternative['type'] === 'number' || alternative['type'] === 'integer',
+  );
   if (
-    alternatives.length > 0 &&
+    numberAlternatives.length > 0 &&
     alternatives.every(
-      (alternative) =>
-        alternative['type'] === 'number' ||
-        alternative['type'] === 'integer' ||
-        isJsonEncodedSpecialNumberAlternative(alternative),
-    ) &&
-    alternatives.some((alternative) => alternative['type'] === 'number' || alternative['type'] === 'integer')
+      (alternative) => numberAlternatives.includes(alternative) || isJsonEncodedSpecialNumberAlternative(alternative),
+    )
   ) {
-    return { kind: 'number', path, required, defaultValue, validation };
+    return {
+      kind: 'number',
+      path,
+      required,
+      defaultValue,
+      validation: mergeValidation(validation, deriveSharedValidationSpec(numberAlternatives, definitions)),
+    };
   }
   if (alternatives.length > 0 && alternatives.every((alternative) => alternative['type'] === 'boolean')) {
     return { kind: 'boolean', path, required, defaultValue, validation };
@@ -272,6 +283,33 @@ const deriveValidationSpec = (
   collectValidation(schema, definitions, validation);
   return Object.keys(validation).length > 0 ? validation : undefined;
 };
+
+/**
+ * The constraints every alternative of a union agrees on. A union such as "integer or integer encoded
+ * as a string" keeps its bounds; constraints that only some alternatives carry are dropped, because a
+ * value may satisfy the union through another alternative.
+ */
+const deriveSharedValidationSpec = (
+  alternatives: readonly JsonSchema.JsonSchema[],
+  definitions: JsonSchema.Definitions,
+): BuilderFieldValidationSpec | undefined => {
+  const [first, ...rest] = alternatives.map((alternative) => deriveValidationSpec(alternative, definitions) ?? {});
+  if (!first) {
+    return undefined;
+  }
+
+  const shared = Object.fromEntries(
+    Object.entries(first).filter(([key, value]) =>
+      rest.every((validation) => validation[key as keyof BuilderFieldValidationSpec] === value),
+    ),
+  );
+  return Object.keys(shared).length > 0 ? shared : undefined;
+};
+
+const mergeValidation = (
+  base: BuilderFieldValidationSpec | undefined,
+  extra: BuilderFieldValidationSpec | undefined,
+): BuilderFieldValidationSpec | undefined => (base || extra ? { ...extra, ...base } : undefined);
 
 const collectValidation = (
   schema: JsonSchema.JsonSchema,

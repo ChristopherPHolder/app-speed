@@ -127,7 +127,7 @@ describe('StepFieldsComponent field types', () => {
     await fixture.whenStable();
 
     expect(form.invalid).toBe(true);
-    expect(host.querySelector('.group-field mat-error')?.textContent).toContain('must be an integer');
+    expect(host.querySelector('.group-field mat-error')?.textContent).toContain('Enter a whole number.');
   });
 
   it('edits boolean properties with a checkbox', async () => {
@@ -171,5 +171,34 @@ describe('StepFieldsComponent field types', () => {
     expect(host.querySelector<HTMLInputElement>('mat-checkbox input')?.disabled).toBe(true);
     expect(host.querySelector<HTMLInputElement>('.group-field input')?.disabled).toBe(true);
     expect(host.querySelector('.group-field button')).toBeNull();
+  });
+
+  it('flags a blank optional property', async () => {
+    const { form, fixture, field } = await renderStep('click', {
+      type: 'click',
+      offsetX: 1,
+      offsetY: 1,
+      selectors: [{ segments: ['#checkout'] }],
+      button: '',
+      timeout: null,
+    });
+    form.markAllAsTouched();
+    fixture.componentRef.changeDetectorRef.markForCheck();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(form.invalid).toBe(true);
+    expect(field('Button')?.querySelector('mat-error')?.textContent?.trim()).toBe('Choose an option.');
+    expect(field('Timeout (ms)')?.querySelector('mat-error')?.textContent?.trim()).toBe('Enter a value.');
+  });
+
+  it('names the accepted URL formats', async () => {
+    const { form, fixture, field } = await renderStep('navigate', { type: 'navigate', url: 'http://example.com' });
+    form.markAllAsTouched();
+    fixture.componentRef.changeDetectorRef.markForCheck();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(field('URL')?.querySelector('mat-error')?.textContent?.trim()).toBe('Enter an https:// URL or about:blank.');
   });
 });

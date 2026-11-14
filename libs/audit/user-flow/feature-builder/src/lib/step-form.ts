@@ -15,6 +15,8 @@ import {
 } from '@app-speed/audit/core/domain';
 import { USER_FLOW_AUDIT_BUILDER_STEP_VARIANTS, deriveBuilderStepSpec } from '@app-speed/audit/user-flow/domain';
 
+type BuilderScalarFieldSpec = Extract<BuilderFieldSpec, { kind: 'string' | 'number' | 'boolean' | 'enum' | 'literal' }>;
+
 export class BuilderStepFormGroup extends FormGroup {
   private _spec: BuilderStepSpec | null;
 
@@ -180,17 +182,11 @@ const createControlForField = (field: BuilderFieldSpec, value?: unknown): Abstra
   }
 };
 
-const createScalarControl = (
-  field: Extract<BuilderFieldSpec, { kind: 'string' | 'number' | 'boolean' | 'enum' | 'literal' }>,
-  value?: unknown,
-): FormControl => {
-  const validators = buildScalarValidators(field.required, field.validation);
-
-  return new FormControl(resolveScalarValue(field, value), {
-    validators,
+const createScalarControl = (field: BuilderScalarFieldSpec, value?: unknown): FormControl =>
+  new FormControl(resolveScalarValue(field, value), {
+    validators: buildScalarValidators(field),
     nonNullable: false,
   });
-};
 
 const createGroupControl = (
   field: Extract<BuilderFieldSpec, { kind: 'group' }>,
@@ -239,10 +235,7 @@ const createRecordControl = (
     ),
   );
 
-const resolveScalarValue = (
-  field: Extract<BuilderFieldSpec, { kind: 'string' | 'number' | 'boolean' | 'enum' | 'literal' }>,
-  value: unknown,
-): unknown => {
+const resolveScalarValue = (field: BuilderScalarFieldSpec, value: unknown): unknown => {
   if (value !== undefined) {
     return value;
   }
@@ -265,14 +258,16 @@ const resolveScalarValue = (
   }
 };
 
-const buildScalarValidators = (
-  required: boolean,
-  validation: BuilderFieldValidationSpec | undefined,
-): ValidatorFn[] => {
+const buildScalarValidators = (field: BuilderScalarFieldSpec): ValidatorFn[] => {
+  const { validation } = field;
   const validators: ValidatorFn[] = [];
 
-  if (required) {
+  if (mustHoldValue(field)) {
     validators.push(requiredScalarValueValidator);
+  }
+
+  if (field.kind === 'enum') {
+    validators.push(oneOfValidator(field.options));
   }
 
   if (typeof validation?.minLength === 'number') {
@@ -298,6 +293,14 @@ const buildScalarValidators = (
   return validators;
 };
 
+/**
+ * A control only exists for a required field or for an optional one that was added, so whatever it
+ * holds is sent. Numbers and enums have no valid blank, and neither does a string with a minimum
+ * length; a blank optional value there would be rejected by the schema, not treated as absent.
+ */
+const mustHoldValue = (field: BuilderScalarFieldSpec): boolean =>
+  field.required || field.kind === 'number' || field.kind === 'enum' || (field.validation?.minLength ?? 0) > 0;
+
 const buildArrayValidators = (validation: BuilderFieldValidationSpec | undefined): ValidatorFn[] => {
   if (typeof validation?.minItems !== 'number') {
     return [];
@@ -311,6 +314,18 @@ const requiredScalarValueValidator: ValidatorFn = (control): ValidationErrors | 
 
   return value === null || value === undefined || value === '' ? { required: true } : null;
 };
+
+const oneOfValidator =
+  (options: readonly unknown[]): ValidatorFn =>
+  (control): ValidationErrors | null => {
+    const value = control.value;
+
+    if (value === null || value === undefined || value === '') {
+      return null;
+    }
+
+    return options.includes(value) ? null : { oneOf: true };
+  };
 
 const integerValidator: ValidatorFn = (control): ValidationErrors | null => {
   const value = control.value;

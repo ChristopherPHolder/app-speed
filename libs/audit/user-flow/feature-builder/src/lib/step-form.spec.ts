@@ -111,6 +111,54 @@ describe('BuilderStepFormGroup', () => {
     expect(segmentsControl?.get('0')?.hasError('required')).toBe(true);
   });
 
+  it('requires an optional property that is present to hold a value the schema accepts', () => {
+    const click = createForm('click', {
+      type: 'click',
+      offsetX: 1,
+      offsetY: 1,
+      selectors: [{ segments: ['#checkout'] }],
+    });
+    expect(click.valid).toBe(true);
+
+    // Enums and numbers have no valid blank.
+    click.addOptionalField(click, findField(click.spec.fields, 'button'));
+    expect(click.get('button')?.hasError('required')).toBe(true);
+    click.get('button')?.setValue('middle');
+    expect(click.get('button')?.hasError('oneOf')).toBe(true);
+    click.get('button')?.setValue('primary');
+    expect(click.get('button')?.valid).toBe(true);
+
+    click.addOptionalField(click, findField(click.spec.fields, 'duration'));
+    click.get('duration')?.setValue(null);
+    expect(click.get('duration')?.hasError('required')).toBe(true);
+    click.get('duration')?.setValue(50);
+
+    // A plain string may be empty; a non-empty string may not.
+    click.addOptionalField(click, findField(click.spec.fields, 'target'));
+    expect(click.get('target')?.valid).toBe(true);
+    expect(click.valid).toBe(true);
+
+    const startNavigation = createForm('startNavigation', { type: 'customStep', step: 'startNavigation', name: '' });
+    expect(startNavigation.get('name')?.hasError('required')).toBe(true);
+    startNavigation.removeOptionalField(startNavigation, findField(startNavigation.spec.fields, 'name'));
+    expect(startNavigation.valid).toBe(true);
+  });
+
+  it('rejects negative and fractional step timeouts', () => {
+    const navigate = createForm('navigate', { type: 'navigate', url: 'https://example.com', timeout: 5000 });
+    const timeout = navigate.get('timeout');
+    expect(navigate.valid).toBe(true);
+
+    timeout?.setValue(-5);
+    expect(timeout?.hasError('min')).toBe(true);
+    timeout?.setValue(1.5);
+    expect(timeout?.hasError('integer')).toBe(true);
+    timeout?.setValue(null);
+    expect(timeout?.hasError('required')).toBe(true);
+    timeout?.setValue(0);
+    expect(navigate.valid).toBe(true);
+  });
+
   it('does not add or remove optional fields when the target group is disabled', () => {
     const form = createForm(AUDIT_CUSTOM_STEP_TYPE.ADD_COOKIE);
     const sameSiteField = findField(form.spec.fields, 'sameSite');
