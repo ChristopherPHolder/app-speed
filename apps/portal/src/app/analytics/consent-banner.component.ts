@@ -1,14 +1,24 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import {
+  afterRenderEffect,
+  ChangeDetectionStrategy,
+  Component,
+  DOCUMENT,
+  ElementRef,
+  inject,
+  untracked,
+  viewChild,
+} from '@angular/core';
 import { MatButton } from '@angular/material/button';
+import { RouterLink } from '@angular/router';
 import { AnalyticsConsentService } from './analytics-consent.service';
 
 @Component({
   selector: 'app-consent-banner',
-  imports: [MatButton],
+  imports: [MatButton, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (consent.settingsOpen()) {
-      <section aria-labelledby="consent-title" class="consent-banner">
+      <section #panel aria-labelledby="consent-title" class="consent-banner" tabindex="-1">
         <h2 id="consent-title">A little insight helps.</h2>
         <p class="description">
           Allow Google Analytics cookies to help us improve App Speed? It’s optional. No advertising.
@@ -25,6 +35,7 @@ import { AnalyticsConsentService } from './analytics-consent.service';
               How Google uses information
             </a>
           </p>
+          <p><a routerLink="/privacy">Read the privacy policy</a></p>
         </details>
         <div class="actions">
           <button class="reject" mat-stroked-button type="button" (click)="consent.choose('rejected')">
@@ -75,6 +86,9 @@ import { AnalyticsConsentService } from './analytics-consent.service';
       font: var(--mat-sys-label-large);
       cursor: pointer;
     }
+    .consent-banner:focus {
+      outline: none;
+    }
     summary:focus-visible {
       outline: 2px solid var(--mat-sys-primary);
       outline-offset: 2px;
@@ -106,4 +120,22 @@ import { AnalyticsConsentService } from './analytics-consent.service';
 })
 export class ConsentBannerComponent {
   protected readonly consent = inject(AnalyticsConsentService);
+  private readonly document = inject(DOCUMENT);
+  private readonly panel = viewChild<ElementRef<HTMLElement>>('panel');
+  private returnFocus: HTMLElement | null = null;
+
+  constructor() {
+    // Reopened settings take focus, and give it back when closed; the first-visit banner doesn't steal focus.
+    afterRenderEffect(() => {
+      const panel = this.panel()?.nativeElement;
+      if (panel && untracked(this.consent.choice) !== null) {
+        const active = this.document.activeElement;
+        this.returnFocus = active instanceof HTMLElement ? active : null;
+        panel.focus();
+      } else if (!panel && this.returnFocus) {
+        this.returnFocus.focus();
+        this.returnFocus = null;
+      }
+    });
+  }
 }

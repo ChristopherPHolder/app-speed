@@ -149,19 +149,37 @@ describe('Analytics consent', () => {
     expect(reload).toHaveBeenCalledOnce();
   });
 
-  it('offers reject, accept and reopening settings through the UI', async () => {
+  it('offers reject and accept, and links to the privacy policy', async () => {
     const fixture = TestBed.createComponent(ConsentBannerComponent);
     await fixture.whenStable();
     const element: HTMLElement = fixture.debugElement.nativeElement;
     const button = (label: string) =>
       Array.from(element.querySelectorAll('button')).find((item) => item.textContent?.trim() === label);
     expect(button('Accept analytics')).toBeDefined();
+    expect(element.querySelector('a[href="/privacy"]')).not.toBeNull();
+    expect(element.querySelector('section')).not.toBe(document.activeElement);
     button('Reject analytics')?.click();
     await fixture.whenStable();
     expect(element.querySelector('section')).toBeNull();
-    // The shell footer reopens the settings through the service.
-    TestBed.inject(AnalyticsConsentService).settingsOpen.set(true);
+  });
+
+  it('moves focus into reopened settings and returns it on close', async () => {
+    const service = TestBed.inject(AnalyticsConsentService);
+    service.choose('rejected');
+    const opener = document.body.appendChild(document.createElement('button'));
+    opener.focus();
+    const fixture = TestBed.createComponent(ConsentBannerComponent);
+    document.body.appendChild(fixture.nativeElement);
     await fixture.whenStable();
-    expect(element.querySelector('section')).not.toBeNull();
+    service.settingsOpen.set(true);
+    await fixture.whenStable();
+    const element: HTMLElement = fixture.nativeElement;
+    expect(document.activeElement).toBe(element.querySelector('section'));
+    Array.from(element.querySelectorAll('button'))
+      .find((item) => item.textContent?.trim() === 'Close settings')
+      ?.click();
+    await fixture.whenStable();
+    expect(document.activeElement).toBe(opener);
+    opener.remove();
   });
 });
