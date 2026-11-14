@@ -1,6 +1,6 @@
 import { applicationConfig, type Meta, type StoryObj } from '@storybook/angular';
 import { provideAuditBuilderIcons } from '@app-speed/audit/core/portal-ui/icons';
-import { DEFAULT_AUDIT_DETAILS } from '../audit-details';
+import { type AuditDetails, DEFAULT_AUDIT_DETAILS } from '../audit-details';
 import { AuditBuilderComponent } from './audit-builder.component';
 
 const meta: Meta<AuditBuilderComponent> = {
@@ -16,6 +16,14 @@ export const Default: Story = {
   args: {
     initialAudit: DEFAULT_AUDIT_DETAILS,
     modifying: true,
+  },
+};
+
+/** Every step removed: the list offers to add the first one. */
+export const NoSteps: Story = {
+  args: {
+    modifying: true,
+    initialAudit: { ...DEFAULT_AUDIT_DETAILS, title: 'Checkout journey', steps: [] } as unknown as AuditDetails,
   },
 };
 

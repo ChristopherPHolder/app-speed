@@ -1,7 +1,10 @@
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  ElementRef,
+  Injector,
   computed,
   input,
   OnInit,
@@ -30,6 +33,7 @@ import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToTitleCasePipe } from '@app-speed/audit/core/portal-ui';
+import { EmptyStateActionsDirective, EmptyStateComponent } from '@app-speed/ui/empty-state';
 
 @Component({
   selector: 'ui-audit-builder',
@@ -98,6 +102,19 @@ import { ToTitleCasePipe } from '@app-speed/audit/core/portal-ui';
               </ui-audit-builder-step>
             }
           </mat-accordion>
+          @if (formGroup.enabled) {
+            @if (formGroup.controls.steps.length === 0) {
+              <ui-empty-state icon="playlist_add" heading="No steps yet">
+                <button uiEmptyStateActions class="steps__add" matButton="tonal" type="button" (click)="addStep()">
+                  <mat-icon aria-hidden="true">add</mat-icon>Add step
+                </button>
+              </ui-empty-state>
+            } @else {
+              <button class="steps__add steps__add--after" matButton="tonal" type="button" (click)="addStep()">
+                <mat-icon aria-hidden="true">add</mat-icon>Add step
+              </button>
+            }
+          }
         </mat-card-content>
       </mat-card>
       @if (primaryAction() !== 'none') {
@@ -147,6 +164,9 @@ import { ToTitleCasePipe } from '@app-speed/audit/core/portal-ui';
       /* The column may shrink below its content, so a wide row can't push a step past the card. */
       grid-template-columns: minmax(0, 1fr);
       gap: var(--ui-space-3);
+    }
+    .steps__add--after {
+      margin-top: var(--ui-space-4);
     }
     .action-bar {
       position: sticky;
@@ -212,6 +232,8 @@ import { ToTitleCasePipe } from '@app-speed/audit/core/portal-ui';
     MatMenu,
     MatMenuItem,
     MatMenuTrigger,
+    EmptyStateComponent,
+    EmptyStateActionsDirective,
   ],
   providers: [provideBuilderFormFieldDefaults()],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -223,6 +245,8 @@ export class AuditBuilderComponent implements OnInit {
   initialAudit = input.required<AuditDetails>();
   protected readonly DEVICE_TYPES: readonly string[] = DEVICE_OPTIONS;
   private readonly destroyRef = inject(DestroyRef);
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef);
+  private readonly injector = inject(Injector);
   public readonly modifying = input.required<boolean>();
   public readonly primaryAction = input<'analyze' | 'fork' | 'none'>('analyze');
   public readonly submittingRequest = input(false);
@@ -251,6 +275,21 @@ export class AuditBuilderComponent implements OnInit {
 
   protected auditValue(): AuditDetails {
     return this.formGroup.getRawValue() as unknown as AuditDetails;
+  }
+
+  /** Appends a step and moves focus to its type, which is the first thing to choose. */
+  protected addStep(): void {
+    this.formGroup.addStepAt(this.formGroup.controls.steps.length);
+    afterNextRender(
+      () => {
+        const steps = this.host.nativeElement.querySelectorAll<HTMLElement>('ui-audit-builder-step');
+        steps
+          .item(steps.length - 1)
+          ?.querySelector<HTMLElement>('mat-select')
+          ?.focus();
+      },
+      { injector: this.injector },
+    );
   }
 
   protected submitCurrentAudit(): void {
