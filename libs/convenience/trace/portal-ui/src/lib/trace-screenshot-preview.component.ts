@@ -79,7 +79,7 @@ export interface TraceScreenshotPreviewFrame {
     .preview {
       padding: 24px;
       border: 1px solid var(--mat-sys-outline-variant);
-      border-radius: 24px;
+      border-radius: var(--mat-sys-corner-extra-large);
       background: var(--mat-sys-surface-container-low);
     }
     header {
@@ -93,8 +93,6 @@ export interface TraceScreenshotPreviewFrame {
       margin: 0 0 2px;
       color: var(--mat-sys-primary);
       font: var(--mat-sys-label-large);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
     }
     h2 {
       margin: 0;
@@ -117,8 +115,8 @@ export interface TraceScreenshotPreviewFrame {
       display: grid;
       min-height: 420px;
       overflow: hidden;
-      border-radius: 16px;
-      background: #16181d;
+      border-radius: var(--mat-sys-corner-large);
+      background: var(--mat-sys-surface-container-highest);
       place-items: center;
     }
     .stage > img {
@@ -144,9 +142,9 @@ export interface TraceScreenshotPreviewFrame {
       right: 14px;
       bottom: 14px;
       padding: 6px 10px;
-      border-radius: 999px;
-      background: rgb(0 0 0 / 70%);
-      color: white;
+      border-radius: var(--mat-sys-corner-full);
+      background: var(--mat-sys-inverse-surface);
+      color: var(--mat-sys-inverse-on-surface);
       font: var(--mat-sys-label-medium);
     }
     .filmstrip {
@@ -162,7 +160,7 @@ export interface TraceScreenshotPreviewFrame {
       flex: 0 0 132px;
       padding: 4px;
       border: 2px solid transparent;
-      border-radius: 12px;
+      border-radius: var(--mat-sys-corner-medium);
       background: transparent;
       color: var(--mat-sys-on-surface-variant);
       cursor: pointer;
@@ -180,8 +178,8 @@ export interface TraceScreenshotPreviewFrame {
     .filmstrip img {
       width: 120px;
       height: 74px;
-      border-radius: 7px;
-      background: #16181d;
+      border-radius: var(--mat-sys-corner-small);
+      background: var(--mat-sys-surface-container-highest);
       object-fit: contain;
     }
     .filmstrip span {

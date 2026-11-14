@@ -77,7 +77,7 @@ export interface TraceFilmstripPreviewData {
       min-width: min(76vw, 900px);
       align-items: center;
       padding: 16px 8px;
-      background: #16181d;
+      background: var(--mat-sys-surface-container-highest);
     }
     img {
       display: block;

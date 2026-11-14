@@ -39,33 +39,29 @@ import { TraceFileDropDirective } from './trace-file-drop.directive';
       display: grid;
       min-height: 330px;
       padding: 40px 24px;
-      border: 2px dashed var(--mat-sys-outline-variant, #a9acae);
-      border-radius: 24px;
-      background:
-        radial-gradient(circle at 50% 35%, rgb(11 87 208 / 6%), transparent 34%),
-        var(--mat-sys-surface-container-low, #f7f8fa);
+      border: 2px dashed var(--mat-sys-outline-variant);
+      border-radius: var(--mat-sys-corner-extra-large);
+      background: var(--mat-sys-surface-container-low);
       text-align: center;
       place-items: center;
       align-content: center;
       transition:
-        border-color 150ms ease,
-        background 150ms ease,
-        transform 150ms ease;
+        border-color var(--ui-motion-duration-short3) var(--ui-motion-easing-standard),
+        background-color var(--ui-motion-duration-short3) var(--ui-motion-easing-standard);
     }
     .drop-zone--active {
-      border-color: var(--mat-sys-primary, #0b57d0);
-      background: var(--mat-sys-primary-container, #dbe8ff);
+      border-color: var(--mat-sys-primary);
+      background: var(--mat-sys-primary-container);
       outline: none;
-      transform: scale(1.01);
     }
     .drop-zone__icon {
       display: grid;
       width: 72px;
       height: 72px;
       margin-bottom: 20px;
-      border-radius: 22px;
-      background: var(--mat-sys-primary, #0b57d0);
-      color: var(--mat-sys-on-primary, #ffffff);
+      border-radius: var(--mat-sys-corner-large);
+      background: var(--mat-sys-primary);
+      color: var(--mat-sys-on-primary);
       place-items: center;
     }
     .drop-zone__icon mat-icon {
@@ -75,18 +71,18 @@ import { TraceFileDropDirective } from './trace-file-drop.directive';
     }
     h2 {
       margin: 0 0 8px;
-      color: var(--mat-sys-on-surface, #1f1f1f);
-      font: var(--mat-sys-headline-small, 600 1.4rem/1.8rem Roboto, sans-serif);
+      color: var(--mat-sys-on-surface);
+      font: var(--mat-sys-headline-small);
     }
     p {
       margin: 0 0 24px;
-      color: var(--mat-sys-on-surface-variant, #444746);
-      font: var(--mat-sys-body-large, 400 1rem/1.5rem Roboto, sans-serif);
+      color: var(--mat-sys-on-surface-variant);
+      font: var(--mat-sys-body-large);
     }
     .drop-zone__hint {
       margin-top: 16px;
-      color: var(--mat-sys-on-surface-variant, #444746);
-      font: var(--mat-sys-label-medium, 500 0.75rem/1rem Roboto, sans-serif);
+      color: var(--mat-sys-on-surface-variant);
+      font: var(--mat-sys-label-medium);
     }
     .visually-hidden {
       position: absolute;
