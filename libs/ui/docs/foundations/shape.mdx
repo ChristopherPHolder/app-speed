@@ -1,0 +1,21 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import * as ShapeStories from './shape.stories';
+
+<Meta of={ShapeStories} />
+
+# Shape
+
+Corners come from a seven-step scale. Bigger, more prominent containers get rounder corners; small, dense elements stay
+tight. Angular Material components already apply the right step — these tokens are for the containers we build.
+
+<Canvas of={ShapeStories.CornerScale} />
+
+## Rules
+
+- Use a token, never a pixel radius. Seven values are enough; `7px`, `10px` and `22px` are not on the scale.
+- A container's corner should be at least as round as what sits inside it. A `medium` card can hold a `small` chip, not
+  the other way round.
+- Don't override a Material component's shape. If a button or a text field looks wrong, the surrounding layout is the
+  thing to fix.
+- Use `full` for pills and circles instead of `50%` or `999px`.
+- Clip content that would poke out of a rounded container with `overflow: hidden` (or `overflow: clip`).

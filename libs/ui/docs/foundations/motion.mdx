@@ -1,0 +1,55 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import * as MotionStories from './motion.stories';
+
+<Meta of={MotionStories} />
+
+# Motion
+
+Motion explains what changed: where something came from, where it went, what just became available. It is never there
+for its own sake. Angular Material animates its own components; these tokens are for the transitions we add.
+
+## Easing
+
+<Canvas of={MotionStories.Easing} />
+
+- **Emphasized** is the default for anything that moves or resizes on screen.
+- Elements **entering** decelerate into place; elements **leaving** accelerate away.
+- **Standard** is for small, quick changes that don't travel: a colour, an opacity, a rotation of an icon.
+
+## Duration
+
+<Canvas of={MotionStories.Durations} />
+
+| Range              | Use it for                                                                           |
+| ------------------ | ------------------------------------------------------------------------------------ |
+| Short (50–200ms)   | State changes on small elements: hover, selection, an icon rotating.                 |
+| Medium (250–400ms) | Elements that expand, collapse or travel a short distance: panels, drawers, banners. |
+| Long (450–600ms)   | Large or full-window transitions.                                                    |
+
+The bigger the area and the further it travels, the longer it takes. Exits are quicker than entrances — go down one
+or two steps.
+
+```css
+.panel {
+  transition:
+    background-color var(--ui-motion-duration-short4) var(--ui-motion-easing-standard),
+    height var(--ui-motion-duration-medium2) var(--ui-motion-easing-emphasized);
+}
+```
+
+## Rules
+
+- Always pair a duration token with an easing token. No bare `0.2s ease`.
+- Animate `transform` and `opacity` where you can; avoid animating layout properties on long lists.
+- Don't move or scale a card on hover. Hover is a state layer (see States), not a lift.
+- Looping motion is for progress only.
+- Honour `prefers-reduced-motion: reduce`: drop travel and scale, keep a short fade or nothing. Never slow an
+  animation down as the reduced variant.
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    transition: none;
+  }
+}
+```

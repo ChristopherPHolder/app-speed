@@ -1,0 +1,44 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import * as IconographyStories from './iconography.stories';
+
+<Meta of={IconographyStories} />
+
+# Iconography
+
+Icons come from the **Material Icons** font through `<mat-icon>`. Product-specific artwork (the Lighthouse and
+Puppeteer badges) is registered as SVG icons and used through the same component.
+
+```html
+<mat-icon aria-hidden="true">history</mat-icon> <mat-icon svgIcon="lighthouse-badge" aria-hidden="true" />
+```
+
+## Sizes
+
+<Canvas of={IconographyStories.Sizes} />
+
+Set `width`, `height` and `font-size` together when you change the size. The default is 24dp; the target around an
+interactive icon is still 48dp.
+
+## Tiles
+
+<Canvas of={IconographyStories.Tile} />
+
+To give an icon weight — on a feature card, in an empty state — put it on a tonal container rather than enlarging it.
+
+## Labelling
+
+<Canvas of={IconographyStories.Labelling} />
+
+- An icon next to text that says the same thing is decorative: `aria-hidden="true"`.
+- An icon on its own is the label: the **button** gets an `aria-label` that names the action and its object ("Copy
+  audit ID", not "Copy").
+- Add a tooltip to icon-only buttons whose meaning isn't universal.
+
+## Rules
+
+- Use `<mat-icon>`. Don't inline SVG paths in templates or draw icons with characters such as `×`, `✓`, `→` or `+`.
+- Icons take the current text colour. Colour them through the parent's role, not directly.
+- One icon, one meaning across the product: `speed` is running an audit, `history` is audit history, `construction`
+  is trace tools.
+- Leading icons clarify; trailing icons indicate what happens next (`arrow_forward`, `open_in_new`, `expand_more`).
+  Don't use both on one control.

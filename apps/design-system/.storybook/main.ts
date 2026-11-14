@@ -1,10 +1,11 @@
 import type { StorybookConfig } from '@storybook/angular';
+import remarkGfm from 'remark-gfm';
 
 export default {
   stories: [
     {
       directory: '../../../libs',
-      files: '**/*.stories.@(js|jsx|ts|tsx)',
+      files: '**/*.@(mdx|stories.@(js|jsx|ts|tsx))',
     },
   ],
   addons: [
@@ -14,7 +15,13 @@ export default {
         designTokenGlob: 'libs/ui/theme/**/*.{css,scss,less,svg,png,jpeg,gif}',
       },
     },
-    '@storybook/addon-docs',
+    {
+      name: '@storybook/addon-docs',
+      options: {
+        // GitHub-flavoured Markdown, for the tables in the guidance pages.
+        mdxPluginOptions: { mdxCompileOptions: { remarkPlugins: [remarkGfm] } },
+      },
+    },
   ],
   staticDirs: [{ from: '../../portal/src/assets', to: '/' }],
   framework: {

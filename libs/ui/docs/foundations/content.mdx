@@ -1,0 +1,55 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Foundations/Content" />
+
+# Content
+
+Words are part of the interface. Material 3's content guidance applies to every label, message and heading.
+
+## Voice
+
+- **Plain.** Say what the thing does. "Run audit", not "Initiate analysis".
+- **Short.** Cut words that don't change the meaning. "Add an audit title to continue."
+- **Direct.** Address the person as "you"; refer to the product by name, not "we", in interface text.
+- **Consistent.** Use the terms in `CONTEXT.md` — account, workspace, project, audit, run — and use each for one thing.
+
+## Capitalisation
+
+Use **sentence case** everywhere: headings, buttons, labels, menu items, table headers, tabs.
+
+| Do              | Don't           |
+| --------------- | --------------- |
+| Audit title     | Audit Title     |
+| Add step before | Add Step Before |
+| Device type     | Device Type     |
+| Audit history   | AUDIT HISTORY   |
+
+Don't set text in capitals with `text-transform`. It is harder to read and screen readers may spell it out. An
+eyebrow label gets its emphasis from colour and weight.
+
+## Actions
+
+- Buttons start with a verb and name the object: "Create project", "Rename workspace", "Copy audit ID".
+- A dialog's confirm button repeats the action in the title. "Delete project" — not "OK" or "Yes".
+- Destructive actions say what is lost and whether it can be undone.
+- Links describe their destination. Never "click here".
+
+## Messages
+
+| Kind     | What it says                          | Example                                               |
+| -------- | ------------------------------------- | ----------------------------------------------------- |
+| Error    | What happened, and what to do next    | "Audit history didn't load. Try again."               |
+| Empty    | What would be here, and how to get it | "No audits yet. Run your first audit to see it here." |
+| Success  | What changed — briefly                | "Changes saved."                                      |
+| Progress | What is happening now                 | "Starting audit…"                                     |
+
+- No blame and no alarm: skip "Oops", "Sorry" and exclamation marks.
+- Don't say "please" for routine actions.
+- Use the ellipsis character (…) for actions in progress and truncation.
+
+## Formatting
+
+- Numbers that are compared sit in columns with tabular figures, right-aligned.
+- Units are abbreviated and separated by a space where the unit is a word: `1.1 s`, `210 ms`, `1m 18s`.
+- Dates use the person's locale; show the time zone when a time is absolute.
+- Identifiers are monospaced and copyable.
