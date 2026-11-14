@@ -56,6 +56,20 @@ describe('builder step spec', () => {
     ]);
   });
 
+  it('keeps the bounds of a step timeout, which accepts an integer or an integer encoded as a string', () => {
+    for (const variantId of ['click', 'navigate', 'waitForElement', 'waitForExpression']) {
+      const timeout = deriveBuilderStepSpec(findVariant(variantId)).fields.find((field) => field.path === 'timeout');
+
+      expect(timeout).toEqual(
+        expect.objectContaining({
+          kind: 'number',
+          required: false,
+          validation: { integer: true, minimum: 0, maximum: Number.MAX_SAFE_INTEGER },
+        }),
+      );
+    }
+  });
+
   it('derives specs for every registered variant', () => {
     expect(() => USER_FLOW_AUDIT_BUILDER_STEP_VARIANTS.map(deriveBuilderStepSpec)).not.toThrow();
   });
