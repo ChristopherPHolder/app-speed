@@ -8,25 +8,34 @@ import {
   MatDialogTitle,
 } from '@angular/material/dialog';
 
-export interface WorkspaceConfirmDialogData {
+export interface ConfirmDialogData {
+  /** A short statement or question naming the action. */
   readonly title: string;
+  /** What will happen, in a sentence or two. */
   readonly message: string;
+  /** The confirm button's label. Repeat the verb from the title. */
   readonly label: string;
+  /** Defaults to "Cancel". */
+  readonly cancelLabel?: string;
 }
 
+/**
+ * Asks for confirmation before an action that can't be undone. Open it with `MatDialog`; it closes
+ * with `true` when confirmed and `undefined` when dismissed.
+ */
 @Component({
-  selector: 'app-workspace-confirm-dialog',
+  selector: 'ui-confirm-dialog',
   imports: [MatButton, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogTitle],
   template: `
     <h2 mat-dialog-title>{{ data.title }}</h2>
     <mat-dialog-content>{{ data.message }}</mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button matButton mat-dialog-close type="button">Cancel</button>
+      <button matButton mat-dialog-close type="button">{{ data.cancelLabel ?? 'Cancel' }}</button>
       <button matButton="filled" [mat-dialog-close]="true" type="button">{{ data.label }}</button>
     </mat-dialog-actions>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class WorkspaceConfirmDialogComponent {
-  protected readonly data = inject<WorkspaceConfirmDialogData>(MAT_DIALOG_DATA);
+export class ConfirmDialogComponent {
+  protected readonly data = inject<ConfirmDialogData>(MAT_DIALOG_DATA);
 }

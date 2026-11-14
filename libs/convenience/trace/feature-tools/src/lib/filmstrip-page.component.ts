@@ -5,6 +5,8 @@ import { MatDialog, type MatDialogRef } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
+import { PageComponent } from '@app-speed/ui/page';
+import { PageHeaderComponent, PageHeaderNavigationDirective } from '@app-speed/ui/page-header';
 import { defaultTraceFilmstripSettings, type TraceFilmstripSettings } from '@app-speed/convenience/trace/domain';
 import {
   displayFilmstripFrames,
@@ -35,27 +37,32 @@ interface TraceFailurePresentation {
     MatIcon,
     MatProgressSpinner,
     RouterLink,
+    PageComponent,
+    PageHeaderComponent,
+    PageHeaderNavigationDirective,
     TraceDropZoneComponent,
     TraceFileDropDirective,
     TraceFileDropOverlayComponent,
     TraceFilmstripComponent,
   ],
   template: `
-    <main
+    <ui-page
       class="page"
-      [class.page--ready]="loadOperation.state().status === 'success'"
-      aria-labelledby="filmstrip-page-title"
+      [width]="loadOperation.state().status === 'success' ? 'full' : 'wide'"
       libTraceFileDrop
       #replacement="traceFileDrop"
       [libTraceFileDropEnabled]="loadOperation.state().status !== 'idle'"
       (fileDropped)="load($event)"
     >
-      <a mat-button routerLink="/convenience"><mat-icon aria-hidden="true">arrow_back</mat-icon>All tools</a>
-      <header class="page-header">
-        <p class="eyebrow">Trace tool</p>
-        <h1 id="filmstrip-page-title">Trace filmstrip</h1>
-        <p>Inspect captured frames and export the filtered timeline as a PNG. Your trace never leaves this browser.</p>
-      </header>
+      <ui-page-header
+        eyebrow="Trace tool"
+        heading="Trace filmstrip"
+        description="Inspect captured frames and export the filtered timeline as a PNG. Your trace never leaves this browser."
+      >
+        <a uiPageHeaderNavigation class="back" matButton routerLink="/convenience">
+          <mat-icon aria-hidden="true">arrow_back</mat-icon>All tools
+        </a>
+      </ui-page-header>
       @if (replacement.active()) {
         <lib-trace-file-drop-overlay />
       }
@@ -119,7 +126,7 @@ interface TraceFailurePresentation {
           }
         }
       }
-    </main>
+    </ui-page>
   `,
   styles: `
     :host {
@@ -127,33 +134,9 @@ interface TraceFailurePresentation {
     }
     .page {
       position: relative;
-      width: min(100% - 48px, 1120px);
-      margin: 32px auto 64px;
     }
-    .page--ready {
-      width: min(95vw, 1600px);
-    }
-    .page-header {
-      margin: 26px 0 30px;
-    }
-    .eyebrow {
-      margin: 0 0 6px;
-      color: var(--mat-sys-primary, #0b57d0);
-      font: var(--mat-sys-label-large, 600 0.75rem/1rem Roboto, sans-serif);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-    }
-    h1 {
-      margin: 0 0 12px;
-      color: var(--mat-sys-on-surface, #1f1f1f);
-      font: var(--mat-sys-display-small, 700 2.5rem/1.1 Roboto, sans-serif);
-      letter-spacing: -0.025em;
-    }
-    .page-header > p:last-child {
-      max-width: 720px;
-      margin: 0;
-      color: var(--mat-sys-on-surface-variant, #444746);
-      font: var(--mat-sys-body-large, 400 1.05rem/1.55rem Roboto, sans-serif);
+    .back {
+      margin: 0 0 var(--ui-space-4) calc(-1 * var(--ui-space-3));
     }
     .status {
       display: flex;
@@ -196,12 +179,6 @@ interface TraceFailurePresentation {
       gap: 8px;
     }
     @media (max-width: 680px) {
-      .page {
-        width: calc(100% - 28px);
-      }
-      h1 {
-        font-size: 2rem;
-      }
       .ready {
         align-items: stretch;
         flex-direction: column;

@@ -24,7 +24,7 @@ export default [
         'error',
         {
           type: 'attribute',
-          prefix: 'app',
+          prefix: 'ui',
           style: 'camelCase',
         },
       ],

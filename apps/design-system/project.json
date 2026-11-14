@@ -4,6 +4,13 @@
   "projectType": "application",
   "sourceRoot": "apps/design-system",
   "tags": ["type:app", "scope:shared", "runtime:web", "app:design-system"],
+  "implicitDependencies": [
+    "ui",
+    "audit-core-feature-history",
+    "audit-core-portal-ui",
+    "audit-user-flow-feature-builder",
+    "audit-user-flow-feature-viewer"
+  ],
   "targets": {
     "serve": {
       "executor": "@storybook/angular:start-storybook",

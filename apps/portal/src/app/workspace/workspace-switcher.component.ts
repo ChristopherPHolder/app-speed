@@ -10,7 +10,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatDivider } from '@angular/material/divider';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { RouterLink } from '@angular/router';
-import { WorkspaceAvatarComponent } from './workspace-avatar.component';
+import { AvatarComponent } from '@app-speed/ui/avatar';
 import { publicViewId, WorkspaceState } from './workspace-state.service';
 
 @Component({
@@ -27,7 +27,7 @@ import { publicViewId, WorkspaceState } from './workspace-state.service';
     MatMenuItem,
     MatMenuTrigger,
     RouterLink,
-    WorkspaceAvatarComponent,
+    AvatarComponent,
   ],
   template: `
     <mat-action-list aria-label="Workspace selection">
@@ -38,11 +38,11 @@ import { publicViewId, WorkspaceState } from './workspace-state.service';
         class="trigger"
         [attr.aria-label]="'Switch workspace: ' + (state.workspace()?.name ?? 'Public View')"
       >
-        <app-workspace-avatar
+        <ui-avatar
           matListItemAvatar
           class="trigger-avatar"
           [name]="state.workspace()?.name ?? 'Public View'"
-          [logo]="state.workspace()?.logo ?? null"
+          [image]="state.workspace()?.logo ?? null"
         />
         <span matListItemTitle>{{ state.workspace()?.name ?? 'Public View' }}</span>
         <span matListItemMeta><mat-icon aria-hidden="true">unfold_more</mat-icon></span>
@@ -69,7 +69,7 @@ import { publicViewId, WorkspaceState } from './workspace-state.service';
         >
           <span class="workspace-option">
             @if (workspace.logo) {
-              <app-workspace-avatar [name]="workspace.name" [logo]="workspace.logo" />
+              <ui-avatar [name]="workspace.name" [image]="workspace.logo" size="small" />
             } @else {
               <mat-icon aria-hidden="true">business</mat-icon>
             }
@@ -119,10 +119,6 @@ import { publicViewId, WorkspaceState } from './workspace-state.service';
       display: flex;
       align-items: center;
       gap: 8px;
-    }
-    .workspace-option app-workspace-avatar {
-      --workspace-avatar-size: 20px;
-      --workspace-avatar-radius: var(--mat-sys-corner-extra-small);
     }
     .workspace-option mat-icon {
       margin: 0;

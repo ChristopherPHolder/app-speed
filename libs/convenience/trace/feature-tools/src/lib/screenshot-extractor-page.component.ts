@@ -4,6 +4,8 @@ import { MatCard, MatCardContent } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
+import { PageComponent } from '@app-speed/ui/page';
+import { PageHeaderComponent, PageHeaderNavigationDirective } from '@app-speed/ui/page-header';
 import {
   TraceDropZoneComponent,
   TraceFileDropDirective,
@@ -27,21 +29,32 @@ import { createEffectOperation } from './effect-operation';
     MatIcon,
     MatProgressSpinner,
     RouterLink,
+    PageComponent,
+    PageHeaderComponent,
+    PageHeaderNavigationDirective,
     TraceDropZoneComponent,
     TraceFileDropDirective,
     TraceFileDropOverlayComponent,
     TraceScreenshotPreviewComponent,
   ],
   template: `
-    <main
+    <ui-page
       class="extractor"
-      aria-labelledby="page-title"
+      width="medium"
       libTraceFileDrop
       #replacement="traceFileDrop"
       [libTraceFileDropEnabled]="extraction.state().status !== 'idle'"
       (fileDropped)="extract($event)"
     >
-      <a mat-button routerLink="/convenience"><mat-icon aria-hidden="true">arrow_back</mat-icon>All tools</a>
+      <ui-page-header
+        eyebrow="Trace tool"
+        heading="Trace screenshots"
+        description="Preview every captured frame, then download the images and their timing as a ZIP. Your trace never leaves this browser."
+      >
+        <a uiPageHeaderNavigation class="back" matButton routerLink="/convenience">
+          <mat-icon aria-hidden="true">arrow_back</mat-icon>All tools
+        </a>
+      </ui-page-header>
       @if (extraction.state(); as current) {
         @if (replacement.active()) {
           <lib-trace-file-drop-overlay description="The new preview will appear automatically." />
@@ -103,7 +116,7 @@ import { createEffectOperation } from './effect-operation';
           }
         }
       }
-    </main>
+    </ui-page>
   `,
   styles: `
     :host {
@@ -111,8 +124,9 @@ import { createEffectOperation } from './effect-operation';
     }
     .extractor {
       position: relative;
-      width: min(100% - 48px, 920px);
-      margin: 32px auto 64px;
+    }
+    .back {
+      margin: 0 0 var(--ui-space-4) calc(-1 * var(--ui-space-3));
     }
     .result {
       display: flex;
@@ -160,9 +174,6 @@ import { createEffectOperation } from './effect-operation';
       color: var(--mat-sys-on-surface-variant);
     }
     @media (max-width: 680px) {
-      .extractor {
-        width: min(100% - 28px, 920px);
-      }
       .result {
         align-items: flex-start;
         flex-wrap: wrap;

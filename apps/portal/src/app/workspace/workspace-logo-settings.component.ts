@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { type Workspace, workspaceLogoSize } from '@app-speed/workspace/domain';
-import { WorkspaceAvatarComponent } from './workspace-avatar.component';
+import { AvatarComponent } from '@app-speed/ui/avatar';
 import { WorkspaceState } from './workspace-state.service';
 
 const imageTypes = ['image/png', 'image/jpeg', 'image/webp'];
@@ -26,11 +26,11 @@ async function prepareLogo(file: File): Promise<string> {
 
 @Component({
   selector: 'app-workspace-logo-settings',
-  imports: [MatButton, WorkspaceAvatarComponent],
+  imports: [MatButton, AvatarComponent],
   template: `
     <div class="logo-row">
       <div class="description">
-        <app-workspace-avatar [name]="workspace().name" [logo]="workspace().logo" />
+        <ui-avatar [name]="workspace().name" [image]="workspace().logo" size="large" />
         <div>
           <strong>Workspace logo</strong>
           <p>
@@ -79,11 +79,6 @@ async function prepareLogo(file: File): Promise<string> {
     }
     .description {
       gap: 16px;
-    }
-    app-workspace-avatar {
-      --workspace-avatar-size: 56px;
-      --workspace-avatar-radius: var(--mat-sys-corner-medium);
-      --workspace-avatar-font: var(--mat-sys-headline-small);
     }
     .actions {
       gap: 6px;
