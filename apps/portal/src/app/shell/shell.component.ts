@@ -59,45 +59,47 @@ const activeMatch = (exact: boolean): IsActiveMatchOptions => ({
         (openedChange)="syncMobileMenu($event)"
         [autoFocus]="!desktop()"
       >
-        @if (!desktop()) {
-          <div class="drawer-heading">
-            <img src="assets/logo-wordmark.svg" alt="App Speed" />
-            <button mat-icon-button type="button" aria-label="Close navigation menu" (click)="closeMobileMenu()">
-              <mat-icon>close</mat-icon>
-            </button>
-          </div>
-        }
-        @if (auth.signedIn()) {
-          @defer (when auth.signedIn()) {
-            <app-workspace-navigation [showAccount]="desktop()" (navigate)="closeMobileMenu()" />
+        <div class="drawer">
+          @if (!desktop()) {
+            <div class="drawer-heading">
+              <img src="assets/logo-wordmark.svg" alt="App Speed" />
+              <button mat-icon-button type="button" aria-label="Close navigation menu" (click)="closeMobileMenu()">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
           }
-        } @else {
-          <nav class="guest-drawer-links" aria-label="Mobile navigation">
-            <a mat-button routerLink="/" (click)="closeMobileMenu()"><mat-icon>home</mat-icon>Home</a>
-            @for (item of navigationItems; track item.route) {
+          @if (auth.signedIn()) {
+            @defer (when auth.signedIn()) {
+              <app-workspace-navigation [showAccount]="desktop()" (navigate)="closeMobileMenu()" />
+            }
+          } @else {
+            <nav class="guest-drawer-links" aria-label="Mobile navigation">
+              <a mat-button routerLink="/" (click)="closeMobileMenu()"><mat-icon>home</mat-icon>Home</a>
+              @for (item of navigationItems; track item.route) {
+                <a
+                  mat-button
+                  [routerLink]="item.route"
+                  routerLinkActive="active-navigation-item"
+                  [routerLinkActiveOptions]="item.match"
+                  ariaCurrentWhenActive="page"
+                  (click)="closeMobileMenu()"
+                >
+                  <mat-icon>{{ item.icon }}</mat-icon
+                  >{{ item.label }}
+                </a>
+              }
               <a
                 mat-button
-                [routerLink]="item.route"
-                routerLinkActive="active-navigation-item"
-                [routerLinkActiveOptions]="item.match"
-                ariaCurrentWhenActive="page"
+                href="https://github.com/ChristopherPHolder/app-speed"
+                target="_blank"
+                rel="noopener noreferrer"
                 (click)="closeMobileMenu()"
               >
-                <mat-icon>{{ item.icon }}</mat-icon
-                >{{ item.label }}
+                <img class="github-icon" src="assets/GitHub_Invertocat_Black.svg" alt="" /> View on GitHub
               </a>
-            }
-            <a
-              mat-button
-              href="https://github.com/ChristopherPHolder/app-speed"
-              target="_blank"
-              rel="noopener noreferrer"
-              (click)="closeMobileMenu()"
-            >
-              <img class="github-icon" src="assets/GitHub_Invertocat_Black.svg" alt="" /> View on GitHub
-            </a>
-          </nav>
-        }
+            </nav>
+          }
+        </div>
       </mat-sidenav>
       <mat-sidenav-content class="shell-content" [class.workspace-shell]="auth.signedIn() && !onboarding()">
         <header class="app-header">
@@ -195,6 +197,16 @@ const activeMatch = (exact: boolean): IsActiveMatchOptions => ({
     mat-sidenav {
       width: min(280px, calc(100% - 48px));
       background: var(--mat-sys-surface-container-low);
+    }
+    /* The navigation fills what the heading leaves, so the drawer only scrolls when its content is too long. */
+    .drawer {
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+    }
+    .drawer app-workspace-navigation {
+      flex: 1 1 auto;
+      min-height: 0;
     }
     .drawer-heading {
       display: flex;
