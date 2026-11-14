@@ -238,3 +238,67 @@ describe('StepFieldsComponent field types', () => {
     expect(text('.optional-fields h4')).toContain('Optional properties');
   });
 });
+
+describe('StepFieldsComponent key/value properties', () => {
+  afterEach(() => TestBed.resetTestingModule());
+
+  const waitForElement = (attributes: Record<string, string> = {}) =>
+    renderStep('waitForElement', {
+      type: 'waitForElement',
+      count: 1,
+      selectors: [{ segments: ['#result'] }],
+      attributes,
+    });
+
+  it('adds an entry with its value when Enter is pressed, without submitting the audit', async () => {
+    const { form, fixture, host, type, field } = await waitForElement();
+    const name = field('Attribute name')?.querySelector('input');
+    const value = field('Value')?.querySelector('input');
+
+    await type(name, ' aria-expanded ');
+    await type(value, 'true');
+    const enter = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true });
+    value?.dispatchEvent(enter);
+    await fixture.whenStable();
+
+    expect(enter.defaultPrevented).toBe(true);
+    expect(form.getRawValue().attributes).toEqual({ 'aria-expanded': 'true' });
+    expect(name?.value).toBe('');
+    expect(value?.value).toBe('');
+    expect(document.activeElement).toBe(name);
+    // The entry is one field, labelled with its name.
+    expect(field('aria-expanded')?.querySelector('input')?.value).toBe('true');
+    expect(host.querySelector('[aria-label="Remove attribute aria-expanded"]')).not.toBeNull();
+  });
+
+  it('explains why a blank or duplicate name was not added', async () => {
+    const { form, fixture, click, type, field } = await waitForElement({ role: 'dialog' });
+    const name = field('Attribute name')?.querySelector('input');
+    const error = () => field('Attribute name')?.querySelector('mat-error')?.textContent?.trim();
+
+    await click('.record-add__button');
+    fixture.detectChanges();
+    expect(error()).toBe('Enter a name.');
+
+    await type(name, 'role');
+    await click('.record-add__button');
+    fixture.detectChanges();
+    expect(error()).toBe('Attribute “role” is already listed.');
+    expect(form.getRawValue().attributes).toEqual({ role: 'dialog' });
+
+    await type(name, 'role2');
+    expect(error()).toBeUndefined();
+  });
+
+  it('removes an entry and hides the add row for read-only audits', async () => {
+    const { form, fixture, host, click } = await waitForElement({ role: 'dialog' });
+
+    await click('[aria-label="Remove attribute role"]');
+    expect(form.getRawValue().attributes).toEqual({});
+
+    form.disable();
+    fixture.componentRef.changeDetectorRef.markForCheck();
+    fixture.detectChanges();
+    expect(host.querySelector('.record-add')).toBeNull();
+  });
+});
