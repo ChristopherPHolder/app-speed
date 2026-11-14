@@ -54,7 +54,7 @@ describe('AuditBuilderComponent', () => {
     const navigateStep = steps.at(1);
 
     const menuAction = async (index: number, label: string) => {
-      host.querySelectorAll<HTMLButtonElement>('[aria-label="Toggle menu"]')[index].click();
+      host.querySelectorAll<HTMLButtonElement>('[aria-label^="Actions for step"]')[index].click();
       builderFixture.detectChanges();
       await builderFixture.whenStable();
       const panels = document.querySelectorAll('.mat-mdc-menu-panel');
@@ -69,17 +69,17 @@ describe('AuditBuilderComponent', () => {
       await builderFixture.whenStable();
     };
 
-    await menuAction(0, 'Add Step After');
+    await menuAction(0, 'Add step after');
     expect(steps.length).toBe(4);
     expect(steps.at(1).selectionControl.value).toBe('');
     expect(steps.at(2)).toBe(navigateStep);
 
-    await menuAction(0, 'Add Step Before');
+    await menuAction(0, 'Add step before');
     expect(steps.length).toBe(5);
     expect(steps.at(0).selectionControl.value).toBe('');
     expect(steps.at(1)).toBe(firstStep);
 
-    await menuAction(0, 'Remove Step');
+    await menuAction(0, 'Remove step');
     expect(steps.length).toBe(4);
     expect(steps.at(0)).toBe(firstStep);
     expect(Array.from(host.querySelectorAll('.step-number'), (element) => element.textContent?.trim())).toEqual([
@@ -94,7 +94,7 @@ describe('AuditBuilderComponent', () => {
   it('hides step menus in read-only mode', async () => {
     const builderFixture = await renderBuilder({ modifying: false, primaryAction: 'fork' });
     const host: HTMLElement = builderFixture.nativeElement;
-    expect(host.querySelector('[aria-label="Toggle menu"]')).toBeNull();
+    expect(host.querySelector('[aria-label^="Actions for step"]')).toBeNull();
     expect(host.querySelectorAll('.step-number')).toHaveLength(3);
   });
 
@@ -174,13 +174,13 @@ describe('AuditBuilderComponent', () => {
     expect(actionText()).toContain('Ready to run your audit.');
     expect(host.querySelector<HTMLButtonElement>('.submit-btn')?.disabled).toBe(false);
 
-    host.querySelector<HTMLButtonElement>('[aria-label="Toggle menu"]')?.click();
+    host.querySelector<HTMLButtonElement>('[aria-label^="Actions for step"]')?.click();
     builderFixture.detectChanges();
     await builderFixture.whenStable();
     const addAfter = Array.from(document.querySelectorAll<HTMLButtonElement>('[mat-menu-item]')).find(
-      (button) => button.textContent?.trim() === 'Add Step After',
+      (button) => button.textContent?.trim() === 'Add step after',
     );
-    if (!addAfter) throw new Error('Missing Add Step After menu action');
+    if (!addAfter) throw new Error('Missing Add step after menu action');
     addAfter.click();
     builderFixture.detectChanges();
     await builderFixture.whenStable();

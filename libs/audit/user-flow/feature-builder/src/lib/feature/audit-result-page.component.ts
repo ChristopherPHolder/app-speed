@@ -5,6 +5,8 @@ import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { catchError, map, of, startWith, switchMap } from 'rxjs';
 
+import { MessageComponent } from '@app-speed/ui/message';
+import { PageHeaderComponent, PageHeaderNavigationDirective } from '@app-speed/ui/page-header';
 import { UserFlowAuditPageComponent } from '@app-speed/audit/user-flow/feature-viewer';
 import { ApiClient, AuditProgressService } from '@app-speed/audit/user-flow/portal-data-access';
 
@@ -18,45 +20,53 @@ const INITIAL_AUDIT_LOAD_STATE: AuditLoadState = { status: 'loading' };
 
 @Component({
   selector: 'user-flow-audit-result-page',
-  imports: [AuditBuilderComponent, UserFlowAuditPageComponent, RouterLink, MatButton, MatIcon],
+  imports: [
+    AuditBuilderComponent,
+    UserFlowAuditPageComponent,
+    RouterLink,
+    MatButton,
+    MatIcon,
+    MessageComponent,
+    PageHeaderComponent,
+    PageHeaderNavigationDirective,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
-    .audit-navigation {
+    .audit-header {
       box-sizing: border-box;
-      max-width: 960px;
-      margin: 16px auto 0;
-      padding-inline: 20px;
+      max-width: calc(var(--ui-page-width-medium) + 2 * var(--ui-page-gutter));
+      margin: 0 auto;
+      padding: var(--ui-space-6) var(--ui-page-gutter) 0;
     }
-
-    .audit-navigation a {
-      min-height: 48px;
+    .back {
+      margin: 0 0 var(--ui-space-4) calc(-1 * var(--ui-space-3));
     }
   `,
   template: `
-    <nav class="audit-navigation" aria-label="Audit navigation">
-      <a matButton="outlined" routerLink="/audits/user-flow/history" queryParamsHandling="preserve">
-        <mat-icon aria-hidden="true">arrow_back</mat-icon>
-        Audit history
-      </a>
-    </nav>
-    @switch (auditLoadState().status) {
-      @case ('loaded') {
-        @if (loadedAudit(); as audit) {
-          <ui-audit-builder
-            [initialAudit]="audit"
-            [modifying]="false"
-            [primaryAction]="primaryAction()"
-            [collapseSteps]="true"
-            (forked)="forkAudit(audit)"
-          />
-        }
+    <div class="audit-header">
+      <ui-page-header eyebrow="Audit" [heading]="loadedAudit()?.title || 'Audit'">
+        <a
+          uiPageHeaderNavigation
+          class="back"
+          matButton
+          routerLink="/audits/user-flow/history"
+          queryParamsHandling="preserve"
+        >
+          <mat-icon aria-hidden="true">arrow_back</mat-icon>Audit history
+        </a>
+      </ui-page-header>
+      @if (loadError(); as message) {
+        <ui-message data-testid="audit-inline-error" tone="error">{{ message }}</ui-message>
       }
-      @case ('failed') {
-        <section data-testid="audit-inline-error" role="alert">{{ loadError() }}</section>
-      }
-    }
-
-    @if (loadedAudit()) {
+    </div>
+    @if (loadedAudit(); as audit) {
+      <ui-audit-builder
+        [initialAudit]="audit"
+        [modifying]="false"
+        [primaryAction]="primaryAction()"
+        [collapseSteps]="true"
+        (forked)="forkAudit(audit)"
+      />
       <user-flow-audit-page [id]="id()" />
     }
   `,

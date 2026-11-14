@@ -247,13 +247,10 @@ import {
         clip-path: inset(50%);
       }
       .audit-row {
-        display: grid;
+        display: flex;
+        flex-wrap: wrap;
         padding: var(--ui-space-3) var(--ui-space-2) var(--ui-space-3) var(--ui-space-4);
         border-bottom: 1px solid var(--mat-sys-outline-variant);
-        grid-template-columns: auto auto 1fr;
-        grid-template-areas:
-          'audit audit actions'
-          'status created duration';
         align-items: center;
         gap: var(--ui-space-2) var(--ui-space-3);
       }
@@ -264,24 +261,33 @@ import {
         padding: 0;
         border: 0;
       }
+      /* The title shares the first line with the actions; status, date and duration wrap below. */
       .audit-cell {
+        flex: 1 1 calc(100% - 108px);
         min-width: 0;
-        grid-area: audit;
-      }
-      .status-cell {
-        grid-area: status;
-      }
-      .created {
-        grid-area: created;
-      }
-      .duration {
-        padding-inline-end: var(--ui-space-2);
-        grid-area: duration;
       }
       .actions {
+        flex: none;
         width: auto;
-        grid-area: actions;
-        justify-self: end;
+        order: 1;
+      }
+      .status-cell,
+      .created,
+      .duration {
+        order: 2;
+      }
+      .status-cell {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--ui-space-2);
+      }
+      .queue {
+        margin: 0;
+      }
+      .duration {
+        margin-inline-start: auto;
+        padding-inline-end: var(--ui-space-2);
       }
       .time {
         display: inline;
