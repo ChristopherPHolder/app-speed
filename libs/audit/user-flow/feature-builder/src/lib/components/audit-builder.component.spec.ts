@@ -91,10 +91,40 @@ describe('AuditBuilderComponent', () => {
     expect(host.querySelector('.insert-step, .add-step, .remove-step')).toBeNull();
   });
 
+  it('adds a step at the end, and still offers to add one after every step is removed', async () => {
+    const builderFixture = await renderBuilder({ modifying: true, primaryAction: 'analyze' });
+    const host: HTMLElement = builderFixture.nativeElement;
+    const steps = builderFixture.componentInstance.formGroup.controls.steps;
+    const addStep = async () => {
+      const button = host.querySelector<HTMLButtonElement>('.steps__add');
+      if (!button) throw new Error('Missing Add step button');
+      button.click();
+      builderFixture.detectChanges();
+      await builderFixture.whenStable();
+    };
+
+    await addStep();
+    expect(steps.length).toBe(4);
+    expect(steps.at(3).selectionControl.value).toBe('');
+    expect(host.querySelectorAll('ui-audit-builder-step')).toHaveLength(4);
+    expect(document.activeElement).toBe(host.querySelectorAll('ui-audit-builder-step')[3].querySelector('mat-select'));
+
+    while (steps.length > 0) builderFixture.componentInstance.formGroup.removeStepAt(0);
+    builderFixture.componentRef.changeDetectorRef.markForCheck();
+    builderFixture.detectChanges();
+    expect(host.querySelector('ui-empty-state')?.textContent).toContain('No steps yet');
+    expect(host.querySelector('.action-bar')?.textContent).toContain('Add at least one step');
+
+    await addStep();
+    expect(steps.length).toBe(1);
+    expect(host.querySelector('ui-empty-state')).toBeNull();
+  });
+
   it('hides step menus in read-only mode', async () => {
     const builderFixture = await renderBuilder({ modifying: false, primaryAction: 'fork' });
     const host: HTMLElement = builderFixture.nativeElement;
     expect(host.querySelector('[aria-label^="Actions for step"]')).toBeNull();
+    expect(host.querySelector('.steps__add')).toBeNull();
     expect(host.querySelectorAll('.step-number')).toHaveLength(3);
   });
 
