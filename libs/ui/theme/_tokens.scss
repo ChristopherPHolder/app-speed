@@ -1,0 +1,81 @@
+// Material 3 tokens that Angular Material does not emit.
+//
+// Angular Material owns colour roles, the type scale, shape, elevation and state-layer opacity as
+// `--mat-sys-*`. Everything here fills the remaining gaps under `--ui-*`. This file and `_theme.scss`
+// are the only places a literal colour, duration or size may be declared.
+
+// Spacing sits on the 4dp grid. The number is the multiple of 4dp.
+@mixin spacing() {
+  --ui-space-0: 0;
+  --ui-space-1: 4px;
+  --ui-space-2: 8px;
+  --ui-space-3: 12px;
+  --ui-space-4: 16px;
+  --ui-space-5: 20px;
+  --ui-space-6: 24px;
+  --ui-space-8: 32px;
+  --ui-space-10: 40px;
+  --ui-space-12: 48px;
+  --ui-space-16: 64px;
+}
+
+// Durations and easings from the M3 motion spec.
+@mixin motion() {
+  --ui-motion-duration-short1: 50ms;
+  --ui-motion-duration-short2: 100ms;
+  --ui-motion-duration-short3: 150ms;
+  --ui-motion-duration-short4: 200ms;
+  --ui-motion-duration-medium1: 250ms;
+  --ui-motion-duration-medium2: 300ms;
+  --ui-motion-duration-medium3: 350ms;
+  --ui-motion-duration-medium4: 400ms;
+  --ui-motion-duration-long1: 450ms;
+  --ui-motion-duration-long2: 500ms;
+  --ui-motion-duration-long3: 550ms;
+  --ui-motion-duration-long4: 600ms;
+
+  --ui-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ui-motion-easing-standard-decelerate: cubic-bezier(0, 0, 0, 1);
+  --ui-motion-easing-standard-accelerate: cubic-bezier(0.3, 0, 1, 1);
+  --ui-motion-easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --ui-motion-easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --ui-motion-easing-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
+}
+
+// Extended colour roles for status. Each family follows the M3 role structure so it pairs the same way
+// the built-in roles do: `x` with `on-x`, `x-container` with `on-x-container`.
+// Error status uses `--mat-sys-error*`; informational status uses the primary roles.
+@mixin status-colors() {
+  --ui-success: light-dark(#386a20, #9cd67d);
+  --ui-on-success: light-dark(#ffffff, #0c3900);
+  --ui-success-container: light-dark(#b7f397, #205107);
+  --ui-on-success-container: light-dark(#042100, #b7f397);
+
+  --ui-warning: light-dark(#7c5800, #f7bd48);
+  --ui-on-warning: light-dark(#ffffff, #412d00);
+  --ui-warning-container: light-dark(#ffdea8, #5e4200);
+  --ui-on-warning-container: light-dark(#271900, #ffdea8);
+}
+
+// Page margins and content widths. The gutter follows the M3 window size classes: 16dp in compact
+// windows and 24dp from medium up (see `_layout.scss` for the breakpoints).
+@mixin layout() {
+  --ui-page-gutter: 16px;
+  --ui-page-width-narrow: 680px;
+  --ui-page-width-medium: 960px;
+  --ui-page-width-wide: 1120px;
+
+  // Minimum interactive target, per the M3 accessibility guidance.
+  --ui-target-size: 48px;
+
+  @media (width >= 600px) {
+    --ui-page-gutter: 24px;
+  }
+}
+
+@mixin all() {
+  @include spacing;
+  @include motion;
+  @include status-colors;
+  @include layout;
+}

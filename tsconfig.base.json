@@ -19,6 +19,7 @@
       "@app-speed/audit/user-flow/feature-viewer": ["./libs/audit/user-flow/feature-viewer/src/index.ts"],
       "@app-speed/audit/core/feature-history": ["./libs/audit/core/feature-history/src/index.ts"],
       "@app-speed/ui": ["./libs/ui/src/public-api.ts"],
+      "@app-speed/ui/layout": ["./libs/ui/layout/public-api.ts"],
       "@app-speed/ui/scroll-container": ["./libs/ui/scroll-container/public-api.ts"],
       "@app-speed/ui/status-badge": ["./libs/ui/status-badge/public-api.ts"],
       "@app-speed/audit/core/runner": ["./libs/audit/core/runner/src/public-api.ts"],

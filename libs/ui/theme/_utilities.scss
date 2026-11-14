@@ -1,0 +1,39 @@
+// Global helpers shared by every feature. They are plain classes so they work across component
+// style encapsulation.
+
+@mixin visually-hidden() {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+// Focus indicator for custom interactive elements. Material components draw their own.
+@mixin focus-ring() {
+  outline: 2px solid var(--mat-sys-primary);
+  outline-offset: 2px;
+}
+
+@mixin all() {
+  // Text for assistive technology only.
+  .ui-visually-hidden {
+    @include visually-hidden;
+  }
+
+  // Short label above a headline.
+  .ui-eyebrow {
+    margin: 0;
+    color: var(--mat-sys-primary);
+    font: var(--mat-sys-label-large);
+    letter-spacing: var(--mat-sys-label-large-tracking);
+  }
+
+  .ui-focus-ring:focus-visible {
+    @include focus-ring;
+  }
+}

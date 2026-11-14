@@ -1,0 +1,48 @@
+// Material 3 window size classes.
+//
+// | Class       | Width           |
+// | ----------- | --------------- |
+// | compact     | < 600           |
+// | medium      | 600 – 839       |
+// | expanded    | 840 – 1199      |
+// | large       | 1200 – 1599     |
+// | extra-large | >= 1600         |
+//
+// Styles are written compact-first and widened with the `*-up` mixins. Plain CSS (inline component
+// styles) can't use Sass mixins, so it writes the same queries by hand: `@media (width >= 600px)`.
+// The TypeScript equivalents live in `@app-speed/ui/layout`.
+
+$medium: 600px;
+$expanded: 840px;
+$large: 1200px;
+$extra-large: 1600px;
+
+@mixin compact-only() {
+  @media (width < #{$medium}) {
+    @content;
+  }
+}
+
+@mixin medium-up() {
+  @media (width >= #{$medium}) {
+    @content;
+  }
+}
+
+@mixin expanded-up() {
+  @media (width >= #{$expanded}) {
+    @content;
+  }
+}
+
+@mixin large-up() {
+  @media (width >= #{$large}) {
+    @content;
+  }
+}
+
+@mixin extra-large-up() {
+  @media (width >= #{$extra-large}) {
+    @content;
+  }
+}
