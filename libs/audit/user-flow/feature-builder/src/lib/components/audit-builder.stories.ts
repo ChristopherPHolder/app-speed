@@ -19,6 +19,48 @@ export const Default: Story = {
   },
 };
 
+const READY_AUDIT = {
+  ...DEFAULT_AUDIT_DETAILS,
+  title: 'Checkout journey',
+  steps: [
+    DEFAULT_AUDIT_DETAILS.steps[0],
+    { type: 'navigate', url: 'https://example.com' },
+    DEFAULT_AUDIT_DETAILS.steps[2],
+  ],
+} as unknown as AuditDetails;
+
+/** Everything filled in: the bar shows the step count and the action. */
+export const ReadyToRun: Story = {
+  args: { initialAudit: READY_AUDIT, modifying: true },
+};
+
+/** Run audit was selected with the title and the URL missing: the fields and the step are marked. */
+export const BlockedRun: Story = {
+  args: { initialAudit: DEFAULT_AUDIT_DETAILS, modifying: true },
+  play: async ({ canvasElement }) => {
+    canvasElement.querySelector<HTMLButtonElement>('.submit-btn')?.click();
+  },
+};
+
+/** The request is on its way. */
+export const StartingAudit: Story = {
+  args: { initialAudit: READY_AUDIT, modifying: true, submittingRequest: true },
+};
+
+/** The run was rejected: the reason sits beside the button that started it. */
+export const RejectedRun: Story = {
+  args: {
+    initialAudit: READY_AUDIT,
+    modifying: true,
+    errorMessage: 'The runner is unavailable. Try again.',
+  },
+};
+
+/** A finished audit, read-only, with Fork as its action. */
+export const ReadOnly: Story = {
+  args: { initialAudit: READY_AUDIT, modifying: false, primaryAction: 'fork', collapseSteps: true },
+};
+
 /** Every step removed: the list offers to add the first one. */
 export const NoSteps: Story = {
   args: {

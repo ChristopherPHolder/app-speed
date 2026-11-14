@@ -9,7 +9,9 @@ import {
   input,
   OnInit,
   output,
+  signal,
   viewChild,
+  viewChildren,
   inject,
   effect,
 } from '@angular/core';
@@ -24,7 +26,6 @@ import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatOption } from '@angular/material/autocomplete';
 import { MatSelect } from '@angular/material/select';
-import { RxIf } from '@rx-angular/template/if';
 import { DEVICE_OPTIONS } from '@app-speed/audit/core/domain';
 import { AuditDetails } from '../audit-details';
 import { MatIcon } from '@angular/material/icon';
@@ -34,6 +35,10 @@ import { tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToTitleCasePipe } from '@app-speed/audit/core/portal-ui';
 import { EmptyStateActionsDirective, EmptyStateComponent } from '@app-speed/ui/empty-state';
+import { MessageComponent } from '@app-speed/ui/message';
+import { LIGHTHOUSE_AUDIT_STEP_TYPE } from '@app-speed/audit/user-flow/domain';
+
+const AUDIT_STEP_TYPES: ReadonlySet<string> = new Set(Object.values(LIGHTHOUSE_AUDIT_STEP_TYPE));
 
 @Component({
   selector: 'ui-audit-builder',
@@ -55,7 +60,9 @@ import { EmptyStateActionsDirective, EmptyStateComponent } from '@app-speed/ui/e
                 [formControl]="formGroup.controls.title"
                 name="audit title"
               />
-              <mat-error *rxIf="formGroup.controls.title.hasError('required')">Enter a title for this audit.</mat-error>
+              @if (formGroup.controls.title.hasError('required')) {
+                <mat-error>Enter a title.</mat-error>
+              }
             </mat-form-field>
             <mat-form-field appearance="outline">
               <mat-label>Device type</mat-label>
@@ -75,12 +82,19 @@ import { EmptyStateActionsDirective, EmptyStateComponent } from '@app-speed/ui/e
                 placeholder="30000"
                 [formControl]="formGroup.controls.timeout"
               />
-              <mat-error *rxIf="formGroup.controls.timeout.invalid">Enter a timeout between 1 and 99999 ms.</mat-error>
+              @if (formGroup.controls.timeout.invalid) {
+                <mat-error>Enter 1 to 99999.</mat-error>
+              }
             </mat-form-field>
           </div>
           <mat-accordion class="flow-steps" [multi]="true">
             @for (step of formGroup.controls.steps.controls; track step) {
-              <ui-audit-builder-step [stepControl]="step" [expanded]="stepExpanded()" [stepNumber]="$index + 1">
+              <ui-audit-builder-step
+                [stepControl]="step"
+                [expanded]="stepExpanded()"
+                [stepNumber]="$index + 1"
+                [showErrors]="attempted()"
+              >
                 @if (formGroup.enabled) {
                   <button
                     type="button"
@@ -119,22 +133,37 @@ import { EmptyStateActionsDirective, EmptyStateComponent } from '@app-speed/ui/e
       </mat-card>
       @if (primaryAction() !== 'none') {
         <div class="action-bar" role="region" aria-label="Audit actions">
-          <div class="action-bar__summary">
-            <strong
-              >{{ formGroup.controls.steps.length }}
-              {{ formGroup.controls.steps.length === 1 ? 'step' : 'steps' }}</strong
-            >
-            <p aria-live="polite">
-              {{ primaryAction() === 'fork' ? 'Fork this audit to edit its steps.' : readinessMessage() }}
-            </p>
-          </div>
-          @if (primaryAction() === 'analyze') {
-            <button class="submit-btn" matButton="filled" [disabled]="!canSubmitAudit()" type="submit">
-              {{ submittingRequest() ? 'Starting audit…' : 'Run audit' }}
-            </button>
-          } @else {
-            <button class="submit-btn" matButton="filled" type="button" (click)="forked.emit()">Fork</button>
+          @if (errorMessage(); as message) {
+            <ui-message class="action-bar__error" data-testid="audit-inline-error" tone="error">{{
+              message
+            }}</ui-message>
           }
+          <div class="action-bar__row">
+            <div class="action-bar__summary">
+              <strong
+                >{{ formGroup.controls.steps.length }}
+                {{ formGroup.controls.steps.length === 1 ? 'step' : 'steps' }}</strong
+              >
+              <!-- Says what blocks the run, once a run was tried. The fields and steps involved are marked. -->
+              <p class="action-bar__problem" aria-live="polite">
+                @if (attempted() && problem(); as problem) {
+                  <mat-icon aria-hidden="true">error</mat-icon>
+                  <span>{{ problem }}</span>
+                }
+              </p>
+            </div>
+            @if (primaryAction() === 'analyze') {
+              <!-- The button stays enabled: selecting it with something missing shows what and where. -->
+              <button class="submit-btn" matButton="filled" [disabled]="submittingRequest()" type="submit">
+                <mat-icon aria-hidden="true">play_arrow</mat-icon>
+                {{ submittingRequest() ? 'Starting audit…' : 'Run audit' }}
+              </button>
+            } @else {
+              <button class="submit-btn" matButton="filled" type="button" (click)="forked.emit()">
+                <mat-icon aria-hidden="true">call_split</mat-icon>Fork
+              </button>
+            }
+          </div>
         </div>
       }
     </form>
@@ -170,31 +199,51 @@ import { EmptyStateActionsDirective, EmptyStateComponent } from '@app-speed/ui/e
     }
     .action-bar {
       position: sticky;
-      bottom: var(--ui-space-3);
+      /* Clear the home indicator on phones that have one. */
+      bottom: calc(var(--ui-space-3) + env(safe-area-inset-bottom, 0px));
       z-index: 5;
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
       margin-top: var(--ui-space-4);
       padding: var(--ui-space-3) var(--ui-space-4);
       border-radius: var(--mat-sys-corner-medium);
       background: var(--mat-sys-surface-container);
       box-shadow: var(--mat-sys-level2);
+      gap: var(--ui-space-3);
+    }
+    .action-bar__error {
+      white-space: pre-line;
+    }
+    .action-bar__row {
+      display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: var(--ui-space-3) var(--ui-space-5);
+      gap: var(--ui-space-4);
     }
     .action-bar__summary {
-      flex: 1 1 240px;
+      flex: 1 1 auto;
       min-width: 0;
       font: var(--mat-sys-title-small);
     }
-    .action-bar__summary p {
-      margin: var(--ui-space-1) 0 0;
-      color: var(--mat-sys-on-surface-variant);
+    .action-bar__problem {
+      display: flex;
+      margin: 0;
+      color: var(--mat-sys-error);
       font: var(--mat-sys-body-medium);
+      align-items: center;
+      gap: var(--ui-space-1);
+    }
+    .action-bar__problem:empty {
+      display: none;
+    }
+    .action-bar__problem mat-icon {
+      flex: none;
+      width: var(--ui-space-5);
+      height: var(--ui-space-5);
+      font-size: var(--ui-space-5);
     }
     .submit-btn {
-      flex: 1 0 auto;
+      flex: none;
     }
     @media (width >= 600px) {
       mat-card-content {
@@ -205,9 +254,6 @@ import { EmptyStateActionsDirective, EmptyStateComponent } from '@app-speed/ui/e
       }
       .fields__title {
         grid-column: 1 / -1;
-      }
-      .submit-btn {
-        flex: none;
       }
     }
   `,
@@ -224,7 +270,6 @@ import { EmptyStateActionsDirective, EmptyStateComponent } from '@app-speed/ui/e
     MatLabel,
     MatOption,
     MatSelect,
-    RxIf,
     ToTitleCasePipe,
     MatIcon,
     MatIconButton,
@@ -234,6 +279,7 @@ import { EmptyStateActionsDirective, EmptyStateComponent } from '@app-speed/ui/e
     MatMenuTrigger,
     EmptyStateComponent,
     EmptyStateActionsDirective,
+    MessageComponent,
   ],
   providers: [provideBuilderFormFieldDefaults()],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -250,8 +296,13 @@ export class AuditBuilderComponent implements OnInit {
   public readonly modifying = input.required<boolean>();
   public readonly primaryAction = input<'analyze' | 'fork' | 'none'>('analyze');
   public readonly submittingRequest = input(false);
+  /** Why the last run was rejected, shown beside the button that started it. */
+  public readonly errorMessage = input<string | null>(null);
   public readonly collapseSteps = input(false);
   protected readonly stepExpanded = computed(() => !this.collapseSteps());
+  /** Set once a run was tried with something missing; from then on steps and the bar show what blocks it. */
+  protected readonly attempted = signal(false);
+  private readonly stepComponents = viewChildren(AuditStepComponent);
 
   constructor() {
     effect(() => {
@@ -293,36 +344,59 @@ export class AuditBuilderComponent implements OnInit {
   }
 
   protected submitCurrentAudit(): void {
-    if (!this.canSubmitAudit()) {
+    if (
+      this.primaryAction() !== 'analyze' ||
+      !this.modifying() ||
+      this.submittingRequest() ||
+      !this.formGroup.enabled
+    ) {
       return;
     }
 
+    if (this.problem() !== null) {
+      this.revealProblems();
+      return;
+    }
+
+    this.attempted.set(false);
     this.submitAudit.emit(this.auditValue());
   }
 
-  protected canSubmitAudit(): boolean {
-    return (
-      this.primaryAction() === 'analyze' &&
-      this.modifying() &&
-      !this.submittingRequest() &&
-      this.formGroup?.enabled === true &&
-      this.formGroup.valid &&
-      this.formGroup.controls.steps.controls.every((step) => step.selectionControl.valid)
-    );
+  /** What blocks the run, in the order it has to be fixed, or null when the audit can run. */
+  protected problem(): string | null {
+    const steps = this.formGroup.controls.steps.controls;
+
+    if (steps.length === 0) return 'Add a step';
+    if (
+      this.formGroup.controls.title.invalid ||
+      this.formGroup.controls.device.invalid ||
+      this.formGroup.controls.timeout.invalid ||
+      steps.some((step) => step.invalid || step.selectionControl.invalid)
+    ) {
+      return 'Fix the highlighted fields';
+    }
+    // The schema rejects an audit that measures nothing.
+    if (!steps.some((step) => AUDIT_STEP_TYPES.has(step.selectionControl.value))) return 'Add an audit step';
+    return null;
   }
 
-  protected readinessMessage(): string {
-    if (this.submittingRequest()) return 'Submitting your audit request…';
-    if (this.formGroup.controls.title.invalid) return 'Add an audit title to continue.';
-    if (this.formGroup.controls.device.invalid) return 'Choose a device to continue.';
-    if (this.formGroup.controls.timeout.invalid) return 'Enter a valid timeout in milliseconds.';
-    const steps = this.formGroup.controls.steps.controls;
-    if (steps.length === 0) return 'Add at least one step to run your audit.';
-    const invalidIndex = steps.findIndex((step) => step.invalid || step.selectionControl.invalid);
-    if (invalidIndex !== -1) {
-      return `Complete the required fields in step ${invalidIndex + 1} and check its optional properties.`;
-    }
-    return 'Ready to run your audit.';
+  /** Marks every problem, opens the steps that have one and moves focus to the first thing to fix. */
+  private revealProblems(): void {
+    this.attempted.set(true);
+    this.formGroup.markAllAsTouched();
+    this.formGroup.controls.steps.controls.forEach((step) => step.selectionControl.markAsTouched());
+    this.stepComponents().forEach((step) => step.openIfInvalid());
+
+    afterNextRender(
+      () => {
+        const host = this.host.nativeElement;
+        const target =
+          host.querySelector<HTMLElement>('input.ng-invalid, mat-select.ng-invalid') ??
+          host.querySelector<HTMLElement>('.steps__add');
+        target?.focus();
+      },
+      { injector: this.injector },
+    );
   }
 
   private syncFormMode(modifying: boolean): void {

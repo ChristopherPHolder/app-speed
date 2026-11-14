@@ -1,6 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { MessageComponent } from '@app-speed/ui/message';
 import { PageHeaderComponent } from '@app-speed/ui/page-header';
 import { Store } from '@ngrx/store';
 
@@ -11,7 +10,7 @@ import { auditBuilderFeature } from './builder.state';
 
 @Component({
   selector: 'audit',
-  imports: [AuditBuilderComponent, MessageComponent, PageHeaderComponent],
+  imports: [AuditBuilderComponent, PageHeaderComponent],
   template: `
     <div class="audit-header">
       <ui-page-header
@@ -26,13 +25,9 @@ import { auditBuilderFeature } from './builder.state';
         [initialAudit]="auditDetails"
         primaryAction="analyze"
         [submittingRequest]="submittingRequest()"
+        [errorMessage]="auditRequestError()"
         (submitAudit)="submitAudit($event)"
       />
-    }
-    @if (auditRequestError(); as errorMessage) {
-      <div class="audit-error">
-        <ui-message data-testid="audit-inline-error" tone="error">{{ errorMessage }}</ui-message>
-      </div>
     }
   `,
   styles: `
@@ -41,12 +36,6 @@ import { auditBuilderFeature } from './builder.state';
       max-width: calc(var(--ui-page-width-medium) + 2 * var(--ui-page-gutter));
       margin: 0 auto;
       padding: var(--ui-space-6) var(--ui-page-gutter) 0;
-    }
-    .audit-error {
-      box-sizing: border-box;
-      max-width: calc(var(--ui-page-width-medium) + 2 * var(--ui-page-gutter));
-      margin: 0 auto;
-      padding: 0 var(--ui-page-gutter) var(--ui-space-6);
     }
   `,
 })

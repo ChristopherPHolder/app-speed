@@ -1,4 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
+import { Schema } from 'effect';
 import { describe, expect, it } from 'vitest';
 
 import { getAuditRequestErrorMessage } from './builder-error-message';
@@ -53,5 +54,18 @@ describe('getAuditRequestErrorMessage', () => {
     });
 
     expect(getAuditRequestErrorMessage(error)).toContain('400 Bad Request');
+  });
+
+  it('does not show the schema dump when the request fails to decode before it is sent', () => {
+    let error: unknown;
+    try {
+      Schema.decodeUnknownSync(Schema.Struct({ title: Schema.NonEmptyString }))({ title: '' });
+    } catch (thrown) {
+      error = thrown;
+    }
+
+    expect(getAuditRequestErrorMessage(error)).toBe(
+      'This audit has a value that can’t be run. Check each step, then try again.',
+    );
   });
 });
