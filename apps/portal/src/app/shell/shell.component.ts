@@ -5,13 +5,31 @@ import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatSidenav, MatSidenavContainer, MatSidenavContent } from '@angular/material/sidenav';
 import { MatToolbar } from '@angular/material/toolbar';
-import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import {
+  type IsActiveMatchOptions,
+  NavigationEnd,
+  Router,
+  RouterLink,
+  RouterLinkActive,
+  RouterOutlet,
+} from '@angular/router';
+import { WINDOW_SIZE_CLASS } from '@app-speed/ui/layout';
 import { filter, map } from 'rxjs';
+import { AnalyticsConsentService } from '../analytics/analytics-consent.service';
 import { AccountMenuComponent } from '../auth/account-menu.component';
 import { PortalAuthService } from '../auth/portal-auth.service';
 import { WorkspaceNavigationComponent } from '../workspace/workspace-navigation.component';
 
-const desktopQuery = '(width >= 960px)';
+// The drawer becomes standard, and navigation moves into the app bar, from the expanded window class.
+const desktopQuery = WINDOW_SIZE_CLASS.expandedUp;
+
+/** Query parameters carry project scope and forked audits; they don't change which destination is current. */
+const activeMatch = (exact: boolean): IsActiveMatchOptions => ({
+  paths: exact ? 'exact' : 'subset',
+  queryParams: 'ignored',
+  matrixParams: 'ignored',
+  fragment: 'ignored',
+});
 
 @Component({
   selector: 'app-shell',
@@ -61,7 +79,7 @@ const desktopQuery = '(width >= 960px)';
                 mat-button
                 [routerLink]="item.route"
                 routerLinkActive="active-navigation-item"
-                [routerLinkActiveOptions]="{ exact: item.exact }"
+                [routerLinkActiveOptions]="item.match"
                 ariaCurrentWhenActive="page"
                 (click)="closeMobileMenu()"
               >
@@ -99,7 +117,7 @@ const desktopQuery = '(width >= 960px)';
               }
               <a class="brand" routerLink="/" aria-label="App Speed home">
                 <picture
-                  ><source media="(width < 960px)" srcset="assets/logo-wordmark.svg" />
+                  ><source media="(width < 840px)" srcset="assets/logo-wordmark.svg" />
                   <img src="assets/logo.svg" alt=""
                 /></picture>
               </a>
@@ -110,7 +128,7 @@ const desktopQuery = '(width >= 960px)';
                       mat-button
                       [routerLink]="item.route"
                       routerLinkActive="active-navigation-item"
-                      [routerLinkActiveOptions]="{ exact: item.exact }"
+                      [routerLinkActiveOptions]="item.match"
                       ariaCurrentWhenActive="page"
                       >{{ item.label }}</a
                     >
@@ -157,6 +175,7 @@ const desktopQuery = '(width >= 960px)';
             >Made with ❤️ by
             <a target="_blank" rel="noopener noreferrer" href="https://x.com/chrispholder">Chris</a></span
           >
+          <button matButton type="button" (click)="consent.settingsOpen.set(true)">Cookie settings</button>
         </footer>
       </mat-sidenav-content>
     </mat-sidenav-container>
@@ -265,12 +284,16 @@ const desktopQuery = '(width >= 960px)';
       outline: none;
     }
     footer {
+      display: flex;
+      flex-wrap: wrap;
+      padding: var(--ui-space-2) var(--ui-space-4);
       border-top: 1px solid var(--mat-sys-outline-variant);
       background: var(--mat-sys-surface-container-low);
-      padding: 16px;
-      text-align: center;
       color: var(--mat-sys-on-surface-variant);
       font: var(--mat-sys-body-small);
+      align-items: center;
+      justify-content: center;
+      gap: var(--ui-space-1) var(--ui-space-4);
     }
     footer a {
       color: inherit;
@@ -288,12 +311,12 @@ const desktopQuery = '(width >= 960px)';
     .skip-link:focus {
       transform: translateY(0);
     }
-    @media (width >= 960px) {
+    @media (width >= 840px) {
       .workspace-shell .app-header {
         display: none;
       }
     }
-    @media (width < 960px) {
+    @media (width < 840px) {
       mat-toolbar {
         height: 64px;
       }
@@ -311,6 +334,7 @@ const desktopQuery = '(width >= 960px)';
 })
 export class ShellComponent {
   protected readonly auth = inject(PortalAuthService);
+  protected readonly consent = inject(AnalyticsConsentService);
   private readonly router = inject(Router);
   private readonly breakpoint = inject(BreakpointObserver);
   protected readonly desktop = toSignal(this.breakpoint.observe(desktopQuery).pipe(map((result) => result.matches)), {
@@ -329,9 +353,9 @@ export class ShellComponent {
     this.desktop() ? this.auth.signedIn() && !this.onboarding() : this.mobileMenuOpen(),
   );
   protected readonly navigationItems = [
-    { label: 'Run audit', route: '/audits/user-flow', icon: 'speed', exact: true },
-    { label: 'Audit history', route: '/audits/history', icon: 'history', exact: true },
-    { label: 'Trace tools', route: '/convenience', icon: 'construction', exact: false },
+    { label: 'Run audit', route: '/audits/user-flow', icon: 'speed', match: activeMatch(true) },
+    { label: 'Audit history', route: '/audits/history', icon: 'history', match: activeMatch(true) },
+    { label: 'Trace tools', route: '/convenience', icon: 'construction', match: activeMatch(false) },
   ];
   constructor() {
     effect(() => {

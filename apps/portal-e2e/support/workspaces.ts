@@ -72,7 +72,7 @@ export function submitName(name: string) {
 }
 export function openNavigation() {
   cy.window().then((win) => {
-    if (win.innerWidth < 960) {
+    if (win.innerWidth < 840) {
       cy.get('[aria-label="Open navigation menu"]')
         .should('be.visible')
         .should('have.attr', 'aria-expanded', 'false')

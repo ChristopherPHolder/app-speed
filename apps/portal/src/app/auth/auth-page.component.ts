@@ -113,19 +113,16 @@ import { PortalAuthService } from './portal-auth.service';
     }
     .auth-page {
       display: grid;
-      padding: 48px 20px;
-      min-height: 60dvh;
-      align-items: start;
+      padding: var(--ui-space-12) var(--ui-page-gutter);
       justify-items: center;
-      background: var(--mat-sys-surface-container-low);
     }
     .auth-card {
       box-sizing: border-box;
       width: min(100%, 440px);
       padding: 32px;
       border: 1px solid var(--mat-sys-outline-variant);
-      border-radius: 24px;
-      background: var(--mat-sys-surface);
+      border-radius: var(--mat-sys-corner-extra-large);
+      background: var(--mat-sys-surface-container-lowest);
       color: var(--mat-sys-on-surface);
     }
     .eyebrow {

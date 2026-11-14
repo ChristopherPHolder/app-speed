@@ -39,87 +39,67 @@ import { AnalyticsConsentService } from './analytics-consent.service';
         }
       </section>
     }
-    <div class="settings">
-      <button mat-button type="button" (click)="consent.settingsOpen.set(true)">Cookie settings</button>
-    </div>
   `,
   styles: `
+    /* A non-modal surface that floats over the page until a choice is made. */
     .consent-banner {
       position: fixed;
-      inset: auto auto 20px 20px;
+      inset: auto auto var(--ui-space-4) var(--ui-space-4);
       z-index: 100;
       box-sizing: border-box;
-      width: min(400px, calc(100% - 40px));
-      max-height: calc(100dvh - 40px);
+      width: min(400px, calc(100% - 2 * var(--ui-space-4)));
+      max-height: calc(100dvh - 2 * var(--ui-space-4));
       overflow: auto;
-      padding: 20px;
-      border: 1px solid var(--mat-sys-outline-variant, #dfe3eb);
-      border-radius: 16px;
-      background: var(--mat-sys-surface, #fff);
-      color: var(--mat-sys-on-surface, #1f1f1f);
-      box-shadow: 0 4px 24px #18274414;
+      padding: var(--ui-space-5);
+      border-radius: var(--mat-sys-corner-large);
+      background: var(--mat-sys-surface-container-high);
+      color: var(--mat-sys-on-surface);
+      box-shadow: var(--mat-sys-level3);
     }
     h2 {
       margin: 0;
-      font-size: 1rem;
-      line-height: 1.5;
-      font-weight: 600;
-      letter-spacing: -0.015em;
+      font: var(--mat-sys-title-medium);
     }
     p {
-      margin: 8px 0 12px;
-      color: var(--mat-sys-on-surface-variant, #444746);
-      font-size: 0.875rem;
-      line-height: 1.5;
+      margin: var(--ui-space-2) 0 var(--ui-space-3);
+      color: var(--mat-sys-on-surface-variant);
+      font: var(--mat-sys-body-medium);
     }
     a {
-      color: var(--mat-sys-primary, #0b57d0);
+      color: var(--mat-sys-primary);
     }
     summary {
       width: fit-content;
-      color: var(--mat-sys-on-surface-variant, #444746);
-      font-size: 0.75rem;
-      line-height: 1.5;
+      border-radius: var(--mat-sys-corner-extra-small);
+      color: var(--mat-sys-on-surface-variant);
+      font: var(--mat-sys-label-large);
       cursor: pointer;
     }
     summary:focus-visible {
-      outline: 2px solid var(--mat-sys-primary, #0b57d0);
-      outline-offset: 4px;
-      border-radius: 2px;
+      outline: 2px solid var(--mat-sys-primary);
+      outline-offset: 2px;
     }
     .actions {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 16px;
+      gap: var(--ui-space-2);
+      margin-top: var(--ui-space-4);
     }
     .actions > button {
       flex: 1 1 140px;
-      min-height: 40px;
-    }
-    .actions > .reject {
-      color: var(--mat-sys-on-surface-variant, #444746);
-      border-color: var(--mat-sys-outline, #74777f);
     }
     .close {
       display: block;
-      margin: 8px auto -8px;
+      margin: var(--ui-space-2) auto calc(-1 * var(--ui-space-2));
     }
-    .settings {
-      padding: 8px;
-      text-align: center;
-    }
-    @media (max-width: 480px) {
+    @media (width < 600px) {
+      /* In compact windows it docks to the bottom edge like a sheet. */
       .consent-banner {
-        inset: auto 12px 12px;
+        inset: auto 0 0;
         width: auto;
-        padding: 16px;
-      }
-    }
-    @media (width < 960px) {
-      .consent-banner {
-        /* Reserve the app bar and the banner's bottom inset. */
-        max-height: calc(100dvh - 88px);
+        max-height: calc(100dvh - 64px);
+        padding: var(--ui-space-4);
+        border-radius: var(--mat-sys-corner-extra-large) var(--mat-sys-corner-extra-large) 0 0;
       }
     }
   `,

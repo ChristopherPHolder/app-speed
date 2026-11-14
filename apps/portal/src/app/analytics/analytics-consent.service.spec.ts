@@ -159,7 +159,8 @@ describe('Analytics consent', () => {
     button('Reject analytics')?.click();
     await fixture.whenStable();
     expect(element.querySelector('section')).toBeNull();
-    button('Cookie settings')?.click();
+    // The shell footer reopens the settings through the service.
+    TestBed.inject(AnalyticsConsentService).settingsOpen.set(true);
     await fixture.whenStable();
     expect(element.querySelector('section')).not.toBeNull();
   });
