@@ -1,0 +1,12 @@
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  test: {
+    name: 'eslint-rules',
+    watch: false,
+    globals: true,
+    environment: 'node',
+    include: ['rules/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    reporters: ['default'],
+  },
+});

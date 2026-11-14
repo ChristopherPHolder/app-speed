@@ -1,0 +1,77 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import * as StatesStories from './states.stories';
+
+<Meta of={StatesStories} />
+
+# States
+
+Interactive elements show their state the same way everywhere, so people learn it once.
+
+## State layers
+
+A state layer is a translucent overlay in the element's **content colour**, placed over its container. It works on any
+fill and in both schemes because it is derived from colours the element already has.
+
+<Canvas of={StatesStories.StateLayers} />
+
+Angular Material components draw their own state layers. For a custom interactive surface — a clickable card, a row,
+a tile — build it the same way:
+
+<Canvas of={StatesStories.InteractiveSurface} />
+
+```css
+.card {
+  position: relative;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--mat-sys-on-surface);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ui-motion-duration-short3) var(--ui-motion-easing-standard);
+}
+.card:hover::before {
+  opacity: var(--mat-sys-hover-state-layer-opacity);
+}
+.card:focus-visible::before {
+  opacity: var(--mat-sys-focus-state-layer-opacity);
+}
+.card:active::before {
+  opacity: var(--mat-sys-pressed-state-layer-opacity);
+}
+```
+
+## Focus
+
+Keyboard focus must always be visible. Material components handle it. For custom elements add the `.ui-focus-ring`
+class (or the `focus-ring` Sass mixin): a 2dp `primary` outline, offset by 2dp, on `:focus-visible` only.
+
+- Never remove an outline without replacing it.
+- Use `:focus-visible`, not `:focus`, so pointer users don't see rings.
+- Focus order follows reading order. Don't use positive `tabindex`.
+
+## Selected and activated
+
+Selection uses a tonal fill, not a border colour change: `secondary-container` with `on-secondary-container`. That is
+what the active navigation destination and selected chips use.
+
+## Disabled
+
+<Canvas of={StatesStories.Disabled} />
+
+Disabled content is `on-surface` at 38% and a disabled container is `on-surface` at 12%. Material components apply
+this. Two things to keep in mind:
+
+- A disabled control can't be focused or explained. If people need to know _why_ an action is unavailable, keep it
+  enabled and say what's missing — the audit builder's "Add an audit title to continue" is the pattern.
+- Don't hide controls that are temporarily unavailable; layout shouldn't jump as state changes.
+
+## Loading and errors
+
+- Show progress for anything that takes more than about a second. Use a linear indicator for page or panel loads and
+  a circular one inside a small area or a button.
+- Announce asynchronous results: `role="status"` for progress and success, `role="alert"` for errors.
+- Put an error next to the thing that failed, say what happened, and offer the next step.

@@ -1,0 +1,70 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Foundations/Accessibility" />
+
+# Accessibility
+
+The target is WCAG 2.2 AA. Using the tokens and Material components gets most of the way there; this page lists what
+they can't do for you.
+
+## Contrast
+
+| Content                                             | Minimum against its background |
+| --------------------------------------------------- | ------------------------------ |
+| Body text                                           | 4.5:1                          |
+| Large text (24px, or 18.66px at weight 500+)        | 3:1                            |
+| Icons, input borders, focus indicators, chart marks | 3:1                            |
+
+- Role pairs (`primary` / `on-primary`, `surface` / `on-surface-variant`, `--ui-success-container` /
+  `--ui-on-success-container`) meet these in both schemes. Off-pair combinations aren't guaranteed.
+- `outline-variant` is decorative and below 3:1. Use `outline` for a boundary someone needs to see.
+- Don't convey meaning with colour alone. Status has an icon or a word; links in running text are underlined.
+
+## Targets
+
+- Interactive targets are at least 48×48dp (`--ui-target-size`), even when the visible control is smaller. Material
+  buttons and icon buttons already extend their touch target.
+- Keep 8dp between adjacent targets.
+- Don't make a whole row _and_ controls inside it clickable unless the row action is also reachable on its own.
+
+## Keyboard
+
+- Everything that works with a pointer works with a keyboard, in reading order.
+- Focus is always visible (see States).
+- Dialogs and menus trap focus while open and return it to the trigger when they close — use `MatDialog` and
+  `MatMenu` rather than a hand-built overlay.
+- The page offers a "Skip to content" link as its first focusable element.
+- When content is replaced (a route change, a step expanding), move focus to the new content or announce it.
+
+## Structure and semantics
+
+- One `h1` per page; headings nest without skipping levels.
+- Use native elements: `<button>` for actions, `<a>` for navigation, `<table>` for tabular data, lists for lists.
+- Landmarks: one `<main>`, a `<nav>` per navigation region with a distinct `aria-label`, `<header>` and `<footer>`.
+- Form controls have visible labels. A placeholder is not a label.
+- Images that inform have `alt` text; decorative ones have `alt=""`.
+- Text hidden visually but needed by assistive technology uses `.ui-visually-hidden`.
+
+## Dynamic content
+
+| Situation                        | Markup                                             |
+| -------------------------------- | -------------------------------------------------- |
+| Progress and non-urgent updates  | `role="status"` (polite)                           |
+| Errors that need attention       | `role="alert"` (assertive)                         |
+| A region that is loading         | `aria-busy="true"` on the region                   |
+| A control that expands something | `aria-expanded` and `aria-controls` on the control |
+| The current page in navigation   | `aria-current="page"`                              |
+
+## Motion, zoom and reflow
+
+- Honour `prefers-reduced-motion` (see Motion).
+- Content reflows to a single column at 320 CSS px wide without horizontal scrolling, and stays usable at 200% zoom.
+- Use `rem` or tokens for type so it follows the browser's font size. Don't fix heights on containers that hold text.
+
+## Check before merging
+
+1. Tab through the change. Is every control reachable, in order, with a visible focus ring?
+2. Operate it with the keyboard only, including dialogs and menus.
+3. Look at it at 390px wide and at 200% zoom.
+4. Switch the Storybook scheme to dark. Anything that disappears is using a colour that isn't a token.
+5. Run the story through the browser's accessibility tree: does each control have a name and a role?

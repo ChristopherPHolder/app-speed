@@ -25,6 +25,14 @@
 - ESLint enforces Nx module boundaries; avoid importing across disallowed library boundaries.
 - SCSS is the default style language for Angular generators.
 
+## UI and Design System
+- App Speed follows Material Design 3. **All UI comes from the shared library `libs/ui`** — see `docs/conventions/design-system.md` and `docs/adr/ADR-0008-shared-design-system.md`.
+- Every visual value is a theme token: `--mat-sys-*` for colour roles, type, shape, elevation and state; `--ui-*` for spacing, motion, status colour and layout. Never write a literal colour, pixel radius, `box-shadow`, font size or breakpoint in a feature.
+- Use Angular Material for standard controls and do not restyle them. Use `@app-speed/ui/*` for shared patterns.
+- If a token or component is missing, add it to `libs/ui` with a story first, then use it. When the same markup appears in a second feature, move it into `libs/ui`.
+- The Storybook in `apps/design-system` (Foundations, Material, Components) is the reference; read the relevant page before building or changing UI, and add or update stories with the change.
+- `@nx/workspace-no-hardcoded-colors` reports literal colours in component styles. Disable it only for artwork or canvas exports, with a comment explaining why.
+
 ## Angular Agent Guidance
 - This workspace expects the Codex skills `angular-developer` and `angular-new-app` from `angular/skills` to be available locally.
 - Use `angular-developer` for Angular work in `apps/portal`, `libs/ui/**`, and Angular libraries under `libs/audit/**`.

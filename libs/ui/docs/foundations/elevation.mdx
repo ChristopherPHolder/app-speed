@@ -1,0 +1,35 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import * as ElevationStories from './elevation.stories';
+
+<Meta of={ElevationStories} />
+
+# Elevation
+
+Elevation is the distance between two surfaces. Material 3 has six levels, each a single `box-shadow` token.
+
+<Canvas of={ElevationStories.Levels} />
+
+## Tone first
+
+Most separation doesn't need a shadow. Put the region on a different surface container, or give it an
+`outline-variant` border. It reads as cleanly and it costs nothing when the page gets busy.
+
+<Canvas of={ElevationStories.TonalSurfaces} />
+
+## When to use a shadow
+
+A shadow says "this is above that". Use one when a surface genuinely overlaps other content:
+
+- it floats over the page (menu, dialog, snackbar, consent banner);
+- it stays put while content scrolls under it (a sticky action bar);
+- it is being dragged.
+
+## Rules
+
+- Use `--mat-sys-level0` … `--mat-sys-level5`. Never write a `box-shadow` by hand.
+- Resting cards are level 0 with an outline, or filled with a surface container. Keep level 1 for the rare card that
+  must stand out from a tinted background.
+- Don't raise elevation on hover to signal that a card is clickable. Interactive surfaces show a state layer (see
+  States); only elements that are already elevated go up one level on hover.
+- Higher is rarer. If several things on a view share a level above 1, something is wrong.
+- Inset or coloured shadows are not elevation. Use a border or a tonal surface.

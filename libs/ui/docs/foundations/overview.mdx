@@ -1,0 +1,50 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Foundations/Overview" />
+
+# App Speed design system
+
+App Speed's interface follows [Material Design 3](https://m3.material.io/). This Storybook is where that is written
+down: the tokens the theme provides, how the Material components are used here, and the components shared between
+features.
+
+## The rule
+
+**UI comes from the shared library, `libs/ui`.**
+
+| Need                                                                           | Where it comes from                                  |
+| ------------------------------------------------------------------------------ | ---------------------------------------------------- |
+| A colour, type style, corner, shadow, spacing, duration or breakpoint          | A theme token — `--mat-sys-*` or `--ui-*`            |
+| A standard control: button, field, dialog, menu, tab, chip, list               | Angular Material                                     |
+| A pattern used by more than one feature: page header, status chip, empty state | A component in `@app-speed/ui/*`                     |
+| Something only one feature needs                                               | The feature library, built from the three rows above |
+
+If a feature needs a value or a component that doesn't exist yet, it is added to `libs/ui` first and used from there.
+A feature never declares a literal colour, radius, shadow or font size of its own.
+
+## Layers
+
+1. **Tokens** — `libs/ui/theme`. Angular Material's system tokens plus the `--ui-*` tokens for spacing, motion, status
+   colour and layout. Documented under **Foundations**.
+2. **Material components** — used as provided, themed by the tokens, not restyled. Documented under **Material**.
+3. **Shared components** — `@app-speed/ui/*`, one secondary entry point each. Documented under **Components**.
+4. **Feature UI** — in the feature libraries. Shown under **Patterns**.
+
+Each layer only uses the layers above it.
+
+## Working with it
+
+- Before building UI, check **Material** and **Components** for something that already does the job.
+- When the same markup and styles appear in a second feature, move them into `libs/ui` with a story.
+- Check every change in both schemes with the toolbar toggle, and at compact width.
+- The `@nx/workspace-no-hardcoded-colors` lint rule reports literal colours in component styles.
+
+## Where things are
+
+| What                              | Where                                                                            |
+| --------------------------------- | -------------------------------------------------------------------------------- |
+| Theme and tokens                  | `libs/ui/theme`                                                                  |
+| Shared components                 | `libs/ui/<component>` → `@app-speed/ui/<component>`                              |
+| Window size classes in TypeScript | `@app-speed/ui/layout`                                                           |
+| These docs                        | `libs/ui/docs`                                                                   |
+| Convention and decision record    | `docs/conventions/design-system.md`, `docs/adr/ADR-0008-shared-design-system.md` |

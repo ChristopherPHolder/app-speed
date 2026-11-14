@@ -1,0 +1,44 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import * as TypographyStories from './typography.stories';
+
+<Meta of={TypographyStories} />
+
+# Typography
+
+The type scale has five roles — display, headline, title, body, label — each in three sizes. The typeface is Roboto.
+Every style is a single token that carries family, size, line height and weight, so one declaration sets all four:
+
+```css
+h1 {
+  font: var(--mat-sys-headline-medium);
+}
+```
+
+<Canvas of={TypographyStories.TypeScale} />
+
+## Which style to use
+
+| Element                                  | Style                                                                           |
+| ---------------------------------------- | ------------------------------------------------------------------------------- |
+| Hero headline on a marketing-style page  | `display-small`, stepping up to `display-medium` from the expanded window class |
+| Page title (`h1`)                        | `headline-medium`; `headline-small` in compact windows                          |
+| Section heading (`h2`)                   | `title-large`                                                                   |
+| Card or list-group title                 | `title-medium`                                                                  |
+| Dense UI text, table cells, descriptions | `body-medium`                                                                   |
+| Long-form reading, hero descriptions     | `body-large`                                                                    |
+| Captions, timestamps, helper text        | `body-small`                                                                    |
+| Buttons, tabs, eyebrows, field labels    | `label-large`                                                                   |
+| Chips, badges, overlines                 | `label-medium` / `label-small`                                                  |
+
+## Rules
+
+- Set the `font` token. Don't set `font-size`, `font-weight` or `line-height` on their own — that is how one-off
+  styles (a 34px heading, a 600 weight) get in.
+- Emphasis inside body text is `font-weight: 500` via `<strong>`; Roboto is loaded at 300, 400 and 500 only, so 600
+  and 700 are synthesised by the browser and look wrong.
+- One `h1` per page, and heading levels don't skip. Choose the level for structure and the token for appearance; they
+  are independent.
+- Use `font-variant-numeric: tabular-nums` for columns of numbers, durations and scores.
+- Keep line length readable: cap running text at about 680px (`--ui-page-width-narrow`).
+- Use `text-wrap: balance` on multi-line headlines.
+- The `.ui-eyebrow` utility is the one style for the short label above a headline.

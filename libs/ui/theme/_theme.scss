@@ -1,18 +1,23 @@
 @use '@angular/material' as mat;
+@use 'tokens';
 
 @mixin core() {
   @include mat.core;
 }
 
+// The App Speed theme: Angular Material's M3 system tokens (`--mat-sys-*`) for the azure palette,
+// plus the `--ui-*` tokens Material does not emit. Colours are emitted with `light-dark()`, so the
+// element's `color-scheme` decides which scheme applies.
 @mixin azure() {
   @include mat.theme(
     (
       color: (
-        theme-type: light,
+        theme-type: color-scheme,
         primary: mat.$azure-palette,
       ),
       typography: Roboto,
       density: 0,
     )
   );
+  @include tokens.all;
 }

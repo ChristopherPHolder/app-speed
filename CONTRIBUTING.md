@@ -37,6 +37,10 @@ in an issue so the scope and approach can be agreed before implementation.
   Follow the [Angular secondary entry point conventions](docs/conventions/angular-secondary-entry-points.md)
   when changing publishable libraries.
 - Use workspace-consistent Nx generators for Angular code, with SCSS for component styles.
+- Take all UI from the shared library, `libs/ui`: theme tokens for every visual value, Angular Material for standard
+  controls, and `@app-speed/ui/*` for shared patterns. Follow the
+  [design system convention](docs/conventions/design-system.md) and check the Storybook (`pnpm exec nx serve
+design-system`) before building UI.
 - Keep generated `dist/` output and secrets out of commits. Use the ignored local `.env` for development settings.
 - Implement deployment and release logic as Nx executors under `tools`; CI/CD operations must use Nx targets.
 

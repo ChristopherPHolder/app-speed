@@ -1,0 +1,87 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import * as ColorStories from './color.stories';
+
+<Meta of={ColorStories} />
+
+# Color
+
+Material 3 assigns colour by **role**, not by hue. A role says what a colour is for — the most prominent action, a
+resting surface, a boundary — and the theme decides which colour fills it. Code names the role; it never names a colour.
+
+All roles come from the theme in `libs/ui/theme`. Angular Material emits the standard roles as `--mat-sys-*`; the
+extended status roles are `--ui-*`. Use the toolbar to switch scheme: every swatch on this page is read from the live
+tokens.
+
+## Accent roles
+
+<Canvas of={ColorStories.AccentRoles} />
+
+| Role                       | Use it for                                                                              |
+| -------------------------- | --------------------------------------------------------------------------------------- |
+| `primary`                  | The single most important action on a view, active states, links, focus.                |
+| `primary-container`        | Prominent but not dominant fills: icon tiles, highlighted panels, the "running" status. |
+| `secondary-container`      | Quieter selection: the active navigation destination, tonal buttons, selected chips.    |
+| `tertiary`                 | A contrasting accent to balance primary. Use sparingly.                                 |
+| `error`, `error-container` | Errors and destructive actions only.                                                    |
+
+## Surfaces
+
+<Canvas of={ColorStories.SurfaceRoles} />
+
+Depth is expressed with **tone before shadow**. A page sits on `surface`; regions that group content step up through
+`surface-container-low` → `surface-container-highest`. Reach for a shadow only when one surface actually overlaps
+another (see Elevation).
+
+| Role                                       | Use it for                                                                              |
+| ------------------------------------------ | --------------------------------------------------------------------------------------- |
+| `surface`                                  | The page background.                                                                    |
+| `surface-container-low`                    | Large resting regions: hero panels, the navigation drawer, the footer.                  |
+| `surface-container` / `-high` / `-highest` | Nested or more emphasised regions: cards on a tinted panel, table headers, input fills. |
+| `on-surface`                               | Primary text and icons.                                                                 |
+| `on-surface-variant`                       | Supporting text, secondary icons, field labels.                                         |
+| `outline`                                  | Boundaries a person interacts with: text fields, outlined buttons. Meets 3:1.           |
+| `outline-variant`                          | Decorative separation: dividers, card borders.                                          |
+
+## Status
+
+<Canvas of={ColorStories.StatusRoles} />
+
+Material 3 has no built-in success or warning, so the theme adds them as extended roles with the same four-part
+structure. Pick the family by meaning:
+
+| Meaning                         | Roles                                                                  |
+| ------------------------------- | ---------------------------------------------------------------------- |
+| Success, passed, good           | `--ui-success*`                                                        |
+| Needs attention, average        | `--ui-warning*`                                                        |
+| Failed, destructive             | `--mat-sys-error*`                                                     |
+| In progress, informational      | `--mat-sys-primary*`                                                   |
+| Not applicable, queued, neutral | `--mat-sys-surface-container-high` with `--mat-sys-on-surface-variant` |
+
+Never signal status with colour alone: pair it with an icon or a label.
+
+## Pairing rules
+
+- A fill is only ever used with its own `on-` colour: `primary` with `on-primary`, `primary-container` with
+  `on-primary-container`. Those pairs are the ones guaranteed to meet contrast in both schemes.
+- Don't mix a token with `white` or `black` (`color-mix(…, white)`). It looks right in light and breaks in dark. Step
+  to the next surface container, or mix with `transparent`.
+- Don't add a literal fallback to `var()`. The theme is always loaded, and the fallback is a second source of truth.
+- Don't use `opacity` to make text secondary. Use `on-surface-variant`.
+
+```css
+/* Do */
+.panel {
+  background: var(--mat-sys-surface-container-low);
+  color: var(--mat-sys-on-surface);
+  border: 1px solid var(--mat-sys-outline-variant);
+}
+
+/* Don't */
+.panel {
+  background: #f8fafc;
+  color: var(--mat-sys-on-surface, #1f1f1f);
+  border: 1px solid color-mix(in srgb, var(--mat-sys-outline) 60%, white);
+}
+```
+
+The `@nx/workspace-no-hardcoded-colors` lint rule reports literal colours in component styles.

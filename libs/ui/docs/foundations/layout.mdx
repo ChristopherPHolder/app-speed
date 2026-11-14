@@ -1,0 +1,77 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import * as LayoutStories from './layout.stories';
+
+<Meta of={LayoutStories} />
+
+# Layout
+
+## Spacing
+
+Everything aligns to a 4dp grid. Use the spacing tokens for padding, margins and gaps so rhythm is consistent between
+features.
+
+<Canvas of={LayoutStories.Spacing} />
+
+- Prefer `gap` on a flex or grid container over margins on children.
+- Related items sit 8dp apart, groups 16dp, sections 24–32dp. Bigger steps separate bigger ideas.
+- Padding inside a container is at least as large as the gap between its children.
+- If a value isn't on the scale, round it to the nearest step rather than adding `14px` or `22px`.
+
+## Window size classes
+
+Layouts adapt at the Material 3 window size classes rather than at device-specific breakpoints. Write the compact
+layout first and widen it.
+
+<Canvas of={LayoutStories.WindowSizeClasses} />
+
+```css
+/* Inline component styles */
+.grid {
+  grid-template-columns: 1fr;
+}
+@media (width >= 600px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (width >= 840px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+```
+
+```scss
+// Sass
+@use 'layout';
+
+.grid {
+  @include layout.expanded-up {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+```
+
+```ts
+// TypeScript
+import { WINDOW_SIZE_CLASS } from '@app-speed/ui/layout';
+
+const expanded = breakpointObserver.observe(WINDOW_SIZE_CLASS.expandedUp);
+```
+
+Use only these four breakpoints. A layout that needs `700px` or `768px` usually wants a container query or
+`repeat(auto-fit, minmax(…))` instead.
+
+## Page structure
+
+A page is a centred column with a gutter on each side. The gutter is `--ui-page-gutter` (16dp compact, 24dp from
+medium) and the column is capped at one of three widths.
+
+<Canvas of={LayoutStories.ContentWidths} />
+
+- Choose the width for the content, not the screen: forms and prose are narrow, tables are wide.
+- Content never touches the window edge and never scrolls horizontally. Wide content (tables, filmstrips, code)
+  scrolls inside its own container.
+- From the expanded class, consider a second pane (list and detail, form and preview) before stretching one column.
+- Navigation is a modal drawer in compact and medium windows and a standard drawer from expanded.
+- Sticky bars (app bar, action bar) reserve their height so they never cover the content they act on.

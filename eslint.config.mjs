@@ -159,6 +159,14 @@ export default [
       ],
     },
   },
+  {
+    // UI takes its colours from the shared theme. See docs/conventions/design-system.md.
+    files: ['**/*.ts'],
+    ignores: ['**/*.spec.ts', '**/*.stories.ts'],
+    rules: {
+      '@nx/workspace-no-hardcoded-colors': 'warn',
+    },
+  },
   ...nx.configs['flat/javascript'],
   {
     files: ['**/*.js', '**/*.jsx'],

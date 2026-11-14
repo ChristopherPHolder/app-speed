@@ -270,6 +270,7 @@
         "libs/ui/**/*",
         "tools/aws-deploy/**/*",
         "tools/db-tools/**/*",
+        "tools/eslint-rules/**/*",
         "tools/test-orchestration/**/*"
       ]
     }
