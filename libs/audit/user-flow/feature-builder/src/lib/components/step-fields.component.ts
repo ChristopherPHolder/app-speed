@@ -15,6 +15,7 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { distinctUntilChanged, map, startWith, switchMap } from 'rxjs';
 
 type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
+type RecordDraft = { name: FormControl<string>; value: FormControl<string> | null };
 
 @Component({
   selector: 'builder-step-fields',
@@ -288,23 +289,21 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
               }
             </div>
 
-            @for (entry of recordEntries(asFormRecord(fieldControl)); track entry.key) {
+            @let entries = asFormRecord(fieldControl);
+            @let entryLabel = itemLabelFor(field);
+            @for (entry of recordEntries(entries); track entry.key) {
               <div class="field-row field-row--record">
-                <span class="record-key">{{ entry.key }}</span>
+                <!-- The entry's name is the label of its value, so a row is one field. -->
                 <ng-container
                   [ngTemplateOutlet]="scalarControl"
-                  [ngTemplateOutletContext]="{
-                    field: field.value,
-                    fieldControl: entry.control,
-                    label: 'Value',
-                  }"
+                  [ngTemplateOutletContext]="{ field: field.value, fieldControl: entry.control, label: entry.key }"
                 />
-                @if (asFormRecord(fieldControl).enabled) {
+                @if (entries.enabled) {
                   <button
                     mat-icon-button
-                    [attr.aria-label]="'Remove ' + inline(itemLabelFor(field)) + ' ' + entry.key"
+                    [attr.aria-label]="'Remove ' + inline(entryLabel) + ' ' + entry.key"
                     type="button"
-                    (click)="stepForm().removeRecordEntry(asFormRecord(fieldControl), entry.key)"
+                    (click)="stepForm().removeRecordEntry(entries, entry.key)"
                   >
                     <mat-icon>delete</mat-icon>
                   </button>
@@ -312,14 +311,37 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
               </div>
             }
 
-            @if (asFormRecord(fieldControl).enabled) {
-              <div class="field-row field-row--record-add">
-                <mat-form-field appearance="outline" class="field-row__control">
-                  <mat-label>New key</mat-label>
-                  <input #recordKey matInput type="text" />
+            @if (entries.enabled) {
+              @let draft = recordDraft(field);
+              <!-- Enter adds the entry. Without the handler it would submit the audit form around it. -->
+              <div
+                class="record-add"
+                role="group"
+                [attr.aria-label]="'Add ' + inline(entryLabel)"
+                (keydown.enter)="addRecordEntry(field, entries, draftName, $event)"
+              >
+                <mat-form-field appearance="outline" class="record-add__field">
+                  <mat-label>{{ entryLabel }} name</mat-label>
+                  <input #draftName matInput [formControl]="draft.name" type="text" autocomplete="off" />
+                  @if (draft.name.hasError('duplicate')) {
+                    <mat-error>{{ entryLabel }} “{{ draft.name.value.trim() }}” is already listed.</mat-error>
+                  } @else if (draft.name.hasError('required')) {
+                    <mat-error>Enter a name.</mat-error>
+                  }
                 </mat-form-field>
-                <button mat-button type="button" (click)="addRecordEntry(field, asFormRecord(fieldControl), recordKey)">
-                  Add entry
+                @if (draft.value; as draftValue) {
+                  <mat-form-field appearance="outline" class="record-add__field">
+                    <mat-label>Value</mat-label>
+                    <input matInput [formControl]="draftValue" type="text" autocomplete="off" />
+                  </mat-form-field>
+                }
+                <button
+                  matButton="tonal"
+                  class="record-add__button"
+                  type="button"
+                  (click)="addRecordEntry(field, entries, draftName)"
+                >
+                  <mat-icon>add</mat-icon>Add {{ inline(entryLabel) }}
                 </button>
               </div>
             }
@@ -475,8 +497,22 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
       flex: 1 1 auto;
     }
 
-    .field-row--record {
-      align-items: center;
+    .record-add {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      gap: 0 var(--ui-space-2);
+    }
+
+    .record-add__field {
+      min-width: 0;
+      flex: 1 1 160px;
+    }
+
+    .record-add__button {
+      flex: none;
+      /* Centre the 40dp button on the 56dp fields beside it. */
+      margin-top: var(--ui-space-2);
     }
 
     .checkbox-field {
@@ -492,11 +528,6 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
 
     .field-row--record-add {
       align-items: flex-end;
-    }
-
-    .record-key {
-      min-width: 120px;
-      font-family: monospace;
     }
 
     .group-field {
@@ -574,6 +605,8 @@ export class StepFieldsComponent {
   readonly fields = input.required<readonly BuilderFieldSpec[]>();
   readonly control = input.required<FormGroup>();
   readonly stepForm = input.required<BuilderStepFormGroup>();
+
+  private readonly recordDrafts = new Map<string, RecordDraft>();
 
   private fieldControl = toSignal(
     toObservable(this.control).pipe(
@@ -709,11 +742,43 @@ export class StepFieldsComponent {
     return Object.entries(control.controls).map(([key, entryControl]) => ({ key, control: entryControl }));
   }
 
-  protected addRecordEntry(field: RecordField, control: FormRecord<AbstractControl>, keyInput: HTMLInputElement): void {
-    const didAdd = this.stepForm().addRecordEntry(control, field, keyInput.value);
+  /** The name and value being typed for the next entry of a map. They are not part of the step's value. */
+  protected recordDraft(field: RecordField): RecordDraft {
+    let draft = this.recordDrafts.get(field.path);
+    if (!draft) {
+      draft = {
+        name: new FormControl('', { nonNullable: true }),
+        // Only a text value can be typed alongside the name; other types are added blank and edited in place.
+        value: field.value.kind === 'string' ? new FormControl('', { nonNullable: true }) : null,
+      };
+      this.recordDrafts.set(field.path, draft);
+    }
+    return draft;
+  }
 
-    if (didAdd) {
-      keyInput.value = '';
+  protected addRecordEntry(
+    field: RecordField,
+    control: FormRecord<AbstractControl>,
+    nameInput: HTMLInputElement,
+    event?: Event,
+  ): void {
+    // Enter inside a form submits it; here it adds the entry instead.
+    event?.preventDefault();
+
+    const draft = this.recordDraft(field);
+    const name = draft.name.value.trim();
+
+    if (name.length === 0 || name in control.controls) {
+      draft.name.setErrors(name.length === 0 ? { required: true } : { duplicate: true });
+      draft.name.markAsTouched();
+      nameInput.focus();
+      return;
+    }
+
+    if (this.stepForm().addRecordEntry(control, field, name, draft.value?.value)) {
+      draft.name.reset();
+      draft.value?.reset();
+      nameInput.focus();
     }
   }
 }
