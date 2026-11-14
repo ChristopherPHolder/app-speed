@@ -36,3 +36,21 @@ export const Good: Story = { args: { score: 100 } };
 export const Small: Story = { args: { size: RADIAL_CHART_SIZE.SMALL } };
 export const Medium: Story = { args: { size: RADIAL_CHART_SIZE.MEDIUM } };
 export const Large: Story = { args: { size: RADIAL_CHART_SIZE.LARGE } };
+
+/** Compare score bands at every size; switch the toolbar scheme to check dark. */
+export const ScoreBands: Story = {
+  render: () => ({
+    template: `
+      <div style="display: grid; gap: var(--ui-space-6); padding: var(--ui-space-4);">
+        @for (size of sizes; track size) {
+          <div style="display: flex; align-items: center; gap: var(--ui-space-6);">
+            @for (score of scores; track score) {
+              <ui-radial-chart [score]="score" [size]="size" />
+            }
+          </div>
+        }
+      </div>
+    `,
+    props: { sizes: sizeOptions, scores: [25, 75, 97] },
+  }),
+};

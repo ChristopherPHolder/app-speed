@@ -59,6 +59,14 @@ structure. Pick the family by meaning:
 
 Never signal status with colour alone: pair it with an icon or a label.
 
+## Score graphics
+
+<Canvas of={ColorStories.ScoreAccents} />
+
+Score rings use `--ui-score-good`, `--ui-score-average` and `--ui-score-poor` for vivid data accents.
+These roles are for graphics, not text. Pair them with readable score numbers using `--ui-success`,
+`--ui-warning` and `--mat-sys-error`. Keep the number and category label visible so colour is not the only cue.
+
 ## Pairing rules
 
 - A fill is only ever used with its own `on-` colour: `primary` with `on-primary`, `primary-container` with

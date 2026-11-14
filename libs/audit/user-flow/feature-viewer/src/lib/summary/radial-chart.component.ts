@@ -14,20 +14,23 @@ import { RADIAL_CHART_COLOR, RADIAL_CHART_SIZE, RadialChartColor, RadialChartSiz
   host: { '[class]': `class()` },
   styles: `
     :host {
-      --radial-chart-color: var(--mat-sys-error);
+      --radial-chart-color: var(--ui-score-poor);
+      --radial-chart-text: var(--mat-sys-error);
       position: relative;
       display: inline-flex;
-      color: var(--radial-chart-color);
-      font: var(--mat-sys-title-medium);
+      color: var(--radial-chart-text);
+      font: var(--mat-sys-title-large);
       font-variant-numeric: tabular-nums;
       align-items: center;
       justify-content: center;
     }
     :host(.green) {
-      --radial-chart-color: var(--ui-success);
+      --radial-chart-color: var(--ui-score-good);
+      --radial-chart-text: var(--ui-success);
     }
     :host(.orange) {
-      --radial-chart-color: var(--ui-warning);
+      --radial-chart-color: var(--ui-score-average);
+      --radial-chart-text: var(--ui-warning);
     }
     svg {
       width: 50px;
