@@ -162,6 +162,8 @@ export class ViewerDetailValueComponent {
   heading = input<Details.TableColumnHeading | null>(null);
   context = input<ViewerDiagnosticContext | null>(null);
   previewUrl = input<string | undefined>(undefined);
+  /** The URL of the row this value belongs to; a source location in that same file drops the repeated URL. */
+  parentUrl = input<string | undefined>(undefined);
 
   readonly resolvedType = computed(() => {
     const value = this.value();
@@ -241,6 +243,10 @@ export class ViewerDetailValueComponent {
 
     const generatedLocation = `${value.url}:${value.line + 1}:${value.column}`;
 
+    if (value.urlProvider === 'network' && !value.original && value.url === this.parentUrl()) {
+      return `${this.fileName(value.url)}:${value.line + 1}:${value.column}`;
+    }
+
     if (value.urlProvider === 'network' && value.original) {
       const file = value.original.file || '<unmapped>';
       return `${file}:${value.original.line + 1}:${value.original.column}`;
@@ -266,6 +272,10 @@ export class ViewerDetailValueComponent {
 
     if (value.urlProvider === 'network' && value.original) {
       return `maps to generated location ${value.url}:${value.line + 1}:${value.column}`;
+    }
+
+    if (value.url === this.parentUrl()) {
+      return `${value.url}:${value.line + 1}:${value.column}`;
     }
 
     return null;
@@ -445,6 +455,14 @@ export class ViewerDetailValueComponent {
     });
 
     return parts.join(' ');
+  }
+
+  private fileName(url: string): string {
+    try {
+      return new URL(url).pathname.split('/').filter(Boolean).pop() || url;
+    } catch {
+      return url;
+    }
   }
 
   private isNavigableUrl(value: string): boolean {

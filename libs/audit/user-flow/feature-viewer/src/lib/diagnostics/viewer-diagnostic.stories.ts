@@ -57,6 +57,12 @@ const deepBlueContext: ViewerDiagnosticContext = {
       category: 'cdn',
       origins: ['https://cdnjs.cloudflare.com'],
     },
+    {
+      name: 'Facebook',
+      homepage: 'https://www.facebook.com',
+      category: 'social',
+      origins: ['https://connect.facebook.net'],
+    },
   ],
   fullPageScreenshot: {
     screenshot: {
@@ -170,6 +176,54 @@ const legacyJavascriptDetails: Details.Table = {
     {
       url: 'https://cdnjs.cloudflare.com/ajax/libs/some-polyfill/4.0.0/polyfill.min.js',
       wastedBytes: 4744,
+    },
+  ],
+};
+
+const legacySignal = (url: string, signal: string, line: number, column: number) => ({
+  signal,
+  location: { type: 'source-location' as const, url, urlProvider: 'network' as const, line, column },
+});
+
+// The shape Lighthouse 13 produces: a URL column whose sub-items are source locations, an unlabelled code column whose
+// sub-items are the polyfill or transform that was detected, and the estimated savings.
+const legacyJavascriptSubItemsDetails: Details.Table = {
+  type: 'table',
+  headings: [
+    {
+      key: 'url',
+      label: 'URL',
+      valueType: 'url',
+      subItemsHeading: { key: 'location', valueType: 'source-location' },
+    },
+    { key: null, label: '', valueType: 'code', subItemsHeading: { key: 'signal' } },
+    { key: 'wastedBytes', label: 'Wasted bytes', valueType: 'bytes' },
+  ],
+  items: [
+    {
+      url: 'https://connect.facebook.net/en_US/fbevents.js',
+      wastedBytes: 12210,
+      totalBytes: 96874,
+      subItems: {
+        type: 'subitems',
+        items: [
+          legacySignal('https://connect.facebook.net/en_US/fbevents.js', '@babel/plugin-transform-classes', 23, 6382),
+          legacySignal('https://connect.facebook.net/en_US/fbevents.js', 'Array.prototype.includes', 23, 41870),
+          legacySignal('https://connect.facebook.net/en_US/fbevents.js', 'Object.assign', 23, 52114),
+        ],
+      },
+    },
+    {
+      url: 'https://deep-blue.io/app.f9df6e.js',
+      wastedBytes: 2312,
+      totalBytes: 166921,
+      subItems: {
+        type: 'subitems',
+        items: [
+          legacySignal('https://deep-blue.io/app.f9df6e.js', '@babel/plugin-transform-spread', 0, 118204),
+          legacySignal('https://deep-blue.io/app.f9df6e.js', 'Array.prototype.flat', 0, 120577),
+        ],
+      },
     },
   ],
 };
@@ -812,6 +866,20 @@ export const ThirdPartyFilterType: Story = singleItemStory(
     title: 'Third-party filter behavior',
     description: 'Legacy JavaScript hides third-party resources by default, matching the Lighthouse report viewer.',
     details: legacyJavascriptDetails,
+  }),
+);
+
+export const LegacyJavascriptSubItems: Story = singleItemStory(
+  baseItem({
+    id: 'legacy-javascript-insight',
+    title: 'Legacy JavaScript',
+    displayValue: 'Est savings of 14 KiB',
+    description:
+      'Polyfills and transforms enable older browsers to use new JavaScript features. Each script lists the signals that were detected and where.',
+    status: STATUS.WARN,
+    affectedMetrics: ['FCP', 'LCP'],
+    unscored: true,
+    details: legacyJavascriptSubItemsDetails,
   }),
 );
 
