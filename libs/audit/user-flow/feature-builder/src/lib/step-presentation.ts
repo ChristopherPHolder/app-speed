@@ -5,12 +5,16 @@ import {
 } from '@app-speed/audit/core/domain';
 import { USER_FLOW_AUDIT_BUILDER_STEP_VARIANTS, LIGHTHOUSE_AUDIT_STEP_TYPE } from '@app-speed/audit/user-flow/domain';
 
-export type StepPresentationGroup = 'Audit Steps' | 'Custom Steps' | 'Assertion Steps' | 'Action Steps';
+export type StepPresentationGroup = 'Audit steps' | 'Custom steps' | 'Assertion steps' | 'Action steps';
 export type StepPresentationIcon = 'lighthouse-badge' | 'puppeteer-badge';
 
 export type StepFieldPresentation = {
   description?: string;
   label?: string;
+  /** Names one item of a list or one entry of a map: "Frame index", "Attribute". */
+  itemLabel?: string;
+  /** Labels for the options of an enum, keyed by the option's value. */
+  options?: Record<string, string>;
 };
 
 export type StepPresentation = {
@@ -31,59 +35,56 @@ type StepPresentationOverride = {
   label?: string;
 };
 
+/**
+ * How a field reads wherever it appears, keyed by field path. A field means the same thing on every
+ * step type that has it, so it is described once here; a step type only overrides what differs.
+ */
+export const STEP_FIELD_PRESENTATION: Record<string, StepFieldPresentation> = {
+  assertedEvents: { itemLabel: 'Asserted event' },
+  'assertedEvents[].title': { label: 'Navigation title' },
+  'assertedEvents[].url': { label: 'Navigation URL' },
+  attributes: { itemLabel: 'Attribute' },
+  button: {
+    label: 'Mouse button',
+    options: {
+      primary: 'Primary',
+      auxiliary: 'Auxiliary',
+      secondary: 'Secondary',
+      back: 'Back',
+      forward: 'Forward',
+    },
+  },
+  deviceType: {
+    label: 'Pointer type',
+    options: { mouse: 'Mouse', pen: 'Pen', touch: 'Touch' },
+  },
+  download: { label: 'Download (bytes/s)' },
+  duration: { label: 'Duration (ms)' },
+  frame: { itemLabel: 'Frame index' },
+  height: { label: 'Height (px)' },
+  httpOnly: { label: 'HttpOnly' },
+  latency: { label: 'Latency (ms)' },
+  offsetX: { label: 'Offset X (px)' },
+  offsetY: { label: 'Offset Y (px)' },
+  operator: {
+    label: 'Compare count',
+    options: { '>=': 'At least', '==': 'Exactly', '<=': 'At most' },
+  },
+  properties: { itemLabel: 'Property' },
+  sameSite: { label: 'SameSite' },
+  target: { label: 'Target page' },
+  timeout: { label: 'Timeout (ms)' },
+  upload: { label: 'Upload (bytes/s)' },
+  width: { label: 'Width (px)' },
+  x: { label: 'Scroll X (px)' },
+  y: { label: 'Scroll Y (px)' },
+};
+
 export const AUDIT_BUILDER_STEP_PRESENTATION_REGISTRY = {
-  waitForElement: {
-    fields: {
-      selectors: {
-        description: 'Alternative selector paths that identify the same element.',
-      },
-      'selectors[].segments': {
-        description: 'Ancestor-to-target selector segments for a single selector path.',
-        label: 'Selector Segments',
-      },
-      assertedEvents: {
-        label: 'Asserted Events',
-      },
-      'assertedEvents[].type': {
-        label: 'Event Type',
-      },
-      'assertedEvents[].title': {
-        label: 'Navigation Title',
-      },
-      'assertedEvents[].url': {
-        label: 'Navigation URL',
-      },
-      attributes: {
-        description: 'Whether matching elements should also expose these attributes.',
-      },
-      properties: {
-        description: 'Whether matching elements should also expose these properties.',
-      },
-      timeout: {
-        label: 'Timeout (ms)',
-      },
-      target: {
-        label: 'Target Page',
-      },
-    },
-  },
-  waitForExpression: {
-    fields: {
-      timeout: {
-        label: 'Timeout (ms)',
-      },
-      target: {
-        label: 'Target Page',
-      },
-    },
-  },
   addCookie: {
     fields: {
       url: {
         label: 'Cookie URL',
-      },
-      sameSite: {
-        label: 'Same Site',
       },
     },
   },
@@ -96,10 +97,9 @@ export const AUDIT_BUILDER_STEP_PRESENTATION_REGISTRY = {
     },
   },
   waitForNetworkIdle: {
-    label: 'Wait For Network Idle',
     fields: {
       idleTime: {
-        label: 'Idle Time (ms)',
+        label: 'Idle time (ms)',
         description: 'Duration network activity must stay within the allowed concurrency; Puppeteer default: 500 ms.',
       },
       timeout: {
@@ -107,7 +107,7 @@ export const AUDIT_BUILDER_STEP_PRESENTATION_REGISTRY = {
         description: 'Maximum wait; defaults to the audit timeout; 0 disables the timeout.',
       },
       concurrency: {
-        label: 'Allowed Concurrent Requests',
+        label: 'Allowed concurrent requests',
         description: 'Maximum active request count still considered idle; Puppeteer default: 0.',
       },
     },
@@ -127,16 +127,20 @@ export const getStepPresentation = (variantId: string): StepPresentation => {
   };
 };
 
-export const getStepFieldPresentation = (variantId: string, fieldPath: string): StepFieldPresentation | undefined =>
-  (AUDIT_BUILDER_STEP_PRESENTATION_REGISTRY as Partial<Record<string, StepPresentationOverride>>)[variantId]?.fields?.[
-    fieldPath
-  ];
+export const getStepFieldPresentation = (variantId: string, fieldPath: string): StepFieldPresentation | undefined => {
+  const shared = STEP_FIELD_PRESENTATION[fieldPath];
+  const override = (AUDIT_BUILDER_STEP_PRESENTATION_REGISTRY as Partial<Record<string, StepPresentationOverride>>)[
+    variantId
+  ]?.fields?.[fieldPath];
+
+  return shared || override ? { ...shared, ...override } : undefined;
+};
 
 const STEP_GROUP_ORDER: readonly StepPresentationGroup[] = [
-  'Audit Steps',
-  'Custom Steps',
-  'Assertion Steps',
-  'Action Steps',
+  'Audit steps',
+  'Custom steps',
+  'Assertion steps',
+  'Action steps',
 ];
 
 export const STEP_SELECTION_OPTIONS_GROUPED: readonly StepSelectionOptionGroup[] = STEP_GROUP_ORDER.reduce<
@@ -159,6 +163,7 @@ export const STEP_SELECTION_OPTIONS_GROUPED: readonly StepSelectionOptionGroup[]
   return groups;
 }, []);
 
+/** Turns a schema token into a sentence-case label: `waitForElement` becomes "Wait for element". */
 export function humanizeStepToken(value: string): string {
   return value
     .replace(/\[\]/g, '')
@@ -166,8 +171,9 @@ export function humanizeStepToken(value: string): string {
     .replace(/[_-]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
+    .toLowerCase()
     .replace(/^\w/, (character) => character.toUpperCase())
-    .replace(/\bUrl\b/gi, 'URL');
+    .replace(/\burl\b/gi, 'URL');
 }
 
 function getStepGroup(variantId: string): StepPresentationGroup {
@@ -176,7 +182,7 @@ function getStepGroup(variantId: string): StepPresentationGroup {
       variantId as (typeof LIGHTHOUSE_AUDIT_STEP_TYPE)[keyof typeof LIGHTHOUSE_AUDIT_STEP_TYPE],
     )
   ) {
-    return 'Audit Steps';
+    return 'Audit steps';
   }
 
   if (
@@ -184,7 +190,7 @@ function getStepGroup(variantId: string): StepPresentationGroup {
       variantId as (typeof AUDIT_CUSTOM_STEP_TYPE)[keyof typeof AUDIT_CUSTOM_STEP_TYPE],
     )
   ) {
-    return 'Custom Steps';
+    return 'Custom steps';
   }
 
   if (
@@ -192,7 +198,7 @@ function getStepGroup(variantId: string): StepPresentationGroup {
       variantId as (typeof PUPPETEER_REPLAY_ASSERTION_STEP_TYPE)[keyof typeof PUPPETEER_REPLAY_ASSERTION_STEP_TYPE],
     )
   ) {
-    return 'Assertion Steps';
+    return 'Assertion steps';
   }
 
   if (
@@ -200,12 +206,12 @@ function getStepGroup(variantId: string): StepPresentationGroup {
       variantId as (typeof PUPPETEER_REPLAY_USER_STEP_TYPE)[keyof typeof PUPPETEER_REPLAY_USER_STEP_TYPE],
     )
   ) {
-    return 'Action Steps';
+    return 'Action steps';
   }
 
   throw new Error(`Unsupported presentation variant "${variantId}"`);
 }
 
 function getStepIcon(variantId: string): StepPresentationIcon {
-  return getStepGroup(variantId) === 'Audit Steps' ? 'lighthouse-badge' : 'puppeteer-badge';
+  return getStepGroup(variantId) === 'Audit steps' ? 'lighthouse-badge' : 'puppeteer-badge';
 }

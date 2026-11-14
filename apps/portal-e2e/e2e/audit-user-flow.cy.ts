@@ -47,7 +47,7 @@ describe('full local audit system', () => {
         cy.get('@fixtureUrlInput').type(fixtureBaseUrl);
       });
     cy.get('ui-audit-builder-step').eq(2).should('contain.text', 'Click');
-    cy.get('ui-audit-builder-step').eq(3).should('contain.text', 'Wait For Element');
+    cy.get('ui-audit-builder-step').eq(3).should('contain.text', 'Wait for element');
 
     cy.get('button.submit-btn').should('be.enabled').click();
     cy.wait('@scheduleAudit').then(({ request, response }) => {

@@ -16,6 +16,7 @@ import { MatButton, MatIconButton } from '@angular/material/button';
 import { AuditFormGroup } from './audit-builder-form';
 import { MatAccordion } from '@angular/material/expansion';
 import { AuditStepComponent } from './audit-step.component';
+import { provideBuilderFormFieldDefaults } from './form-field-defaults';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatOption } from '@angular/material/autocomplete';
@@ -209,6 +210,7 @@ import { ToTitleCasePipe } from '@app-speed/audit/core/portal-ui';
     MatMenuItem,
     MatMenuTrigger,
   ],
+  providers: [provideBuilderFormFieldDefaults()],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuditBuilderComponent implements OnInit {
