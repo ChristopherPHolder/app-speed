@@ -15,9 +15,9 @@ import {
 } from '@angular/router';
 import { WINDOW_SIZE_CLASS } from '@app-speed/ui/layout';
 import { filter, map } from 'rxjs';
-import { AnalyticsConsentService } from '../analytics/analytics-consent.service';
 import { AccountMenuComponent } from '../auth/account-menu.component';
 import { PortalAuthService } from '../auth/portal-auth.service';
+import { SiteFooterComponent } from './site-footer.component';
 import { WorkspaceNavigationComponent } from '../workspace/workspace-navigation.component';
 
 // The drawer becomes standard, and navigation moves into the app bar, from the expanded window class.
@@ -46,6 +46,7 @@ const activeMatch = (exact: boolean): IsActiveMatchOptions => ({
     RouterOutlet,
     AccountMenuComponent,
     WorkspaceNavigationComponent,
+    SiteFooterComponent,
   ],
   template: `
     <a class="skip-link" href="#main-content">Skip to content</a>
@@ -172,13 +173,7 @@ const activeMatch = (exact: boolean): IsActiveMatchOptions => ({
           }
         </header>
         <main id="main-content" tabindex="-1"><router-outlet /></main>
-        <footer>
-          <span
-            >Made with ❤️ by
-            <a target="_blank" rel="noopener noreferrer" href="https://x.com/chrispholder">Chris</a></span
-          >
-          <button matButton type="button" (click)="consent.settingsOpen.set(true)">Cookie settings</button>
-        </footer>
+        <app-site-footer />
       </mat-sidenav-content>
     </mat-sidenav-container>
   `,
@@ -295,21 +290,6 @@ const activeMatch = (exact: boolean): IsActiveMatchOptions => ({
       min-width: 0;
       outline: none;
     }
-    footer {
-      display: flex;
-      flex-wrap: wrap;
-      padding: var(--ui-space-2) var(--ui-space-4);
-      border-top: 1px solid var(--mat-sys-outline-variant);
-      background: var(--mat-sys-surface-container-low);
-      color: var(--mat-sys-on-surface-variant);
-      font: var(--mat-sys-body-small);
-      align-items: center;
-      justify-content: center;
-      gap: var(--ui-space-1) var(--ui-space-4);
-    }
-    footer a {
-      color: inherit;
-    }
     .skip-link {
       position: fixed;
       inset: 8px auto auto 8px;
@@ -346,7 +326,6 @@ const activeMatch = (exact: boolean): IsActiveMatchOptions => ({
 })
 export class ShellComponent {
   protected readonly auth = inject(PortalAuthService);
-  protected readonly consent = inject(AnalyticsConsentService);
   private readonly router = inject(Router);
   private readonly breakpoint = inject(BreakpointObserver);
   protected readonly desktop = toSignal(this.breakpoint.observe(desktopQuery).pipe(map((result) => result.matches)), {

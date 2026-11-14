@@ -101,6 +101,22 @@ export const shellRoutes: Route[] = [
           },
         ],
       },
+      {
+        path: 'legal-notice',
+        loadComponent: () => import('../legal/legal-notice-page.component').then((m) => m.LegalNoticePageComponent),
+        title: 'Legal notice | App Speed',
+      },
+      { path: 'impressum', redirectTo: 'legal-notice', pathMatch: 'full' },
+      {
+        path: 'privacy',
+        loadComponent: () => import('../legal/privacy-policy-page.component').then((m) => m.PrivacyPolicyPageComponent),
+        title: 'Privacy policy | App Speed',
+      },
+      {
+        path: 'terms',
+        loadComponent: () => import('../legal/terms-page.component').then((m) => m.TermsPageComponent),
+        title: 'Terms of service | App Speed',
+      },
       { path: '', component: LandingPageComponent, pathMatch: 'full', title: 'App Speed' },
     ],
   },

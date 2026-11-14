@@ -4,12 +4,7 @@
   "projectType": "application",
   "prefix": "app",
   "sourceRoot": "apps/portal/src",
-  "tags": [
-    "type:app",
-    "scope:portal",
-    "runtime:web",
-    "app:portal"
-  ],
+  "tags": ["type:app", "scope:portal", "runtime:web", "app:portal"],
   "targets": {
     "typecheck": {
       "executor": "nx:run-commands",
@@ -19,9 +14,7 @@
     },
     "build": {
       "executor": "@nx/angular:browser-esbuild",
-      "outputs": [
-        "{options.outputPath}"
-      ],
+      "outputs": ["{options.outputPath}"],
       "inputs": [
         "production",
         "^production",
@@ -34,18 +27,16 @@
         "outputPath": "dist/{projectRoot}",
         "index": "{projectRoot}/src/index.html",
         "main": "{projectRoot}/src/main.ts",
-        "plugins": [
-          "apps/portal/clerk-config.cjs"
-        ],
-        "polyfills": [
-          "zone.js"
-        ],
+        "plugins": ["apps/portal/clerk-config.cjs"],
+        "polyfills": ["zone.js"],
         "tsConfig": "{projectRoot}/tsconfig.app.json",
-        "assets": [
-          "{projectRoot}/src/favicon.ico",
-          "{projectRoot}/src/assets"
-        ],
+        "assets": ["{projectRoot}/src/favicon.ico", "{projectRoot}/src/assets"],
         "styles": [
+          "node_modules/@fontsource/roboto/300.css",
+          "node_modules/@fontsource/roboto/400.css",
+          "node_modules/@fontsource/roboto/500.css",
+          "node_modules/@fontsource/material-icons/400.css",
+          "{projectRoot}/src/fonts.css",
           "{workspaceRoot}/libs/ui/theme/styles.scss"
         ]
       },
@@ -79,15 +70,7 @@
           "outputPath": "dist/apps/portal-e2e",
           "optimization": true,
           "outputHashing": "all",
-          "index": "apps/portal-e2e/index.html",
-          "styles": [
-            "node_modules/@fontsource/roboto/300.css",
-            "node_modules/@fontsource/roboto/400.css",
-            "node_modules/@fontsource/roboto/500.css",
-            "node_modules/@fontsource/material-icons/400.css",
-            "apps/portal-e2e/fonts.css",
-            "libs/ui/theme/styles.scss"
-          ]
+          "index": "apps/portal-e2e/index.html"
         }
       }
     },
@@ -95,9 +78,7 @@
       "executor": "@nx/angular:dev-server",
       "defaultConfiguration": "development",
       "continuous": true,
-      "dependsOn": [
-        "api:serve"
-      ],
+      "dependsOn": ["api:serve"],
       "readyWhen": {
         "signal": true
       },
@@ -128,16 +109,11 @@
       "readyWhen": {
         "signal": true
       },
-      "dependsOn": [
-        "build"
-      ]
+      "dependsOn": ["build"]
     },
     "deploy": {
       "executor": "@app-speed/aws-deploy:s3-upload",
-      "dependsOn": [
-        "build",
-        "auth-preflight"
-      ],
+      "dependsOn": ["build", "auth-preflight"],
       "defaultConfiguration": "development",
       "options": {
         "upload": "dist/{projectRoot}"

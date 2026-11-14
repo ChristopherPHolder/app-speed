@@ -57,6 +57,7 @@ describe('ShellComponent', () => {
       'Trace tools',
     ]);
     expect(primaryNavigation?.querySelector('[aria-current="page"]')?.textContent).toContain('Audit history');
+    expect(element.querySelectorAll('footer nav[aria-label="Legal"]')).toHaveLength(1);
   });
 
   it('keeps a destination current when the URL carries query parameters', async () => {
