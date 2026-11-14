@@ -2,30 +2,42 @@ import { TestBed } from '@angular/core/testing';
 import { BuilderStepFormGroup, findStepSpec } from '../step-form';
 import { StepFieldsComponent } from './step-fields.component';
 
+async function renderStep(variantId: string, value?: Record<string, unknown>, readonly = false) {
+  const form = new BuilderStepFormGroup(findStepSpec(variantId), value);
+  if (readonly) form.disable();
+  await TestBed.configureTestingModule({ imports: [StepFieldsComponent] }).compileComponents();
+  const fixture = TestBed.createComponent(StepFieldsComponent);
+  fixture.componentRef.setInput('variantId', variantId);
+  fixture.componentRef.setInput('fields', form.spec.fields);
+  fixture.componentRef.setInput('control', form);
+  fixture.componentRef.setInput('stepForm', form);
+  await fixture.whenStable();
+  const host: HTMLElement = fixture.nativeElement;
+  const click = async (selector: string) => {
+    const button = host.querySelector<HTMLElement>(selector);
+    if (!button) throw new Error(`Missing control: ${selector}`);
+    button.click();
+    await fixture.whenStable();
+  };
+  const type = async (input: HTMLInputElement | null | undefined, text: string) => {
+    if (!input) throw new Error('Missing input');
+    input.value = text;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    await fixture.whenStable();
+  };
+  /** The form field whose label is exactly `label`. */
+  const field = (label: string) =>
+    Array.from(host.querySelectorAll<HTMLElement>('mat-form-field')).find(
+      (candidate) => candidate.querySelector('mat-label')?.textContent?.trim() === label,
+    );
+  return { form, fixture, host, click, type, field };
+}
+
 describe('StepFieldsComponent selectors', () => {
   async function render(value?: Record<string, unknown>, readonly = false) {
-    const form = new BuilderStepFormGroup(findStepSpec('click'), value);
-    if (readonly) form.disable();
-    await TestBed.configureTestingModule({ imports: [StepFieldsComponent] }).compileComponents();
-    const fixture = TestBed.createComponent(StepFieldsComponent);
-    fixture.componentRef.setInput('variantId', 'click');
-    fixture.componentRef.setInput('fields', form.spec.fields);
-    fixture.componentRef.setInput('control', form);
-    fixture.componentRef.setInput('stepForm', form);
-    await fixture.whenStable();
-    const host: HTMLElement = fixture.nativeElement;
+    const { form, host, click, type } = await renderStep('click', value, readonly);
     const inputs = () => Array.from(host.querySelectorAll<HTMLInputElement>('.selector-fields input'));
-    const click = async (selector: string) => {
-      const button = host.querySelector<HTMLButtonElement>(selector);
-      if (!button) throw new Error(`Missing selector control: ${selector}`);
-      button.click();
-      await fixture.whenStable();
-    };
-    const enter = async (index: number, text: string) => {
-      inputs()[index].value = text;
-      inputs()[index].dispatchEvent(new Event('input', { bubbles: true }));
-      await fixture.whenStable();
-    };
+    const enter = (index: number, text: string) => type(inputs()[index], text);
     return { form, host, inputs, click, enter };
   }
 
@@ -76,5 +88,88 @@ describe('StepFieldsComponent selectors', () => {
     expect(inputs()[0].value).toBe('#checkout');
     expect(inputs()[0].disabled).toBe(true);
     expect(host.querySelector('.selector-fields button')).toBeNull();
+  });
+});
+
+describe('StepFieldsComponent field types', () => {
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('stores numbers typed into a list item as numbers', async () => {
+    const { form, host, type } = await renderStep('click', {
+      type: 'click',
+      offsetX: 1,
+      offsetY: 1,
+      selectors: [{ segments: ['#checkout'] }],
+      frame: [0],
+    });
+    const item = host.querySelector<HTMLInputElement>('.group-field input');
+    expect(item?.type).toBe('number');
+
+    await type(item, '2');
+
+    expect(form.getRawValue().frame).toEqual([2]);
+    expect(form.valid).toBe(true);
+  });
+
+  it('explains what is wrong with a list item', async () => {
+    const { form, fixture, host, type } = await renderStep('click', {
+      type: 'click',
+      offsetX: 1,
+      offsetY: 1,
+      selectors: [{ segments: ['#checkout'] }],
+      frame: [0],
+    });
+    const item = host.querySelector<HTMLInputElement>('.group-field input');
+
+    await type(item, '1.5');
+    item?.dispatchEvent(new Event('blur'));
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(form.invalid).toBe(true);
+    expect(host.querySelector('.group-field mat-error')?.textContent).toContain('must be an integer');
+  });
+
+  it('edits boolean properties with a checkbox', async () => {
+    const { form, host, click } = await renderStep('waitForElement', {
+      type: 'waitForElement',
+      count: 1,
+      selectors: [{ segments: ['#result'] }],
+      visible: true,
+    });
+    const checkbox = host.querySelector<HTMLInputElement>('mat-checkbox input[type="checkbox"]');
+    expect(checkbox?.checked).toBe(true);
+    expect(host.querySelector('mat-checkbox')?.textContent?.trim()).toBe('Visible');
+    expect(host.querySelector('mat-select')).toBeNull();
+
+    await click('mat-checkbox input[type="checkbox"]');
+
+    expect(form.getRawValue().visible).toBe(false);
+  });
+
+  it('edits the value of a key/value entry', async () => {
+    const { form, host, type } = await renderStep('waitForElement', {
+      type: 'waitForElement',
+      count: 1,
+      selectors: [{ segments: ['#result'] }],
+      attributes: { 'aria-expanded': 'false' },
+    });
+    const value = host.querySelector<HTMLInputElement>('.field-row--record input');
+    expect(value?.value).toBe('false');
+
+    await type(value, 'true');
+
+    expect(form.getRawValue().attributes).toEqual({ 'aria-expanded': 'true' });
+  });
+
+  it('disables every control for read-only audits', async () => {
+    const { host } = await renderStep(
+      'waitForElement',
+      { type: 'waitForElement', count: 1, selectors: [{ segments: ['#result'] }], visible: true, frame: [1] },
+      true,
+    );
+    expect(host.querySelector<HTMLInputElement>('mat-checkbox input')?.disabled).toBe(true);
+    expect(host.querySelector<HTMLInputElement>('.group-field input')?.disabled).toBe(true);
+    expect(host.querySelector('.group-field button')).toBeNull();
   });
 });
