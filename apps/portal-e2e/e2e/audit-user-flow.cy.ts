@@ -37,6 +37,12 @@ describe('full local audit system', () => {
     cy.visit(`/audits/user-flow?audit-details=${draft}`);
 
     cy.get('[data-testid="audit-builder-card"]').should('be.visible');
+    // The form is taller than the window; its run bar stays on screen instead of waiting at the end.
+    cy.window().then((win) => {
+      cy.get('.action-bar').should(($bar) => {
+        expect($bar[0].getBoundingClientRect().bottom).to.be.at.most(win.innerHeight);
+      });
+    });
     cy.get('input[name="audit title"]').clear();
     cy.get('input[name="audit title"]').type(auditTitle);
     cy.get('ui-audit-builder-step')

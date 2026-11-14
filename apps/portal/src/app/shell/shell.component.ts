@@ -182,10 +182,20 @@ const activeMatch = (exact: boolean): IsActiveMatchOptions => ({
       display: block;
       min-height: 100dvh;
     }
+    /*
+     * The document scrolls, not the drawer content. Material makes both the container and its content
+     * scroll containers, and a container that never scrolls still captures position: sticky, so the
+     * header and any sticky bar in a page scrolled away. Clipping keeps the off-canvas drawer and wide
+     * content out of view without creating a scroll container.
+     */
+    mat-sidenav-container {
+      overflow: clip;
+    }
     .shell-content {
       display: flex;
       flex-direction: column;
       min-height: 100dvh;
+      overflow: visible;
       background: var(--mat-sys-surface);
       color: var(--mat-sys-on-surface);
     }
