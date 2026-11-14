@@ -51,7 +51,7 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
       @let optional = optionalFields();
       @if (control().enabled && optional.length > 0) {
         <section class="optional-fields">
-          <h4>Optional Properties</h4>
+          <h4>Optional properties</h4>
           <div class="optional-fields__actions">
             @for (field of optional; track field.path) {
               <button mat-button type="button" (click)="stepForm().addOptionalField(control(), field)">
@@ -78,7 +78,7 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
               @if (control().enabled && !field.required) {
                 <button
                   mat-icon-button
-                  aria-label="Delete property from step"
+                  [attr.aria-label]="removeLabel(field)"
                   type="button"
                   (click)="stepForm().removeOptionalField(control(), field)"
                 >
@@ -186,6 +186,7 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
             </div>
           } @else {
             <section class="group-field">
+              @let items = asFormArray(fieldControl);
               <div class="group-field__header">
                 <div>
                   <h4>{{ labelFor(field) }}</h4>
@@ -193,45 +194,34 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
                     <p>{{ description }}</p>
                   }
                 </div>
-                <div class="group-field__actions">
-                  @if (asFormArray(fieldControl).enabled) {
-                    <button
-                      mat-icon-button
-                      aria-label="Add property to step"
-                      type="button"
-                      (click)="stepForm().addArrayItem(asFormArray(fieldControl), field)"
-                    >
-                      <mat-icon>library_add</mat-icon>
-                    </button>
-                  }
-                  @if (control().enabled && !field.required) {
-                    <button
-                      mat-icon-button
-                      aria-label="Delete property from step"
-                      type="button"
-                      (click)="stepForm().removeOptionalField(control(), field)"
-                    >
-                      <mat-icon>delete</mat-icon>
-                    </button>
-                  }
-                </div>
+                @if (control().enabled && !field.required) {
+                  <button
+                    mat-icon-button
+                    [attr.aria-label]="removeLabel(field)"
+                    type="button"
+                    (click)="stepForm().removeOptionalField(control(), field)"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                }
               </div>
 
-              @if (asFormArray(fieldControl).hasError('minlength')) {
-                <p class="group-field__error">{{ labelFor(field) }} needs at least one item</p>
+              @if (items.hasError('minlength')) {
+                <p class="group-field__error">Add at least one {{ inline(itemLabelFor(field)) }}.</p>
               }
 
-              @if (field.element.kind === 'group') {
-                @for (itemControl of asFormArray(fieldControl).controls; track itemControl) {
+              @for (itemControl of items.controls; track itemControl) {
+                @let itemLabel = itemLabelFor(field) + ' ' + ($index + 1);
+                @if (field.element.kind === 'group') {
                   <section class="array-item">
                     <div class="array-item__header">
-                      <h5>{{ labelFor(field) }} {{ $index + 1 }}</h5>
-                      @if (asFormArray(fieldControl).enabled) {
+                      <h5>{{ itemLabel }}</h5>
+                      @if (items.enabled) {
                         <button
                           mat-icon-button
-                          aria-label="Delete property from step"
+                          [attr.aria-label]="'Remove ' + inline(itemLabel)"
                           type="button"
-                          (click)="stepForm().removeArrayItem(asFormArray(fieldControl), $index)"
+                          (click)="stepForm().removeArrayItem(items, $index)"
                         >
                           <mat-icon>delete</mat-icon>
                         </button>
@@ -244,30 +234,35 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
                       [stepForm]="stepForm()"
                     />
                   </section>
-                }
-              } @else {
-                @for (itemControl of asFormArray(fieldControl).controls; track itemControl) {
+                } @else {
                   <div class="field-row">
                     <ng-container
                       [ngTemplateOutlet]="scalarControl"
-                      [ngTemplateOutletContext]="{
-                        field: field.element,
-                        fieldControl: itemControl,
-                        label: labelFor(field.element),
-                      }"
+                      [ngTemplateOutletContext]="{ field: field.element, fieldControl: itemControl, label: itemLabel }"
                     />
-                    @if (asFormArray(fieldControl).enabled) {
+                    @if (items.enabled) {
                       <button
                         mat-icon-button
-                        aria-label="Delete property from step"
+                        [attr.aria-label]="'Remove ' + inline(itemLabel)"
                         type="button"
-                        (click)="stepForm().removeArrayItem(asFormArray(fieldControl), $index)"
+                        (click)="stepForm().removeArrayItem(items, $index)"
                       >
                         <mat-icon>delete</mat-icon>
                       </button>
                     }
                   </div>
                 }
+              }
+
+              @if (items.enabled) {
+                <button
+                  mat-button
+                  class="group-field__add"
+                  type="button"
+                  (click)="stepForm().addArrayItem(items, field)"
+                >
+                  <mat-icon>add</mat-icon>Add {{ inline(itemLabelFor(field)) }}
+                </button>
               }
             </section>
           }
@@ -284,7 +279,7 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
               @if (control().enabled && !field.required) {
                 <button
                   mat-icon-button
-                  aria-label="Delete property from step"
+                  [attr.aria-label]="removeLabel(field)"
                   type="button"
                   (click)="stepForm().removeOptionalField(control(), field)"
                 >
@@ -301,13 +296,13 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
                   [ngTemplateOutletContext]="{
                     field: field.value,
                     fieldControl: entry.control,
-                    label: labelFor(field.value),
+                    label: 'Value',
                   }"
                 />
                 @if (asFormRecord(fieldControl).enabled) {
                   <button
                     mat-icon-button
-                    aria-label="Delete property from step"
+                    [attr.aria-label]="'Remove ' + inline(itemLabelFor(field)) + ' ' + entry.key"
                     type="button"
                     (click)="stepForm().removeRecordEntry(asFormRecord(fieldControl), entry.key)"
                   >
@@ -320,11 +315,11 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
             @if (asFormRecord(fieldControl).enabled) {
               <div class="field-row field-row--record-add">
                 <mat-form-field appearance="outline" class="field-row__control">
-                  <mat-label>New Key</mat-label>
+                  <mat-label>New key</mat-label>
                   <input #recordKey matInput type="text" />
                 </mat-form-field>
                 <button mat-button type="button" (click)="addRecordEntry(field, asFormRecord(fieldControl), recordKey)">
-                  Add Entry
+                  Add entry
                 </button>
               </div>
             }
@@ -339,7 +334,7 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
             @if (control().enabled && !field.required) {
               <button
                 mat-icon-button
-                aria-label="Delete property from step"
+                [attr.aria-label]="removeLabel(field)"
                 type="button"
                 (click)="stepForm().removeOptionalField(control(), field)"
               >
@@ -380,7 +375,7 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
             <mat-label>{{ label }}</mat-label>
             <mat-select [formControl]="scalar">
               @for (option of field.options; track option) {
-                <mat-option [value]="option">{{ option }}</mat-option>
+                <mat-option [value]="option">{{ optionLabel(field, option) }}</mat-option>
               }
             </mat-select>
             @if (descriptionFor(field); as description) {
@@ -520,10 +515,8 @@ type RecordField = Extract<BuilderFieldSpec, { kind: 'record' }>;
       gap: 12px;
     }
 
-    .group-field__actions {
-      display: flex;
-      align-items: center;
-      gap: 4px;
+    .group-field__add {
+      justify-self: start;
     }
 
     .group-field__header h4,
@@ -598,7 +591,10 @@ export class StepFieldsComponent {
     { initialValue: [] as string[] },
   );
 
-  protected readonly visibleRequiredFields = computed(() => this.fields().filter((field) => field.required));
+  // A literal has one possible value, so there is nothing to show or edit; its control still carries it.
+  protected readonly visibleRequiredFields = computed(() =>
+    this.fields().filter((field) => field.required && field.kind !== 'literal'),
+  );
   protected readonly visibleOptionalFields = computed(() =>
     this.fields().filter((field) => !field.required && this.fieldControl().includes(stepFieldControlName(field))),
   );
@@ -619,10 +615,26 @@ export class StepFieldsComponent {
   protected labelFor(field: BuilderFieldSpec): string {
     return (
       getStepFieldPresentation(this.variantId(), field.path)?.label ??
-      (stepFieldControlName(field) === 'timeout'
-        ? 'Timeout (ms)'
-        : humanizeStepToken(stepFieldControlName(field) || field.path))
+      humanizeStepToken(stepFieldControlName(field) || field.path)
     );
+  }
+
+  /** Names one item of a list or one entry of a map, falling back to the field's own label. */
+  protected itemLabelFor(field: BuilderFieldSpec): string {
+    return getStepFieldPresentation(this.variantId(), field.path)?.itemLabel ?? this.labelFor(field);
+  }
+
+  protected optionLabel(field: BuilderFieldSpec, option: unknown): string {
+    return getStepFieldPresentation(this.variantId(), field.path)?.options?.[String(option)] ?? String(option);
+  }
+
+  protected removeLabel(field: BuilderFieldSpec): string {
+    return `Remove ${this.inline(this.labelFor(field))}`;
+  }
+
+  /** Lower-cases a label for use inside a sentence, leaving acronyms and names such as "URL" or "SameSite". */
+  protected inline(label: string): string {
+    return /^[A-Z][a-z]+(\s|$)/.test(label) ? label.charAt(0).toLowerCase() + label.slice(1) : label;
   }
 
   protected placeholderFor(field: BuilderFieldSpec): string {

@@ -9,6 +9,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIcon } from '@angular/material/icon';
 import { MatSelect } from '@angular/material/select';
 import { getStepPresentation, STEP_SELECTION_OPTIONS_GROUPED } from '../step-presentation';
+import { provideBuilderFormFieldDefaults } from './form-field-defaults';
 import { StepFieldsComponent } from './step-fields.component';
 
 @Component({
@@ -32,9 +33,8 @@ import { StepFieldsComponent } from './step-fields.component';
         </mat-panel-title>
       </mat-expansion-panel-header>
       <mat-form-field appearance="outline">
-        <mat-label>Type</mat-label>
+        <mat-label>Step type</mat-label>
         <mat-select [formControl]="control.selectionControl">
-          <mat-option value=""></mat-option>
           @for (optionGroup of stepTypeOptions; track optionGroup.label) {
             <mat-optgroup>
               <span class="option-group-label">
@@ -73,6 +73,7 @@ import { StepFieldsComponent } from './step-fields.component';
     MatIcon,
     StepFieldsComponent,
   ],
+  providers: [provideBuilderFormFieldDefaults()],
   styles: `
     :host {
       --step-header-height: 56px;

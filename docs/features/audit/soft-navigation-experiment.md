@@ -3,7 +3,7 @@
 The experiment is enabled by default, using stock Lighthouse 13.6.0 and local Performance audit overrides.
 There is no dependency patch or builder toggle.
 
-Use **Start Navigation**, the interaction steps, then **End Navigation**. A navigation containing an explicit
+Use **Start navigation**, the interaction steps, then **End navigation**. A navigation containing an explicit
 **Navigate** action uses Lighthouse's native page-load runner. Interaction-driven navigation steps collect
 an interaction trace and use the local FCP/LCP audits. If a click falls back to a document load, the soft
 paint metrics report missing detection instead of presenting document paints as soft-navigation results.

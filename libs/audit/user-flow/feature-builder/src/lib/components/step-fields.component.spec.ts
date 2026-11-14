@@ -188,7 +188,7 @@ describe('StepFieldsComponent field types', () => {
     await fixture.whenStable();
 
     expect(form.invalid).toBe(true);
-    expect(field('Button')?.querySelector('mat-error')?.textContent?.trim()).toBe('Choose an option.');
+    expect(field('Mouse button')?.querySelector('mat-error')?.textContent?.trim()).toBe('Choose an option.');
     expect(field('Timeout (ms)')?.querySelector('mat-error')?.textContent?.trim()).toBe('Enter a value.');
   });
 
@@ -200,5 +200,41 @@ describe('StepFieldsComponent field types', () => {
     await fixture.whenStable();
 
     expect(field('URL')?.querySelector('mat-error')?.textContent?.trim()).toBe('Enter an https:// URL or about:blank.');
+  });
+
+  it('labels list items, enum options and remove buttons for what they are', async () => {
+    const { host, field } = await renderStep('click', {
+      type: 'click',
+      offsetX: 1,
+      offsetY: 1,
+      selectors: [{ segments: ['#checkout'] }],
+      button: 'primary',
+      frame: [0, 1],
+      assertedEvents: [{ type: 'navigation', title: 'Checkout' }],
+    });
+    const text = (selector: string) =>
+      Array.from(host.querySelectorAll(selector), (element) => element.textContent?.trim());
+    const ariaLabels = Array.from(host.querySelectorAll('button[aria-label]'), (button) =>
+      button.getAttribute('aria-label'),
+    );
+
+    expect(field('Frame index 1')).toBeDefined();
+    expect(field('Frame index 2')).toBeDefined();
+    expect(text('.array-item__header h5')).toEqual(['Asserted event 1']);
+    expect(field('Mouse button')?.textContent).toContain('Primary');
+    expect(text('.group-field__add')).toEqual(['addAdd asserted event', 'addAdd frame index']);
+    expect(ariaLabels).toEqual(
+      expect.arrayContaining([
+        'Remove mouse button',
+        'Remove frame',
+        'Remove frame index 2',
+        'Remove asserted events',
+        'Remove asserted event 1',
+        'Remove navigation title',
+      ]),
+    );
+    // The event type has a single possible value, so it is carried by the form but not shown.
+    expect(field('Type')).toBeUndefined();
+    expect(text('.optional-fields h4')).toContain('Optional properties');
   });
 });
