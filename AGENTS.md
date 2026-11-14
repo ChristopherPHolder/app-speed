@@ -31,7 +31,7 @@
 - Use Angular Material for standard controls and do not restyle them. Use `@app-speed/ui/*` for shared patterns.
 - If a token or component is missing, add it to `libs/ui` with a story first, then use it. When the same markup appears in a second feature, move it into `libs/ui`.
 - The Storybook in `apps/design-system` (Foundations, Material, Components) is the reference; read the relevant page before building or changing UI, and add or update stories with the change.
-- `app-speed/no-hardcoded-colors` reports literal colours in component styles. Disable it only for artwork or canvas exports, with a comment explaining why.
+- `@nx/workspace-no-hardcoded-colors` reports literal colours in component styles. Disable it only for artwork or canvas exports, with a comment explaining why.
 
 ## Angular Agent Guidance
 - This workspace expects the Codex skills `angular-developer` and `angular-new-app` from `angular/skills` to be available locally.

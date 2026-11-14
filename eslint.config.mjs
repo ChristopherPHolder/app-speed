@@ -3,7 +3,6 @@ import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import js from '@eslint/js';
 import nx from '@nx/eslint-plugin';
-import appSpeed from './tools/eslint-rules/index.mjs';
 
 const compat = new FlatCompat({
   baseDirectory: dirname(fileURLToPath(import.meta.url)),
@@ -164,9 +163,8 @@ export default [
     // UI takes its colours from the shared theme. See docs/conventions/design-system.md.
     files: ['**/*.ts'],
     ignores: ['**/*.spec.ts', '**/*.stories.ts'],
-    plugins: { 'app-speed': appSpeed },
     rules: {
-      'app-speed/no-hardcoded-colors': 'warn',
+      '@nx/workspace-no-hardcoded-colors': 'warn',
     },
   },
   ...nx.configs['flat/javascript'],

@@ -32,7 +32,7 @@ If the value or component you need doesn't exist, add it to `libs/ui` first, wit
 ## Rules
 
 - No literal colours in component styles, including as `var()` fallbacks and inside `color-mix()`. The
-  `app-speed/no-hardcoded-colors` lint rule reports them.
+  `@nx/workspace-no-hardcoded-colors` lint rule reports them.
 - No pixel radii, hand-written `box-shadow`, or standalone `font-size` / `font-weight`.
 - Don't restyle Material components beyond their documented tokens.
 - Interactive surfaces show state with a state layer, not by moving, scaling or raising.

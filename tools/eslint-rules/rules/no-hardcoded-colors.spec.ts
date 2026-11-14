@@ -1,6 +1,6 @@
 import { RuleTester } from 'eslint';
 import tseslint from 'typescript-eslint';
-import rule, { findHardcodedColors } from './no-hardcoded-colors.mjs';
+import { findHardcodedColors, rule, RULE_NAME } from './no-hardcoded-colors';
 
 const values = (css: string) => findHardcodedColors(css).map((color) => color.value);
 
@@ -47,7 +47,7 @@ describe('findHardcodedColors', () => {
 
 const ruleTester = new RuleTester({ languageOptions: { parser: tseslint.parser } });
 
-ruleTester.run('no-hardcoded-colors', rule, {
+ruleTester.run(RULE_NAME, rule, {
   valid: [
     '@Component({ styles: `a { color: var(--mat-sys-primary); }` }) class A {}',
     '@Component({ styles: [`a { color: var(--mat-sys-primary); }`] }) class A {}',
