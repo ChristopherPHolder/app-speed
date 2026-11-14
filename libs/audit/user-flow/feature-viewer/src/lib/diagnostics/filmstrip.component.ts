@@ -9,7 +9,11 @@ import type Details from 'lighthouse/types/lhr/audit-details';
       <div class="filmstrip">
         @for (item of details().items; track item.timestamp) {
           <figure class="filmstrip__frame">
-            <img class="filmstrip__image" [src]="item.data" [alt]="'Screenshot at ' + formatMilliseconds(item.timing)" />
+            <img
+              class="filmstrip__image"
+              [src]="item.data"
+              [alt]="'Screenshot at ' + formatMilliseconds(item.timing)"
+            />
             <figcaption class="filmstrip__time">{{ formatMilliseconds(item.timing) }}</figcaption>
           </figure>
         }
@@ -31,10 +35,9 @@ import type Details from 'lighthouse/types/lhr/audit-details';
     .filmstrip__image {
       display: block;
       width: 160px;
-      border: 1px solid color-mix(in srgb, var(--mat-sys-outline) 60%, white);
+      border: 1px solid var(--mat-sys-outline-variant);
       border-radius: 10px;
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
-      background: white;
+      background: var(--mat-sys-surface-container-lowest);
     }
 
     .filmstrip__time {

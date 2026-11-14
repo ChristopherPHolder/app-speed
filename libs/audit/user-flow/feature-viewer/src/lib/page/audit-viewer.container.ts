@@ -63,18 +63,27 @@ import { ActivatedRoute, Router } from '@angular/router';
     }
 
     .failure-state {
-      border-left: 4px solid #b3261e;
-      padding: 16px;
-      margin: 16px 0;
+      margin: var(--ui-space-4) 0;
+      padding: var(--ui-space-4);
+      border-radius: var(--mat-sys-corner-medium);
+      background: var(--mat-sys-error-container);
+      color: var(--mat-sys-on-error-container);
+    }
+
+    .failure-state h2 {
+      margin: 0 0 var(--ui-space-2);
+      font: var(--mat-sys-title-medium);
     }
 
     .loading-state {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
+      gap: var(--ui-space-3);
       min-height: 320px;
-      margin: 24px 0;
+      margin: var(--ui-space-6) 0;
+      color: var(--mat-sys-on-surface-variant);
+      font: var(--mat-sys-body-large);
       text-align: center;
     }
   `,

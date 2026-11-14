@@ -93,9 +93,9 @@ import { ViewerDiagnosticContext } from './viewer-diagnostic.models';
       flex: 0 0 auto;
       width: 147px;
       height: 100px;
-      border: 1px solid color-mix(in srgb, var(--mat-sys-outline) 60%, white);
+      border: 1px solid var(--mat-sys-outline-variant);
       border-radius: 8px;
-      background: white;
+      background: var(--mat-sys-surface-container-lowest);
       object-fit: cover;
     }
 
@@ -117,7 +117,7 @@ import { ViewerDiagnosticContext } from './viewer-diagnostic.models';
       white-space: pre-wrap;
       padding: 8px 10px;
       border-radius: 8px;
-      background: color-mix(in srgb, var(--mat-sys-surface-variant) 70%, white);
+      background: var(--mat-sys-surface-container-high);
       font-family: var(--mat-sys-body-medium-font, monospace);
       font-size: 0.8125rem;
     }
@@ -135,7 +135,7 @@ import { ViewerDiagnosticContext } from './viewer-diagnostic.models';
       align-items: center;
       justify-content: center;
       padding: 24px;
-      background: color-mix(in srgb, black 72%, transparent);
+      background: color-mix(in srgb, var(--mat-sys-scrim) 72%, transparent);
     }
 
     .node__overlay-backdrop {

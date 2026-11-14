@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { MatChip } from '@angular/material/chips';
 import { MatExpansionPanel, MatExpansionPanelHeader, MatExpansionPanelTitle } from '@angular/material/expansion';
-import { StatusBadgeComponent } from '@app-speed/ui/status-badge';
+import { STATUS_COLOR, StatusBadgeComponent } from '@app-speed/ui/status-badge';
 import { ViewerDetailsComponent } from './details.component';
 import { ViewerMarkdownTextComponent } from './markdown-text.component';
 import { DiagnosticItem, ViewerDiagnosticContext } from './viewer-diagnostic.models';
@@ -16,7 +16,9 @@ import { DiagnosticItem, ViewerDiagnosticContext } from './viewer-diagnostic.mod
           <span>
             {{ item().title }}
             @if (item().displayValue) {
-              <span style="color: red;">{{ item().displayValue }}</span>
+              <span class="viewer-diagnostic-panel__value" [style.color]="statusColor[item().status]">{{
+                item().displayValue
+              }}</span>
             }
           </span>
         </mat-panel-title>
@@ -43,7 +45,11 @@ import { DiagnosticItem, ViewerDiagnosticContext } from './viewer-diagnostic.mod
         <div class="viewer-diagnostic-panel__stackpacks" [attr.data-stack-pack-count]="stackPackCount">
           @for (stackPack of item().stackPacks; track stackPack.title) {
             <section class="viewer-diagnostic-panel__stackpack">
-              <img class="viewer-diagnostic-panel__stackpack-icon" [src]="stackPack.iconDataURL" [alt]="stackPack.title" />
+              <img
+                class="viewer-diagnostic-panel__stackpack-icon"
+                [src]="stackPack.iconDataURL"
+                [alt]="stackPack.title"
+              />
               <div class="viewer-diagnostic-panel__stackpack-copy">
                 <div class="viewer-diagnostic-panel__stackpack-title">{{ stackPack.title }}</div>
                 <ui-viewer-markdown-text [text]="stackPack.description" />
@@ -87,9 +93,9 @@ import { DiagnosticItem, ViewerDiagnosticContext } from './viewer-diagnostic.mod
       gap: 12px;
       align-items: start;
       padding: 12px;
-      border: 1px solid color-mix(in srgb, var(--mat-sys-outline) 55%, white);
+      border: 1px solid var(--mat-sys-outline-variant);
       border-radius: 12px;
-      background: color-mix(in srgb, var(--mat-sys-surface-variant) 20%, white);
+      background: var(--mat-sys-surface-container-low);
     }
 
     .viewer-diagnostic-panel__stackpack-icon {
@@ -135,6 +141,7 @@ import { DiagnosticItem, ViewerDiagnosticContext } from './viewer-diagnostic.mod
   },
 })
 export class ViewerDiagnosticPanelComponent {
+  protected readonly statusColor = STATUS_COLOR;
   item = input.required<DiagnosticItem>();
   context = input<ViewerDiagnosticContext | null>(null);
 }

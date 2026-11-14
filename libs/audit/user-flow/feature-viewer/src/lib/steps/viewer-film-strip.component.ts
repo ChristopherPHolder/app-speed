@@ -16,32 +16,23 @@ import { ScrollContainerComponent } from '@app-speed/ui/scroll-container';
     :host {
       container-type: inline-size;
       display: block;
-      padding: 20px 0;
+      padding: var(--ui-space-5) 0;
     }
 
     .film-strip-container {
       display: flex;
-      gap: 16px;
+      gap: var(--ui-space-4);
       justify-content: space-between;
       overflow: auto;
-      padding: 8px 4px;
+      padding: var(--ui-space-2) var(--ui-space-1);
     }
 
     .film-strip-frame {
       flex: 0 0 auto;
-      height: clamp(100px, 15cqi, 160px);
       width: auto;
-      border: groove gray;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      border-radius: 8px;
-      transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease;
-
-      &:hover {
-        transform: scale(1.05);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-      }
+      height: clamp(100px, 15cqi, 160px);
+      border: 1px solid var(--mat-sys-outline-variant);
+      border-radius: var(--mat-sys-corner-small);
     }
   `,
   imports: [ScrollContainerComponent],

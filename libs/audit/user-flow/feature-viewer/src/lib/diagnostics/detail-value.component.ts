@@ -13,7 +13,9 @@ type TypedValueType = TypedValue['type'];
   template: `
     @switch (resolvedType()) {
       @case ('bytes') {
-        <span class="numeric" [attr.title]="bytesTitle()">{{ formatBytes(primitiveNumber() ?? 0, $safeNavigationMigration(heading()?.granularity)) }}</span>
+        <span class="numeric" [attr.title]="bytesTitle()">{{
+          formatBytes(primitiveNumber() ?? 0, $safeNavigationMigration(heading()?.granularity))
+        }}</span>
       }
       @case ('code') {
         <pre class="code">{{ codeText() }}</pre>
@@ -26,10 +28,18 @@ type TypedValueType = TypedValue['type'];
         }
       }
       @case ('ms') {
-        <span class="numeric">{{ formatMilliseconds(primitiveNumber() ?? 0, $safeNavigationMigration(heading()?.granularity), $safeNavigationMigration(heading()?.displayUnit)) }}</span>
+        <span class="numeric">{{
+          formatMilliseconds(
+            primitiveNumber() ?? 0,
+            $safeNavigationMigration(heading()?.granularity),
+            $safeNavigationMigration(heading()?.displayUnit)
+          )
+        }}</span>
       }
       @case ('timespanMs') {
-        <span class="numeric">{{ formatMilliseconds(primitiveNumber() ?? 0, $safeNavigationMigration(heading()?.granularity)) }}</span>
+        <span class="numeric">{{
+          formatMilliseconds(primitiveNumber() ?? 0, $safeNavigationMigration(heading()?.granularity))
+        }}</span>
       }
       @case ('node') {
         @if (nodeValue(); as node) {
@@ -124,7 +134,7 @@ type TypedValueType = TypedValue['type'];
       height: 48px;
       object-fit: cover;
       border-radius: 6px;
-      border: 1px solid color-mix(in srgb, var(--mat-sys-outline) 60%, white);
+      border: 1px solid var(--mat-sys-outline-variant);
     }
 
     .url {
@@ -263,9 +273,7 @@ export class ViewerDetailValueComponent {
 
   sourceLocationHref(): string | null {
     const value = this.value();
-    return this.hasType(value, 'source-location') && value.urlProvider === 'network'
-      ? value.url
-      : null;
+    return this.hasType(value, 'source-location') && value.urlProvider === 'network' ? value.url : null;
   }
 
   sourceLocationDataUrl(): string | null {
@@ -346,7 +354,12 @@ export class ViewerDetailValueComponent {
       return String(value);
     }
 
-    if (this.hasType(value, 'code') || this.hasType(value, 'numeric') || this.hasType(value, 'text') || this.hasType(value, 'url')) {
+    if (
+      this.hasType(value, 'code') ||
+      this.hasType(value, 'numeric') ||
+      this.hasType(value, 'text') ||
+      this.hasType(value, 'url')
+    ) {
       return String(value.value);
     }
 
@@ -443,9 +456,7 @@ export class ViewerDetailValueComponent {
   }
 
   private typedValueType(value: Details.ItemValue | undefined): TypedValueType | null {
-    return typeof value === 'object' && value !== null && 'type' in value
-      ? (value as TypedValue).type
-      : null;
+    return typeof value === 'object' && value !== null && 'type' in value ? (value as TypedValue).type : null;
   }
 
   private hasType<TType extends TypedValueType>(
@@ -455,7 +466,14 @@ export class ViewerDetailValueComponent {
     return this.typedValueType(value) === type;
   }
 
-  private isIcuMessage(value: Details.ItemValue | undefined): value is Extract<Details.ItemValue, { formattedDefault: string }> {
-    return typeof value === 'object' && value !== null && 'formattedDefault' in value && typeof value.formattedDefault === 'string';
+  private isIcuMessage(
+    value: Details.ItemValue | undefined,
+  ): value is Extract<Details.ItemValue, { formattedDefault: string }> {
+    return (
+      typeof value === 'object' &&
+      value !== null &&
+      'formattedDefault' in value &&
+      typeof value.formattedDefault === 'string'
+    );
   }
 }

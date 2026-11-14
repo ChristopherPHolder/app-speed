@@ -1,3 +1,5 @@
+/* eslint-disable @nx/workspace-no-hardcoded-colors -- The marker outlines an element on a screenshot of an arbitrary
+   page, so it keeps Lighthouse's fixed high-visibility colour instead of following the theme. */
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import type Result from 'lighthouse/types/lhr/lhr';
 
@@ -87,8 +89,8 @@ type ScreenshotViewModel = {
 
     .element-screenshot__viewport {
       position: relative;
-      background-color: white;
-      outline: 1px solid color-mix(in srgb, var(--mat-sys-outline) 60%, white);
+      background-color: var(--mat-sys-surface-container-lowest);
+      outline: 1px solid var(--mat-sys-outline-variant);
       overflow: hidden;
     }
 
@@ -102,7 +104,7 @@ type ScreenshotViewModel = {
     .element-screenshot__mask {
       position: absolute;
       inset-inline: 0;
-      background: color-mix(in srgb, black 62%, transparent);
+      background: color-mix(in srgb, var(--mat-sys-scrim) 62%, transparent);
       opacity: 0.72;
       pointer-events: none;
     }
@@ -204,15 +206,7 @@ export class ViewerElementScreenshotComponent {
     return value;
   }
 
-  private overlaps(
-    screenshot: Result.FullPageScreenshot['screenshot'],
-    rect: Rect,
-  ): boolean {
-    return (
-      rect.left <= screenshot.width &&
-      0 <= rect.right &&
-      rect.top <= screenshot.height &&
-      0 <= rect.bottom
-    );
+  private overlaps(screenshot: Result.FullPageScreenshot['screenshot'], rect: Rect): boolean {
+    return rect.left <= screenshot.width && 0 <= rect.right && rect.top <= screenshot.height && 0 <= rect.bottom;
   }
 }

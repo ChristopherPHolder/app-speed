@@ -105,27 +105,26 @@ import { ViewerDiagnosticContext } from './viewer-diagnostic.models';
       align-items: center;
       min-height: 28px;
       padding: 0 10px;
-      border-radius: 999px;
-      background-color: #eef2f7;
-      color: #465166;
-      font-size: 0.75rem;
-      font-weight: 600;
+      border-radius: var(--mat-sys-corner-full);
+      background-color: var(--mat-sys-surface-container-high);
+      color: var(--mat-sys-on-surface-variant);
+      font: var(--mat-sys-label-medium);
     }
 
     .viewer-table {
-      --mat-table-background-color: #faf9fd;
-      --mat-table-row-item-outline-color: color-mix(in srgb, #74777f 32%, white);
-      --mat-table-header-headline-color: #465166;
+      --mat-table-background-color: var(--mat-sys-surface-container-lowest);
+      --mat-table-row-item-outline-color: var(--mat-sys-outline-variant);
+      --mat-table-header-headline-color: var(--mat-sys-on-surface-variant);
       width: 100%;
       min-width: 42rem;
       border: 1px solid var(--mat-table-row-item-outline-color);
-      border-radius: 12px;
+      border-radius: var(--mat-sys-corner-medium);
       overflow: hidden;
       background: var(--mat-table-background-color);
     }
 
     .viewer-table :is(.mat-mdc-header-row, .mat-mdc-header-cell) {
-      background-color: #eef2f7;
+      background-color: var(--mat-sys-surface-container-low);
     }
 
     .viewer-table :is(.mat-mdc-header-cell, .mat-mdc-cell) {
@@ -150,12 +149,11 @@ import { ViewerDiagnosticContext } from './viewer-diagnostic.models';
     }
 
     .viewer-table__row--group {
-      background-color: #eef2f7;
+      background-color: var(--mat-sys-surface-container);
     }
 
     .viewer-table__row--group .mat-mdc-cell {
-      font-size: 1.05em;
-      font-weight: 700;
+      font-weight: 500;
     }
 
     .viewer-table__row--group .mat-mdc-cell:first-child {
@@ -163,14 +161,10 @@ import { ViewerDiagnosticContext } from './viewer-diagnostic.models';
       font-weight: 400;
     }
 
-    .viewer-table__row--even {
-      background-color: #f6f8fb;
-    }
-
     .viewer-table__row--subitem .mat-mdc-cell {
       padding-top: 8px;
       padding-bottom: 8px;
-      color: #5f6878;
+      color: var(--mat-sys-on-surface-variant);
     }
 
     .viewer-table__row--subitem .mat-mdc-cell:first-child,
@@ -182,7 +176,7 @@ import { ViewerDiagnosticContext } from './viewer-diagnostic.models';
       display: block;
       margin-left: 20px;
       padding-left: 10px;
-      border-left: 1px solid #9eb8e0;
+      border-left: 1px solid var(--mat-sys-outline);
     }
 
     .viewer-table__cell-content {
@@ -200,23 +194,21 @@ import { ViewerDiagnosticContext } from './viewer-diagnostic.models';
       display: inline-flex;
       align-items: center;
       padding: 2px 6px;
-      border: 1px solid color-mix(in srgb, var(--mat-sys-outline) 70%, white);
-      border-radius: 999px;
-      font-size: 0.75rem;
-      font-weight: 500;
+      border: 1px solid var(--mat-sys-outline-variant);
+      border-radius: var(--mat-sys-corner-full);
+      color: var(--mat-sys-on-surface-variant);
+      font: var(--mat-sys-label-medium);
       text-transform: capitalize;
-      color: #5f6878;
     }
 
     .viewer-table__adorn--first-party {
-      border-color: #7a9ccf;
-      color: #2259a8;
+      border-color: var(--mat-sys-primary);
+      color: var(--mat-sys-primary);
     }
 
     .viewer-table__external-link {
-      color: inherit;
+      color: var(--mat-sys-on-surface-variant);
       text-decoration: none;
-      opacity: 0.72;
     }
 
     .viewer-table__external-link:hover {

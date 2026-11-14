@@ -193,8 +193,8 @@ describe('ViewerStepDetailComponent', () => {
       fixture.componentRef.setInput('stepDetails', { ...multiCategoryStep, softNavigation });
       await fixture.whenStable();
       const metricsHeader = fixture.nativeElement.querySelector('viewer-step-metric-summary .header-title');
-      expect(metricsHeader?.textContent).toContain('METRICS');
-      expect(metricsHeader?.querySelector('.experimental-metrics')?.textContent ?? '').toBe(
+      expect(metricsHeader?.querySelector('h3')?.textContent).toBe('Metrics');
+      expect(metricsHeader?.querySelector('.experimental-metrics')?.textContent?.trim() ?? '').toBe(
         softNavigation ? 'Experimental soft navigation' : '',
       );
     },

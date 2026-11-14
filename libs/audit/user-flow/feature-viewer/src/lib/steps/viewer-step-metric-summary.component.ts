@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
 import { StatusBadgeComponent, StatusOptions, STATUS_COLOR } from '@app-speed/ui/status-badge';
+import { MatButton } from '@angular/material/button';
+import { StatusChipComponent } from '@app-speed/ui/status-chip';
 import { MdToAnkerPipe } from './md-to-anker.pipe';
 
 export type MetricSummary = {
@@ -15,12 +17,14 @@ export type MetricSummary = {
   template: `
     <div class="header">
       <div class="header-title">
-        <span>METRICS</span>
+        <h3>Metrics</h3>
         @if (softNavigation()) {
-          <span class="experimental-metrics" role="note">Experimental soft navigation</span>
+          <ui-status-chip class="experimental-metrics" tone="warning" role="note"
+            >Experimental soft navigation</ui-status-chip
+          >
         }
       </div>
-      <button type="button" class="header-toggle" (click)="toddleDescriptionVisibility()">
+      <button matButton type="button" class="header-toggle" (click)="toddleDescriptionVisibility()">
         {{ toggleBtnText() }} view
       </button>
     </div>
@@ -36,7 +40,7 @@ export type MetricSummary = {
             <p class="metric-error">{{ metric.errorMessage }}</p>
           }
           @if (descriptionVisible()) {
-            <div style="margin: 16px 0;" [innerHTML]="metric.description | mdToAnker"></div>
+            <div class="metric-description" [innerHTML]="metric.description | mdToAnker"></div>
           }
         </div>
       }
@@ -45,57 +49,46 @@ export type MetricSummary = {
   styles: `
     :host {
       display: block;
-      padding: 20px;
+      padding: var(--ui-space-5);
     }
 
     .header {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 8px 12px;
+      gap: var(--ui-space-2) var(--ui-space-3);
       justify-content: space-between;
-      margin: 8px 0;
+      margin: var(--ui-space-2) 0;
     }
 
     .header-title {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 8px;
+      gap: var(--ui-space-2);
     }
 
-    .experimental-metrics {
-      padding: 2px 8px;
-      border-radius: 4px;
-      background: #fff4ce;
-      color: #713f00;
-      font-size: 12px;
-      font-weight: 500;
-      line-height: 20px;
+    h3 {
+      margin: 0;
+      font: var(--mat-sys-title-medium);
+    }
+
+    .header-toggle {
+      margin-inline-start: auto;
     }
 
     .content {
       display: grid;
       grid-template-columns: 1fr;
-      @media (min-width: 768px) {
+      @media (width >= 840px) {
         grid-template-columns: 1fr 1fr;
-        gap: 0 32px;
+        gap: 0 var(--ui-space-8);
       }
     }
 
     .item {
-      border-top: 1px solid #ccc;
-      padding: 16px 8px;
-    }
-
-    .header-toggle {
-      margin-left: auto;
-      border: 0;
-      padding: 0;
-      background: transparent;
-      color: inherit;
-      cursor: pointer;
-      font: inherit;
+      padding: var(--ui-space-4) var(--ui-space-2);
+      border-top: 1px solid var(--mat-sys-outline-variant);
     }
 
     .item-header {
@@ -105,25 +98,30 @@ export type MetricSummary = {
     }
 
     .header-icon {
-      padding: 0 10px 0 0;
+      padding-inline-end: var(--ui-space-3);
     }
 
     .header-name {
-      font-size: medium;
-      font-weight: 500;
-    }
-    .header-value {
-      font-size: large;
-      font-weight: 500;
-      margin-left: auto;
+      font: var(--mat-sys-title-small);
     }
 
-    .metric-error {
-      font-size: 14px;
-      line-height: 1.5;
+    .header-value {
+      margin-inline-start: auto;
+      font: var(--mat-sys-title-medium);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .metric-error,
+    .metric-description {
+      color: var(--mat-sys-on-surface-variant);
+      font: var(--mat-sys-body-medium);
+    }
+
+    .metric-description {
+      margin: var(--ui-space-4) 0;
     }
   `,
-  imports: [StatusBadgeComponent, MdToAnkerPipe],
+  imports: [MatButton, StatusBadgeComponent, StatusChipComponent, MdToAnkerPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ViewerStepMetricSummaryComponent {
