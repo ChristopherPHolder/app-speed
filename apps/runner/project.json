@@ -61,39 +61,17 @@
       "dependsOn": ["build"]
     },
     "deploy": {
-      "executor": "@app-speed/aws-deploy:ec2-ssm-cycle",
+      "executor": "@app-speed/aws-deploy:alchemy",
       "defaultConfiguration": "development",
       "options": {
-        "region": "eu-central-1",
-        "instanceId": "i-049287bf43503d01e",
-        "documentName": "AWS-RunShellScript",
-        "containerName": "app-speed-runner",
-        "stopAfterCompletion": true,
-        "stopOnlyIfStarted": true,
-        "expectBootstrapShutdown": false,
-        "pruneDockerBeforePull": true,
-        "pollIntervalMs": 5000,
-        "startWaitTimeoutMs": 1800000,
-        "timeoutMs": 600000
+        "stack": "tools/aws-deploy/src/stacks/runner.ts"
       },
       "configurations": {
         "development": {
-          "additionalRunArgs": [
-            "-e RUNNER_API_TOKEN",
-            "-e RUNNER_API_BASE_URL=https://dev.appspeed.dev/api",
-            "-e RUNNER_ID=ec2-i-049287bf43503d01e",
-            "-e AWS_REGION=eu-central-1",
-            "-e RUNNER_HEADLESS=true"
-          ]
+          "stage": "development"
         },
         "production": {
-          "additionalRunArgs": [
-            "-e RUNNER_API_TOKEN",
-            "-e RUNNER_API_BASE_URL=https://appspeed.dev/api",
-            "-e RUNNER_ID=ec2-i-049287bf43503d01e",
-            "-e AWS_REGION=eu-central-1",
-            "-e RUNNER_HEADLESS=true"
-          ]
+          "stage": "production"
         }
       }
     },

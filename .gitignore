@@ -150,3 +150,6 @@ opensrc/
 artifacts/
 apps/portal-e2e/cypress/screenshots/
 apps/portal-e2e/cypress/videos/
+
+# Alchemy CLI logs and local state (deploy state lives in the AWS state store)
+.alchemy/

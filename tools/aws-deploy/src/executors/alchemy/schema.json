@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "version": 2,
+  "title": "Alchemy executor",
+  "description": "Deploy or plan an Alchemy stack for one stage.",
+  "type": "object",
+  "properties": {
+    "stack": {
+      "type": "string",
+      "description": "Stack entrypoint, relative to the workspace root.",
+      "minLength": 1
+    },
+    "stage": {
+      "type": "string",
+      "description": "Stage to deploy.",
+      "enum": ["development", "production"]
+    },
+    "command": {
+      "type": "string",
+      "description": "`deploy` applies the plan; `plan` only prints it.",
+      "enum": ["deploy", "plan"],
+      "default": "deploy"
+    },
+    "force": {
+      "type": "boolean",
+      "description": "Re-run every rollout and re-upload every site, even when nothing changed.",
+      "default": false
+    }
+  },
+  "required": ["stack", "stage"]
+}

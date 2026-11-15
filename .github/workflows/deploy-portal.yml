@@ -23,6 +23,10 @@ jobs:
   deploy-portal:
     name: Deploy Portal
     runs-on: ubuntu-latest
+    # Queue deploys of the same stage; Alchemy fails a deploy that finds the stage's lease taken.
+    concurrency:
+      group: deploy-portal-${{ github.event_name == 'push' && 'production' || inputs.environment }}
+      cancel-in-progress: false
 
     steps:
       - uses: actions/checkout@v6

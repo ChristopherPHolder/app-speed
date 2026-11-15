@@ -7,9 +7,7 @@ const executorUrls = [
   new URL('./executors/workflow-dispatch/executor.ts', import.meta.url).href,
   new URL('./executors/workflow-rerun/executor.ts', import.meta.url).href,
   new URL('./executors/auth-preflight/executor.ts', import.meta.url).href,
-  new URL('./executors/ec2-ssm-cycle/executor.ts', import.meta.url).href,
-  new URL('./executors/s3-upload/executor.ts', import.meta.url).href,
-  new URL('./executors/ssm-deploy/executor.ts', import.meta.url).href,
+  new URL('./executors/alchemy/executor.ts', import.meta.url).href,
 ];
 
 describe('native TypeScript executor loading', () => {

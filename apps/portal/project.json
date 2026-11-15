@@ -112,18 +112,18 @@
       "dependsOn": ["build"]
     },
     "deploy": {
-      "executor": "@app-speed/aws-deploy:s3-upload",
+      "executor": "@app-speed/aws-deploy:alchemy",
       "dependsOn": ["build", "auth-preflight"],
       "defaultConfiguration": "development",
       "options": {
-        "upload": "dist/{projectRoot}"
+        "stack": "tools/aws-deploy/src/stacks/portal.ts"
       },
       "configurations": {
-        "production": {
-          "bucket": "s3://appspeed.dev"
-        },
         "development": {
-          "bucket": "s3://dev.appspeed.dev"
+          "stage": "development"
+        },
+        "production": {
+          "stage": "production"
         }
       }
     },

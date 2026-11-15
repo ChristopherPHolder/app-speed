@@ -147,54 +147,20 @@
       }
     },
     "deploy": {
-      "executor": "@app-speed/aws-deploy:ssm-deploy",
+      "executor": "@app-speed/aws-deploy:alchemy",
+      "dependsOn": ["auth-preflight"],
       "defaultConfiguration": "development",
       "options": {
-        "region": "eu-central-1",
-        "documentName": "AWS-RunShellScript",
-        "instanceIds": ["i-016827500a47a80ef"],
-        "containerName": "app-speed-api",
-        "hostPort": 3000,
-        "containerPort": 3000,
-        "pruneDockerBeforePull": true,
-        "waitForCompletion": true,
-        "pollIntervalMs": 5000,
-        "timeoutMs": 900000
+        "stack": "tools/aws-deploy/src/stacks/api.ts"
       },
       "configurations": {
         "development": {
-          "additionalRunArgs": [
-            "-e APP_ENV=development",
-            "-e RUNNER_API_TOKEN",
-            "-e SQLITE_PATH=/data/app-speed.sqlite",
-            "-v app-speed-api-development:/data",
-            "-e RUNNER_MANAGER_MODE=manual",
-            "-e DATABASE_URL",
-            "-e CLERK_SECRET_KEY",
-            "-e CLERK_PUBLISHABLE_KEY",
-            "-e CLERK_AUTHORIZED_PARTIES"
-          ],
-          "containerName": "app-speed-api-development",
-          "hostPort": 3001,
-          "pruneDockerBeforePull": false
+          "stage": "development"
         },
         "production": {
-          "additionalRunArgs": [
-            "-e APP_ENV=production",
-            "-e MCP_RESOURCE_URL=https://appspeed.dev/mcp",
-            "-e PORTAL_URL=https://appspeed.dev",
-            "-e RUNNER_API_TOKEN",
-            "-e RECORD_PERSISTENCE_MODE=s3",
-            "-e RECORD_PERSISTENCE_BUCKET=app-speed-audit-results-prod",
-            "-e AWS_REGION=eu-central-1",
-            "-e DATABASE_URL",
-            "-e CLERK_SECRET_KEY",
-            "-e CLERK_PUBLISHABLE_KEY",
-            "-e CLERK_AUTHORIZED_PARTIES"
-          ]
+          "stage": "production"
         }
-      },
-      "dependsOn": ["auth-preflight"]
+      }
     },
     "build-e2e": {
       "executor": "@nx/esbuild:esbuild",

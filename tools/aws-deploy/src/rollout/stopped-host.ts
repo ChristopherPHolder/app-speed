@@ -1,14 +1,41 @@
-import type { PromiseExecutor } from '@nx/devkit';
 import { EC2Client } from '@aws-sdk/client-ec2';
 import { SendCommandCommand, SSMClient } from '@aws-sdk/client-ssm';
 import { env, stdout } from 'node:process';
 import { Effect, Option } from 'effect';
 
-import { waitForSsmCommandCompletion } from '../../lib/ssm.ts';
+import { waitForSsmCommandCompletion } from '../lib/ssm.ts';
 import { startInstanceIfNeeded, stopInstance } from './ec2.ts';
 import type { StartedInstance } from './ec2.ts';
 import { Ec2SsmCycleError } from './errors.ts';
-import type { Ec2SsmCycleExecutorSchema } from './schema.d.ts';
+import type { RolloutResult } from './running-hosts.ts';
+
+/**
+ * Replace a container on an instance that is normally stopped: start it if needed, roll out over SSM
+ * `AWS-RunShellScript`, then stop it again.
+ */
+export interface StoppedHostRollout {
+  region: string;
+  instanceId: string;
+  documentName?: string;
+  imageRef: string;
+  containerName?: string;
+  hostPort?: number;
+  containerPort?: number;
+  /**
+   * Extra `docker run` arguments. `-e NAME` passes `NAME` from this process's environment, so secrets reach the host
+   * without being written to deployment state.
+   */
+  additionalRunArgs?: string[];
+  pruneDockerBeforePull?: boolean;
+  comment?: string;
+  timeoutMs?: number;
+  pollIntervalMs?: number;
+  startWaitTimeoutMs?: number;
+  stopWaitTimeoutMs?: number;
+  expectBootstrapShutdown?: boolean;
+  stopAfterCompletion?: boolean;
+  stopOnlyIfStarted?: boolean;
+}
 
 const DEFAULT_DOCUMENT_NAME = 'AWS-RunShellScript';
 const DEFAULT_CONTAINER_NAME = 'app-speed-runner';
@@ -21,12 +48,6 @@ const DOCKER_REMOVE_TIMEOUT_SECONDS = 60;
 const DOCKER_PRUNE_TIMEOUT_SECONDS = 120;
 const DOCKER_PULL_TIMEOUT_SECONDS = 480;
 const DOCKER_RUN_TIMEOUT_SECONDS = 60;
-
-type ExecutorExit = {
-  success: boolean;
-  message: string;
-  commandId?: string;
-};
 
 const shellQuote = (value: string): string => `'${value.replace(/'/g, `'"'"'`)}'`;
 const toTimeoutSeconds = (timeoutMs: number): number => Math.max(1, Math.ceil(timeoutMs / 1000));
@@ -96,21 +117,10 @@ const buildDefaultCommands = (
   ];
 };
 
-const resolveCommands = (options: Ec2SsmCycleExecutorSchema, region: string): string[] => {
-  const customCommands = (options.commands ?? []).map((command) => command.trim()).filter(Boolean);
-  if (customCommands.length > 0) {
-    return customCommands;
-  }
-
-  const imageRef =
-    options.imageRef?.trim() ||
-    env.RUNNER_IMAGE_REF?.trim() ||
-    env.API_IMAGE_REF?.trim() ||
-    env.SERVER_IMAGE_REF?.trim();
+const resolveCommands = (options: StoppedHostRollout, region: string): string[] => {
+  const imageRef = options.imageRef?.trim();
   if (!imageRef) {
-    throw new Ec2SsmCycleError({
-      message: 'Missing image reference. Set options.imageRef or RUNNER_IMAGE_REF',
-    });
+    throw new Ec2SsmCycleError({ message: 'Missing image reference' });
   }
 
   const containerName = options.containerName?.trim() || DEFAULT_CONTAINER_NAME;
@@ -171,11 +181,11 @@ const runSsmCommand = (
   ssmClient: SSMClient,
   documentName: string,
   instanceId: string,
-  parameters: Record<string, string[]> | undefined,
+  parameters: Record<string, string[]>,
   comment: string | undefined,
   timeoutMs: number,
   pollIntervalMs: number,
-): Effect.Effect<ExecutorExit, Ec2SsmCycleError> =>
+): Effect.Effect<RolloutResult, Ec2SsmCycleError> =>
   Effect.gen(function* () {
     yield* Effect.logInfo(`Sending SSM document ${documentName} to EC2 instance ${instanceId}`);
     const sendResponse = yield* Effect.tryPromise({
@@ -224,7 +234,7 @@ const runSsmCommand = (
     return result;
   });
 
-const program = (options: Ec2SsmCycleExecutorSchema): Effect.Effect<ExecutorExit, Ec2SsmCycleError> =>
+export const rolloutToStoppedHost = (options: StoppedHostRollout): Effect.Effect<RolloutResult, Ec2SsmCycleError> =>
   Effect.gen(function* () {
     const region = options.region.trim();
     if (!region) {
@@ -254,7 +264,6 @@ const program = (options: Ec2SsmCycleExecutorSchema): Effect.Effect<ExecutorExit
     const stopOnlyIfStarted = options.stopOnlyIfStarted !== false;
     const commands = resolveCommands(options, region);
     const parameters: Record<string, string[]> = {
-      ...(options.parameters ?? {}),
       commands,
       ...(documentName === DEFAULT_DOCUMENT_NAME ? { executionTimeout: [String(toTimeoutSeconds(timeoutMs))] } : {}),
     };
@@ -279,7 +288,3 @@ const program = (options: Ec2SsmCycleExecutorSchema): Effect.Effect<ExecutorExit
         ).pipe(Effect.orDie),
     ).pipe(Effect.scoped);
   });
-
-const runExecutor: PromiseExecutor<Ec2SsmCycleExecutorSchema> = async (options) => Effect.runPromise(program(options));
-
-export default runExecutor;

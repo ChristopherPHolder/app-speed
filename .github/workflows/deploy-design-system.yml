@@ -23,6 +23,10 @@ jobs:
   deploy-design-system:
     name: Deploy Design System
     runs-on: ubuntu-latest
+    # Both stages publish the same bucket, so deploys queue across stages.
+    concurrency:
+      group: deploy-design-system
+      cancel-in-progress: false
 
     steps:
       - uses: actions/checkout@v6

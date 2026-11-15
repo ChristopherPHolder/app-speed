@@ -1,7 +1,7 @@
 import { Effect } from 'effect';
-import { waitForSsmCommandCompletion } from '../../lib/ssm';
+import { waitForSsmCommandCompletion } from '../lib/ssm';
 import { startInstanceIfNeeded, stopInstance } from './ec2';
-import executor from './executor';
+import { rolloutToStoppedHost } from './stopped-host';
 
 const {
   ec2ClientSendMock,
@@ -42,7 +42,7 @@ vi.mock('@aws-sdk/client-ssm', () => {
   };
 });
 
-vi.mock('../../lib/ssm', () => ({
+vi.mock('../lib/ssm', () => ({
   waitForSsmCommandCompletion: waitForSsmCommandCompletionMock,
 }));
 
@@ -51,7 +51,7 @@ vi.mock('./ec2', () => ({
   stopInstance: stopInstanceMock,
 }));
 
-describe('ec2-ssm-cycle executor', () => {
+describe('rolloutToStoppedHost', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     startInstanceIfNeededMock.mockReturnValue(Effect.succeed({ startedByExecutor: true }));
@@ -70,16 +70,18 @@ describe('ec2-ssm-cycle executor', () => {
 
   it('runs the runner container with a restart policy so it comes back after EC2 restarts', async () => {
     vi.stubEnv('RUNNER_API_TOKEN', "test-token-with-quote-'");
-    const result = await executor({
-      region: 'eu-central-1',
-      instanceId: 'i-123',
-      imageRef: '123456789012.dkr.ecr.eu-central-1.amazonaws.com/app-speed/runner:test',
-      containerName: 'app-speed-runner',
-      additionalRunArgs: ['-e RUNNER_API_BASE_URL=https://dev.appspeed.dev/api', '-e RUNNER_API_TOKEN'],
-      pruneDockerBeforePull: true,
-      stopAfterCompletion: true,
-      stopOnlyIfStarted: true,
-    });
+    const result = await Effect.runPromise(
+      rolloutToStoppedHost({
+        region: 'eu-central-1',
+        instanceId: 'i-123',
+        imageRef: '123456789012.dkr.ecr.eu-central-1.amazonaws.com/app-speed/runner:test',
+        containerName: 'app-speed-runner',
+        additionalRunArgs: ['-e RUNNER_API_BASE_URL=https://dev.appspeed.dev/api', '-e RUNNER_API_TOKEN'],
+        pruneDockerBeforePull: true,
+        stopAfterCompletion: true,
+        stopOnlyIfStarted: true,
+      }),
+    );
 
     vi.unstubAllEnvs();
     expect(result.success).toBe(true);
@@ -103,13 +105,15 @@ describe('ec2-ssm-cycle executor', () => {
   });
   it('leaves an already-running instance under API lifecycle control', async () => {
     startInstanceIfNeededMock.mockReturnValue(Effect.succeed({ startedByExecutor: false }));
-    const result = await executor({
-      region: 'eu-central-1',
-      instanceId: 'i-123',
-      imageRef: 'registry.example.com/runner:test',
-      stopAfterCompletion: true,
-      stopOnlyIfStarted: true,
-    });
+    const result = await Effect.runPromise(
+      rolloutToStoppedHost({
+        region: 'eu-central-1',
+        instanceId: 'i-123',
+        imageRef: 'registry.example.com/runner:test',
+        stopAfterCompletion: true,
+        stopOnlyIfStarted: true,
+      }),
+    );
     expect(result.success).toBe(true);
     expect(waitForSsmCommandCompletion).toHaveBeenCalledTimes(1);
     expect(stopInstance).not.toHaveBeenCalled();

@@ -47,7 +47,7 @@ vi.mock('@aws-sdk/client-ec2', () => {
 const waitUntilInstanceRunningMock = vi.mocked(waitUntilInstanceRunning);
 const waitUntilInstanceStoppedMock = vi.mocked(waitUntilInstanceStopped);
 
-describe('ec2-ssm-cycle ec2 helpers', () => {
+describe('ec2 helpers', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
