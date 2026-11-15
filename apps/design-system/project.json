@@ -51,18 +51,18 @@
       }
     },
     "deploy": {
-      "executor": "@app-speed/aws-deploy:s3-upload",
+      "executor": "@app-speed/aws-deploy:alchemy",
       "dependsOn": ["build"],
       "defaultConfiguration": "development",
       "options": {
-        "upload": "dist/storybook/design-system"
+        "stack": "tools/aws-deploy/src/stacks/design-system.ts"
       },
       "configurations": {
-        "production": {
-          "bucket": "s3://ds.appspeed.dev"
-        },
         "development": {
-          "bucket": "s3://ds.appspeed.dev"
+          "stage": "development"
+        },
+        "production": {
+          "stage": "production"
         }
       }
     }

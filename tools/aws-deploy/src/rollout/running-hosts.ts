@@ -1,9 +1,27 @@
-import type { PromiseExecutor } from '@nx/devkit';
 import { SendCommandCommand, SSMClient } from '@aws-sdk/client-ssm';
 import { env } from 'node:process';
 
-import { waitForSsmCommandCompletion } from '../../lib/ssm.ts';
-import type { SsmDeployExecutorSchema } from './schema.d.ts';
+import { waitForSsmCommandCompletion } from '../lib/ssm.ts';
+
+/** Replace a container on instances that are already running, over SSM `AWS-RunShellScript`. */
+export interface RunningHostsRollout {
+  region: string;
+  documentName?: string;
+  instanceIds: string[];
+  imageRef: string;
+  containerName?: string;
+  hostPort?: number;
+  containerPort?: number;
+  /**
+   * Extra `docker run` arguments. `-e NAME` passes `NAME` from this process's environment, so secrets reach the host
+   * without being written to deployment state.
+   */
+  additionalRunArgs?: string[];
+  pruneDockerBeforePull?: boolean;
+  pollIntervalMs?: number;
+  timeoutMs?: number;
+  comment?: string;
+}
 
 const DEFAULT_DOCUMENT_NAME = 'AWS-RunShellScript';
 const DEFAULT_POLL_INTERVAL_MS = 5000;
@@ -13,10 +31,10 @@ const DEFAULT_HOST_PORT = 3000;
 const DEFAULT_CONTAINER_PORT = 3000;
 const toTimeoutSeconds = (timeoutMs: number): number => Math.max(1, Math.ceil(timeoutMs / 1000));
 
-type ExecutorExit = {
+export type RolloutResult = {
   success: boolean;
   message: string;
-  commandId?: string;
+  commandId: string;
 };
 
 const formatError = (error: unknown): string => {
@@ -29,12 +47,6 @@ const formatError = (error: unknown): string => {
 const fail = (message: string): never => {
   throw new Error(message);
 };
-
-const parseInstanceIds = (value?: string): string[] =>
-  (value ?? '')
-    .split(',')
-    .map((instanceId) => instanceId.trim())
-    .filter(Boolean);
 
 const shellQuote = (value: string): string => `'${value.replace(/'/g, `'"'"'`)}'`;
 const dockerEnvPassthroughPattern = /^-e\s+([A-Za-z_][A-Za-z0-9_]*)$/;
@@ -91,29 +103,21 @@ const buildDefaultCommands = (
   ];
 };
 
-const runExecutor: PromiseExecutor<SsmDeployExecutorSchema> = async (options): Promise<ExecutorExit> => {
+export const rolloutToRunningHosts = async (options: RunningHostsRollout): Promise<RolloutResult> => {
   const region = options.region?.trim();
   if (!region) {
     fail('Missing required option: region');
   }
 
   const documentName = options.documentName?.trim() || DEFAULT_DOCUMENT_NAME;
-  if (!documentName) {
-    fail('Missing SSM document name');
-  }
-
-  const optionInstanceIds = (options.instanceIds ?? []).map((instanceId) => instanceId.trim()).filter(Boolean);
-  const envInstanceIds = parseInstanceIds(env.API_SSM_INSTANCE_IDS || env.SERVER_SSM_INSTANCE_IDS);
-  const instanceIds = optionInstanceIds.length > 0 ? optionInstanceIds : envInstanceIds;
+  const instanceIds = options.instanceIds.map((instanceId) => instanceId.trim()).filter(Boolean);
   if (instanceIds.length === 0) {
-    fail('Missing EC2 instance ids. Set options.instanceIds or API_SSM_INSTANCE_IDS');
+    fail('Missing EC2 instance ids');
   }
 
-  const imageRef = options.imageRef?.trim() || env.API_IMAGE_REF?.trim() || env.SERVER_IMAGE_REF?.trim();
-  const hasCustomCommands = (options.commands ?? []).some((command) => command.trim().length > 0);
-  const defaultImageRef = imageRef ?? '';
-  if (!hasCustomCommands && defaultImageRef.length === 0) {
-    fail('Missing image reference. Set options.imageRef or API_IMAGE_REF');
+  const imageRef = options.imageRef?.trim();
+  if (!imageRef) {
+    fail('Missing image reference');
   }
 
   const containerName = options.containerName?.trim() || DEFAULT_CONTAINER_NAME;
@@ -124,22 +128,16 @@ const runExecutor: PromiseExecutor<SsmDeployExecutorSchema> = async (options): P
   );
   const pruneDockerBeforePull = options.pruneDockerBeforePull === true;
 
-  const commands = hasCustomCommands
-    ? (options.commands ?? []).map((command) => command.trim()).filter(Boolean)
-    : buildDefaultCommands(
-        defaultImageRef,
-        region,
-        containerName,
-        hostPort,
-        containerPort,
-        additionalRunArgs,
-        pruneDockerBeforePull,
-      );
+  const commands = buildDefaultCommands(
+    imageRef,
+    region,
+    containerName,
+    hostPort,
+    containerPort,
+    additionalRunArgs,
+    pruneDockerBeforePull,
+  );
 
-  const parameters: Record<string, string[]> = {
-    commands,
-    ...(options.parameters ?? {}),
-  };
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const pollIntervalMs = options.pollIntervalMs ?? DEFAULT_POLL_INTERVAL_MS;
 
@@ -147,7 +145,7 @@ const runExecutor: PromiseExecutor<SsmDeployExecutorSchema> = async (options): P
   const sendCommand = new SendCommandCommand({
     DocumentName: documentName,
     InstanceIds: instanceIds,
-    Parameters: parameters,
+    Parameters: { commands },
     Comment: options.comment,
     TimeoutSeconds: toTimeoutSeconds(timeoutMs),
   });
@@ -157,21 +155,11 @@ const runExecutor: PromiseExecutor<SsmDeployExecutorSchema> = async (options): P
       fail(`Failed to submit SSM command in ${region} for instances ${instanceIds.join(', ')}: ${formatError(error)}`),
     );
 
-  const resolvedCommandId = sendResponse.Command?.CommandId ?? fail('SSM send command did not return commandId');
+  const commandId = sendResponse.Command?.CommandId ?? fail('SSM send command did not return commandId');
 
-  if (options.waitForCompletion === false) {
-    return {
-      success: true,
-      commandId: resolvedCommandId,
-      message: `SSM command submitted: ${resolvedCommandId}`,
-    };
-  }
-
-  const result = await waitForSsmCommandCompletion(client, resolvedCommandId, instanceIds, timeoutMs, pollIntervalMs);
+  const result = await waitForSsmCommandCompletion(client, commandId, instanceIds, timeoutMs, pollIntervalMs);
   if (!result.success) {
     fail(result.message);
   }
   return result;
 };
-
-export default runExecutor;

@@ -98,6 +98,7 @@ Use [GitHub Issues](https://github.com/ChristopherPHolder/app-speed/issues) to r
 - [Integration and end-to-end tests](docs/testing/integration-and-e2e.md)
 - [Effect diagnostics](docs/development/effect-diagnostics.md)
 - [Angular secondary entry point conventions](docs/conventions/angular-secondary-entry-points.md)
+- [Alchemy deployments](docs/deployment/alchemy.md)
 - [Production authentication setup](docs/deployment/initial-auth-production.md)
 - [MCP connector for Claude and ChatGPT](docs/deployment/mcp-connector.md)
 - [Backend observability](docs/observability-backend.md)
